@@ -1,0 +1,3 @@
+[ADDED]
+* Added floating navigation bar (WAE -> Customization -> Floating Bottom Bar)
+* Added alert if the HMA is blocking the module
