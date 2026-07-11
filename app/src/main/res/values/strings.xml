@@ -517,6 +517,13 @@
     <string name="remove_sticker_white_outline">Remove sticker white outline</string>
     <string name="stickers">Stickers</string>
     <string name="alert_module_notfound">WaEnhancer module not found, HMA is probably hiding the module, remove WhatsApp from the HMA list and try again.</string>
+    <!-- Block Detection Strings -->
+    <string name="block_not_detected">Block not detected</string>
+    <string name="block_unverified">Block unverified</string>
+    <string name="checking_if_the_contact_is_blocked">Checking if contact is blocked...</string>
+    <string name="possible_block_detected">Possible block detected</string>
+    <string name="show_contact_blocked">Show Contact Block Status</string>
+    <string name="show_contact_blocked_sum">Verify whether the contact may have blocked you (NOTE: possibility of false positives).</string>
     <!-- Message Scheduler and Auto Reply Strings -->
     <string name="scheduler_title">Message Scheduler</string>
     <string name="auto_reply_title">Auto Reply</string>

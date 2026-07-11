@@ -39,7 +39,7 @@
                 android:textAppearance="?attr/textAppearanceCaption"
                 android:textStyle="bold"
                 android:textColor="?attr/colorPrimary"
-                android:background="@drawable/item_folder"
+                android:background="@drawable/version_badge_background"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp" />
         </LinearLayout>
