@@ -307,11 +307,12 @@ class SeenTick(
                     registerMessageView(fstatus.messageID, buttonImage)
 
                     eyeContainer.setOnClickListener {
-                        isStealth = !isStealth
-                        WppCore.getPrivPrefs().edit().putBoolean("hidestatusview_override", isStealth).commit()
-                        eyeImage.setImageResource(Utils.getID(if (isStealth) "eye_disabled" else "eye_enabled", "drawable"))
-                        containerButton.visibility = if (isStealth) View.VISIBLE else View.GONE
-                        Utils.showToast(if (isStealth) "Stealth Mode Enabled" else "Stealth Mode Disabled", Toast.LENGTH_SHORT)
+                        val currentVal = WppCore.getPrivPrefs().getBoolean("hidestatusview_override", prefs.getBoolean("hidestatusview", false))
+                        val newVal = !currentVal
+                        WppCore.getPrivPrefs().edit().putBoolean("hidestatusview_override", newVal).commit()
+                        eyeImage.setImageResource(Utils.getID(if (newVal) "eye_disabled" else "eye_enabled", "drawable"))
+                        containerButton.visibility = if (newVal) View.VISIBLE else View.GONE
+                        Utils.showToast(if (newVal) "Stealth Mode Enabled" else "Stealth Mode Disabled", Toast.LENGTH_SHORT)
                     }
 
                     buttonImage.setOnClickListener {

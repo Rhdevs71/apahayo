@@ -42,11 +42,11 @@ class QuickTranslateHook(loader: ClassLoader, preferences: SharedPreferences) : 
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val activity = param.thisObject as Activity
-                    if (activity.javaClass.name.contains("Conversation")) {
+                    if (activity.javaClass.simpleName.contains("Conversation")) {
                         // Delay slightly to ensure views are fully inflated
                         mainHandler.postDelayed({
                             injectTranslateButton(activity)
-                        }, 500)
+                        }, 500L)
                     }
                 }
             }
