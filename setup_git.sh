@@ -2,6 +2,9 @@
 echo "Initializing Git repository..."
 git init
 
+echo "Cleaning existing directories to prevent submodule errors..."
+rm -rf app/src/main/cpp/ogg app/src/main/cpp/opus app/src/main/cpp/libopusenc
+
 echo "Adding submodules..."
 git submodule add --force https://github.com/xiph/ogg app/src/main/cpp/ogg
 git submodule add --force https://github.com/xiph/opus app/src/main/cpp/opus
