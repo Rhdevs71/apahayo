@@ -179,7 +179,7 @@ public class AutoReplyActivity extends BaseActivity {
                     );
                     db.autoReplyRuleDao().update(updatedRule);
                     syncRulesToSharedPreferences(itemView.getContext());
-                    runOnUiThread(this::loadAutoReplyRules);
+                    runOnUiThread(() -> loadAutoReplyRules());
                 });
             });
 
