@@ -18,7 +18,7 @@ git commit -m "Initialize project with submodules, scheduler, auto-reply, and ke
 
 echo.
 echo Done! You can now run:
-echo git remote add origin ^<your-github-repo-url^>
+echo git remote add origin https://github.com/Rhdevs71/apahayo
 echo git push -u origin main
 echo.
 pause
