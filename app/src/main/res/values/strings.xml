@@ -532,4 +532,15 @@
     <string name="error_select_contact">Please select a contact or group</string>
     <string name="error_message_required">Message body or media is required</string>
     <string name="time_future_required">Scheduled time must be in the future</string>
+    <!-- New Settings and Features Strings -->
+    <string name="quick_translate_title">Quick Translate</string>
+    <string name="quick_translate_summary">Enable floating translate button in chat input</string>
+    <string name="voice_changer_title">Voice Changer</string>
+    <string name="voice_changer_summary">Modify the pitch/speed of recorded voice notes</string>
+    <string name="fake_chat_editor_title">Fake Chat Editor</string>
+    <string name="fake_chat_editor_summary">Allows editing message texts locally</string>
+    <string name="custom_folders_title">Custom Chat Folders</string>
+    <string name="custom_folders_summary">Categorize your chats into custom tabs</string>
+    <string name="media_cleaner_title">Auto Media Cleaner</string>
+    <string name="media_cleaner_summary">Automatically delete media files older than X days</string>
 </resources>

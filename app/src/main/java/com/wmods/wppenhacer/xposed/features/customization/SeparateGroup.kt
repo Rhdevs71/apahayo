@@ -15,15 +15,15 @@ import com.wmods.wppenhacer.xposed.utils.Utils
 import com.wmods.wppenhacer.xposed.utils.WaeCoroutineExceptionHandler
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
-import android.content.SharedPreferences 
+import android.content.SharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.getObjectField
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.util.function.Predicate
 import java.util.regex.Pattern
@@ -64,9 +64,9 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
                     }
                 }
 
-                var jid = getObjectField(chat, "A00")
+                var jid = XposedHelpers.getObjectField(chat, "A00")
                 if (jid == null) {
-                    jid = getObjectField(chat, "A01")
+                    jid = XposedHelpers.getObjectField(chat, "A01")
                 }
                 if (jid != null) {
                     val userJid = FMessageWpp.UserJid(jid)
@@ -80,7 +80,6 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
                 return null
             }
         }
-
     }
 
     override fun doHook() {
@@ -95,7 +94,9 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
             XC_MethodReplacement.returnConstant(99)
         )
 
-        if (!prefs.getBoolean("separategroups", false)) return
+        val groupsEnabled = prefs.getBoolean("separategroups", false)
+        val foldersEnabled = prefs.getBoolean("custom_folders_enabled", false)
+        if (!groupsEnabled && !foldersEnabled) return
 
         // Modifying tab list order
         hookTabList()
@@ -118,14 +119,10 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
     }
 
     private fun hookTabCount() {
-        val runMethod = Unobfuscator.loadTabCountMethod(classLoader)
-        logDebug(Unobfuscator.getMethodDescriptor(runMethod))
-
         val enableCountMethod = Unobfuscator.loadEnableCountTabMethod(classLoader)
         val badgeWrapperConstructor = Unobfuscator.loadEnableCountTabBadgeWrapper(classLoader)
         val badgeItemConstructor = Unobfuscator.loadEnableCountTabBadgeItem(classLoader)
         val emptyBadgeClass = Unobfuscator.loadEnableCountTabEmptyBadgeClass(classLoader)
-        logDebug(Unobfuscator.getMethodDescriptor(enableCountMethod))
 
         XposedBridge.hookMethod(enableCountMethod, object : XC_MethodHook() {
             @SuppressLint("Range", "Recycle")
@@ -157,9 +154,7 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
                                 XposedHelpers.getStaticObjectField(emptyBadgeClass, "A00")
                             } else {
                                 val params = ReflectionUtils.initArray(badgeWrapperConstructor.parameterTypes)
-                                params[0] = badgeItemConstructor.newInstance(
-                                    unseenChatCounts.groupCount
-                                )
+                                params[0] = badgeItemConstructor.newInstance(unseenChatCounts.groupCount)
                                 badgeWrapperConstructor.newInstance(*params)
                             }
                             XposedBridge.invokeOriginalMethod(
@@ -204,22 +199,20 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
 
     private fun hookTabIcon() {
         val iconTabMethod = Unobfuscator.loadIconTabMethod(classLoader)
-        logDebug(Unobfuscator.getMethodDescriptor(iconTabMethod))
         val menuAddAndroidX = Unobfuscator.loadAddMenuAndroidX(classLoader)
-        logDebug(menuAddAndroidX.toString())
 
         XposedBridge.hookMethod(iconTabMethod, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val hooked = XposedBridge.hookMethod(menuAddAndroidX, object : XC_MethodHook() {
                     override fun afterHookedMethod(innerParam: MethodHookParam) {
-                        if (innerParam.args.size > 2 && (innerParam.args[1] as Int) == GROUPS) {
+                        val tabId = innerParam.args[1] as? Int ?: return
+                        if (tabId == GROUPS) {
                             val menuItem = innerParam.result as MenuItem
-                            menuItem.setIcon(
-                                Utils.getID(
-                                    "home_tab_communities_selector",
-                                    "drawable"
-                                )
-                            )
+                            menuItem.setIcon(Utils.getID("home_tab_communities_selector", "drawable"))
+                        } else if (tabId >= 1000) {
+                            // Custom folders use folder drawable
+                            val menuItem = innerParam.result as MenuItem
+                            menuItem.setIcon(Utils.getID("ic_restore", "drawable")) // Folder-like icon
                         }
                     }
                 })
@@ -239,9 +232,20 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
         val tabNameMethod = Unobfuscator.loadTabNameMethod(classLoader)
         XposedBridge.hookMethod(tabNameMethod, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                val tab = param.args[0] as Int
-                if (tab == GROUPS) {
+                val tabId = param.args[0] as Int
+                if (tabId == GROUPS) {
                     param.result = UnobfuscatorCache.getInstance().getString("groups")
+                } else if (tabId >= 1000) {
+                    val index = tabId - 1000
+                    val foldersJson = prefs.getString("custom_folders", "[]") ?: "[]"
+                    try {
+                        val array = JSONArray(foldersJson)
+                        if (index < array.length()) {
+                            param.result = array.getJSONObject(index).optString("name", "Folder")
+                        }
+                    } catch (_: Exception) {
+                        param.result = "Folder"
+                    }
                 }
             }
         })
@@ -255,15 +259,9 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
         )
 
         val getTabMethod = Unobfuscator.loadGetTabMethod(classLoader)
-        logDebug(Unobfuscator.getMethodDescriptor(getTabMethod))
-
         val methodTabInstance = Unobfuscator.loadTabFragmentMethod(classLoader)
-        logDebug(Unobfuscator.getMethodDescriptor(methodTabInstance))
-
         val recreateFragmentMethod = Unobfuscator.loadRecreateFragmentConstructor(classLoader)
-
         val pattern = Pattern.compile("android:switcher:\\d+:(\\d+)")
-
         val fragmentClass = Unobfuscator.loadFragmentClass(classLoader)
 
         XposedBridge.hookMethod(recreateFragmentMethod, object : XC_MethodHook() {
@@ -280,7 +278,7 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
                 val matcher = pattern.matcher(string)
                 if (matcher.find()) {
                     val tabId = matcher.group(1)?.toIntOrNull() ?: return
-                    if (tabId == GROUPS || tabId == CHATS) {
+                    if (tabId == GROUPS || tabId == CHATS || tabId >= 1000) {
                         val fragmentField = ReflectionUtils.getFieldByType(
                             param.thisObject.javaClass,
                             fragmentClass
@@ -299,7 +297,7 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
         XposedBridge.hookMethod(getTabMethod, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val tabId = tabs[param.args[0] as Int]
-                if (tabId == GROUPS || tabId == CHATS) {
+                if (tabId == GROUPS || tabId == CHATS || tabId >= 1000) {
                     val convFragment = cFragClass.declaredConstructors.first {
                         it.parameterCount == 0
                     }.newInstance()
@@ -323,18 +321,23 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
         })
 
         val fabintMethod = Unobfuscator.loadFabMethod(classLoader)
-        logDebug(Unobfuscator.getMethodDescriptor(fabintMethod))
 
         XposedBridge.hookMethod(fabintMethod, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 if (tabInstances[GROUPS] == param.thisObject) {
                     param.result = GROUPS
+                } else {
+                    for (entry in tabInstances.entries) {
+                        if (entry.value == param.thisObject && entry.key >= 1000) {
+                            param.result = entry.key
+                            break
+                        }
+                    }
                 }
             }
         })
 
         val publishResultsMethod = Unobfuscator.loadGetFiltersMethod(classLoader)
-        logDebug(Unobfuscator.getMethodDescriptor(publishResultsMethod))
 
         XposedBridge.hookMethod(publishResultsMethod, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
@@ -357,16 +360,38 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
         val tabChat = tabInstances[CHATS]
         val tabGroup = tabInstances[GROUPS]
 
-        if (tabChat != thiz && tabGroup != thiz) {
+        var activeFolderTabId: Int? = null
+        for (entry in tabInstances.entries) {
+            if (entry.value == thiz && entry.key >= 1000) {
+                activeFolderTabId = entry.key
+                break
+            }
+        }
+
+        if (tabChat != thiz && tabGroup != thiz && activeFolderTabId == null) {
             return chatsList
         }
 
+        val foldersEnabled = prefs.getBoolean("custom_folders_enabled", false)
+
         val editableChatList = ArrayListFilter(
             { userJid ->
-                if (tabGroup == thiz)
-                    userJid.isGroup || userJid.isBroadcast
-                else {
-                    userJid.isContact
+                when {
+                    foldersEnabled && activeFolderTabId != null -> {
+                        val folderIndex = activeFolderTabId - 1000
+                        val foldersJson = prefs.getString("custom_folders", "[]") ?: "[]"
+                        var folderContacts = ""
+                        try {
+                            val array = JSONArray(foldersJson)
+                            if (folderIndex < array.length()) {
+                                folderContacts = array.getJSONObject(folderIndex).optString("contacts", "")
+                            }
+                        } catch (_: Exception) {}
+                        val targetList = folderContacts.split(",").map { it.trim() }
+                        targetList.contains(userJid.phoneRawString ?: "")
+                    }
+                    tabGroup == thiz -> userJid.isGroup || userJid.isBroadcast
+                    else -> userJid.isContact
                 }
             },
             false
@@ -378,26 +403,39 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
 
     private fun hookTabList() {
         val onCreateTabList = Unobfuscator.loadTabListMethod(classLoader)
-        logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList))
 
         XposedBridge.hookMethod(onCreateTabList, object : XC_MethodHook() {
             @Suppress("UNCHECKED_CAST")
             override fun afterHookedMethod(param: MethodHookParam) {
                 val resultTabs = param.result as? ArrayList<Int> ?: return
                 tabs = resultTabs
-                if (!tabs.contains(GROUPS)) {
+
+                val groupsEnabled = prefs.getBoolean("separategroups", false)
+                if (groupsEnabled && !tabs.contains(GROUPS)) {
                     tabs.add(if (tabs.isEmpty()) 0 else 1, GROUPS)
+                }
+
+                val foldersEnabled = prefs.getBoolean("custom_folders_enabled", false)
+                if (foldersEnabled) {
+                    val foldersJson = prefs.getString("custom_folders", "[]") ?: "[]"
+                    try {
+                        val array = JSONArray(foldersJson)
+                        for (i in 0 until array.length()) {
+                            val folderTabId = 1000 + i
+                            if (!tabs.contains(folderTabId)) {
+                                tabs.add(folderTabId)
+                            }
+                        }
+                    } catch (_: Exception) {}
                 }
             }
         })
     }
 
-
     class ArrayListFilter(
         private val filter: Predicate<FMessageWpp.UserJid>,
         private val includeWhenUnresolved: Boolean,
     ) : ArrayList<Any>() {
-
 
         fun addAllFromList(elements: List<*>) {
             for (chat in elements) {
@@ -439,5 +477,4 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
         val chatCount: Int,
         val groupCount: Int
     )
-
 }

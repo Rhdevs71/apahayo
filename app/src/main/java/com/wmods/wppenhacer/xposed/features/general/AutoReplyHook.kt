@@ -16,10 +16,17 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
 import java.util.Calendar
 import java.util.Collections
+import java.util.concurrent.Executors
 
 class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Feature(loader, preferences) {
+
+    private val executor = Executors.newSingleThreadExecutor()
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun getPluginName(): String {
         return "AutoReplyHook"
@@ -37,13 +44,11 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
 
         XposedBridge.hookMethod(method, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                // Ignore outgoing message notifications or null args
                 if (param.args[4] == "sender" || param.args[1] == null || param.args[3] == null) return
 
                 val fMsg = FMessageWpp.Key(param.args[3]).fMessage ?: return
                 val userJid = fMsg.key.remoteJid
 
-                // Do not respond to status updates or our own messages
                 if (userJid.isStatus || fMsg.key.isFromMe) return
 
                 val messageText = fMsg.messageStr ?: return
@@ -51,11 +56,8 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
 
                 val number = userJid.phoneNumber ?: return
                 val isGroup = userJid.isGroup
-
-                // Check contacts vs groups vs non-contacts
                 val isSavedContact = !WppCore.getSContactName(userJid, true).isNullOrEmpty()
 
-                // Load rules from SharedPreferences (which is remote preferences linked to our app)
                 val rulesJsonStr = prefs.getString("auto_reply_rules", "[]") ?: "[]"
                 try {
                     val rulesArray = JSONArray(rulesJsonStr)
@@ -71,7 +73,7 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                             "NON_CONTACTS" -> if (isGroup || isSavedContact) continue
                         }
 
-                        // Time window filtering (active hours)
+                        // Time window filtering
                         val startHourStr = ruleObj.optString("activeHoursStart")
                         val endHourStr = ruleObj.optString("activeHoursEnd")
                         if (!startHourStr.isNullOrEmpty() && !endHourStr.isNullOrEmpty()) {
@@ -91,25 +93,35 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                             val quoteOriginal = ruleObj.optBoolean("quoteOriginal", false)
                             val isForward = ruleObj.optBoolean("isForward", false)
                             val forwardJid = ruleObj.optString("forwardJid", "")
+                            val isAi = ruleObj.optBoolean("isAi", false)
 
-                            // Execute reply/forward with optional delay
-                            val handler = Handler(Looper.getMainLooper())
-                            handler.postDelayed({
-                                if (isForward && forwardJid.isNotEmpty()) {
-                                    val forwardText = "[Forwarded from +$number]: $messageText"
-                                    sendAutoReply(jid = forwardJid, replyText = forwardText, quoteMessage = null)
+                            executor.execute {
+                                val replyContent = if (isAi) {
+                                    val apiKey = prefs.getString("ai_api_key", "") ?: ""
+                                    val apiModel = prefs.getString("ai_model", "llama-3.1-8b-instant") ?: "llama-3.1-8b-instant"
+                                    if (apiKey.isNotEmpty()) {
+                                        queryAiChatbot(apiKey, messageText, apiModel) ?: "AI Responder failed to formulate reply."
+                                    } else {
+                                        "AI API Key is missing in settings."
+                                    }
                                 } else {
-                                    sendAutoReply(jid = userJid.phoneRawString ?: "", replyText = replyText, quoteMessage = if (quoteOriginal) fMsg else null)
+                                    replyText
                                 }
-                            }, delaySec * 1000L)
 
-                            // Exit loop after first matching rule is processed
+                                mainHandler.postDelayed({
+                                    if (isForward && forwardJid.isNotEmpty()) {
+                                        val forwardText = "[Forwarded from +$number]: $messageText"
+                                        sendAutoReply(jid = forwardJid, replyText = forwardText, quoteMessage = null)
+                                    } else {
+                                        sendAutoReply(jid = userJid.phoneRawString ?: "", replyText = replyContent, quoteMessage = if (quoteOriginal) fMsg else null)
+                                    }
+                                }, delaySec * 1000L)
+                            }
                             break
                         }
                     }
                 } catch (e: Exception) {
-                    XposedBridge.log("AutoReply Error parsing rules: ${e.message}")
-                    e.printStackTrace()
+                    XposedBridge.log("AutoReply Error: ${e.message}")
                 }
             }
         })
@@ -122,19 +134,13 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
 
         for (keyword in keywords) {
             when (matchingType) {
-                "EXACT" -> {
-                    if (msgClean == keyword) return true
-                }
-                "CONTAINS" -> {
-                    if (msgClean.contains(keyword)) return true
-                }
+                "EXACT" -> if (msgClean == keyword) return true
+                "CONTAINS" -> if (msgClean.contains(keyword)) return true
                 "REGEX" -> {
                     try {
                         val regex = Regex(keyword)
                         if (regex.containsMatchIn(msgClean)) return true
-                    } catch (e: Exception) {
-                        // Ignore malformed regex
-                    }
+                    } catch (_: Exception) {}
                 }
             }
         }
@@ -155,15 +161,59 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
             val endMinutes = endParts[0].toInt() * 60 + endParts[1].toInt()
 
             return if (startMinutes <= endMinutes) {
-                // Same day window, e.g. 09:00 - 17:00
                 currentMinutes in startMinutes..endMinutes
             } else {
-                // Overnight window, e.g. 22:00 - 06:00
                 currentMinutes >= startMinutes || currentMinutes <= endMinutes
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            return true // Fallback if time parse fails
+            return true
+        }
+    }
+
+    private fun queryAiChatbot(apiKey: String, messageText: String, model: String): String? {
+        var connection: HttpURLConnection? = null
+        return try {
+            val url = URL("https://api.groq.com/openai/v1/chat/completions")
+            connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "POST"
+            connection.connectTimeout = 10000
+            connection.readTimeout = 10000
+            connection.doOutput = true
+            connection.setRequestProperty("Authorization", "Bearer $apiKey")
+            connection.setRequestProperty("Content-Type", "application/json")
+
+            val root = JSONObject().apply {
+                put("model", model)
+                val messages = JSONArray().apply {
+                    val msg = JSONObject().apply {
+                        put("role", "user")
+                        put("content", "You are an automated WhatsApp chat responder. Formulate a short, friendly, and contextual reply for this incoming message: $messageText")
+                    }
+                    put(msg)
+                }
+                put("messages", messages)
+            }
+
+            connection.outputStream.bufferedWriter().use { it.write(root.toString()) }
+
+            val responseCode = connection.responseCode
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                val response = connection.inputStream.bufferedReader().use { it.readText() }
+                val responseJson = JSONObject(response)
+                val choices = responseJson.getJSONArray("choices")
+                val choice = choices.getJSONObject(0)
+                val message = choice.getJSONObject("message")
+                message.getString("content").trim()
+            } else {
+                val err = connection.errorStream.bufferedReader().use { it.readText() }
+                XposedBridge.log("AutoReply AI Error Response: $err")
+                null
+            }
+        } catch (e: Exception) {
+            XposedBridge.log("AutoReply AI Exception: ${e.message}")
+            null
+        } finally {
+            connection?.disconnect()
         }
     }
 
@@ -191,15 +241,12 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                 newObject[i] = ReflectionUtils.getDefaultValue(param)
             }
 
-            // Set reply text
             val textIndex = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, String::class.java)
             newObject[textIndex] = replyText
 
-            // Set recipient
             val jidIndex = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, List::class.java)
             newObject[jidIndex] = Collections.singletonList(userJid)
 
-            // Quote original message if provided
             if (quoteMessage != null) {
                 val quotedIndex = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.TYPE)
                 if (quotedIndex != -1) {

@@ -1,5 +1,9 @@
 package com.wmods.wppenhacer.xposed.features.privacy
 
+import android.app.Activity
+import android.media.MediaPlayer
+import android.media.Ringtone
+import android.os.Bundle
 import android.os.Message
 import android.widget.Toast
 import com.wmods.wppenhacer.xposed.core.Feature
@@ -11,16 +15,34 @@ import com.wmods.wppenhacer.xposed.features.general.Tasker
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import org.json.JSONObject
 import org.luckypray.dexkit.query.enums.StringMatchType
-import java.util.concurrent.ConcurrentHashMap
+import java.io.File
 
-class CallPrivacy(loader: ClassLoader, preferences:SharedPreferences) :
+class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
 
     private var mVoipManager: Any? = null
+
+    companion object {
+        private var customPlayer: MediaPlayer? = null
+        private var isCustomRingtonePlaying = false
+
+        @JvmStatic
+        fun stopCustomRingtone() {
+            if (isCustomRingtonePlaying) {
+                XposedBridge.log("WaEnhancer CallPrivacy: Stopping custom ringtone")
+                try {
+                    customPlayer?.stop()
+                    customPlayer?.release()
+                } catch (_: Exception) {}
+                customPlayer = null
+                isCustomRingtonePlaying = false
+            }
+        }
+    }
 
     override fun doHook() {
         val voipManagerClass = Unobfuscator.loadVoipManager(classLoader)
@@ -64,26 +86,37 @@ class CallPrivacy(loader: ClassLoader, preferences:SharedPreferences) :
 
                 val privacyType = PrivacyType.getByValue(type)
                 val blockCall = checkCallBlock(userJid, privacyType)
-                if (!blockCall) return
-
-                var rejectType =  prefs.getString("call_type", null) ?: "no_internet"
-
-                when (rejectType) {
-                    "uncallable", "declined", "busy" -> {
-                        if (rejectType == "declined") {
-                            rejectType = ""
+                if (blockCall) {
+                    var rejectType = prefs.getString("call_type", null) ?: "no_internet"
+                    when (rejectType) {
+                        "uncallable", "declined", "busy" -> {
+                            if (rejectType == "declined") {
+                                rejectType = ""
+                            }
+                            val params = ReflectionUtils.initArray(rejectCallMethod.parameterTypes)
+                            params[0] = callId
+                            params[1] = rejectType
+                            ReflectionUtils.callMethod(rejectCallMethod, mVoipManager, *params)
+                            param.result = true
                         }
-                        val params = ReflectionUtils.initArray(rejectCallMethod.parameterTypes)
-                        params[0] = callId
-                        params[1] = rejectType
-                        ReflectionUtils.callMethod(rejectCallMethod, mVoipManager, *params)
-                        param.result = true
+                        "ended" -> {
+                            val params = ReflectionUtils.initArray(endCallMethod.parameterTypes)
+                            params[0] = true
+                            ReflectionUtils.callMethod(endCallMethod, mVoipManager, *params)
+                            param.result = true
+                        }
                     }
-                    "ended" -> {
-                        val params = ReflectionUtils.initArray(endCallMethod.parameterTypes)
-                        params[0] = true
-                        ReflectionUtils.callMethod(endCallMethod, mVoipManager, *params)
-                        param.result = true
+                    return
+                }
+
+                // If not blocked, check if there is a custom ringtone for this contact
+                val phoneNum = userJid.phoneNumber ?: return
+                val customRingtonePath = prefs.getString("ringtone_$phoneNum", null)
+                if (!customRingtonePath.isNullOrEmpty()) {
+                    val file = File(customRingtonePath)
+                    if (file.exists()) {
+                        XposedBridge.log("WaEnhancer CallPrivacy: Playing custom ringtone for $phoneNum from $customRingtonePath")
+                        playCustomRingtone(customRingtonePath)
                     }
                 }
             }
@@ -110,13 +143,79 @@ class CallPrivacy(loader: ClassLoader, preferences:SharedPreferences) :
                     }
                 }
             })
+
+        // Hook Ringtone play to silence the default tone if custom ringtone is playing
+        try {
+            XposedHelpers.findAndHookMethod(
+                Ringtone::class.java,
+                "play",
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        if (isCustomRingtonePlaying) {
+                            XposedBridge.log("WaEnhancer CallPrivacy: Silenced default WhatsApp ringtone")
+                            param.result = null // Bypass default play
+                        }
+                    }
+                }
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // Stop ringtone when call ends or is destroyed
+        try {
+            val clsCallEventCallback = Unobfuscator.findFirstClassUsingName(
+                classLoader,
+                StringMatchType.EndsWith,
+                "VoiceServiceEventCallback"
+            )
+            XposedBridge.hookAllMethods(
+                clsCallEventCallback,
+                "fieldstatsReady",
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        stopCustomRingtone()
+                    }
+                }
+            )
+
+            val voipActivityClass = Unobfuscator.findFirstClassUsingName(
+                classLoader,
+                StringMatchType.Contains,
+                "VoipActivity"
+            )
+            XposedBridge.hookAllMethods(
+                voipActivityClass,
+                "onDestroy",
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        stopCustomRingtone()
+                    }
+                }
+            )
+        } catch (_: Exception) {}
     }
 
+    private fun playCustomRingtone(path: String) {
+        stopCustomRingtone()
+        try {
+            customPlayer = MediaPlayer().apply {
+                setDataSource(path)
+                isLooping = true
+                prepare()
+                start()
+            }
+            isCustomRingtonePlaying = true
+        } catch (e: Exception) {
+            XposedBridge.log("WaEnhancer CallPrivacy: Failed to play custom ringtone: ${e.message}")
+            e.printStackTrace()
+        }
+    }
 
     fun checkCallBlock(userJid: FMessageWpp.UserJid, type: PrivacyType?): Boolean {
         val phoneNumber = userJid.phoneNumber ?: return false
 
-        val customprivacy = CustomPrivacy.getJSON(phoneNumber);
+        val customprivacy = CustomPrivacy.getJSON(phoneNumber)
 
         return when (type) {
             PrivacyType.ALL_BLOCKED -> customprivacy.optBoolean("BlockCall", true)
@@ -126,7 +225,7 @@ class CallPrivacy(loader: ClassLoader, preferences:SharedPreferences) :
                 !waContact.isSavedContact()
             }
             PrivacyType.BACKLIST -> {
-                if (customprivacy.optBoolean("BlockCall", false)) return true;
+                if (customprivacy.optBoolean("BlockCall", false)) return true
                 val callBlockList = prefs.getString("call_block_contacts", "[]")!!
                 val blockList = callBlockList.substring(1, callBlockList.length - 1).split(", ")
                     .map { it.trim() }
@@ -134,7 +233,7 @@ class CallPrivacy(loader: ClassLoader, preferences:SharedPreferences) :
             }
 
             PrivacyType.WHITELIST -> {
-                if (customprivacy.optBoolean("BlockCall", false)) return true;
+                if (customprivacy.optBoolean("BlockCall", false)) return true
                 val callWhiteList = prefs.getString("call_white_contacts", "[]")!!
                 val whiteList = callWhiteList.substring(1, callWhiteList.length - 1).split(", ")
                     .map { it.trim() }

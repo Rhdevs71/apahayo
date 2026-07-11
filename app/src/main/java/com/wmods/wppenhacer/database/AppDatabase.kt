@@ -5,10 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [ScheduledMessage::class, AutoReplyRule::class], version = 1, exportSchema = false)
+@Database(entities = [ScheduledMessage::class, AutoReplyRule::class, FakeChatBackup::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun scheduledMessageDao(): ScheduledMessageDao
     abstract fun autoReplyRuleDao(): AutoReplyRuleDao
+    abstract fun fakeChatBackupDao(): FakeChatBackupDao
 
     companion object {
         @Volatile

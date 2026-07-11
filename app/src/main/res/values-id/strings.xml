@@ -528,4 +528,15 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="error_select_contact">Silahkan pilih kontak atau grup</string>
     <string name="error_message_required">Pesan teks atau media harus diisi</string>
     <string name="time_future_required">Waktu penjadwalan harus di masa depan</string>
+    <!-- New Settings and Features Strings -->
+    <string name="quick_translate_title">Terjemahan Cepat</string>
+    <string name="quick_translate_summary">Aktifkan tombol terjemahan melayang di kolom ketik</string>
+    <string name="voice_changer_title">Pengubah Suara</string>
+    <string name="voice_changer_summary">Ubah pitch/kecepatan pesan suara yang direkam</string>
+    <string name="fake_chat_editor_title">Edit Obrolan Palsu</string>
+    <string name="fake_chat_editor_summary">Mengizinkan mengedit teks pesan secara lokal</string>
+    <string name="custom_folders_title">Folder Chat Kustom</string>
+    <string name="custom_folders_summary">Pisahkan obrolan Anda ke dalam tab kustom</string>
+    <string name="media_cleaner_title">Pembersih Media Otomatis</string>
+    <string name="media_cleaner_summary">Hapus otomatis berkas media yang lebih tua dari X hari</string>
 </resources>
