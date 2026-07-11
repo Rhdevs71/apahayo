@@ -10,10 +10,8 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.os.StrictMode
-import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XposedBridge
@@ -27,12 +25,14 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
     }
 
     override fun doHook() {
+        XposedBridge.log("WaEnhancer MessageSchedulerHook: Hooking scheduler receiver in WhatsApp")
         registerSchedulerReceiver()
     }
 
     @SuppressLint("WrongConstant")
     private fun registerSchedulerReceiver() {
         val filter = IntentFilter("com.wmods.wppenhacer.SCHEDULED_SEND")
+        // Remove the signature broadcast permission filter so that the broadcast is successfully received across sandboxes
         Utils.application.registerReceiver(
             object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
@@ -42,18 +42,19 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
                     val mediaPath = intent.getStringExtra("mediaPath")
                     val mediaType = intent.getStringExtra("mediaType")
 
-                    XposedBridge.log("Scheduler received trigger for message id: $id, JID: $jid")
+                    XposedBridge.log("WaEnhancer MessageSchedulerHook onReceive: Message trigger received for id $id, JID: $jid")
 
-                    // Run on main thread because WhatsApp APIs often require it
                     Handler(Looper.getMainLooper()).post {
                         try {
                             if (mediaPath != null && mediaPath.isNotEmpty()) {
+                                XposedBridge.log("WaEnhancer MessageSchedulerHook onReceive: Processing media message for id $id")
                                 sendMediaMessage(jid, messageText, mediaPath, mediaType, id)
                             } else {
+                                XposedBridge.log("WaEnhancer MessageSchedulerHook onReceive: Processing text message for id $id")
                                 sendTextMessage(jid, messageText, id)
                             }
                         } catch (e: Exception) {
-                            XposedBridge.log("Failed to process scheduled message: ${e.message}")
+                            XposedBridge.log("WaEnhancer MessageSchedulerHook Error: Failed to process message $id: ${e.message}")
                             e.printStackTrace()
                             sendStatusBroadcast(id, false)
                         }
@@ -61,24 +62,25 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
                 }
             },
             filter,
-            "com.wmods.wppenhacer.permission.SEND_RECEIVE_WPP", // Add a custom permission if needed, or null
+            null, // Clear permission string
             null,
             Context.RECEIVER_EXPORTED
         )
+        XposedBridge.log("WaEnhancer MessageSchedulerHook: Receiver registered successfully (RECEIVER_EXPORTED)")
     }
 
     private fun sendTextMessage(jid: String, text: String, id: Int) {
         try {
             val userJid = WppCore.createUserJid(jid)
             if (userJid == null) {
-                XposedBridge.log("Scheduler Error: UserJid is null for $jid")
+                XposedBridge.log("WaEnhancer MessageSchedulerHook: UserJid is null for $jid")
                 sendStatusBroadcast(id, false)
                 return
             }
 
             val actionUser = WppCore.getActionUser()
             if (actionUser == null) {
-                XposedBridge.log("Scheduler Error: ActionUser is null")
+                XposedBridge.log("WaEnhancer MessageSchedulerHook: ActionUser instance is null")
                 sendStatusBroadcast(id, false)
                 return
             }
@@ -90,7 +92,7 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
             }
 
             if (senderMethod == null) {
-                XposedBridge.log("Scheduler Error: senderMethod not found")
+                XposedBridge.log("WaEnhancer MessageSchedulerHook: sendMessage method not found in ActionUser")
                 sendStatusBroadcast(id, false)
                 return
             }
@@ -108,10 +110,10 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
             newObject[jidIndex] = Collections.singletonList(userJid)
 
             senderMethod.invoke(actionUser, *newObject)
-            XposedBridge.log("Scheduled text message sent successfully to $jid")
+            XposedBridge.log("WaEnhancer MessageSchedulerHook: Text message id $id sent to $jid successfully")
             sendStatusBroadcast(id, true)
         } catch (e: Exception) {
-            XposedBridge.log("Error sending text: ${e.message}")
+            XposedBridge.log("WaEnhancer MessageSchedulerHook Error: sending text failed: ${e.message}")
             e.printStackTrace()
             sendStatusBroadcast(id, false)
         }
@@ -121,42 +123,40 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
         try {
             val file = File(mediaPath)
             if (!file.exists()) {
-                XposedBridge.log("Scheduler Error: Media file does not exist: $mediaPath")
+                XposedBridge.log("WaEnhancer MessageSchedulerHook: Media file does not exist on disk: $mediaPath")
                 sendStatusBroadcast(id, false)
                 return
             }
 
             val userJid = WppCore.createUserJid(jid)
             if (userJid == null) {
-                XposedBridge.log("Scheduler Error: UserJid is null for $jid")
+                XposedBridge.log("WaEnhancer MessageSchedulerHook: UserJid is null for $jid")
                 sendStatusBroadcast(id, false)
                 return
             }
 
             val actionUser = WppCore.getActionUser()
             if (actionUser == null) {
-                XposedBridge.log("Scheduler Error: ActionUser is null")
+                XposedBridge.log("WaEnhancer MessageSchedulerHook: ActionUser instance is null")
                 sendStatusBroadcast(id, false)
                 return
             }
 
-            // Disable strict mode checking for file URI
             val oldPolicy = StrictMode.getVmPolicy()
             StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder().build())
             val fileUri = Uri.fromFile(file)
             StrictMode.setVmPolicy(oldPolicy)
 
             // Dynamically find media sending method in UserAction
-            // It typically takes a list of JIDs, a list of URIs, a caption (String), and other optional params
             val mediaMethod = actionUser.javaClass.declaredMethods.find { method ->
                 val params = method.parameterTypes
                 params.size >= 3 &&
-                        List::class.java.isAssignableFrom(params[0]) && // Recipient list (JIDs)
-                        (List::class.java.isAssignableFrom(params[1]) || Uri::class.java.isAssignableFrom(params[1])) // URI list or single URI
+                        List::class.java.isAssignableFrom(params[0]) &&
+                        (List::class.java.isAssignableFrom(params[1]) || Uri::class.java.isAssignableFrom(params[1]))
             }
 
             if (mediaMethod == null) {
-                XposedBridge.log("Scheduler Error: Media sending method not found in ActionUser")
+                XposedBridge.log("WaEnhancer MessageSchedulerHook: Media sending method not found in ActionUser")
                 sendStatusBroadcast(id, false)
                 return
             }
@@ -168,10 +168,8 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
                 args[i] = ReflectionUtils.getDefaultValue(param)
             }
 
-            // Bind JIDs list
             args[0] = Collections.singletonList(userJid)
 
-            // Bind URI(s)
             val uriParamType = mediaMethod.parameterTypes[1]
             if (List::class.java.isAssignableFrom(uriParamType)) {
                 args[1] = Collections.singletonList(fileUri)
@@ -179,7 +177,6 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
                 args[1] = fileUri
             }
 
-            // Bind caption String if present in parameter types
             val captionIndex = mediaMethod.parameterTypes.indices.find { i ->
                 i >= 2 && mediaMethod.parameterTypes[i] == String::class.java
             }
@@ -187,9 +184,6 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
                 args[captionIndex] = caption
             }
 
-            // Bind media type if needed (often a byte or int param for IMAGE/VIDEO/DOC)
-            // WhatsApp internal methods usually auto-detect from URI, so leaving default is fine,
-            // but we can try to bind it if we find an Int parameter
             val intParamIndex = mediaMethod.parameterTypes.indices.find { i ->
                 i >= 2 && (mediaMethod.parameterTypes[i] == Int::class.javaPrimitiveType || mediaMethod.parameterTypes[i] == Byte::class.javaPrimitiveType)
             }
@@ -208,10 +202,10 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
             }
 
             mediaMethod.invoke(actionUser, *args)
-            XposedBridge.log("Scheduled media message sent successfully to $jid")
+            XposedBridge.log("WaEnhancer MessageSchedulerHook: Media message id $id sent to $jid successfully")
             sendStatusBroadcast(id, true)
         } catch (e: Exception) {
-            XposedBridge.log("Error sending media: ${e.message}")
+            XposedBridge.log("WaEnhancer MessageSchedulerHook Error: sending media failed: ${e.message}")
             e.printStackTrace()
             sendStatusBroadcast(id, false)
         }

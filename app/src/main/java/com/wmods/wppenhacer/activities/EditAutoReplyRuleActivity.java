@@ -16,6 +16,8 @@ import com.wmods.wppenhacer.databinding.ActivityEditAutoReplyRuleBinding;
 
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EditAutoReplyRuleActivity extends BaseActivity {
 
@@ -26,6 +28,7 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
     private String activeHoursStart = "09:00";
     private String activeHoursEnd = "17:00";
     private int delaySeconds = 0;
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -89,47 +92,51 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
     }
 
     private void loadExistingRule() {
-        AppDatabase db = AppDatabase.getInstance(this);
-        ruleToEdit = db.autoReplyRuleDao().getById(ruleId);
-        if (ruleToEdit == null) {
-            Toast.makeText(this, "Rule not found", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        dbExecutor.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(this);
+            ruleToEdit = db.autoReplyRuleDao().getById(ruleId);
+            runOnUiThread(() -> {
+                if (ruleToEdit == null) {
+                    Toast.makeText(this, "Rule not found", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
 
-        binding.editKeywords.setText(ruleToEdit.getKeywords());
+                binding.editKeywords.setText(ruleToEdit.getKeywords());
 
-        int matchSelection = 0;
-        switch (ruleToEdit.getMatchingType()) {
-            case "CONTAINS" -> matchSelection = 1;
-            case "REGEX" -> matchSelection = 2;
-        }
-        binding.spinnerMatchingType.setSelection(matchSelection);
+                int matchSelection = 0;
+                switch (ruleToEdit.getMatchingType()) {
+                    case "CONTAINS" -> matchSelection = 1;
+                    case "REGEX" -> matchSelection = 2;
+                }
+                binding.spinnerMatchingType.setSelection(matchSelection);
 
-        binding.editReplyText.setText(ruleToEdit.getReplyText());
+                binding.editReplyText.setText(ruleToEdit.getReplyText());
 
-        int targetSelection = 0;
-        switch (ruleToEdit.getTargetType()) {
-            case "CONTACTS" -> targetSelection = 1;
-            case "GROUPS" -> targetSelection = 2;
-            case "NON_CONTACTS" -> targetSelection = 3;
-        }
-        binding.spinnerTargetType.setSelection(targetSelection);
+                int targetSelection = 0;
+                switch (ruleToEdit.getTargetType()) {
+                    case "CONTACTS" -> targetSelection = 1;
+                    case "GROUPS" -> targetSelection = 2;
+                    case "NON_CONTACTS" -> targetSelection = 3;
+                }
+                binding.spinnerTargetType.setSelection(targetSelection);
 
-        boolean hasActiveHours = ruleToEdit.getActiveHoursStart() != null && ruleToEdit.getActiveHoursEnd() != null;
-        binding.switchActiveHours.setChecked(hasActiveHours);
-        if (hasActiveHours) {
-            binding.layoutActiveHours.setVisibility(View.VISIBLE);
-            activeHoursStart = ruleToEdit.getActiveHoursStart();
-            activeHoursEnd = ruleToEdit.getActiveHoursEnd();
-        }
-        updateTimeButtons();
+                boolean hasActiveHours = ruleToEdit.getActiveHoursStart() != null && ruleToEdit.getActiveHoursEnd() != null;
+                binding.switchActiveHours.setChecked(hasActiveHours);
+                if (hasActiveHours) {
+                    binding.layoutActiveHours.setVisibility(View.VISIBLE);
+                    activeHoursStart = ruleToEdit.getActiveHoursStart();
+                    activeHoursEnd = ruleToEdit.getActiveHoursEnd();
+                }
+                updateTimeButtons();
 
-        binding.switchQuoteOriginal.setChecked(ruleToEdit.getQuoteOriginal());
+                binding.switchQuoteOriginal.setChecked(ruleToEdit.getQuoteOriginal());
 
-        delaySeconds = ruleToEdit.getDelaySeconds();
-        binding.seekBarDelay.setProgress(delaySeconds);
-        binding.textDelayValue.setText(delaySeconds + "s");
+                delaySeconds = ruleToEdit.getDelaySeconds();
+                binding.seekBarDelay.setProgress(delaySeconds);
+                binding.textDelayValue.setText(delaySeconds + "s");
+            });
+        });
     }
 
     private void updateTimeButtons() {
@@ -179,43 +186,55 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
 
         boolean quoteOriginal = binding.switchQuoteOriginal.isChecked();
 
-        AppDatabase db = AppDatabase.getInstance(this);
-        AutoReplyRule rule;
+        final String finalKeywords = keywords;
+        final String finalReplyText = replyText;
+        final String finalStart = start;
+        final String finalEnd = end;
 
-        if (ruleToEdit != null) {
-            rule = new AutoReplyRule(
-                ruleToEdit.getId(),
-                keywords,
-                matchingType,
-                replyText,
-                quoteOriginal,
-                delaySeconds,
-                targetType,
-                start,
-                end,
-                ruleToEdit.isEnabled()
-            );
-            db.autoReplyRuleDao().update(rule);
-            Toast.makeText(this, "Rule updated", Toast.LENGTH_SHORT).show();
-        } else {
-            rule = new AutoReplyRule(
-                0,
-                keywords,
-                matchingType,
-                replyText,
-                quoteOriginal,
-                delaySeconds,
-                targetType,
-                start,
-                end,
-                true
-            );
-            db.autoReplyRuleDao().insert(rule);
-            Toast.makeText(this, "Rule created", Toast.LENGTH_SHORT).show();
-        }
+        dbExecutor.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(this);
+            AutoReplyRule rule;
 
-        // Sync to SharedPreferences for Xposed hook remote access
-        AutoReplyActivity.syncRulesToSharedPreferences(this);
-        finish();
+            if (ruleToEdit != null) {
+                rule = new AutoReplyRule(
+                    ruleToEdit.getId(),
+                    finalKeywords,
+                    matchingType,
+                    finalReplyText,
+                    quoteOriginal,
+                    delaySeconds,
+                    targetType,
+                    finalStart,
+                    finalEnd,
+                    ruleToEdit.isEnabled()
+                );
+                db.autoReplyRuleDao().update(rule);
+                runOnUiThread(() -> Toast.makeText(this, "Rule updated", Toast.LENGTH_SHORT).show());
+            } else {
+                rule = new AutoReplyRule(
+                    0,
+                    finalKeywords,
+                    matchingType,
+                    finalReplyText,
+                    quoteOriginal,
+                    delaySeconds,
+                    targetType,
+                    finalStart,
+                    finalEnd,
+                    true
+                );
+                db.autoReplyRuleDao().insert(rule);
+                runOnUiThread(() -> Toast.makeText(this, "Rule created", Toast.LENGTH_SHORT).show());
+            }
+
+            AutoReplyActivity.syncRulesToSharedPreferences(this);
+            runOnUiThread(this::finish);
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dbExecutor.shutdown();
     }
 }

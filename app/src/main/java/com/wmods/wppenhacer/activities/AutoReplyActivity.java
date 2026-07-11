@@ -29,12 +29,15 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AutoReplyActivity extends BaseActivity {
 
     private ActivityAutoReplyBinding binding;
     private AutoReplyRuleAdapter adapter;
     private List<AutoReplyRule> rulesList = new ArrayList<>();
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,45 +77,59 @@ public class AutoReplyActivity extends BaseActivity {
     }
 
     private void loadAutoReplyRules() {
-        AppDatabase db = AppDatabase.getInstance(this);
-        rulesList = db.autoReplyRuleDao().getAll();
-
-        if (rulesList.isEmpty()) {
-            binding.emptyView.setVisibility(View.VISIBLE);
-            binding.recyclerView.setVisibility(View.GONE);
-        } else {
-            binding.emptyView.setVisibility(View.GONE);
-            binding.recyclerView.setVisibility(View.VISIBLE);
-            adapter.notifyDataSetChanged();
-        }
+        dbExecutor.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(this);
+            final List<AutoReplyRule> list = db.autoReplyRuleDao().getAll();
+            runOnUiThread(() -> {
+                rulesList = list;
+                if (rulesList.isEmpty()) {
+                    binding.emptyView.setVisibility(View.VISIBLE);
+                    binding.recyclerView.setVisibility(View.GONE);
+                } else {
+                    binding.emptyView.setVisibility(View.GONE);
+                    binding.recyclerView.setVisibility(View.VISIBLE);
+                    adapter.notifyDataSetChanged();
+                }
+            });
+        });
     }
 
     public static void syncRulesToSharedPreferences(Context context) {
-        AppDatabase db = AppDatabase.getInstance(context);
-        List<AutoReplyRule> rules = db.autoReplyRuleDao().getAll();
-        JSONArray array = new JSONArray();
+        // Run database query on separate thread to prevent main thread blocking
+        final Context appContext = context.getApplicationContext();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(appContext);
+            List<AutoReplyRule> rules = db.autoReplyRuleDao().getAll();
+            JSONArray array = new JSONArray();
 
-        for (AutoReplyRule rule : rules) {
-            try {
-                JSONObject obj = new JSONObject();
-                obj.put("id", rule.getId());
-                obj.put("keywords", rule.getKeywords());
-                obj.put("matchingType", rule.getMatchingType());
-                obj.put("replyText", rule.getReplyText());
-                obj.put("quoteOriginal", rule.getQuoteOriginal());
-                obj.put("delaySeconds", rule.getDelaySeconds());
-                obj.put("targetType", rule.getTargetType());
-                obj.put("activeHoursStart", rule.getActiveHoursStart());
-                obj.put("activeHoursEnd", rule.getActiveHoursEnd());
-                obj.put("isEnabled", rule.isEnabled());
-                array.put(obj);
-            } catch (Exception e) {
-                e.printStackTrace();
+            for (AutoReplyRule rule : rules) {
+                try {
+                    JSONObject obj = new JSONObject();
+                    obj.put("id", rule.getId());
+                    obj.put("keywords", rule.getKeywords());
+                    obj.put("matchingType", rule.getMatchingType());
+                    obj.put("replyText", rule.getReplyText());
+                    obj.put("quoteOriginal", rule.getQuoteOriginal());
+                    obj.put("delaySeconds", rule.getDelaySeconds());
+                    obj.put("targetType", rule.getTargetType());
+                    obj.put("activeHoursStart", rule.getActiveHoursStart());
+                    obj.put("activeHoursEnd", rule.getActiveHoursEnd());
+                    obj.put("isEnabled", rule.isEnabled());
+                    array.put(obj);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        }
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        prefs.edit().putString("auto_reply_rules", array.toString()).apply();
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
+            prefs.edit().putString("auto_reply_rules", array.toString()).apply();
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dbExecutor.shutdown();
     }
 
     private class AutoReplyRuleHolder extends RecyclerView.ViewHolder {
@@ -143,34 +160,39 @@ public class AutoReplyActivity extends BaseActivity {
                 textActiveHours.setText("Hours: 24/7");
             }
 
-            // Temporarily clear listener to prevent firing during bind
             switchRuleEnabled.setOnCheckedChangeListener(null);
             switchRuleEnabled.setChecked(rule.isEnabled());
             switchRuleEnabled.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                AppDatabase db = AppDatabase.getInstance(itemView.getContext());
-                AutoReplyRule updatedRule = new AutoReplyRule(
-                    rule.getId(),
-                    rule.getKeywords(),
-                    rule.getMatchingType(),
-                    rule.getReplyText(),
-                    rule.getQuoteOriginal(),
-                    rule.getDelaySeconds(),
-                    rule.getTargetType(),
-                    rule.getActiveHoursStart(),
-                    rule.getActiveHoursEnd(),
-                    isChecked
-                );
-                db.autoReplyRuleDao().update(updatedRule);
-                syncRulesToSharedPreferences(itemView.getContext());
-                loadAutoReplyRules();
+                dbExecutor.execute(() -> {
+                    AppDatabase db = AppDatabase.getInstance(itemView.getContext());
+                    AutoReplyRule updatedRule = new AutoReplyRule(
+                        rule.getId(),
+                        rule.getKeywords(),
+                        rule.getMatchingType(),
+                        rule.getReplyText(),
+                        rule.getQuoteOriginal(),
+                        rule.getDelaySeconds(),
+                        rule.getTargetType(),
+                        rule.getActiveHoursStart(),
+                        rule.getActiveHoursEnd(),
+                        isChecked
+                    );
+                    db.autoReplyRuleDao().update(updatedRule);
+                    syncRulesToSharedPreferences(itemView.getContext());
+                    runOnUiThread(this::loadAutoReplyRules);
+                });
             });
 
             btnDelete.setOnClickListener(v -> {
-                AppDatabase db = AppDatabase.getInstance(itemView.getContext());
-                db.autoReplyRuleDao().delete(rule);
-                syncRulesToSharedPreferences(itemView.getContext());
-                Toast.makeText(itemView.getContext(), "Rule deleted", Toast.LENGTH_SHORT).show();
-                loadAutoReplyRules();
+                dbExecutor.execute(() -> {
+                    AppDatabase db = AppDatabase.getInstance(itemView.getContext());
+                    db.autoReplyRuleDao().delete(rule);
+                    syncRulesToSharedPreferences(itemView.getContext());
+                    runOnUiThread(() -> {
+                        Toast.makeText(itemView.getContext(), "Rule deleted", Toast.LENGTH_SHORT).show();
+                        loadAutoReplyRules();
+                    });
+                });
             });
 
             itemView.setOnClickListener(v -> {

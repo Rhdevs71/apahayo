@@ -51,6 +51,9 @@ import com.wmods.wppenhacer.xposed.features.general.AboutContactPicker
 import com.wmods.wppenhacer.xposed.features.general.AntiRevoke
 import com.wmods.wppenhacer.xposed.features.general.MessageSchedulerHook
 import com.wmods.wppenhacer.xposed.features.general.AutoReplyHook
+import com.wmods.wppenhacer.xposed.features.general.QuickTranslateHook
+import com.wmods.wppenhacer.xposed.features.general.VoiceChangerHook
+import com.wmods.wppenhacer.xposed.features.general.CustomFoldersHook
 import com.wmods.wppenhacer.xposed.features.general.CallType
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit
 import com.wmods.wppenhacer.xposed.features.general.DeleteStatus
@@ -538,7 +541,10 @@ class FeatureLoader {
                 AboutContactPicker::class.java,
                 DefaultEmoji::class.java,
                 MessageSchedulerHook::class.java,
-                AutoReplyHook::class.java
+                AutoReplyHook::class.java,
+                QuickTranslateHook::class.java,
+                VoiceChangerHook::class.java,
+                CustomFoldersHook::class.java
             )
 
             XposedBridge.log("Loading Plugins")

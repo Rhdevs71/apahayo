@@ -38,6 +38,11 @@ object AudioOpusConverter {
 
     @JvmStatic
     fun convert(filePath: String): File? {
+        return convert(filePath, 1.0f)
+    }
+
+    @JvmStatic
+    fun convert(filePath: String, pitchFactor: Float): File? {
         val outFile = File(File(filePath).parentFile, "voice_note_${System.currentTimeMillis()}.opus")
 
         val extractor = MediaExtractor()
@@ -62,7 +67,7 @@ object AudioOpusConverter {
                 throw IOException("Failed to initialize native opus encoder")
             }
 
-            transcode(extractor, decoder, encoderHandle)
+            transcode(extractor, decoder, encoderHandle, pitchFactor)
             return outFile
 
         } catch (e: Throwable) {
@@ -87,7 +92,7 @@ object AudioOpusConverter {
         }
     }
 
-    private fun transcode(extractor: MediaExtractor, decoder: MediaCodec, encoderHandle: Long) {
+    private fun transcode(extractor: MediaExtractor, decoder: MediaCodec, encoderHandle: Long, pitchFactor: Float) {
         val decoderInfo = MediaCodec.BufferInfo()
         var extractorDone = false
         var decoderDone = false
@@ -124,7 +129,7 @@ object AudioOpusConverter {
                     pcmBuf.position(decoderInfo.offset)
                     pcmBuf.limit(decoderInfo.offset + decoderInfo.size)
 
-                    val resampled = resampleAndDownmix(pcmBuf, inputSampleRate, inputChannels)
+                    val resampled = resampleAndDownmix(pcmBuf, inputSampleRate, inputChannels, pitchFactor)
                     if (resampled.isNotEmpty()) {
                         nativeEncodeOpus(encoderHandle, resampled, resampled.size)
                     }
@@ -136,7 +141,7 @@ object AudioOpusConverter {
         }
     }
 
-    private fun resampleAndDownmix(pcmBuf: ByteBuffer, inSampleRate: Int, inChannels: Int): ByteArray {
+    private fun resampleAndDownmix(pcmBuf: ByteBuffer, inSampleRate: Int, inChannels: Int, pitchFactor: Float): ByteArray {
         pcmBuf.order(ByteOrder.LITTLE_ENDIAN)
         val shortBuf = pcmBuf.asShortBuffer()
         val numInputFrames = shortBuf.remaining() / inChannels
@@ -144,11 +149,13 @@ object AudioOpusConverter {
         val outSampleRate = OPUS_SAMPLE_RATE
         if (numInputFrames <= 0) return ByteArray(0)
 
-        val numOutputFrames = (numInputFrames.toLong() * outSampleRate / inSampleRate).toInt()
+        // Resampling with pitchFactor: speeds up/slows down and modifies pitch
+        val effectiveOutSampleRate = (outSampleRate * pitchFactor).toInt()
+        val numOutputFrames = (numInputFrames.toLong() * effectiveOutSampleRate / inSampleRate).toInt()
         val outBytes = ByteArray(numOutputFrames * 2)
 
         for (i in 0 until numOutputFrames) {
-            val inPos = i.toFloat() * inSampleRate / outSampleRate
+            val inPos = i.toFloat() * inSampleRate / effectiveOutSampleRate
             val inIdx1 = inPos.toInt()
             val inIdx2 = min(inIdx1 + 1, numInputFrames - 1)
             val frac = inPos - inIdx1

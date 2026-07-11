@@ -22,19 +22,21 @@ import com.wmods.wppenhacer.database.AppDatabase;
 import com.wmods.wppenhacer.database.SchedulerHelper;
 import com.wmods.wppenhacer.database.ScheduledMessage;
 import com.wmods.wppenhacer.databinding.ActivityMessageSchedulerBinding;
-import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MessageSchedulerActivity extends BaseActivity {
 
     private ActivityMessageSchedulerBinding binding;
     private ScheduledMessageAdapter adapter;
     private List<ScheduledMessage> messagesList = new ArrayList<>();
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,17 +68,27 @@ public class MessageSchedulerActivity extends BaseActivity {
     }
 
     private void loadScheduledMessages() {
-        AppDatabase db = AppDatabase.getInstance(this);
-        messagesList = db.scheduledMessageDao().getAll();
+        dbExecutor.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(this);
+            final List<ScheduledMessage> list = db.scheduledMessageDao().getAll();
+            runOnUiThread(() -> {
+                messagesList = list;
+                if (messagesList.isEmpty()) {
+                    binding.emptyView.setVisibility(View.VISIBLE);
+                    binding.recyclerView.setVisibility(View.GONE);
+                } else {
+                    binding.emptyView.setVisibility(View.GONE);
+                    binding.recyclerView.setVisibility(View.VISIBLE);
+                    adapter.notifyDataSetChanged();
+                }
+            });
+        });
+    }
 
-        if (messagesList.isEmpty()) {
-            binding.emptyView.setVisibility(View.VISIBLE);
-            binding.recyclerView.setVisibility(View.GONE);
-        } else {
-            binding.emptyView.setVisibility(View.GONE);
-            binding.recyclerView.setVisibility(View.VISIBLE);
-            adapter.notifyDataSetChanged();
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dbExecutor.shutdown();
     }
 
     private class ScheduledMessageHolder extends RecyclerView.ViewHolder {
@@ -138,11 +150,15 @@ public class MessageSchedulerActivity extends BaseActivity {
             }
 
             btnDelete.setOnClickListener(v -> {
-                AppDatabase db = AppDatabase.getInstance(itemView.getContext());
-                db.scheduledMessageDao().delete(message);
-                SchedulerHelper.INSTANCE.scheduleNextAlarm(itemView.getContext());
-                Toast.makeText(itemView.getContext(), "Schedule deleted", Toast.LENGTH_SHORT).show();
-                loadScheduledMessages();
+                dbExecutor.execute(() -> {
+                    AppDatabase db = AppDatabase.getInstance(itemView.getContext());
+                    db.scheduledMessageDao().delete(message);
+                    SchedulerHelper.INSTANCE.scheduleNextAlarm(itemView.getContext());
+                    runOnUiThread(() -> {
+                        Toast.makeText(itemView.getContext(), "Schedule deleted", Toast.LENGTH_SHORT).show();
+                        loadScheduledMessages();
+                    });
+                });
             });
 
             itemView.setOnClickListener(v -> {

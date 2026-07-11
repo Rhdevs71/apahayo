@@ -36,6 +36,66 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
+        app:title="Extra Automation Tools">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="quick_translate_enabled"
+            app:defaultValue="false"
+            app:summary="Enable floating translate button in chat input"
+            app:title="Quick Translate" />
+
+        <ListPreference
+            app:dependency="quick_translate_enabled"
+            app:key="quick_translate_lang"
+            app:defaultValue="en"
+            app:entries="@array/translate_lang_entries"
+            app:entryValues="@array/translate_lang_values"
+            app:title="Target Language" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="voice_changer_enabled"
+            app:defaultValue="false"
+            app:summary="Modify the pitch/speed of recorded voice notes"
+            app:title="Voice Changer" />
+
+        <ListPreference
+            app:dependency="voice_changer_enabled"
+            app:key="voice_changer_type"
+            app:defaultValue="NONE"
+            app:entries="@array/voice_changer_entries"
+            app:entryValues="@array/voice_changer_values"
+            app:title="Voice Effect" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="fake_chat_editor_enabled"
+            app:defaultValue="false"
+            app:summary="Allows editing message texts locally"
+            app:title="Fake Chat Editor" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="custom_folders_enabled"
+            app:defaultValue="false"
+            app:summary="Display custom category badges on chats list"
+            app:title="Custom Chat Folders" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="media_cleaner_enabled"
+            app:defaultValue="false"
+            app:summary="Automatically delete media files older than X days"
+            app:title="Auto Media Cleaner" />
+
+        <ListPreference
+            app:dependency="media_cleaner_enabled"
+            app:key="media_cleaner_days"
+            app:defaultValue="30"
+            app:entries="@array/media_cleaner_days_entries"
+            app:entryValues="@array/media_cleaner_days_values"
+            app:title="Delete Files Older Than" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
         app:title="@string/status">
 
         <rikka.material.preference.MaterialSwitchPreference

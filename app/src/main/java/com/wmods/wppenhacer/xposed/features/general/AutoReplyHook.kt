@@ -89,11 +89,18 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                             val replyText = ruleObj.optString("replyText", "")
                             val delaySec = ruleObj.optInt("delaySeconds", 0)
                             val quoteOriginal = ruleObj.optBoolean("quoteOriginal", false)
+                            val isForward = ruleObj.optBoolean("isForward", false)
+                            val forwardJid = ruleObj.optString("forwardJid", "")
 
-                            // Execute reply with optional delay
+                            // Execute reply/forward with optional delay
                             val handler = Handler(Looper.getMainLooper())
                             handler.postDelayed({
-                                sendAutoReply(jid = userJid.phoneRawString ?: "", replyText = replyText, quoteMessage = if (quoteOriginal) fMsg else null)
+                                if (isForward && forwardJid.isNotEmpty()) {
+                                    val forwardText = "[Forwarded from +$number]: $messageText"
+                                    sendAutoReply(jid = forwardJid, replyText = forwardText, quoteMessage = null)
+                                } else {
+                                    sendAutoReply(jid = userJid.phoneRawString ?: "", replyText = replyText, quoteMessage = if (quoteOriginal) fMsg else null)
+                                }
                             }, delaySec * 1000L)
 
                             // Exit loop after first matching rule is processed

@@ -6,17 +6,21 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import com.wmods.wppenhacer.receivers.SchedulerReceiver
 import java.util.*
 
 object SchedulerHelper {
 
+    private const val TAG = "SchedulerHelper"
+
     @SuppressLint("ScheduleExactAlarm")
     fun scheduleNextAlarm(context: Context) {
         val db = AppDatabase.getInstance(context)
         val pendingMessages = db.scheduledMessageDao().getByStatus("PENDING")
+        Log.d(TAG, "scheduleNextAlarm: found ${pendingMessages.size} pending messages")
+
         if (pendingMessages.isEmpty()) {
-            // Cancel current scheduling pending intent if no messages are pending
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, SchedulerReceiver::class.java).apply {
                 action = "com.wmods.wppenhacer.TRIGGER_ALARM"
@@ -28,11 +32,12 @@ object SchedulerHelper {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             alarmManager.cancel(pendingIntent)
+            Log.d(TAG, "scheduleNextAlarm: cancelled pending alarms because no messages are pending")
             return
         }
 
-        // Find the message with the earliest scheduled time
         val earliestMessage = pendingMessages.minByOrNull { it.scheduledTime } ?: return
+        val triggerTime = earliestMessage.scheduledTime
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, SchedulerReceiver::class.java).apply {
@@ -45,21 +50,39 @@ object SchedulerHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val triggerTime = earliestMessage.scheduledTime
+        Log.d(TAG, "scheduleNextAlarm: scheduling message id ${earliestMessage.id} at $triggerTime (now is ${System.currentTimeMillis()})")
 
-        // Schedule exact alarm that fires even in idle/doze mode
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        // Handle exact alarm permissions on Android 12+ (API 31+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (alarmManager.canScheduleExactAlarms()) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTime,
+                    pendingIntent
+                )
+                Log.d(TAG, "scheduleNextAlarm: setExactAndAllowWhileIdle successful")
+            } else {
+                alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTime,
+                    pendingIntent
+                )
+                Log.d(TAG, "scheduleNextAlarm: fallback to setAndAllowWhileIdle (canScheduleExactAlarms is false)")
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 triggerTime,
                 pendingIntent
             )
+            Log.d(TAG, "scheduleNextAlarm: setExactAndAllowWhileIdle on SDK >= 23")
         } else {
             alarmManager.setExact(
                 AlarmManager.RTC_WAKEUP,
                 triggerTime,
                 pendingIntent
             )
+            Log.d(TAG, "scheduleNextAlarm: setExact on older SDK")
         }
     }
 
@@ -68,7 +91,6 @@ object SchedulerHelper {
         val now = calendar.timeInMillis
         calendar.timeInMillis = message.scheduledTime
 
-        // If scheduled time has already passed, compute next recurrence
         if (calendar.timeInMillis <= now) {
             when (message.recurrenceType) {
                 "DAILY" -> {
@@ -88,7 +110,7 @@ object SchedulerHelper {
                 }
                 "SPECIFIC_DAYS" -> {
                     val daysStr = message.recurrenceDays ?: ""
-                    val targetDays = daysStr.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet() // 1=Sunday, 2=Monday...
+                    val targetDays = daysStr.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
                     if (targetDays.isNotEmpty()) {
                         while (true) {
                             calendar.add(Calendar.DAY_OF_YEAR, 1)
@@ -100,14 +122,12 @@ object SchedulerHelper {
                             }
                         }
                     } else {
-                        // Fallback to once if no specific days are selected
                         return 0L
                     }
                 }
-                else -> return 0L // Once
+                else -> return 0L
             }
         }
-
         return calendar.timeInMillis
     }
 }

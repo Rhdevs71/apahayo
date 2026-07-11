@@ -113,8 +113,9 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
             userJid.isStatus -> {
                 val participant = XposedHelpers.getObjectField(job, "participant") as? String
                 val statusJid = FMessageWpp.UserJid(participant)
+                val isHideStatus = WppCore.getPrivPrefs().getBoolean("hidestatusview_override", hideStatusView)
                 val customHideStatusView = CustomPrivacy.getJSON(statusJid.phoneNumber)
-                    .optBoolean("HideViewStatus", hideStatusView)
+                    .optBoolean("HideViewStatus", isHideStatus)
 
                 if (customHideStatusView || ghostMode) {
                     param.result = null

@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -22,7 +21,6 @@ import com.wmods.wppenhacer.databinding.ActivityEditScheduledMessageBinding;
 import com.wmods.wppenhacer.model.ContactPickerResult;
 import com.wmods.wppenhacer.preference.ContactPickerPreference;
 import com.wmods.wppenhacer.utils.ContactHelper;
-import com.wmods.wppenhacer.utils.FilePicker;
 import com.wmods.wppenhacer.utils.RealPathUtil;
 import com.wmods.wppenhacer.utils.WhatsAppContactPickerLauncher;
 
@@ -32,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EditScheduledMessageActivity extends BaseActivity {
 
@@ -45,6 +45,7 @@ public class EditScheduledMessageActivity extends BaseActivity {
     private String selectedMediaType = null;
 
     private Calendar scheduledCalendar = Calendar.getInstance();
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -112,48 +113,52 @@ public class EditScheduledMessageActivity extends BaseActivity {
     }
 
     private void loadExistingMessage() {
-        AppDatabase db = AppDatabase.getInstance(this);
-        messageToEdit = db.scheduledMessageDao().getById(messageId);
-        if (messageToEdit == null) {
-            Toast.makeText(this, "Message not found", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
-        selectedJid = messageToEdit.getJid();
-        selectedContactName = messageToEdit.getContactName();
-        binding.textSelectedContact.setText(selectedContactName + " (" + selectedJid + ")");
-
-        binding.editMessageText.setText(messageToEdit.getMessageText());
-
-        selectedMediaPath = messageToEdit.getMediaPath();
-        selectedMediaType = messageToEdit.getMediaType();
-        if (selectedMediaPath != null && !selectedMediaPath.isEmpty()) {
-            binding.textSelectedMedia.setText(selectedMediaPath);
-            binding.btnClearMedia.setVisibility(View.VISIBLE);
-        }
-
-        scheduledCalendar.setTimeInMillis(messageToEdit.getScheduledTime());
-        updateDateTimeButtons();
-
-        binding.switchRecurring.setChecked(messageToEdit.isRecurring());
-        if (messageToEdit.isRecurring()) {
-            binding.layoutRecurrenceOptions.setVisibility(View.VISIBLE);
-            int selection = 0;
-            switch (messageToEdit.getRecurrenceType()) {
-                case "DAILY" -> selection = 1;
-                case "WEEKLY" -> selection = 2;
-                case "MONTHLY" -> selection = 3;
-                case "SPECIFIC_DAYS" -> {
-                    selection = 4;
-                    binding.layoutDaysSelector.setVisibility(View.VISIBLE);
-                    loadDaysCheckboxes(messageToEdit.getRecurrenceDays());
+        dbExecutor.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(this);
+            messageToEdit = db.scheduledMessageDao().getById(messageId);
+            runOnUiThread(() -> {
+                if (messageToEdit == null) {
+                    Toast.makeText(this, "Message not found", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
                 }
-            }
-            binding.spinnerRecurrenceType.setSelection(selection);
-        }
 
-        binding.switchAutoDelete.setChecked(messageToEdit.getAutoDelete());
+                selectedJid = messageToEdit.getJid();
+                selectedContactName = messageToEdit.getContactName();
+                binding.textSelectedContact.setText(selectedContactName + " (" + selectedJid + ")");
+
+                binding.editMessageText.setText(messageToEdit.getMessageText());
+
+                selectedMediaPath = messageToEdit.getMediaPath();
+                selectedMediaType = messageToEdit.getMediaType();
+                if (selectedMediaPath != null && !selectedMediaPath.isEmpty()) {
+                    binding.textSelectedMedia.setText(selectedMediaPath);
+                    binding.btnClearMedia.setVisibility(View.VISIBLE);
+                }
+
+                scheduledCalendar.setTimeInMillis(messageToEdit.getScheduledTime());
+                updateDateTimeButtons();
+
+                binding.switchRecurring.setChecked(messageToEdit.isRecurring());
+                if (messageToEdit.isRecurring()) {
+                    binding.layoutRecurrenceOptions.setVisibility(View.VISIBLE);
+                    int selection = 0;
+                    switch (messageToEdit.getRecurrenceType()) {
+                        case "DAILY" -> selection = 1;
+                        case "WEEKLY" -> selection = 2;
+                        case "MONTHLY" -> selection = 3;
+                        case "SPECIFIC_DAYS" -> {
+                            selection = 4;
+                            binding.layoutDaysSelector.setVisibility(View.VISIBLE);
+                            loadDaysCheckboxes(messageToEdit.getRecurrenceDays());
+                        }
+                    }
+                    binding.spinnerRecurrenceType.setSelection(selection);
+                }
+
+                binding.switchAutoDelete.setChecked(messageToEdit.getAutoDelete());
+            });
+        });
     }
 
     private void loadDaysCheckboxes(String daysCsv) {
@@ -219,7 +224,6 @@ public class EditScheduledMessageActivity extends BaseActivity {
             return;
         }
 
-        // Default pick first installed package (e.g. WhatsApp, or show selection)
         String targetPackage = installedPackages.get(0);
         try {
             Intent intent = WhatsAppContactPickerLauncher.createPickerIntent(this, targetPackage, "message_scheduler_picker", null);
@@ -275,7 +279,6 @@ public class EditScheduledMessageActivity extends BaseActivity {
                         binding.textSelectedMedia.setText(realPath);
                         binding.btnClearMedia.setVisibility(View.VISIBLE);
 
-                        // Auto-detect media type
                         String type = getContentResolver().getType(fileUri);
                         if (type != null) {
                             if (type.startsWith("image/")) {
@@ -333,47 +336,59 @@ public class EditScheduledMessageActivity extends BaseActivity {
             }
         }
 
-        AppDatabase db = AppDatabase.getInstance(this);
-        ScheduledMessage message;
+        final String finalText = text;
+        final long finalTime = time;
+        final String finalRecType = recType;
+        final String finalRecDays = recDays;
 
-        if (messageToEdit != null) {
-            message = new ScheduledMessage(
-                messageToEdit.getId(),
-                selectedJid,
-                selectedContactName,
-                text,
-                selectedMediaPath,
-                selectedMediaType,
-                time,
-                isRecurring,
-                recType,
-                recDays,
-                "PENDING",
-                binding.switchAutoDelete.isChecked()
-            );
-            db.scheduledMessageDao().update(message);
-            Toast.makeText(this, "Schedule updated", Toast.LENGTH_SHORT).show();
-        } else {
-            message = new ScheduledMessage(
-                0,
-                selectedJid,
-                selectedContactName,
-                text,
-                selectedMediaPath,
-                selectedMediaType,
-                time,
-                isRecurring,
-                recType,
-                recDays,
-                "PENDING",
-                binding.switchAutoDelete.isChecked()
-            );
-            db.scheduledMessageDao().insert(message);
-            Toast.makeText(this, "Schedule created", Toast.LENGTH_SHORT).show();
-        }
+        dbExecutor.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(this);
+            ScheduledMessage message;
 
-        // Setup the next alarm
-        SchedulerHelper.INSTANCE.scheduleNextAlarm(this);
-        finish();
+            if (messageToEdit != null) {
+                message = new ScheduledMessage(
+                    messageToEdit.getId(),
+                    selectedJid,
+                    selectedContactName,
+                    finalText,
+                    selectedMediaPath,
+                    selectedMediaType,
+                    finalTime,
+                    isRecurring,
+                    finalRecType,
+                    finalRecDays,
+                    "PENDING",
+                    binding.switchAutoDelete.isChecked()
+                );
+                db.scheduledMessageDao().update(message);
+                runOnUiThread(() -> Toast.makeText(this, "Schedule updated", Toast.LENGTH_SHORT).show());
+            } else {
+                message = new ScheduledMessage(
+                    0,
+                    selectedJid,
+                    selectedContactName,
+                    finalText,
+                    selectedMediaPath,
+                    selectedMediaType,
+                    finalTime,
+                    isRecurring,
+                    finalRecType,
+                    finalRecDays,
+                    "PENDING",
+                    binding.switchAutoDelete.isChecked()
+                );
+                db.scheduledMessageDao().insert(message);
+                runOnUiThread(() -> Toast.makeText(this, "Schedule created", Toast.LENGTH_SHORT).show());
+            }
+
+            SchedulerHelper.INSTANCE.scheduleNextAlarm(this);
+            runOnUiThread(this::finish);
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dbExecutor.shutdown();
     }
 }
