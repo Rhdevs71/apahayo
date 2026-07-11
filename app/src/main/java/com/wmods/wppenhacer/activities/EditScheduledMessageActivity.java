@@ -222,7 +222,7 @@ public class EditScheduledMessageActivity extends BaseActivity {
         // Default pick first installed package (e.g. WhatsApp, or show selection)
         String targetPackage = installedPackages.get(0);
         try {
-            Intent intent = WhatsAppContactPickerLauncher.createAboutPickerIntent(this, targetPackage, "message_scheduler_picker", null);
+            Intent intent = WhatsAppContactPickerLauncher.createPickerIntent(this, targetPackage, "message_scheduler_picker", null);
             startActivityForResult(intent, ContactPickerPreference.REQUEST_CONTACT_PICKER);
         } catch (Exception e) {
             Toast.makeText(this, "Failed to launch contact picker: " + e.getMessage(), Toast.LENGTH_SHORT).show();
