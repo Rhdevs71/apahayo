@@ -314,7 +314,7 @@ class CopySelectionMessage(classLoader: ClassLoader, prefs: SharedPreferences) :
             }
 
             // 2. Update persistent local SQLite database
-            val db = MessageStore.getInstance().database
+            val db = MessageStore.getInstance().getDatabase()
             if (db != null) {
                 db.execSQL(
                     "UPDATE message SET text_data = ? WHERE key_id = ?",

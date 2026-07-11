@@ -28,7 +28,7 @@ class SchedulerService : Service() {
     private val executor: ExecutorService = Executors.newSingleThreadExecutor()
     private val channelId = "scheduler_service"
     private var isProcessing = false
-    private const val TAG = "SchedulerService"
+    private val TAG = "SchedulerService"
 
     private val statusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {

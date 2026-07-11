@@ -81,20 +81,19 @@ class QuickTranslateHook(loader: ClassLoader, preferences: SharedPreferences) : 
                 val textToTranslate = entryView.text.toString().trim()
                 if (textToTranslate.isEmpty()) {
                     Toast.makeText(context, "Enter text first", Toast.LENGTH_SHORT).show()
-                    return
-                }
+                } else {
+                    val targetLang = prefs.getString("quick_translate_lang", "en") ?: "en"
+                    Toast.makeText(context, "Translating to $targetLang...", Toast.LENGTH_SHORT).show()
 
-                val targetLang = prefs.getString("quick_translate_lang", "en") ?: "en"
-                Toast.makeText(context, "Translating to $targetLang...", Toast.LENGTH_SHORT).show()
-
-                executor.execute {
-                    val translated = translateText(textToTranslate, targetLang)
-                    mainHandler.post {
-                        if (translated != null) {
-                            entryView.setText(translated)
-                            entryView.setSelection(translated.length)
-                        } else {
-                            Toast.makeText(context, "Translation failed", Toast.LENGTH_SHORT).show()
+                    executor.execute {
+                        val translated = translateText(textToTranslate, targetLang)
+                        mainHandler.post {
+                            if (translated != null) {
+                                entryView.setText(translated)
+                                entryView.setSelection(translated.length)
+                            } else {
+                                Toast.makeText(context, "Translation failed", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 }
