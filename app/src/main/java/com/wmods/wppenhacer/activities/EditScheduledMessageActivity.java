@@ -269,7 +269,7 @@ public class EditScheduledMessageActivity extends BaseActivity {
             Uri fileUri = data.getData();
             if (fileUri != null) {
                 try {
-                    String realPath = RealPathUtil.getRealPath(this, fileUri);
+                    String realPath = RealPathUtil.getRealFilePath(this, fileUri);
                     if (realPath != null) {
                         selectedMediaPath = realPath;
                         binding.textSelectedMedia.setText(realPath);
