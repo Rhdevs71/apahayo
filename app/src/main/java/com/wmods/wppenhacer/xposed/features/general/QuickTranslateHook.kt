@@ -4,15 +4,14 @@ import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.text.Editable
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.Toast
 import com.wmods.wppenhacer.xposed.core.Feature
-import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -26,6 +25,7 @@ import java.util.concurrent.Executors
 class QuickTranslateHook(loader: ClassLoader, preferences: SharedPreferences) : Feature(loader, preferences) {
 
     private val executor = Executors.newSingleThreadExecutor()
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun getPluginName(): String {
         return "QuickTranslateHook"
@@ -44,7 +44,7 @@ class QuickTranslateHook(loader: ClassLoader, preferences: SharedPreferences) : 
                     val activity = param.thisObject as Activity
                     if (activity.javaClass.name.contains("Conversation")) {
                         // Delay slightly to ensure views are fully inflated
-                        Handler(Looper.getMainLooper()).postDelayed({
+                        mainHandler.postDelayed({
                             injectTranslateButton(activity)
                         }, 500)
                     }
@@ -67,7 +67,7 @@ class QuickTranslateHook(loader: ClassLoader, preferences: SharedPreferences) : 
             val context = activity
             val translateBtn = ImageButton(context).apply {
                 tag = "wpp_translate_btn"
-                // Use standard Android Translate icon or gallery icon as fallback
+                // Use standard Android search icon
                 setImageResource(android.R.drawable.ic_menu_search)
                 background = null
                 setPadding(8, 8, 8, 8)
@@ -89,7 +89,7 @@ class QuickTranslateHook(loader: ClassLoader, preferences: SharedPreferences) : 
 
                 executor.execute {
                     val translated = translateText(textToTranslate, targetLang)
-                    Handler(Looper.getMainLooper()).post {
+                    mainHandler.post {
                         if (translated != null) {
                             entryView.setText(translated)
                             entryView.setSelection(translated.length)
@@ -137,6 +137,3 @@ class QuickTranslateHook(loader: ClassLoader, preferences: SharedPreferences) : 
         }
     }
 }
-
-// Add simple handler class inline to avoid import issues
-class Handler(looper: Looper) : android.os.Handler(looper)
