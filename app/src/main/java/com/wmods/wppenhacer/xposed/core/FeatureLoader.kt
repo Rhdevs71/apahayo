@@ -49,6 +49,8 @@ import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup
 import com.wmods.wppenhacer.xposed.features.customization.ShowOnline
 import com.wmods.wppenhacer.xposed.features.general.AboutContactPicker
 import com.wmods.wppenhacer.xposed.features.general.AntiRevoke
+import com.wmods.wppenhacer.xposed.features.general.MessageSchedulerHook
+import com.wmods.wppenhacer.xposed.features.general.AutoReplyHook
 import com.wmods.wppenhacer.xposed.features.general.CallType
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit
 import com.wmods.wppenhacer.xposed.features.general.DeleteStatus
