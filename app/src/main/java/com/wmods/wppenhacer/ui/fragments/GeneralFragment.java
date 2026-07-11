@@ -58,6 +58,10 @@ public class GeneralFragment extends BaseFragment {
                 android.content.Intent intent = new android.content.Intent(getContext(), com.wmods.wppenhacer.activities.AutoReplyActivity.class);
                 startActivity(intent);
                 return true;
+            } else if ("custom_folders_settings".equals(key)) {
+                android.content.Intent intent = new android.content.Intent(getContext(), com.wmods.wppenhacer.activities.CustomFoldersActivity.class);
+                startActivity(intent);
+                return true;
             }
             return super.onPreferenceTreeClick(preference);
         }

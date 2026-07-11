@@ -78,6 +78,13 @@
             app:summary="Display custom category badges on chats list"
             app:title="Custom Chat Folders" />
 
+        <Preference
+            app:dependency="custom_folders_enabled"
+            app:key="custom_folders_settings"
+            app:iconSpaceReserved="false"
+            app:title="Configure Folders"
+            app:summary="Manage folders and select chats for each folder" />
+
         <rikka.material.preference.MaterialSwitchPreference
             app:key="media_cleaner_enabled"
             app:defaultValue="false"

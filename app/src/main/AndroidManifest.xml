@@ -193,6 +193,18 @@
             android:label="Auto Reply Rule"
             android:parentActivityName=".activities.AutoReplyActivity" />
 
+        <activity
+            android:name=".activities.CustomFoldersActivity"
+            android:theme="@style/AppTheme"
+            android:label="Custom Chat Folders"
+            android:parentActivityName=".activities.MainActivity" />
+
+        <activity
+            android:name=".activities.EditFolderActivity"
+            android:theme="@style/AppTheme"
+            android:label="Edit Folder"
+            android:parentActivityName=".activities.CustomFoldersActivity" />
+
         <service
             android:name=".services.SchedulerService"
             android:enabled="true"
