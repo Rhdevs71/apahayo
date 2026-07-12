@@ -295,6 +295,11 @@ object WppCore {
     }
 
     @JvmStatic
+    fun getActionUserClass(): Class<*>? {
+        return actionUser
+    }
+
+    @JvmStatic
     fun loadWADatabase() {
         if (mWaDatabase != null) return
         val dataDir = Utils.application.filesDir.parentFile

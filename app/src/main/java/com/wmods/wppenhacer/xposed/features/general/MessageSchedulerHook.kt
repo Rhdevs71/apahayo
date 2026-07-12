@@ -100,38 +100,16 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
                 return
             }
 
-            val actionUser = WppCore.getActionUser()
-            if (actionUser == null) {
-                XposedBridge.log("WaEnhancer MessageSchedulerHook: ActionUser instance is null")
+            val fMsgJid = FMessageWpp.UserJid(userJid)
+            val phoneNumber = fMsgJid.phoneNumber
+            if (phoneNumber == null) {
+                XposedBridge.log("WaEnhancer MessageSchedulerHook: PhoneNumber is null for $jid")
                 sendStatusBroadcast(id, false)
                 return
             }
 
-            val senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUser.javaClass) { method ->
-                List::class.java.isAssignableFrom(method.returnType) &&
-                        ReflectionUtils.findIndexOfType(method.parameterTypes, String::class.java) != -1
-            }
-
-            if (senderMethod == null) {
-                XposedBridge.log("WaEnhancer MessageSchedulerHook: sendMessage method not found in ActionUser")
-                sendStatusBroadcast(id, false)
-                return
-            }
-
-            val newObject = arrayOfNulls<Any>(senderMethod.parameterCount)
-            for (i in newObject.indices) {
-                val param = senderMethod.parameterTypes[i]
-                newObject[i] = ReflectionUtils.getDefaultValue(param)
-            }
-
-            val textIndex = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, String::class.java)
-            newObject[textIndex] = text
-
-            val jidIndex = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, List::class.java)
-            newObject[jidIndex] = Collections.singletonList(userJid)
-
-            senderMethod.invoke(actionUser, *newObject)
-            XposedBridge.log("WaEnhancer MessageSchedulerHook: Text message id $id sent to $jid successfully")
+            XposedBridge.log("WaEnhancer MessageSchedulerHook: Calling WppCore.sendMessage to $phoneNumber")
+            WppCore.sendMessage(phoneNumber, text)
             sendStatusBroadcast(id, true)
         } catch (e: Exception) {
             XposedBridge.log("WaEnhancer MessageSchedulerHook Error: sending text failed: ${e.message}")
@@ -157,8 +135,9 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
             }
 
             val actionUser = WppCore.getActionUser()
-            if (actionUser == null) {
-                XposedBridge.log("WaEnhancer MessageSchedulerHook: ActionUser instance is null")
+            val actionUserClass = WppCore.getActionUserClass()
+            if (actionUser == null || actionUserClass == null) {
+                XposedBridge.log("WaEnhancer MessageSchedulerHook: ActionUser instance or class is null")
                 sendStatusBroadcast(id, false)
                 return
             }
@@ -168,8 +147,8 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
             val fileUri = Uri.fromFile(file)
             StrictMode.setVmPolicy(oldPolicy)
 
-            // Dynamically find media sending method in UserAction
-            val mediaMethod = actionUser.javaClass.declaredMethods.find { method ->
+            // Dynamically find media sending method in UserAction class
+            val mediaMethod = actionUserClass.declaredMethods.find { method ->
                 val params = method.parameterTypes
                 params.size >= 3 &&
                         List::class.java.isAssignableFrom(params[0]) &&

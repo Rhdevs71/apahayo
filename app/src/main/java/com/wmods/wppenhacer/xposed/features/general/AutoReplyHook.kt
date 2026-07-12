@@ -257,9 +257,20 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
             val userJid = WppCore.createUserJid(jid)
             if (userJid == null) return
 
-            val actionUser = WppCore.getActionUser() ?: return
+            val fMsgJid = FMessageWpp.UserJid(userJid)
+            val phoneNumber = fMsgJid.phoneNumber
 
-            val senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUser.javaClass) { method ->
+            if (quoteMessage == null && phoneNumber != null) {
+                XposedBridge.log("WaEnhancer AutoReplyHook: Calling WppCore.sendMessage to $phoneNumber")
+                WppCore.sendMessage(phoneNumber, replyText)
+                return
+            }
+
+            val actionUser = WppCore.getActionUser()
+            val actionUserClass = WppCore.getActionUserClass()
+            if (actionUser == null || actionUserClass == null) return
+
+            val senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
                 List::class.java.isAssignableFrom(method.returnType) &&
                         ReflectionUtils.findIndexOfType(method.parameterTypes, String::class.java) != -1
             }
