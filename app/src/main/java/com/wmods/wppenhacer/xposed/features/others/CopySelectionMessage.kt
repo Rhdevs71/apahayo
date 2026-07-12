@@ -450,16 +450,16 @@ class CopySelectionMessage(classLoader: ClassLoader, prefs: SharedPreferences) :
             }
 
             // 2. Update persistent local SQLite database
-            val db = MessageStore.getInstance().database
+            val db = MessageStore.getInstance().getDatabase()
             if (db != null) {
                 db.execSQL(
                     "UPDATE message SET text_data = ?, timestamp = ? WHERE key_id = ?",
-                    arrayOf(newText, newTimestamp, fMessage.key.messageID)
+                    arrayOf<Any?>(newText, newTimestamp, fMessage.key.messageID)
                 )
                 try {
                     db.execSQL(
                         "UPDATE message_ftsv2_content SET c0content = ? WHERE docid = (SELECT _id FROM message WHERE key_id = ?)",
-                        arrayOf(newText, fMessage.key.messageID)
+                        arrayOf<Any?>(newText, fMessage.key.messageID)
                     )
                 } catch (_: Exception) {}
             }
