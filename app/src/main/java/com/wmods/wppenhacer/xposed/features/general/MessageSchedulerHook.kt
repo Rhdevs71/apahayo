@@ -109,8 +109,7 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
 
             val senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUser.javaClass) { method ->
                 List::class.java.isAssignableFrom(method.returnType) &&
-                        ReflectionUtils.findIndexOfType(method.parameterTypes, String::class.java) != -1 &&
-                        ReflectionUtils.findIndexOfType(method.parameterTypes, List::class.java) != -1
+                        ReflectionUtils.findIndexOfType(method.parameterTypes, String::class.java) != -1
             }
 
             if (senderMethod == null) {
