@@ -15,5 +15,8 @@ data class AutoReplyRule(
     val targetType: String = "ALL", // "ALL", "CONTACTS", "GROUPS", "NON_CONTACTS"
     val activeHoursStart: String? = null, // "HH:mm" format or null
     val activeHoursEnd: String? = null, // "HH:mm" format or null
-    val isEnabled: Boolean = true
+    val isEnabled: Boolean = true,
+    val isForward: Boolean = false,
+    val forwardJid: String? = null,
+    val isAi: Boolean = false
 ) : Serializable

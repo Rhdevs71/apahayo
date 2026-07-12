@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer.activities;
 
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -13,7 +14,12 @@ import com.wmods.wppenhacer.activities.base.BaseActivity;
 import com.wmods.wppenhacer.database.AppDatabase;
 import com.wmods.wppenhacer.database.AutoReplyRule;
 import com.wmods.wppenhacer.databinding.ActivityEditAutoReplyRuleBinding;
+import com.wmods.wppenhacer.model.ContactPickerResult;
+import com.wmods.wppenhacer.preference.ContactPickerPreference;
+import com.wmods.wppenhacer.utils.ContactHelper;
+import com.wmods.wppenhacer.utils.WhatsAppContactPickerLauncher;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -28,6 +34,8 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
     private String activeHoursStart = "09:00";
     private String activeHoursEnd = "17:00";
     private int delaySeconds = 0;
+    private String selectedForwardJid = null;
+
     private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
     @Override
@@ -64,6 +72,24 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
 
         binding.btnActiveStart.setOnClickListener(v -> showTimePicker(true));
         binding.btnActiveEnd.setOnClickListener(v -> showTimePicker(false));
+
+        // Setup Forward Switch
+        binding.switchIsForward.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                binding.layoutForwardJid.setVisibility(View.VISIBLE);
+                binding.switchIsAi.setChecked(false); // Mutual exclusion
+            } else {
+                binding.layoutForwardJid.setVisibility(View.GONE);
+            }
+        });
+
+        binding.switchIsAi.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                binding.switchIsForward.setChecked(false); // Mutual exclusion
+            }
+        });
+
+        binding.btnSelectForwardContact.setOnClickListener(v -> startWhatsAppContactPicker());
 
         // Setup Delay SeekBar
         binding.seekBarDelay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -135,6 +161,18 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
                 delaySeconds = ruleToEdit.getDelaySeconds();
                 binding.seekBarDelay.setProgress(delaySeconds);
                 binding.textDelayValue.setText(delaySeconds + "s");
+
+                binding.switchIsAi.setChecked(ruleToEdit.isAi());
+                binding.switchIsForward.setChecked(ruleToEdit.isForward());
+                selectedForwardJid = ruleToEdit.getForwardJid();
+                if (selectedForwardJid != null && !selectedForwardJid.isEmpty()) {
+                    String name = ContactHelper.getContactName(this, selectedForwardJid);
+                    if (name == null || name.isEmpty()) {
+                        name = selectedForwardJid.split("@")[0];
+                    }
+                    binding.textForwardJid.setText("Forward Recipient JID: " + name + " (" + selectedForwardJid + ")");
+                    binding.layoutForwardJid.setVisibility(View.VISIBLE);
+                }
             });
         });
     }
@@ -161,6 +199,47 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         }, currentHour, currentMin, true).show();
     }
 
+    private void startWhatsAppContactPicker() {
+        var installedPackages = WhatsAppContactPickerLauncher.getInstalledWhatsAppPackages(this);
+        if (installedPackages.isEmpty()) {
+            Toast.makeText(this, "WhatsApp is not installed", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String targetPackage = installedPackages.get(0);
+        try {
+            ArrayList<String> preSelected = new ArrayList<>();
+            if (selectedForwardJid != null) {
+                preSelected.add(selectedForwardJid);
+            }
+            Intent intent = WhatsAppContactPickerLauncher.createPickerIntent(this, targetPackage, "auto_reply_forward_picker", preSelected);
+            startActivityForResult(intent, ContactPickerPreference.REQUEST_CONTACT_PICKER);
+        } catch (Exception e) {
+            Toast.makeText(this, "Failed to launch contact picker: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ContactPickerPreference.REQUEST_CONTACT_PICKER && resultCode == RESULT_OK && data != null) {
+            ArrayList<ContactPickerResult> results = (ArrayList<ContactPickerResult>) data.getSerializableExtra("picker_contacts");
+            if (results != null && !results.isEmpty()) {
+                ContactPickerResult result = results.get(0);
+                selectedForwardJid = result.jid();
+                String name = result.fullName();
+                if (name == null || name.isEmpty()) {
+                    name = ContactHelper.getContactName(this, selectedForwardJid);
+                }
+                if (name == null || name.isEmpty()) {
+                    name = selectedForwardJid.split("@")[0];
+                }
+                binding.textForwardJid.setText("Forward Recipient JID: " + name + " (" + selectedForwardJid + ")");
+            }
+        }
+    }
+
     private void saveAutoReplyRule() {
         String keywords = binding.editKeywords.getText().toString().trim();
         if (keywords.isEmpty()) {
@@ -169,8 +248,16 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         }
 
         String replyText = binding.editReplyText.getText().toString().trim();
-        if (replyText.isEmpty()) {
+        boolean isForward = binding.switchIsForward.isChecked();
+        boolean isAi = binding.switchIsAi.isChecked();
+
+        if (!isForward && !isAi && replyText.isEmpty()) {
             Toast.makeText(this, "Reply text is required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (isForward && selectedForwardJid == null) {
+            Toast.makeText(this, "Please select a forward JID", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -190,6 +277,7 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         final String finalReplyText = replyText;
         final String finalStart = start;
         final String finalEnd = end;
+        final String finalForwardJid = selectedForwardJid;
 
         dbExecutor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
@@ -206,7 +294,10 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
                     targetType,
                     finalStart,
                     finalEnd,
-                    ruleToEdit.isEnabled()
+                    ruleToEdit.isEnabled(),
+                    isForward,
+                    finalForwardJid,
+                    isAi
                 );
                 db.autoReplyRuleDao().update(rule);
                 runOnUiThread(() -> Toast.makeText(this, "Rule updated", Toast.LENGTH_SHORT).show());
@@ -221,7 +312,10 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
                     targetType,
                     finalStart,
                     finalEnd,
-                    true
+                    true,
+                    isForward,
+                    finalForwardJid,
+                    isAi
                 );
                 db.autoReplyRuleDao().insert(rule);
                 runOnUiThread(() -> Toast.makeText(this, "Rule created", Toast.LENGTH_SHORT).show());

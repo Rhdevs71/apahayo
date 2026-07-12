@@ -27,6 +27,25 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
     override fun doHook() {
         XposedBridge.log("WaEnhancer MessageSchedulerHook: Hooking scheduler receiver in WhatsApp")
         registerSchedulerReceiver()
+        hookWhatsAppSync()
+    }
+
+    private fun hookWhatsAppSync() {
+        try {
+            val waJobManagerMethod = Unobfuscator.loadBlueOnReplayWaJobManagerMethod(classLoader)
+            XposedBridge.hookMethod(waJobManagerMethod, object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    // Send a broadcast to trigger our SchedulerReceiver and wake up the service
+                    val intent = Intent("com.wmods.wppenhacer.TRIGGER_ALARM").apply {
+                        `package` = BuildConfig.APPLICATION_ID
+                    }
+                    Utils.application.sendBroadcast(intent)
+                }
+            })
+            XposedBridge.log("WaEnhancer MessageSchedulerHook: Hooked WaJobManager for periodic background triggers")
+        } catch (e: Exception) {
+            XposedBridge.log("WaEnhancer MessageSchedulerHook Error: Failed to hook WaJobManager: ${e.message}")
+        }
     }
 
     @SuppressLint("WrongConstant")

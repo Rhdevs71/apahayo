@@ -27,8 +27,8 @@ class SchedulerService : Service() {
 
     private val executor: ExecutorService = Executors.newSingleThreadExecutor()
     private val channelId = "scheduler_service"
-    private var isProcessing = false
-    private val TAG = "SchedulerService"
+    private var isLoopRunning = false
+    private const val TAG = "SchedulerService"
 
     private val statusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -45,7 +45,7 @@ class SchedulerService : Service() {
         super.onCreate()
         Log.d(TAG, "onCreate: service initializing")
         createNotificationChannel()
-        val notification = createNotification("Processing scheduled messages...")
+        val notification = createNotification("Scheduler background monitoring active")
         startForeground(1122, notification)
 
         val filter = IntentFilter("com.wmods.wppenhacer.SCHEDULED_STATUS")
@@ -58,17 +58,27 @@ class SchedulerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onStartCommand: service starting")
-        if (!isProcessing) {
-            isProcessing = true
+        Log.d(TAG, "onStartCommand: persistent service starting/restarting")
+        if (!isLoopRunning) {
+            isLoopRunning = true
             executor.execute {
-                // Run media cleaner first if necessary
-                cleanMediaIfNecessary()
-                // Process pending messages
-                processPendingMessages()
+                while (isLoopRunning) {
+                    try {
+                        cleanMediaIfNecessary()
+                        processPendingMessages()
+                        // Sleep for 30 seconds
+                        Thread.sleep(30000L)
+                    } catch (e: InterruptedException) {
+                        Log.d(TAG, "Loop interrupted, shutting down")
+                        break
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error in scheduler loop: ${e.message}")
+                        e.printStackTrace()
+                    }
+                }
             }
         }
-        return START_NOT_STICKY
+        return START_STICKY // Stay alive!
     }
 
     private fun cleanMediaIfNecessary() {
@@ -78,9 +88,7 @@ class SchedulerService : Service() {
 
         val now = System.currentTimeMillis()
         val lastClean = prefs.getLong("media_cleaner_last_run", 0L)
-        // Only run cleaner once every 24 hours
         if (now - lastClean < 24 * 60 * 60 * 1000L) {
-            Log.d(TAG, "cleanMediaIfNecessary: skipped, last clean was less than 24 hours ago")
             return
         }
 
@@ -89,8 +97,6 @@ class SchedulerService : Service() {
         Log.d(TAG, "cleanMediaIfNecessary: running media cleaner for files older than $cleanDays days")
 
         try {
-            // Find WhatsApp media folder in external shared storage
-            val appLabel = packageManager.getApplicationLabel(applicationInfo).toString()
             val mediaRoot = File(Environment.getExternalStorageDirectory(), "Android/media/com.whatsapp/WhatsApp/Media")
             val mediaRootBusiness = File(Environment.getExternalStorageDirectory(), "Android/media/com.whatsapp.w4b/WhatsApp Business/Media")
 
@@ -112,7 +118,6 @@ class SchedulerService : Service() {
 
         for (file in files) {
             if (file.isDirectory) {
-                // Do not delete WhatsApp Sent folders or core structure folders entirely, just clean files recursively
                 cleanDirectory(file, days)
             } else {
                 if (file.lastModified() < threshold) {
@@ -129,14 +134,12 @@ class SchedulerService : Service() {
         val db = AppDatabase.getInstance(this)
         val now = System.currentTimeMillis()
         val pendingMessages = db.scheduledMessageDao().getPendingBefore(now)
-        Log.d(TAG, "processPendingMessages: found ${pendingMessages.size} pending messages at $now")
 
         if (pendingMessages.isEmpty()) {
-            Log.d(TAG, "processPendingMessages: no messages pending, stopping service")
-            stopService()
             return
         }
 
+        Log.d(TAG, "processPendingMessages: found ${pendingMessages.size} pending messages at $now")
         for (message in pendingMessages) {
             Log.d(TAG, "processPendingMessages: sending message id ${message.id} to WhatsApp JID: ${message.jid}")
             sendMessageToWhatsApp(message)
@@ -147,8 +150,6 @@ class SchedulerService : Service() {
                 e.printStackTrace()
             }
         }
-
-        stopService()
     }
 
     private fun sendMessageToWhatsApp(message: ScheduledMessage) {
@@ -169,7 +170,8 @@ class SchedulerService : Service() {
     }
 
     private fun updateMessageStatus(id: Int, success: Boolean) {
-        executor.execute {
+        // Perform DB operations on executor
+        Executors.newSingleThreadExecutor().execute {
             val db = AppDatabase.getInstance(this)
             val message = db.scheduledMessageDao().getById(id) ?: return@execute
             Log.d(TAG, "updateMessageStatus: updating message id $id, status: ${message.status}, success: $success")
@@ -204,28 +206,25 @@ class SchedulerService : Service() {
                 db.scheduledMessageDao().update(message.copy(status = "FAILED"))
                 Log.d(TAG, "updateMessageStatus: set message id $id to FAILED")
             }
-
-            SchedulerHelper.scheduleNextAlarm(this)
         }
-    }
-
-    private fun stopService() {
-        Log.d(TAG, "stopService: scheduling next alarm and stopping foreground")
-        SchedulerHelper.scheduleNextAlarm(this)
-        isProcessing = false
-        stopForeground(true)
-        stopSelf()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "onDestroy: service destroyed")
+        Log.d(TAG, "onDestroy: service destroyed, attempting to restart")
+        isLoopRunning = false
         try {
             unregisterReceiver(statusReceiver)
         } catch (e: Exception) {
             e.printStackTrace()
         }
         executor.shutdown()
+
+        // Restart service by sending broadcast to SchedulerReceiver
+        val restartIntent = Intent(this, SchedulerReceiver::class.java).apply {
+            action = "com.wmods.wppenhacer.TRIGGER_ALARM"
+        }
+        sendBroadcast(restartIntent)
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -246,7 +245,7 @@ class SchedulerService : Service() {
 
     private fun createNotification(content: String): Notification {
         return NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Message Scheduler")
+            .setContentTitle("Message Scheduler Active")
             .setContentText(content)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setPriority(NotificationCompat.PRIORITY_LOW)

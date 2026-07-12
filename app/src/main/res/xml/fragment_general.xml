@@ -99,6 +99,30 @@
             app:entryValues="@array/media_cleaner_days_values"
             app:title="Delete Files Older Than" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="anti_screenshot_enabled"
+            app:defaultValue="false"
+            app:summary="Allow taking screenshots on view once media"
+            app:title="Anti-Screenshot Bypass" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="app_switcher_blur_enabled"
+            app:defaultValue="false"
+            app:summary="Hide screen preview in recent apps menu"
+            app:title="App Switcher Blur" />
+
+        <EditTextPreference
+            app:key="ai_api_key"
+            app:title="AI Responder API Key"
+            app:summary="Enter your Groq API Key" />
+
+        <ListPreference
+            app:key="ai_model"
+            app:defaultValue="llama3-8b-8192"
+            app:entries="@array/ai_model_entries"
+            app:entryValues="@array/ai_model_values"
+            app:title="AI Model" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -115,6 +115,9 @@ public class AutoReplyActivity extends BaseActivity {
                     obj.put("activeHoursStart", rule.getActiveHoursStart());
                     obj.put("activeHoursEnd", rule.getActiveHoursEnd());
                     obj.put("isEnabled", rule.isEnabled());
+                    obj.put("isForward", rule.isForward());
+                    obj.put("forwardJid", rule.getForwardJid());
+                    obj.put("isAi", rule.isAi());
                     array.put(obj);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -175,7 +178,10 @@ public class AutoReplyActivity extends BaseActivity {
                         rule.getTargetType(),
                         rule.getActiveHoursStart(),
                         rule.getActiveHoursEnd(),
-                        isChecked
+                        isChecked,
+                        rule.isForward(),
+                        rule.getForwardJid(),
+                        rule.isAi()
                     );
                     db.autoReplyRuleDao().update(updatedRule);
                     syncRulesToSharedPreferences(itemView.getContext());
