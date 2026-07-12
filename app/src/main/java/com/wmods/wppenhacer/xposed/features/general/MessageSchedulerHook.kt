@@ -10,10 +10,13 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.os.StrictMode
+import com.wmods.wppenhacer.BuildConfig
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import java.io.File
 import java.util.Collections
