@@ -257,12 +257,9 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
             val userJid = WppCore.createUserJid(jid)
             if (userJid == null) return
 
-            val fMsgJid = FMessageWpp.UserJid(userJid)
-            val phoneNumber = fMsgJid.phoneNumber
-
-            if (quoteMessage == null && phoneNumber != null) {
-                XposedBridge.log("WaEnhancer AutoReplyHook: Calling WppCore.sendMessage to $phoneNumber")
-                WppCore.sendMessage(phoneNumber, replyText)
+            if (quoteMessage == null) {
+                XposedBridge.log("WaEnhancer AutoReplyHook: Calling WppCore.sendMessageToJid")
+                WppCore.sendMessageToJid(userJid, replyText)
                 return
             }
 

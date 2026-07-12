@@ -100,16 +100,8 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
                 return
             }
 
-            val fMsgJid = FMessageWpp.UserJid(userJid)
-            val phoneNumber = fMsgJid.phoneNumber
-            if (phoneNumber == null) {
-                XposedBridge.log("WaEnhancer MessageSchedulerHook: PhoneNumber is null for $jid")
-                sendStatusBroadcast(id, false)
-                return
-            }
-
-            XposedBridge.log("WaEnhancer MessageSchedulerHook: Calling WppCore.sendMessage to $phoneNumber")
-            WppCore.sendMessage(phoneNumber, text)
+            XposedBridge.log("WaEnhancer MessageSchedulerHook: Calling WppCore.sendMessageToJid")
+            WppCore.sendMessageToJid(userJid, text)
             sendStatusBroadcast(id, true)
         } catch (e: Exception) {
             XposedBridge.log("WaEnhancer MessageSchedulerHook Error: sending text failed: ${e.message}")

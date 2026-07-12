@@ -264,6 +264,41 @@ object WppCore {
     }
 
     @JvmStatic
+    fun sendMessageToJid(userJid: Any?, message: String) {
+        if (userJid == null) return
+        try {
+            val actionUserClass = getActionUserClass()
+            val senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
+                List::class.java.isAssignableFrom(method.returnType) &&
+                        ReflectionUtils.findIndexOfType(
+                            method.parameterTypes,
+                            String::class.java
+                        ) != -1
+            }
+            if (senderMethod != null) {
+                val newObject = arrayOfNulls<Any>(senderMethod.parameterCount)
+                for (i in newObject.indices) {
+                    val param = senderMethod.parameterTypes[i]
+                    newObject[i] = ReflectionUtils.getDefaultValue(param)
+                }
+                val index =
+                    ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, String::class.java)
+                newObject[index] = message
+                val index2 =
+                    ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, List::class.java)
+                newObject[index2] = Collections.singletonList(userJid)
+                senderMethod.invoke(getActionUser(), *newObject)
+                XposedBridge.log("WaEnhancer WppCore: Message sent successfully to JID")
+            } else {
+                XposedBridge.log("WaEnhancer WppCore Error: sendMessage method not found in ActionUser for JID")
+            }
+        } catch (e: Exception) {
+            XposedBridge.log("WaEnhancer WppCore Error in sending message to JID: ${e.message}")
+            XposedBridge.log(e)
+        }
+    }
+
+    @JvmStatic
     fun sendReaction(s: String, objMessage: Any?) {
         try {
             val senderMethod = ReflectionUtils.findMethodUsingFilter(actionUser) { method ->
