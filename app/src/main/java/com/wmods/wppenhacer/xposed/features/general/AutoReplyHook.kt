@@ -98,9 +98,10 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                             executor.execute {
                                 val replyContent = if (isAi) {
                                     val apiKey = prefs.getString("ai_api_key", "") ?: ""
-                                    val apiModel = prefs.getString("ai_model", "llama-3.1-8b-instant") ?: "llama-3.1-8b-instant"
+                                    val apiModel = prefs.getString("ai_model", "llama3-8b-8192") ?: "llama3-8b-8192"
+                                    val aiProvider = prefs.getString("ai_provider", "groq") ?: "groq"
                                     if (apiKey.isNotEmpty()) {
-                                        queryAiChatbot(apiKey, messageText, apiModel) ?: "AI Responder failed to formulate reply."
+                                        queryAiChatbot(apiKey, messageText, apiModel, aiProvider) ?: "AI Responder failed to formulate reply."
                                     } else {
                                         "AI API Key is missing in settings."
                                     }
@@ -170,40 +171,74 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
         }
     }
 
-    private fun queryAiChatbot(apiKey: String, messageText: String, model: String): String? {
+    private fun queryAiChatbot(apiKey: String, messageText: String, model: String, provider: String): String? {
         var connection: HttpURLConnection? = null
         return try {
-            val url = URL("https://api.groq.com/openai/v1/chat/completions")
+            val urlStr = when (provider) {
+                "gemini" -> "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
+                "openai" -> "https://api.openai.com/v1/chat/completions"
+                else -> "https://api.groq.com/openai/v1/chat/completions"
+            }
+            val url = URL(urlStr)
             connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
             connection.connectTimeout = 10000
             connection.readTimeout = 10000
             connection.doOutput = true
-            connection.setRequestProperty("Authorization", "Bearer $apiKey")
             connection.setRequestProperty("Content-Type", "application/json")
 
-            val root = JSONObject().apply {
-                put("model", model)
-                val messages = JSONArray().apply {
-                    val msg = JSONObject().apply {
-                        put("role", "user")
-                        put("content", "You are an automated WhatsApp chat responder. Formulate a short, friendly, and contextual reply for this incoming message: $messageText")
-                    }
-                    put(msg)
-                }
-                put("messages", messages)
+            if (provider != "gemini") {
+                connection.setRequestProperty("Authorization", "Bearer $apiKey")
             }
 
-            connection.outputStream.bufferedWriter().use { it.write(root.toString()) }
+            val payload = if (provider == "gemini") {
+                JSONObject().apply {
+                    val contents = JSONArray().apply {
+                        val partsWrapper = JSONObject().apply {
+                            val parts = JSONArray().apply {
+                                val textObj = JSONObject().apply {
+                                    put("text", "You are an automated WhatsApp chat responder. Formulate a short, friendly, and contextual reply for this incoming message: $messageText")
+                                }
+                                put(textObj)
+                            }
+                            put("parts", parts)
+                        }
+                        put("contents", contents)
+                    }
+                    put("contents", contents)
+                }
+            } else {
+                JSONObject().apply {
+                    put("model", model)
+                    val messages = JSONArray().apply {
+                        val msg = JSONObject().apply {
+                            put("role", "user")
+                            put("content", "You are an automated WhatsApp chat responder. Formulate a short, friendly, and contextual reply for this incoming message: $messageText")
+                        }
+                        put(msg)
+                    }
+                    put("messages", messages)
+                }
+            }
+
+            connection.outputStream.bufferedWriter().use { it.write(payload.toString()) }
 
             val responseCode = connection.responseCode
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 val response = connection.inputStream.bufferedReader().use { it.readText() }
                 val responseJson = JSONObject(response)
-                val choices = responseJson.getJSONArray("choices")
-                val choice = choices.getJSONObject(0)
-                val message = choice.getJSONObject("message")
-                message.getString("content").trim()
+                if (provider == "gemini") {
+                    val candidates = responseJson.getJSONArray("candidates")
+                    val candidate = candidates.getJSONObject(0)
+                    val content = candidate.getJSONObject("content")
+                    val parts = content.getJSONArray("parts")
+                    parts.getJSONObject(0).getString("text").trim()
+                } else {
+                    val choices = responseJson.getJSONArray("choices")
+                    val choice = choices.getJSONObject(0)
+                    val message = choice.getJSONObject("message")
+                    message.getString("content").trim()
+                }
             } else {
                 val err = connection.errorStream.bufferedReader().use { it.readText() }
                 XposedBridge.log("AutoReply AI Error Response: $err")

@@ -308,4 +308,15 @@
         <item>llama-3.1-8b-instant</item>
         <item>mixtral-8x7b-32768</item>
     </string-array>
+
+    <string-array name="ai_provider_entries">
+        <item>Groq AI</item>
+        <item>OpenAI GPT</item>
+        <item>Google Gemini</item>
+    </string-array>
+    <string-array name="ai_provider_values">
+        <item>groq</item>
+        <item>openai</item>
+        <item>gemini</item>
+    </string-array>
 </resources>

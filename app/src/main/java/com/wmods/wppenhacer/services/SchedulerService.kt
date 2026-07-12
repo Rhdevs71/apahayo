@@ -248,7 +248,7 @@ class SchedulerService : Service() {
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle("Message Scheduler Active")
             .setContentText(content)
-            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setSmallIcon(com.wmods.wppenhacer.R.mipmap.launcher)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }

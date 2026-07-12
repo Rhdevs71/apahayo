@@ -43,7 +43,7 @@
             <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:src="@android:drawable/ic_lock_idle_alarm"
+                android:src="@android:drawable/ic_popup_reminder"
                 app:tint="?attr/colorSecondary" />
 
             <TextView

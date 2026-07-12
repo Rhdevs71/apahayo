@@ -111,17 +111,23 @@
             app:summary="Hide screen preview in recent apps menu"
             app:title="App Switcher Blur" />
 
+        <ListPreference
+            app:key="ai_provider"
+            app:defaultValue="groq"
+            app:entries="@array/ai_provider_entries"
+            app:entryValues="@array/ai_provider_values"
+            app:title="AI Service Provider" />
+
         <EditTextPreference
             app:key="ai_api_key"
             app:title="AI Responder API Key"
-            app:summary="Enter your Groq API Key" />
+            app:summary="Enter your API Key" />
 
-        <ListPreference
+        <EditTextPreference
             app:key="ai_model"
             app:defaultValue="llama3-8b-8192"
-            app:entries="@array/ai_model_entries"
-            app:entryValues="@array/ai_model_values"
-            app:title="AI Model" />
+            app:title="AI Model Name"
+            app:summary="Enter the specific model identifier (e.g., llama3-8b-8192, gpt-4o-mini, gemini-1.5-flash)" />
 
     </PreferenceCategory>
 
