@@ -192,20 +192,20 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
             }
 
             val payload = if (provider == "gemini") {
+                val partsObj = JSONObject().apply {
+                    put("text", "You are an automated WhatsApp chat responder. Formulate a short, friendly, and contextual reply for this incoming message: $messageText")
+                }
+                val partsArray = JSONArray().apply {
+                    put(partsObj)
+                }
+                val contentObj = JSONObject().apply {
+                    put("parts", partsArray)
+                }
+                val contentsArray = JSONArray().apply {
+                    put(contentObj)
+                }
                 JSONObject().apply {
-                    val contents = JSONArray().apply {
-                        val partsWrapper = JSONObject().apply {
-                            val parts = JSONArray().apply {
-                                val textObj = JSONObject().apply {
-                                    put("text", "You are an automated WhatsApp chat responder. Formulate a short, friendly, and contextual reply for this incoming message: $messageText")
-                                }
-                                put(textObj)
-                            }
-                            put("parts", parts)
-                        }
-                        put("contents", contents)
-                    }
-                    put("contents", contents)
+                    put("contents", contentsArray)
                 }
             } else {
                 JSONObject().apply {
