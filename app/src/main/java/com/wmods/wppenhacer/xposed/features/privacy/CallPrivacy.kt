@@ -17,6 +17,7 @@ import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import android.content.SharedPreferences
 import org.json.JSONObject
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
