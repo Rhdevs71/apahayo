@@ -397,8 +397,11 @@ object WppCore {
                         mActionUser = instanceField.get(null)
                         XposedBridge.log("WaEnhancer WppCore: Obtained ActionUser from INSTANCE field")
                     } catch (ignored: NoSuchFieldException) {
-                        mActionUser = clazz.constructors.getOrNull(0)?.newInstance()
-                        XposedBridge.log("WaEnhancer WppCore: Obtained ActionUser from constructor")
+                        val constructors = clazz.constructors
+                        if (constructors.isNotEmpty()) {
+                            mActionUser = constructors[0].newInstance()
+                            XposedBridge.log("WaEnhancer WppCore: Obtained ActionUser from constructor")
+                        }
                     }
                 }
             }

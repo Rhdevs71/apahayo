@@ -247,7 +247,12 @@ class FakeDisplayHook(loader: ClassLoader, preferences: SharedPreferences) : Fea
         if (chatRowId == -1L) return
 
         val chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        val randomKey = "3EB0" + (1..12).map { chars.random() }.joinToString("")
+        val sb = java.lang.StringBuilder("3EB0")
+        val random = java.util.Random()
+        for (i in 1..12) {
+            sb.append(chars[random.nextInt(chars.length)])
+        }
+        val randomKey = sb.toString()
 
         db.execSQL(
             "INSERT INTO message (chat_row_id, from_me, key_id, sender_jid_row_id, message_type, text_data, timestamp, status) " +
