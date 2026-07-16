@@ -17,5 +17,6 @@ data class ScheduledMessage(
     val recurrenceType: String = "ONCE", // "ONCE", "DAILY", "WEEKLY", "MONTHLY", "SPECIFIC_DAYS"
     val recurrenceDays: String? = null, // Comma-separated numbers e.g. "1,2,5" (1=Sunday, 2=Monday...)
     var status: String = "PENDING", // "PENDING", "SENT", "FAILED"
-    val autoDelete: Boolean = false
+    val autoDelete: Boolean = false,
+    val targetPackage: String? = "BOTH"
 ) : Serializable

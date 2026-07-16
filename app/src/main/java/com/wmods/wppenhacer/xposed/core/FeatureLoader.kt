@@ -54,6 +54,7 @@ import com.wmods.wppenhacer.xposed.features.general.AutoReplyHook
 import com.wmods.wppenhacer.xposed.features.general.QuickTranslateHook
 import com.wmods.wppenhacer.xposed.features.general.VoiceChangerHook
 import com.wmods.wppenhacer.xposed.features.general.ScreenSecurityHook
+import com.wmods.wppenhacer.xposed.features.general.FakeDisplayHook
 import com.wmods.wppenhacer.xposed.features.general.CallType
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit
 import com.wmods.wppenhacer.xposed.features.general.DeleteStatus
@@ -544,7 +545,8 @@ class FeatureLoader {
                 AutoReplyHook::class.java,
                 QuickTranslateHook::class.java,
                 VoiceChangerHook::class.java,
-                ScreenSecurityHook::class.java
+                ScreenSecurityHook::class.java,
+                FakeDisplayHook::class.java
             )
 
             XposedBridge.log("Loading Plugins")

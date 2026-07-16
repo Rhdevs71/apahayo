@@ -18,5 +18,7 @@ data class AutoReplyRule(
     val isEnabled: Boolean = true,
     val isForward: Boolean = false,
     val forwardJid: String? = null,
-    val isAi: Boolean = false
+    val isAi: Boolean = false,
+    val ignoreCase: Boolean = true,
+    val targetContacts: String? = null
 ) : Serializable

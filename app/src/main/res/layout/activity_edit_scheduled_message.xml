@@ -1,21 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#0B0E14"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+        android:background="#0B0E14"
+        app:elevation="0dp">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Schedule Message"
-            app:navigationIcon="?attr/homeAsUpIndicator" />
+            android:paddingHorizontal="16dp">
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_down"
+                android:rotation="90"
+                app:tint="#E3E6EB"
+                android:contentDescription="Back" />
+
+            <ImageView
+                android:id="@+id/app_logo"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/btn_back"
+                android:layout_marginStart="8dp"
+                android:src="@mipmap/launcher"
+                android:contentDescription="App Logo" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/app_logo"
+                android:layout_marginStart="12dp"
+                android:text="Schedule Message"
+                android:textColor="#E3E6EB"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btn_search"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_toStartOf="@+id/btn_info"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="#E3E6EB"
+                android:contentDescription="Search" />
+
+            <ImageButton
+                android:id="@+id/btn_info"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_info_details"
+                app:tint="#E3E6EB"
+                android:contentDescription="Info" />
+        </RelativeLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -27,309 +84,434 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:clipToPadding="false"
+            android:paddingBottom="100dp">
 
-            <!-- Target Selection -->
-            <com.google.android.material.card.MaterialCardView
+            <!-- Select Contact -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Contact"
+                android:textColor="#8F9CAE"
+                android:textSize="12sp"
+                android:layout_marginStart="12dp"
+                android:layout_marginBottom="-8dp"
+                android:elevation="2dp"
+                android:background="#0B0E14"
+                android:paddingHorizontal="4dp" />
+
+            <LinearLayout
+                android:id="@+id/btn_select_contact"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_bordered_box"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="16dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_myplaces"
+                    app:tint="#8F9CAE" />
+
+                <TextView
+                    android:id="@+id/text_selected_contact"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="12dp"
+                    android:text="Alt Account"
+                    android:textColor="#E3E6EB"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <!-- Send to (WhatsApp vs Business) -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutlineVariant">
+                android:orientation="vertical"
+                android:background="@drawable/bg_bordered_box"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send to"
+                    android:textColor="#8F9CAE"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="12dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:background="@drawable/bg_segmented_container"
+                    android:padding="4dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Recipient"
-                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        android:id="@+id/tab_whatsapp"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="WhatsApp"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="8dp" />
+                        android:background="@drawable/bg_segmented_selected"
+                        android:clickable="true"
+                        android:focusable="true" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:id="@+id/text_selected_contact"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="No contact selected"
-                            android:textAppearance="?attr/textAppearanceBody1" />
-
-                        <Button
-                            android:id="@+id/btn_select_contact"
-                            style="@style/Widget.Material3.Button.TonalButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Select" />
-                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/tab_business"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="WhatsApp Business"
+                        android:textColor="#8F9CAE"
+                        android:textSize="14sp"
+                        android:background="@android:color/transparent"
+                        android:clickable="true"
+                        android:focusable="true" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
-            <!-- Message Text -->
-            <com.google.android.material.textfield.TextInputLayout
+            <!-- Message Input -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Message"
+                android:textColor="#8F9CAE"
+                android:textSize="12sp"
+                android:layout_marginStart="12dp"
+                android:layout_marginBottom="-8dp"
+                android:elevation="2dp"
+                android:background="#0B0E14"
+                android:paddingHorizontal="4dp" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:hint="Message text"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                android:orientation="vertical"
+                android:background="@drawable/bg_bordered_box"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <EditText
                     android:id="@+id/edit_message_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minLines="4"
                     android:gravity="top"
-                    android:minLines="3"
-                    android:inputType="textMultiLine" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:background="@null"
+                    android:hint="Message content"
+                    android:textColor="#E3E6EB"
+                    android:textColorHint="#5A687C"
+                    android:textSize="16sp" />
 
-            <!-- Media Attachment -->
-            <com.google.android.material.card.MaterialCardView
+                <TextView
+                    android:id="@+id/text_char_counter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="8dp"
+                    android:text="9/65535"
+                    android:textColor="#5A687C"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Attach Image -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/bg_bordered_box"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="16dp">
+
+                <ImageView
+                    android:id="@+id/img_attachment_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:src="@android:drawable/ic_menu_gallery"
+                    app:tint="#8F9CAE" />
+
+                <TextView
+                    android:id="@+id/text_selected_media"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/img_attachment_icon"
+                    android:layout_marginStart="12dp"
+                    android:text="Attach Image"
+                    android:textColor="#E3E6EB"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/btn_attach_media"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:gravity="center"
+                    android:text="SELECT"
+                    android:textColor="#9C87F2"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <ImageButton
+                    android:id="@+id/btn_clear_media"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_toStartOf="@id/btn_attach_media"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:visibility="gone"
+                    app:tint="?attr/colorError" />
+            </RelativeLayout>
+
+            <!-- Date & Time Row -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutlineVariant">
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
 
+                <!-- Date Picker Box -->
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/btn_pick_date"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:background="@drawable/bg_bordered_box"
+                    android:paddingHorizontal="16dp"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Attach Media / File"
-                        android:textAppearance="?attr/textAppearanceSubtitle1"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="8dp" />
+                        android:text="Date"
+                        android:textColor="#8F9CAE"
+                        android:textSize="11sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="2dp">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_menu_today"
+                            app:tint="#8F9CAE" />
 
                         <TextView
-                            android:id="@+id/text_selected_media"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="No file attached (Optional)"
-                            android:textAppearance="?attr/textAppearanceBody2"
-                            android:ellipsize="start"
-                            android:singleLine="true" />
-
-                        <Button
-                            android:id="@+id/btn_attach_media"
-                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:id="@+id/text_date_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Attach" />
-
-                        <ImageButton
-                            android:id="@+id/btn_clear_media"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:src="@android:drawable/ic_menu_close_clear_cancel"
-                            android:visibility="gone"
-                            app:tint="?attr/colorError" />
+                            android:layout_marginStart="8dp"
+                            android:text="11/06/2026"
+                            android:textColor="#E3E6EB"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
-            <!-- Date & Time Selection -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutlineVariant">
-
+                <!-- Time Picker Box -->
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/btn_pick_time"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:background="@drawable/bg_bordered_box"
+                    android:paddingHorizontal="16dp"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Schedule Time"
-                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        android:text="Time"
+                        android:textColor="#8F9CAE"
+                        android:textSize="11sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="2dp">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_menu_recent_history"
+                            app:tint="#8F9CAE" />
+
+                        <TextView
+                            android:id="@+id/text_time_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="21:17"
+                            android:textColor="#E3E6EB"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Repeat -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_bordered_box"
+                android:padding="16dp"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Repeat"
+                    android:textColor="#8F9CAE"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/chip_once"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        android:gravity="center"
+                        android:text="Once"
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/btn_pick_date"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="8dp"
-                            android:text="Date: Oct 12, 2026" />
-
-                        <Button
-                            android:id="@+id/btn_pick_time"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Time: 09:00" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Recurrence -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutlineVariant">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switch_recurring"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Repeat Message"
-                        android:textAppearance="?attr/textAppearanceSubtitle1"
-                        android:textStyle="bold" />
-
-                    <LinearLayout
-                        android:id="@+id/layout_recurrence_options"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginTop="12dp"
-                        android:visibility="gone">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Repeat Interval"
-                            android:textAppearance="?attr/textAppearanceBody2"
-                            android:textColor="?android:attr/textColorSecondary"
-                            android:layout_marginBottom="8dp" />
-
-                        <Spinner
-                            android:id="@+id/spinner_recurrence_type"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:minHeight="48dp" />
-
-                        <LinearLayout
-                            android:id="@+id/layout_days_selector"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_marginTop="12dp"
-                            android:visibility="gone">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Select Days"
-                                android:textAppearance="?attr/textAppearanceBody2"
-                                android:textColor="?android:attr/textColorSecondary"
-                                android:layout_marginBottom="8dp" />
-
-                            <!-- Mon to Sun checkboxes -->
-                            <HorizontalScrollView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal">
-
-                                    <CheckBox android:id="@+id/checkbox_sun" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sun" />
-                                    <CheckBox android:id="@+id/checkbox_mon" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mon" />
-                                    <CheckBox android:id="@+id/checkbox_tue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tue" />
-                                    <CheckBox android:id="@+id/checkbox_wed" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wed" />
-                                    <CheckBox android:id="@+id/checkbox_thu" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Thu" />
-                                    <CheckBox android:id="@+id/checkbox_fri" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Fri" />
-                                    <CheckBox android:id="@+id/checkbox_sat" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sat" />
-
-                                </LinearLayout>
-                            </HorizontalScrollView>
-                        </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Auto Delete -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="12dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutlineVariant">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switch_auto_delete"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Delete Rule After Sent"
-                        android:textAppearance="?attr/textAppearanceSubtitle1"
-                        android:textStyle="bold" />
+                        android:background="@drawable/bg_chip_selected"
+                        android:clickable="true"
+                        android:focusable="true" />
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Automatically delete this scheduling rule from database once the message is successfully sent (Does not delete message inside WhatsApp chat history)."
-                        android:textAppearance="?attr/textAppearanceCaption"
-                        android:textColor="?android:attr/textColorSecondary" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        android:id="@+id/chip_daily"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="2dp"
+                        android:gravity="center"
+                        android:text="Daily"
+                        android:textColor="#8F9CAE"
+                        android:textSize="13sp"
+                        android:background="@drawable/bg_chip_unselected"
+                        android:clickable="true"
+                        android:focusable="true" />
 
-            <Button
+                    <TextView
+                        android:id="@+id/chip_weekly"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="2dp"
+                        android:gravity="center"
+                        android:text="Weekly"
+                        android:textColor="#8F9CAE"
+                        android:textSize="13sp"
+                        android:background="@drawable/bg_chip_unselected"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                    <TextView
+                        android:id="@+id/chip_monthly"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        android:gravity="center"
+                        android:text="Monthly"
+                        android:textColor="#8F9CAE"
+                        android:textSize="13sp"
+                        android:background="@drawable/bg_chip_unselected"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <!-- Keep auto delete / recurring options functional in code, just hidden ifOnce is chosen -->
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_recurring"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Repeat Message (System)"
+                    android:visibility="gone" />
+
+                <Spinner
+                    android:id="@+id/spinner_recurrence_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/layout_days_selector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    <CheckBox android:id="@+id/checkbox_sun" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <CheckBox android:id="@+id/checkbox_mon" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <CheckBox android:id="@+id/checkbox_tue" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <CheckBox android:id="@+id/checkbox_wed" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <CheckBox android:id="@+id/checkbox_thu" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <CheckBox android:id="@+id/checkbox_fri" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    <CheckBox android:id="@+id/checkbox_sat" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_auto_delete"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Auto Delete Message Rule After Sending"
+                    android:textColor="#8F9CAE"
+                    android:layout_marginTop="16dp"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Save Button -->
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_save"
-                style="@style/Widget.Material3.Button"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="54dp"
-                android:text="Save Schedule" />
+                android:layout_height="56dp"
+                android:backgroundTint="#C3B4FC"
+                android:text="Save"
+                android:textColor="#0B0E14"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="28dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

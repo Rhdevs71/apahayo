@@ -4,12 +4,13 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.activities.base.BaseActivity;
 import com.wmods.wppenhacer.database.AppDatabase;
 import com.wmods.wppenhacer.database.AutoReplyRule;
@@ -24,6 +25,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class EditAutoReplyRuleActivity extends BaseActivity {
 
@@ -33,8 +35,7 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
 
     private String activeHoursStart = "09:00";
     private String activeHoursEnd = "17:00";
-    private int delaySeconds = 0;
-    private String selectedForwardJid = null;
+    private String selectedJidsCsv = "";
 
     private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
@@ -44,24 +45,38 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         binding = ActivityEditAutoReplyRuleBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        setSupportActionBar(binding.toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-        binding.toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        // Custom Toolbar Action
+        binding.btnBack.setOnClickListener(v -> onBackPressed());
+        binding.btnSearch.setOnClickListener(v -> Toast.makeText(this, "Search", Toast.LENGTH_SHORT).show());
+        binding.btnInfo.setOnClickListener(v -> Toast.makeText(this, "Auto Reply Info", Toast.LENGTH_SHORT).show());
 
         // Setup Spinners
-        String[] matchingTypes = {"EXACT", "CONTAINS", "REGEX"};
-        ArrayAdapter<String> matchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, matchingTypes);
-        matchAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.spinnerMatchingType.setAdapter(matchAdapter);
-
-        String[] targetTypes = {"ALL", "CONTACTS", "GROUPS", "NON_CONTACTS"};
+        String[] targetTypes = {"ALL", "CONTACTS", "GROUPS", "NON_CONTACTS", "SPECIFIC_CONTACTS"};
         ArrayAdapter<String> targetAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, targetTypes);
         targetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerTargetType.setAdapter(targetAdapter);
 
-        // Setup Time Windows Switch
+        // Control Specific Contacts view visibility
+        binding.spinnerTargetType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String type = targetTypes[position];
+                if ("SPECIFIC_CONTACTS".equals(type)) {
+                    binding.labelSelectedContacts.setVisibility(View.VISIBLE);
+                    binding.layoutSelectedContacts.setVisibility(View.VISIBLE);
+                    binding.btnSelectContacts.setVisibility(View.VISIBLE);
+                } else {
+                    binding.labelSelectedContacts.setVisibility(View.GONE);
+                    binding.layoutSelectedContacts.setVisibility(View.GONE);
+                    binding.btnSelectContacts.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        // Setup Time Windows Switch (Apply only on schedule)
         binding.switchActiveHours.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 binding.layoutActiveHours.setVisibility(View.VISIBLE);
@@ -73,38 +88,8 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         binding.btnActiveStart.setOnClickListener(v -> showTimePicker(true));
         binding.btnActiveEnd.setOnClickListener(v -> showTimePicker(false));
 
-        // Setup Forward Switch
-        binding.switchIsForward.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                binding.layoutForwardJid.setVisibility(View.VISIBLE);
-                binding.switchIsAi.setChecked(false); // Mutual exclusion
-            } else {
-                binding.layoutForwardJid.setVisibility(View.GONE);
-            }
-        });
-
-        binding.switchIsAi.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                binding.switchIsForward.setChecked(false); // Mutual exclusion
-            }
-        });
-
-        binding.btnSelectForwardContact.setOnClickListener(v -> startWhatsAppContactPicker());
-
-        // Setup Delay SeekBar
-        binding.seekBarDelay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                delaySeconds = progress;
-                binding.textDelayValue.setText(progress + "s");
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
+        // Setup Contacts Selection Click
+        binding.btnSelectContacts.setOnClickListener(v -> startWhatsAppContactPicker());
 
         // Load existing rule if editing
         ruleId = getIntent().getIntExtra("rule_id", -1);
@@ -128,15 +113,17 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
                     return;
                 }
 
+                binding.switchRuleEnabled.setChecked(ruleToEdit.isEnabled());
                 binding.editKeywords.setText(ruleToEdit.getKeywords());
 
-                int matchSelection = 0;
-                switch (ruleToEdit.getMatchingType()) {
-                    case "CONTAINS" -> matchSelection = 1;
-                    case "REGEX" -> matchSelection = 2;
+                // Set radio matching type
+                if ("REGEX".equals(ruleToEdit.getMatchingType())) {
+                    binding.radioRegex.setChecked(true);
+                } else {
+                    binding.radioWildcard.setChecked(true);
                 }
-                binding.spinnerMatchingType.setSelection(matchSelection);
 
+                binding.checkboxIgnoreCase.setChecked(ruleToEdit.getIgnoreCase());
                 binding.editReplyText.setText(ruleToEdit.getReplyText());
 
                 int targetSelection = 0;
@@ -144,8 +131,12 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
                     case "CONTACTS" -> targetSelection = 1;
                     case "GROUPS" -> targetSelection = 2;
                     case "NON_CONTACTS" -> targetSelection = 3;
+                    case "SPECIFIC_CONTACTS" -> targetSelection = 4;
                 }
                 binding.spinnerTargetType.setSelection(targetSelection);
+
+                selectedJidsCsv = ruleToEdit.getTargetContacts() != null ? ruleToEdit.getTargetContacts() : "";
+                updateContactsFieldText();
 
                 boolean hasActiveHours = ruleToEdit.getActiveHoursStart() != null && ruleToEdit.getActiveHoursEnd() != null;
                 binding.switchActiveHours.setChecked(hasActiveHours);
@@ -157,22 +148,9 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
                 updateTimeButtons();
 
                 binding.switchQuoteOriginal.setChecked(ruleToEdit.getQuoteOriginal());
-
-                delaySeconds = ruleToEdit.getDelaySeconds();
-                binding.seekBarDelay.setProgress(delaySeconds);
-                binding.textDelayValue.setText(delaySeconds + "s");
-
                 binding.switchIsAi.setChecked(ruleToEdit.isAi());
                 binding.switchIsForward.setChecked(ruleToEdit.isForward());
-                selectedForwardJid = ruleToEdit.getForwardJid();
-                if (selectedForwardJid != null && !selectedForwardJid.isEmpty()) {
-                    String name = ContactHelper.getContactName(this, selectedForwardJid);
-                    if (name == null || name.isEmpty()) {
-                        name = selectedForwardJid.split("@")[0];
-                    }
-                    binding.textForwardJid.setText("Forward Recipient JID: " + name + " (" + selectedForwardJid + ")");
-                    binding.layoutForwardJid.setVisibility(View.VISIBLE);
-                }
+                binding.seekBarDelay.setProgress(ruleToEdit.getDelaySeconds());
             });
         });
     }
@@ -209,10 +187,14 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         String targetPackage = installedPackages.get(0);
         try {
             ArrayList<String> preSelected = new ArrayList<>();
-            if (selectedForwardJid != null) {
-                preSelected.add(selectedForwardJid);
+            if (selectedJidsCsv != null && !selectedJidsCsv.isEmpty()) {
+                for (String jid : selectedJidsCsv.split(",")) {
+                    if (!jid.trim().isEmpty()) {
+                        preSelected.add(jid.trim());
+                    }
+                }
             }
-            Intent intent = WhatsAppContactPickerLauncher.createPickerIntent(this, targetPackage, "auto_reply_forward_picker", preSelected);
+            Intent intent = WhatsAppContactPickerLauncher.createPickerIntent(this, targetPackage, "auto_reply_contacts_picker", preSelected);
             startActivityForResult(intent, ContactPickerPreference.REQUEST_CONTACT_PICKER);
         } catch (Exception e) {
             Toast.makeText(this, "Failed to launch contact picker: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -226,18 +208,28 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         if (requestCode == ContactPickerPreference.REQUEST_CONTACT_PICKER && resultCode == RESULT_OK && data != null) {
             ArrayList<ContactPickerResult> results = (ArrayList<ContactPickerResult>) data.getSerializableExtra("picker_contacts");
             if (results != null && !results.isEmpty()) {
-                ContactPickerResult result = results.get(0);
-                selectedForwardJid = result.jid();
-                String name = result.fullName();
-                if (name == null || name.isEmpty()) {
-                    name = ContactHelper.getContactName(this, selectedForwardJid);
-                }
-                if (name == null || name.isEmpty()) {
-                    name = selectedForwardJid.split("@")[0];
-                }
-                binding.textForwardJid.setText("Forward Recipient JID: " + name + " (" + selectedForwardJid + ")");
+                selectedJidsCsv = results.stream().map(ContactPickerResult::jid).collect(Collectors.joining(","));
+                updateContactsFieldText();
             }
         }
+    }
+
+    private void updateContactsFieldText() {
+        if (selectedJidsCsv == null || selectedJidsCsv.isEmpty()) {
+            binding.editTargetContacts.setText("No contacts selected");
+            return;
+        }
+
+        String[] jids = selectedJidsCsv.split(",");
+        ArrayList<String> names = new ArrayList<>();
+        for (String jid : jids) {
+            String name = ContactHelper.getContactName(this, jid.trim());
+            if (name == null || name.isEmpty()) {
+                name = jid.split("@")[0];
+            }
+            names.add(name);
+        }
+        binding.editTargetContacts.setText(String.join(", ", names));
     }
 
     private void saveAutoReplyRule() {
@@ -248,21 +240,18 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         }
 
         String replyText = binding.editReplyText.getText().toString().trim();
-        boolean isForward = binding.switchIsForward.isChecked();
-        boolean isAi = binding.switchIsAi.isChecked();
-
-        if (!isForward && !isAi && replyText.isEmpty()) {
+        if (replyText.isEmpty()) {
             Toast.makeText(this, "Reply text is required", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (isForward && selectedForwardJid == null) {
-            Toast.makeText(this, "Please select a forward JID", Toast.LENGTH_SHORT).show();
+        String matchingType = binding.radioRegex.isChecked() ? "REGEX" : "WILDCARD";
+        String targetType = binding.spinnerTargetType.getSelectedItem().toString();
+
+        if ("SPECIFIC_CONTACTS".equals(targetType) && (selectedJidsCsv == null || selectedJidsCsv.isEmpty())) {
+            Toast.makeText(this, "Please select at least one contact", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        String matchingType = binding.spinnerMatchingType.getSelectedItem().toString();
-        String targetType = binding.spinnerTargetType.getSelectedItem().toString();
 
         String start = null;
         String end = null;
@@ -271,13 +260,12 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
             end = activeHoursEnd;
         }
 
-        boolean quoteOriginal = binding.switchQuoteOriginal.isChecked();
-
+        final boolean ruleEnabled = binding.switchRuleEnabled.isChecked();
         final String finalKeywords = keywords;
         final String finalReplyText = replyText;
         final String finalStart = start;
         final String finalEnd = end;
-        final String finalForwardJid = selectedForwardJid;
+        final boolean ignoreCase = binding.checkboxIgnoreCase.isChecked();
 
         dbExecutor.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
@@ -289,15 +277,17 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
                     finalKeywords,
                     matchingType,
                     finalReplyText,
-                    quoteOriginal,
-                    delaySeconds,
+                    binding.switchQuoteOriginal.isChecked(),
+                    binding.seekBarDelay.getProgress(),
                     targetType,
                     finalStart,
                     finalEnd,
-                    ruleToEdit.isEnabled(),
-                    isForward,
-                    finalForwardJid,
-                    isAi
+                    ruleEnabled,
+                    binding.switchIsForward.isChecked(),
+                    ruleToEdit.getForwardJid(),
+                    binding.switchIsAi.isChecked(),
+                    ignoreCase,
+                    selectedJidsCsv
                 );
                 db.autoReplyRuleDao().update(rule);
                 runOnUiThread(() -> Toast.makeText(this, "Rule updated", Toast.LENGTH_SHORT).show());
@@ -307,15 +297,17 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
                     finalKeywords,
                     matchingType,
                     finalReplyText,
-                    quoteOriginal,
-                    delaySeconds,
+                    binding.switchQuoteOriginal.isChecked(),
+                    binding.seekBarDelay.getProgress(),
                     targetType,
                     finalStart,
                     finalEnd,
-                    true,
-                    isForward,
-                    finalForwardJid,
-                    isAi
+                    ruleEnabled,
+                    binding.switchIsForward.isChecked(),
+                    null,
+                    binding.switchIsAi.isChecked(),
+                    ignoreCase,
+                    selectedJidsCsv
                 );
                 db.autoReplyRuleDao().insert(rule);
                 runOnUiThread(() -> Toast.makeText(this, "Rule created", Toast.LENGTH_SHORT).show());

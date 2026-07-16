@@ -73,6 +73,19 @@
             app:title="Fake Chat Editor" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="fake_display_enabled"
+            app:defaultValue="false"
+            app:summary="Allows overriding contact display names and profile photos on WhatsApp screen"
+            app:title="Fake Display" />
+
+        <Preference
+            app:dependency="fake_display_enabled"
+            app:key="fake_display_settings"
+            app:iconSpaceReserved="false"
+            app:title="Configure Fake Display"
+            app:summary="Set custom names and photos for contacts or self" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="custom_folders_enabled"
             app:defaultValue="false"
             app:summary="Display custom category badges on chats list"

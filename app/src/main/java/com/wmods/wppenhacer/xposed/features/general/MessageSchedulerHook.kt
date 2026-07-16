@@ -86,9 +86,9 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
             filter,
             null, // Clear permission string
             null,
-            Context.RECEIVER_EXPORTED
+            if (android.os.Build.VERSION.SDK_INT >= 33) 2 else 0 // 2 is Context.RECEIVER_EXPORTED
         )
-        XposedBridge.log("WaEnhancer MessageSchedulerHook: Receiver registered successfully (RECEIVER_EXPORTED)")
+        XposedBridge.log("WaEnhancer MessageSchedulerHook: Receiver registered successfully")
     }
 
     private fun sendTextMessage(jid: String, text: String, id: Int) {

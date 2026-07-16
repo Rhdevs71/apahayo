@@ -71,6 +71,15 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                             "GROUPS" -> if (!isGroup) continue
                             "CONTACTS" -> if (isGroup || !isSavedContact) continue
                             "NON_CONTACTS" -> if (isGroup || isSavedContact) continue
+                            "SPECIFIC_CONTACTS" -> {
+                                val targetContacts = ruleObj.optString("targetContacts", "")
+                                if (targetContacts.isEmpty()) continue
+                                val senderJid = userJid.phoneRawString ?: ""
+                                val allowedList = targetContacts.split(",").map { it.trim() }
+                                if (!allowedList.contains(senderJid)) {
+                                    continue
+                                }
+                            }
                         }
 
                         // Time window filtering
@@ -85,7 +94,8 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                         // Keywords checking
                         val keywordsStr = ruleObj.optString("keywords", "")
                         val matchingType = ruleObj.optString("matchingType", "EXACT")
-                        val isMatched = checkKeywordMatch(messageText, keywordsStr, matchingType)
+                        val ignoreCase = ruleObj.optBoolean("ignoreCase", true)
+                        val isMatched = checkKeywordMatch(messageText, keywordsStr, matchingType, ignoreCase)
 
                         if (isMatched) {
                             val replyText = ruleObj.optString("replyText", "")
@@ -128,19 +138,28 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
         })
     }
 
-    private fun checkKeywordMatch(message: String, keywordsCsv: String, matchingType: String): Boolean {
-        val msgClean = message.trim().lowercase()
-        val keywords = keywordsCsv.split(",").map { it.trim().lowercase() }.filter { it.isNotEmpty() }
+    private fun checkKeywordMatch(message: String, keywordsCsv: String, matchingType: String, ignoreCase: Boolean): Boolean {
+        val msgClean = if (ignoreCase) message.trim().lowercase() else message.trim()
+        val keywords = keywordsCsv.split(",").map { if (ignoreCase) it.trim().lowercase() else it.trim() }.filter { it.isNotEmpty() }
         if (keywords.isEmpty()) return false
 
         for (keyword in keywords) {
             when (matchingType) {
                 "EXACT" -> if (msgClean == keyword) return true
                 "CONTAINS" -> if (msgClean.contains(keyword)) return true
+                "WILDCARD" -> {
+                    try {
+                        val regexStr = "^" + Regex.escape(keyword).replace("\\*", ".*") + "$"
+                        val flags = if (ignoreCase) setOf(RegexOption.IGNORE_CASE) else emptySet()
+                        val regex = Regex(regexStr, flags)
+                        if (regex.matches(message.trim())) return true
+                    } catch (_: Exception) {}
+                }
                 "REGEX" -> {
                     try {
-                        val regex = Regex(keyword)
-                        if (regex.containsMatchIn(msgClean)) return true
+                        val flags = if (ignoreCase) setOf(RegexOption.IGNORE_CASE) else emptySet()
+                        val regex = Regex(keyword, flags)
+                        if (regex.containsMatchIn(message.trim())) return true
                     } catch (_: Exception) {}
                 }
             }

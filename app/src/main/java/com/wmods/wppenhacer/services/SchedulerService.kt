@@ -154,6 +154,7 @@ class SchedulerService : Service() {
     }
 
     private fun sendMessageToWhatsApp(message: ScheduledMessage) {
+        val targetPkg = message.targetPackage ?: "BOTH"
         val intent = Intent("com.wmods.wppenhacer.SCHEDULED_SEND").apply {
             putExtra("id", message.id)
             putExtra("jid", message.jid)
@@ -162,12 +163,30 @@ class SchedulerService : Service() {
             putExtra("mediaType", message.mediaType)
         }
 
-        Log.d(TAG, "sendMessageToWhatsApp: broadcasting to com.whatsapp & com.whatsapp.w4b")
-        val broadcastWpp = Intent(intent).apply { `package` = "com.whatsapp" }
-        sendBroadcast(broadcastWpp)
+        Log.d(TAG, "sendMessageToWhatsApp: target=$targetPkg, waking up target package(s) if closed...")
+        try {
+            if (targetPkg == "BOTH" || targetPkg == "com.whatsapp") {
+                com.topjohnwu.superuser.Shell.cmd("am start-foreground-service com.whatsapp/.messaging.MessageService").exec()
+            }
+            if (targetPkg == "BOTH" || targetPkg == "com.whatsapp.w4b") {
+                com.topjohnwu.superuser.Shell.cmd("am start-foreground-service com.whatsapp.w4b/.messaging.MessageService").exec()
+            }
+            Thread.sleep(1500)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start WhatsApp foreground service: ${e.message}")
+        }
 
-        val broadcastBusiness = Intent(intent).apply { `package` = "com.whatsapp.w4b" }
-        sendBroadcast(broadcastBusiness)
+        if (targetPkg == "BOTH" || targetPkg == "com.whatsapp") {
+            val broadcastWpp = Intent(intent).apply { `package` = "com.whatsapp" }
+            sendBroadcast(broadcastWpp)
+            Log.d(TAG, "Broadcast sent to com.whatsapp")
+        }
+
+        if (targetPkg == "BOTH" || targetPkg == "com.whatsapp.w4b") {
+            val broadcastBusiness = Intent(intent).apply { `package` = "com.whatsapp.w4b" }
+            sendBroadcast(broadcastBusiness)
+            Log.d(TAG, "Broadcast sent to com.whatsapp.w4b")
+        }
     }
 
     private fun updateMessageStatus(id: Int, success: Boolean) {

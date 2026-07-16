@@ -118,6 +118,8 @@ public class AutoReplyActivity extends BaseActivity {
                     obj.put("isForward", rule.isForward());
                     obj.put("forwardJid", rule.getForwardJid());
                     obj.put("isAi", rule.isAi());
+                    obj.put("ignoreCase", rule.getIgnoreCase());
+                    obj.put("targetContacts", rule.getTargetContacts());
                     array.put(obj);
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -62,6 +62,10 @@ public class GeneralFragment extends BaseFragment {
                 android.content.Intent intent = new android.content.Intent(getContext(), com.wmods.wppenhacer.activities.CustomFoldersActivity.class);
                 startActivity(intent);
                 return true;
+            } else if ("fake_display_settings".equals(key)) {
+                android.content.Intent intent = new android.content.Intent(getContext(), com.wmods.wppenhacer.activities.FakeDisplayActivity.class);
+                startActivity(intent);
+                return true;
             }
             return super.onPreferenceTreeClick(preference);
         }
