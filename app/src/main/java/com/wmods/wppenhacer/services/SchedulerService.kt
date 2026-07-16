@@ -28,19 +28,7 @@ class SchedulerService : Service() {
 
     private val executor: ExecutorService = Executors.newSingleThreadExecutor()
     private val channelId = "scheduler_service"
-    private var isLoopRunning = false
     private val TAG = "SchedulerService"
-
-    private val statusReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val id = intent.getIntExtra("id", -1)
-            val success = intent.getBooleanExtra("success", false)
-            Log.d(TAG, "statusReceiver: status received for message id $id, success: $success")
-            if (id != -1) {
-                updateMessageStatus(id, success)
-            }
-        }
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -48,38 +36,22 @@ class SchedulerService : Service() {
         createNotificationChannel()
         val notification = createNotification("Scheduler background monitoring active")
         startForeground(1122, notification)
-
-        val filter = IntentFilter("com.wmods.wppenhacer.SCHEDULED_STATUS")
-        ContextCompat.registerReceiver(
-            this,
-            statusReceiver,
-            filter,
-            ContextCompat.RECEIVER_EXPORTED
-        )
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onStartCommand: persistent service starting/restarting")
-        if (!isLoopRunning) {
-            isLoopRunning = true
-            executor.execute {
-                while (isLoopRunning) {
-                    try {
-                        cleanMediaIfNecessary()
-                        processPendingMessages()
-                        // Sleep for 30 seconds
-                        Thread.sleep(30000L)
-                    } catch (e: InterruptedException) {
-                        Log.d(TAG, "Loop interrupted, shutting down")
-                        break
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error in scheduler loop: ${e.message}")
-                        e.printStackTrace()
-                    }
-                }
+        Log.d(TAG, "onStartCommand: processing pending messages")
+        executor.execute {
+            try {
+                cleanMediaIfNecessary()
+                processPendingMessages()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in scheduler: ${e.message}")
+            } finally {
+                SchedulerHelper.scheduleNextAlarm(this@SchedulerService)
+                stopSelf()
             }
         }
-        return START_STICKY // Stay alive!
+        return START_NOT_STICKY
     }
 
     private fun cleanMediaIfNecessary() {
@@ -189,62 +161,10 @@ class SchedulerService : Service() {
         }
     }
 
-    private fun updateMessageStatus(id: Int, success: Boolean) {
-        // Perform DB operations on executor
-        Executors.newSingleThreadExecutor().execute {
-            val db = AppDatabase.getInstance(this)
-            val message = db.scheduledMessageDao().getById(id) ?: return@execute
-            Log.d(TAG, "updateMessageStatus: updating message id $id, status: ${message.status}, success: $success")
-
-            if (success) {
-                if (message.isRecurring) {
-                    val nextTime = SchedulerHelper.calculateNextOccurrence(message)
-                    Log.d(TAG, "updateMessageStatus: recurring message, calculated next time: $nextTime")
-                    if (nextTime > 0L) {
-                        val updatedMessage = message.copy(
-                            scheduledTime = nextTime,
-                            status = "PENDING"
-                        )
-                        db.scheduledMessageDao().update(updatedMessage)
-                    } else {
-                        if (message.autoDelete) {
-                            db.scheduledMessageDao().delete(message)
-                        } else {
-                            db.scheduledMessageDao().update(message.copy(status = "SENT"))
-                        }
-                    }
-                } else {
-                    if (message.autoDelete) {
-                        db.scheduledMessageDao().delete(message)
-                        Log.d(TAG, "updateMessageStatus: deleted once-only message id $id")
-                    } else {
-                        db.scheduledMessageDao().update(message.copy(status = "SENT"))
-                        Log.d(TAG, "updateMessageStatus: set message id $id to SENT")
-                    }
-                }
-            } else {
-                db.scheduledMessageDao().update(message.copy(status = "FAILED"))
-                Log.d(TAG, "updateMessageStatus: set message id $id to FAILED")
-            }
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "onDestroy: service destroyed, attempting to restart")
-        isLoopRunning = false
-        try {
-            unregisterReceiver(statusReceiver)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        Log.d(TAG, "onDestroy: service destroyed")
         executor.shutdown()
-
-        // Restart service by sending broadcast to SchedulerReceiver
-        val restartIntent = Intent(this, SchedulerReceiver::class.java).apply {
-            action = "com.wmods.wppenhacer.TRIGGER_ALARM"
-        }
-        sendBroadcast(restartIntent)
     }
 
     override fun onBind(intent: Intent?): IBinder? {

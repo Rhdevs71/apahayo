@@ -207,6 +207,7 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
         val intent = Intent("com.wmods.wppenhacer.SCHEDULED_STATUS").apply {
             putExtra("id", id)
             putExtra("success", success)
+            `package` = BuildConfig.APPLICATION_ID
         }
         Utils.application.sendBroadcast(intent)
     }

@@ -25,8 +25,28 @@ import java.util.concurrent.Executors
 
 class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Feature(loader, preferences) {
 
-    private val executor = Executors.newSingleThreadExecutor()
+        private val executor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
+    private val processedMessagesCache = Collections.synchronizedSet(LinkedHashSet<String>())
+
+    private fun isAlreadyProcessed(rawJid: String, text: String): Boolean {
+        val signature = "$rawJid:$text"
+        synchronized(processedMessagesCache) {
+            if (processedMessagesCache.contains(signature)) {
+                return true
+            }
+            processedMessagesCache.add(signature)
+            // Limit cache size to 100 items to prevent memory growth
+            if (processedMessagesCache.size > 100) {
+                val iterator = processedMessagesCache.iterator()
+                if (iterator.hasNext()) {
+                    iterator.next()
+                    iterator.remove()
+                }
+            }
+            return false
+        }
+    }
 
     override fun getPluginName(): String {
         return "AutoReplyHook"
@@ -37,105 +57,149 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
         if (!enabled) return
 
         hookReceiveMessage()
+        hookNotificationManager()
+    }
+
+    private fun hookNotificationManager() {
+        try {
+            val notificationManagerClass = XposedHelpers.findClass("android.app.NotificationManager", classLoader)
+            XposedBridge.hookAllMethods(notificationManagerClass, "notify", object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val tag = param.args[0] as? String ?: return
+                    val notification = param.args[2] as? android.app.Notification ?: return
+                    
+                    // We only process WhatsApp message notifications (e.g. jid ending with @s.whatsapp.net or @g.us)
+                    if (!tag.contains("@s.whatsapp.net") && !tag.contains("@g.us")) return
+                    
+                    val extras = notification.extras ?: return
+                    val title = extras.getCharSequence(android.app.Notification.EXTRA_TITLE)?.toString() ?: ""
+                    val text = extras.getCharSequence(android.app.Notification.EXTRA_TEXT)?.toString() ?: ""
+                    
+                    if (title.isEmpty() || text.isEmpty()) return
+                    
+                    // Filter duplicate triggers
+                    if (isAlreadyProcessed(tag, text)) {
+                        return
+                    }
+                    
+                    XposedBridge.log("WaEnhancer AutoReply notification received: tag=$tag, title=$title, text=$text")
+                    processAutoReply(tag, text)
+                }
+            })
+            XposedBridge.log("WaEnhancer AutoReply: Notification hook registered successfully")
+        } catch (e: Exception) {
+            XposedBridge.log("WaEnhancer AutoReply Error: Notification hook failed: ${e.message}")
+        }
     }
 
     private fun hookReceiveMessage() {
-        val method = Unobfuscator.loadReceiptMethod(classLoader)
+        try {
+            val method = Unobfuscator.loadReceiptMethod(classLoader)
 
-        XposedBridge.hookMethod(method, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                if (param.args[4] == "sender" || param.args[1] == null || param.args[3] == null) return
+            XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    if (param.args[4] == "sender" || param.args[1] == null || param.args[3] == null) return
 
-                val fMsg = FMessageWpp.Key(param.args[3]).fMessage ?: return
-                val userJid = fMsg.key.remoteJid
+                    val fMsg = FMessageWpp.Key(param.args[3]).fMessage ?: return
+                    val userJid = fMsg.key.remoteJid
 
-                if (userJid.isStatus || fMsg.key.isFromMe) return
+                    if (userJid.isStatus || fMsg.key.isFromMe) return
 
-                val messageText = fMsg.messageStr ?: return
-                if (TextUtils.isEmpty(messageText)) return
+                    val messageText = fMsg.messageStr ?: return
+                    if (TextUtils.isEmpty(messageText)) return
 
-                val number = userJid.phoneNumber ?: return
-                val isGroup = userJid.isGroup
-                val isSavedContact = !WppCore.getSContactName(userJid, true).isNullOrEmpty()
+                    val rawJid = userJid.phoneRawString ?: return
+                    if (isAlreadyProcessed(rawJid, messageText)) return
 
-                val rulesJsonStr = prefs.getString("auto_reply_rules", "[]") ?: "[]"
-                try {
-                    val rulesArray = JSONArray(rulesJsonStr)
-                    for (i in 0 until rulesArray.length()) {
-                        val ruleObj = rulesArray.getJSONObject(i)
-                        if (!ruleObj.optBoolean("isEnabled", true)) continue
+                    processAutoReply(rawJid, messageText, fMsg)
+                }
+            })
+        } catch (e: Exception) {
+            XposedBridge.log("WaEnhancer AutoReply Error: hookReceiveMessage failed: ${e.message}")
+        }
+    }
 
-                        // Target filtering
-                        val targetType = ruleObj.optString("targetType", "ALL")
-                        when (targetType) {
-                            "GROUPS" -> if (!isGroup) continue
-                            "CONTACTS" -> if (isGroup || !isSavedContact) continue
-                            "NON_CONTACTS" -> if (isGroup || isSavedContact) continue
-                            "SPECIFIC_CONTACTS" -> {
-                                val targetContacts = ruleObj.optString("targetContacts", "")
-                                if (targetContacts.isEmpty()) continue
-                                val senderJid = userJid.phoneRawString ?: ""
-                                val allowedList = targetContacts.split(",").map { it.trim() }
-                                if (!allowedList.contains(senderJid)) {
-                                    continue
-                                }
-                            }
-                        }
+    private fun processAutoReply(rawJid: String, messageText: String, quoteMessage: FMessageWpp? = null) {
+        val userJid = FMessageWpp.UserJid(rawJid)
+        val number = userJid.phoneNumber ?: return
+        val isGroup = rawJid.contains("@g.us")
+        val isSavedContact = !WppCore.getSContactName(userJid, true).isNullOrEmpty()
 
-                        // Time window filtering
-                        val startHourStr = ruleObj.optString("activeHoursStart")
-                        val endHourStr = ruleObj.optString("activeHoursEnd")
-                        if (!startHourStr.isNullOrEmpty() && !endHourStr.isNullOrEmpty()) {
-                            if (!isCurrentTimeInWindow(startHourStr, endHourStr)) {
-                                continue
-                            }
-                        }
+        val rulesJsonStr = prefs.getString("auto_reply_rules", "[]") ?: "[]"
+        try {
+            val rulesArray = JSONArray(rulesJsonStr)
+            for (i in 0 until rulesArray.length()) {
+                val ruleObj = rulesArray.getJSONObject(i)
+                if (!ruleObj.optBoolean("isEnabled", true)) continue
 
-                        // Keywords checking
-                        val keywordsStr = ruleObj.optString("keywords", "")
-                        val matchingType = ruleObj.optString("matchingType", "EXACT")
-                        val ignoreCase = ruleObj.optBoolean("ignoreCase", true)
-                        val isMatched = checkKeywordMatch(messageText, keywordsStr, matchingType, ignoreCase)
-
-                        if (isMatched) {
-                            val replyText = ruleObj.optString("replyText", "")
-                            val delaySec = ruleObj.optInt("delaySeconds", 0)
-                            val quoteOriginal = ruleObj.optBoolean("quoteOriginal", false)
-                            val isForward = ruleObj.optBoolean("isForward", false)
-                            val forwardJid = ruleObj.optString("forwardJid", "")
-                            val isAi = ruleObj.optBoolean("isAi", false)
-
-                            executor.execute {
-                                val replyContent = if (isAi) {
-                                    val apiKey = prefs.getString("ai_api_key", "") ?: ""
-                                    val apiModel = prefs.getString("ai_model", "llama3-8b-8192") ?: "llama3-8b-8192"
-                                    val aiProvider = prefs.getString("ai_provider", "groq") ?: "groq"
-                                    if (apiKey.isNotEmpty()) {
-                                        queryAiChatbot(apiKey, messageText, apiModel, aiProvider) ?: "AI Responder failed to formulate reply."
-                                    } else {
-                                        "AI API Key is missing in settings."
-                                    }
-                                } else {
-                                    replyText
-                                }
-
-                                mainHandler.postDelayed({
-                                    if (isForward && forwardJid.isNotEmpty()) {
-                                        val forwardText = "[Forwarded from +$number]: $messageText"
-                                        sendAutoReply(jid = forwardJid, replyText = forwardText, quoteMessage = null)
-                                    } else {
-                                        sendAutoReply(jid = userJid.phoneRawString ?: "", replyText = replyContent, quoteMessage = if (quoteOriginal) fMsg else null)
-                                    }
-                                }, delaySec * 1000L)
-                            }
-                            break
+                // Target filtering
+                val targetType = ruleObj.optString("targetType", "ALL")
+                when (targetType) {
+                    "GROUPS" -> if (!isGroup) continue
+                    "CONTACTS" -> if (isGroup || !isSavedContact) continue
+                    "NON_CONTACTS" -> if (isGroup || isSavedContact) continue
+                    "SPECIFIC_CONTACTS" -> {
+                        val targetContacts = ruleObj.optString("targetContacts", "")
+                        if (targetContacts.isEmpty()) continue
+                        val allowedList = targetContacts.split(",").map { it.trim() }
+                        if (!allowedList.contains(rawJid)) {
+                            continue
                         }
                     }
-                } catch (e: Exception) {
-                    XposedBridge.log("AutoReply Error: ${e.message}")
+                }
+
+                // Time window filtering
+                val startHourStr = ruleObj.optString("activeHoursStart")
+                val endHourStr = ruleObj.optString("activeHoursEnd")
+                if (!startHourStr.isNullOrEmpty() && !endHourStr.isNullOrEmpty()) {
+                    if (!isCurrentTimeInWindow(startHourStr, endHourStr)) {
+                        continue
+                    }
+                }
+
+                // Keywords checking
+                val keywordsStr = ruleObj.optString("keywords", "")
+                val matchingType = ruleObj.optString("matchingType", "EXACT")
+                val ignoreCase = ruleObj.optBoolean("ignoreCase", true)
+                val isMatched = checkKeywordMatch(messageText, keywordsStr, matchingType, ignoreCase)
+
+                if (isMatched) {
+                    val replyText = ruleObj.optString("replyText", "")
+                    val delaySec = ruleObj.optInt("delaySeconds", 0)
+                    val quoteOriginal = ruleObj.optBoolean("quoteOriginal", false)
+                    val isForward = ruleObj.optBoolean("isForward", false)
+                    val forwardJid = ruleObj.optString("forwardJid", "")
+                    val isAi = ruleObj.optBoolean("isAi", false)
+
+                    executor.execute {
+                        val replyContent = if (isAi) {
+                            val apiKey = prefs.getString("ai_api_key", "") ?: ""
+                            val apiModel = prefs.getString("ai_model", "llama3-8b-8192") ?: "llama3-8b-8192"
+                            val aiProvider = prefs.getString("ai_provider", "groq") ?: "groq"
+                            if (apiKey.isNotEmpty()) {
+                                queryAiChatbot(apiKey, messageText, apiModel, aiProvider) ?: "AI Responder failed to formulate reply."
+                            } else {
+                                "AI API Key is missing in settings."
+                            }
+                        } else {
+                            replyText
+                        }
+
+                        mainHandler.postDelayed({
+                            if (isForward && forwardJid.isNotEmpty()) {
+                                val forwardText = "[Forwarded from +$number]: $messageText"
+                                sendAutoReply(jid = forwardJid, replyText = forwardText, quoteMessage = null)
+                            } else {
+                                sendAutoReply(jid = rawJid, replyText = replyContent, quoteMessage = if (quoteOriginal) quoteMessage else null)
+                            }
+                        }, delaySec * 1000L)
+                    }
+                    break
                 }
             }
-        })
+        } catch (e: Exception) {
+            XposedBridge.log("AutoReply Error in processAutoReply: ${e.message}")
+        }
     }
 
     private fun checkKeywordMatch(message: String, keywordsCsv: String, matchingType: String, ignoreCase: Boolean): Boolean {

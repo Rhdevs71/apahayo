@@ -238,5 +238,14 @@
                 <action android:name="com.wmods.wppenhacer.TRIGGER_ALARM" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".receivers.SchedulerStatusReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.wmods.wppenhacer.SCHEDULED_STATUS" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

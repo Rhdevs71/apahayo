@@ -42,12 +42,9 @@ class FakeDisplayHook(loader: ClassLoader, preferences: SharedPreferences) : Fea
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val contact = param.result ?: return
                     
-                    // Extract JID of contact
-                    val userJidField = ReflectionUtils.findFieldUsingFilter(contact.javaClass) { f ->
-                        f.type.name.contains("Jid") || f.type.simpleName == "UserJid"
-                    } ?: return
-                    userJidField.isAccessible = true
-                    val jidObj = userJidField.get(contact) ?: return
+                    // Extract JID of contact using helper class
+                    val waContact = com.wmods.wppenhacer.xposed.core.components.WaContactWpp(contact)
+                    val jidObj = waContact.userJid.userJid ?: return
                     
                     val isMe = XposedHelpers.callMethod(jidObj, "isMe") as? Boolean ?: false
                     val rawJid = XposedHelpers.callMethod(jidObj, "getRawString") as? String ?: return
