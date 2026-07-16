@@ -221,7 +221,7 @@
                             android:id="@+id/switch_name_enabled"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_parent_end="true"
+                            android:layout_alignParentEnd="true"
                             app:thumbTint="@android:color/white"
                             app:trackTint="#9C87F2" />
                     </RelativeLayout>
@@ -275,7 +275,7 @@
                             android:id="@+id/switch_photo_enabled"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_parent_end="true"
+                            android:layout_alignParentEnd="true"
                             app:thumbTint="@android:color/white"
                             app:trackTint="#9C87F2" />
                     </RelativeLayout>
@@ -313,7 +313,7 @@
                             android:id="@+id/btn_select_photo"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:layout_parent_end="true"
+                            android:layout_alignParentEnd="true"
                             android:gravity="center"
                             android:text="SELECT"
                             android:textColor="#9C87F2"
