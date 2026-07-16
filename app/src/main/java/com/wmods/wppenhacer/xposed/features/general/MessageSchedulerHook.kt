@@ -140,7 +140,7 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
             StrictMode.setVmPolicy(oldPolicy)
 
             // Dynamically find media sending method in UserAction class
-            val mediaMethod = actionUserClass.declaredMethods.find { method ->
+            val mediaMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
                 val params = method.parameterTypes
                 params.size >= 3 &&
                         List::class.java.isAssignableFrom(params[0]) &&

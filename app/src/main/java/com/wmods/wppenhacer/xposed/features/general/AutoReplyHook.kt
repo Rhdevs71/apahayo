@@ -286,9 +286,17 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
             val actionUserClass = WppCore.getActionUserClass()
             if (actionUser == null || actionUserClass == null) return
 
-            val senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
+            var senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
                 List::class.java.isAssignableFrom(method.returnType) &&
                         ReflectionUtils.findIndexOfType(method.parameterTypes, String::class.java) != -1
+            }
+            if (senderMethod == null) {
+                senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
+                    val params = method.parameterTypes
+                    ReflectionUtils.findIndexOfType(params, List::class.java) != -1 &&
+                            ReflectionUtils.findIndexOfType(params, String::class.java) != -1 &&
+                            method.name != "toString"
+                }
             }
 
             if (senderMethod == null) {
