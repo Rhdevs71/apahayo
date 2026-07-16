@@ -298,6 +298,15 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                             method.name != "toString"
                 }
             }
+            if (senderMethod == null) {
+                senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
+                    val params = method.parameterTypes
+                    ReflectionUtils.findIndexOfType(params, String::class.java) != -1 &&
+                            (ReflectionUtils.findIndexOfType(params, FMessageWpp.UserJid.TYPE_JID) != -1 ||
+                             ReflectionUtils.findIndexOfType(params, FMessageWpp.UserJid.TYPE_USERJID) != -1) &&
+                            method.name != "toString"
+                }
+            }
 
             if (senderMethod == null) {
                 XposedBridge.log("AutoReply Error: Text send method not found")
@@ -314,7 +323,19 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
             newObject[textIndex] = replyText
 
             val jidIndex = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, List::class.java)
-            newObject[jidIndex] = Collections.singletonList(userJid)
+            if (jidIndex != -1) {
+                newObject[jidIndex] = Collections.singletonList(userJid)
+            } else {
+                val indexJid = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.UserJid.TYPE_JID)
+                if (indexJid != -1) {
+                    newObject[indexJid] = userJid
+                } else {
+                    val indexUserJid = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.UserJid.TYPE_USERJID)
+                    if (indexUserJid != -1) {
+                        newObject[indexUserJid] = userJid
+                    }
+                }
+            }
 
             if (quoteMessage != null) {
                 val quotedIndex = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.TYPE)

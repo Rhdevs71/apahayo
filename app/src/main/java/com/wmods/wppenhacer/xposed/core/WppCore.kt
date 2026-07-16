@@ -245,7 +245,21 @@ object WppCore {
                             method.name != "toString"
                 }
             }
+            if (senderMethod == null) {
+                senderMethod = ReflectionUtils.findMethodUsingFilter(actionUser) { method ->
+                    val params = method.parameterTypes
+                    ReflectionUtils.findIndexOfType(params, String::class.java) != -1 &&
+                            (ReflectionUtils.findIndexOfType(params, FMessageWpp.UserJid.TYPE_JID) != -1 ||
+                             ReflectionUtils.findIndexOfType(params, FMessageWpp.UserJid.TYPE_USERJID) != -1) &&
+                            method.name != "toString"
+                }
+            }
             
+            if (senderMethod == null) {
+                Utils.showToast("Send message method not found", Toast.LENGTH_SHORT)
+                return
+            }
+
             val userJid = createUserJid("$number@s.whatsapp.net")
             if (userJid == null) {
                 Utils.showToast("UserJID not found", Toast.LENGTH_SHORT)
@@ -259,9 +273,23 @@ object WppCore {
             val index =
                 ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, String::class.java)
             newObject[index] = message
-            val index2 =
+            
+            val indexList =
                 ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, List::class.java)
-            newObject[index2] = Collections.singletonList(userJid)
+            if (indexList != -1) {
+                newObject[indexList] = Collections.singletonList(userJid)
+            } else {
+                val indexJid = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.UserJid.TYPE_JID)
+                if (indexJid != -1) {
+                    newObject[indexJid] = userJid
+                } else {
+                    val indexUserJid = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.UserJid.TYPE_USERJID)
+                    if (indexUserJid != -1) {
+                        newObject[indexUserJid] = userJid
+                    }
+                }
+            }
+            
             senderMethod.invoke(getActionUser(), *newObject)
             Utils.showToast("Message sent to $number", Toast.LENGTH_SHORT)
         } catch (e: Exception) {
@@ -290,6 +318,15 @@ object WppCore {
                             method.name != "toString"
                 }
             }
+            if (senderMethod == null) {
+                senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
+                    val params = method.parameterTypes
+                    ReflectionUtils.findIndexOfType(params, String::class.java) != -1 &&
+                            (ReflectionUtils.findIndexOfType(params, FMessageWpp.UserJid.TYPE_JID) != -1 ||
+                             ReflectionUtils.findIndexOfType(params, FMessageWpp.UserJid.TYPE_USERJID) != -1) &&
+                            method.name != "toString"
+                }
+            }
 
             if (senderMethod != null) {
                 val newObject = arrayOfNulls<Any>(senderMethod.parameterCount)
@@ -300,9 +337,23 @@ object WppCore {
                 val index =
                     ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, String::class.java)
                 newObject[index] = message
-                val index2 =
+                
+                val indexList =
                     ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, List::class.java)
-                newObject[index2] = Collections.singletonList(userJid)
+                if (indexList != -1) {
+                    newObject[indexList] = Collections.singletonList(userJid)
+                } else {
+                    val indexJid = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.UserJid.TYPE_JID)
+                    if (indexJid != -1) {
+                        newObject[indexJid] = userJid
+                    } else {
+                        val indexUserJid = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.UserJid.TYPE_USERJID)
+                        if (indexUserJid != -1) {
+                            newObject[indexUserJid] = userJid
+                        }
+                    }
+                }
+                
                 senderMethod.invoke(getActionUser(), *newObject)
                 XposedBridge.log("WaEnhancer WppCore: Message sent successfully to JID")
             } else {
