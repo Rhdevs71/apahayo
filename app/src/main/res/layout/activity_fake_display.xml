@@ -35,7 +35,7 @@
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/btn_back"
                 android:layout_marginStart="12dp"
-                android:text="Fake Display Settings"
+                android:text="Fake Settings &amp; Prank"
                 android:textColor="#E3E6EB"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -142,146 +142,712 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Fake Name Override Box -->
+            <!-- Segmented Control for Tabs -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_bordered_box"
-                android:padding="16dp"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_segmented_container"
+                android:padding="4dp"
                 android:layout_marginBottom="20dp">
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp">
+                <TextView
+                    android:id="@+id/tab_display"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Fake Profile"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:background="@drawable/bg_segmented_selected"
+                    android:clickable="true"
+                    android:focusable="true" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Override Name"
-                        android:textColor="#9C87F2"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tab_chat"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Fake Chat"
+                    android:textColor="#8F9CAE"
+                    android:clickable="true"
+                    android:focusable="true" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switch_name_enabled"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        app:thumbTint="@android:color/white"
-                        app:trackTint="#9C87F2" />
-                </RelativeLayout>
-
-                <!-- Name Input Box (enabled only when switch_name_enabled is checked) -->
-                <LinearLayout
-                    android:id="@+id/layout_name_input"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:background="@drawable/bg_bordered_box_nested"
-                    android:paddingHorizontal="16dp"
-                    android:gravity="center_vertical"
-                    android:alpha="0.5">
-
-                    <EditText
-                        android:id="@+id/edit_fake_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:hint="Enter fake display name"
-                        android:textColor="#E3E6EB"
-                        android:textColorHint="#5A687C"
-                        android:textSize="16sp"
-                        android:enabled="false" />
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/tab_call"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Fake Call"
+                    android:textColor="#8F9CAE"
+                    android:clickable="true"
+                    android:focusable="true" />
             </LinearLayout>
 
-            <!-- Fake Photo Override Box -->
+            <!-- ================= PAGE 1: FAKE DISPLAY ================= -->
             <LinearLayout
+                android:id="@+id/layout_section_display"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_bordered_box"
-                android:padding="16dp"
-                android:layout_marginBottom="24dp">
+                android:visibility="visible">
 
-                <RelativeLayout
+                <!-- Fake Name Override Box -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp">
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_bordered_box"
+                    android:padding="16dp"
+                    android:layout_marginBottom="20dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <RelativeLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Override Profile Picture"
-                        android:textColor="#9C87F2"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:layout_marginBottom="16dp">
 
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switch_photo_enabled"
-                        android:layout_width="wrap_content"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Override Name"
+                            android:textColor="#9C87F2"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switch_name_enabled"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_parent_end="true"
+                            app:thumbTint="@android:color/white"
+                            app:trackTint="#9C87F2" />
+                    </RelativeLayout>
+
+                    <!-- Name Input Box -->
+                    <LinearLayout
+                        android:id="@+id/layout_name_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_bordered_box_nested"
+                        android:paddingHorizontal="16dp"
+                        android:gravity="center_vertical"
+                        android:alpha="0.5">
+
+                        <EditText
+                            android:id="@+id/edit_fake_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:hint="Enter fake display name"
+                            android:textColor="#E3E6EB"
+                            android:textColorHint="#5A687C"
+                            android:textSize="16sp"
+                            android:enabled="false" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Fake Photo Override Box -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_bordered_box"
+                    android:padding="16dp"
+                    android:layout_marginBottom="24dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        app:thumbTint="@android:color/white"
-                        app:trackTint="#9C87F2" />
-                </RelativeLayout>
+                        android:layout_marginBottom="16dp">
 
-                <!-- Select Photo Layout (enabled only when switch_photo_enabled is checked) -->
-                <RelativeLayout
-                    android:id="@+id/layout_photo_input"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Override Profile Picture"
+                            android:textColor="#9C87F2"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switch_photo_enabled"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_parent_end="true"
+                            app:thumbTint="@android:color/white"
+                            app:trackTint="#9C87F2" />
+                    </RelativeLayout>
+
+                    <!-- Select Photo Layout -->
+                    <RelativeLayout
+                        android:id="@+id/layout_photo_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_bordered_box_nested"
+                        android:paddingHorizontal="16dp"
+                        android:layout_marginBottom="12dp"
+                        android:alpha="0.5">
+
+                        <ImageView
+                            android:id="@+id/img_photo_icon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_centerVertical="true"
+                            android:src="@android:drawable/ic_menu_gallery"
+                            app:tint="#8F9CAE" />
+
+                        <TextView
+                            android:id="@+id/text_selected_photo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_toEndOf="@id/img_photo_icon"
+                            android:layout_marginStart="12dp"
+                            android:text="Choose fake photo"
+                            android:textColor="#8F9CAE"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/btn_select_photo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_parent_end="true"
+                            android:gravity="center"
+                            android:text="SELECT"
+                            android:textColor="#9C87F2"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:clickable="false"
+                            android:focusable="false" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <!-- Save Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_save"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:background="@drawable/bg_bordered_box_nested"
-                    android:paddingHorizontal="16dp"
-                    android:layout_marginBottom="12dp"
-                    android:alpha="0.5">
+                    android:backgroundTint="#C3B4FC"
+                    android:text="Save Profile Overrides"
+                    android:textColor="#0B0E14"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="28dp" />
+            </LinearLayout>
 
-                    <ImageView
-                        android:id="@+id/img_photo_icon"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_centerVertical="true"
-                        android:src="@android:drawable/ic_menu_gallery"
-                        app:tint="#8F9CAE" />
+            <!-- ================= PAGE 2: FAKE CHAT ================= -->
+            <LinearLayout
+                android:id="@+id/layout_section_chat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <!-- Inject Message Settings Box -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_bordered_box"
+                    android:padding="16dp"
+                    android:layout_marginBottom="24dp">
 
                     <TextView
-                        android:id="@+id/text_selected_photo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_toEndOf="@id/img_photo_icon"
-                        android:layout_marginStart="12dp"
-                        android:text="Choose fake photo"
-                        android:textColor="#8F9CAE"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/btn_select_photo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_alignParentEnd="true"
-                        android:gravity="center"
-                        android:text="SELECT"
+                        android:text="Inject Fake Message"
                         android:textColor="#9C87F2"
                         android:textSize="14sp"
                         android:textStyle="bold"
-                        android:clickable="false"
-                        android:focusable="false" />
-                </RelativeLayout>
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Message Text -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Message Content"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:background="@drawable/bg_bordered_box_nested"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        android:layout_marginBottom="16dp">
+
+                        <EditText
+                            android:id="@+id/edit_fake_msg_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:gravity="top"
+                            android:hint="Type fake message..."
+                            android:textColor="#E3E6EB"
+                            android:textColorHint="#5A687C"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <!-- Sender Toggle (Me vs Them) -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sender"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_msg_sender"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <RadioButton
+                            android:id="@+id/radio_msg_them"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Them (Incoming)"
+                            android:textColor="#E3E6EB"
+                            android:buttonTint="#9C87F2"
+                            android:checked="true" />
+
+                        <RadioButton
+                            android:id="@+id/radio_msg_me"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Me (Outgoing)"
+                            android:textColor="#E3E6EB"
+                            android:layout_marginStart="24dp"
+                            android:buttonTint="#9C87F2" />
+                    </RadioGroup>
+
+                    <!-- Status Selector (Visible for Outgoing) -->
+                    <LinearLayout
+                        android:id="@+id/layout_msg_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginBottom="16dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Message Status (Tanda Centang)"
+                            android:textColor="#8F9CAE"
+                            android:textSize="12sp"
+                            android:layout_marginBottom="8dp" />
+
+                        <RadioGroup
+                            android:id="@+id/rg_msg_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <RadioButton
+                                android:id="@+id/radio_status_read"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Read (Blue)"
+                                android:textColor="#E3E6EB"
+                                android:buttonTint="#9C87F2"
+                                android:checked="true" />
+
+                            <RadioButton
+                                android:id="@+id/radio_status_delivered"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Delivered"
+                                android:textColor="#E3E6EB"
+                                android:layout_marginStart="16dp"
+                                android:buttonTint="#9C87F2" />
+
+                            <RadioButton
+                                android:id="@+id/radio_status_sent"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Sent"
+                                android:textColor="#E3E6EB"
+                                android:layout_marginStart="16dp"
+                                android:buttonTint="#9C87F2" />
+                        </RadioGroup>
+                    </LinearLayout>
+
+                    <!-- Timestamp Selector -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Timestamp"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_msg_date"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:backgroundTint="#1A222D"
+                            android:text="Set Date"
+                            android:textColor="#E3E6EB"
+                            android:textSize="13sp"
+                            app:cornerRadius="12dp"
+                            app:strokeColor="#303F54"
+                            app:strokeWidth="1dp" />
+
+                        <View
+                            android:layout_width="12dp"
+                            android:layout_height="1dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_msg_time"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:backgroundTint="#1A222D"
+                            android:text="Set Time"
+                            android:textColor="#E3E6EB"
+                            android:textSize="13sp"
+                            app:cornerRadius="12dp"
+                            app:strokeColor="#303F54"
+                            app:strokeWidth="1dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/text_msg_timestamp_preview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Timestamp: Just Now"
+                        android:textColor="#9C87F2"
+                        android:textSize="13sp"
+                        android:layout_marginStart="4dp" />
+                </LinearLayout>
+
+                <!-- Inject Message Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_inject_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:backgroundTint="#9C87F2"
+                    android:text="Inject Fake Message"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="28dp" />
             </LinearLayout>
 
-            <!-- Save Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_save"
+            <!-- ================= PAGE 3: FAKE CALL ================= -->
+            <LinearLayout
+                android:id="@+id/layout_section_call"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:backgroundTint="#C3B4FC"
-                android:text="Save"
-                android:textColor="#0B0E14"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:cornerRadius="28dp" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <!-- Call Simulator Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_bordered_box"
+                    android:padding="16dp"
+                    android:layout_marginBottom="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Simulate Incoming Call"
+                        android:textColor="#9C87F2"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Call Media Type -->
+                    <RadioGroup
+                        android:id="@+id/rg_call_sim_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="20dp">
+
+                        <RadioButton
+                            android:id="@+id/radio_call_sim_voice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Voice Call"
+                            android:textColor="#E3E6EB"
+                            android:buttonTint="#9C87F2"
+                            android:checked="true" />
+
+                        <RadioButton
+                            android:id="@+id/radio_call_sim_video"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Video Call"
+                            android:textColor="#E3E6EB"
+                            android:layout_marginStart="24dp"
+                            android:buttonTint="#9C87F2" />
+                    </RadioGroup>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_launch_call_simulator"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:backgroundTint="#4CAF50"
+                        android:text="Simulate Call Now"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="12dp"
+                        app:icon="@android:drawable/ic_menu_call"
+                        app:iconTint="#FFFFFF" />
+                </LinearLayout>
+
+                <!-- Call Log Injector Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_bordered_box"
+                    android:padding="16dp"
+                    android:layout_marginBottom="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Inject Call History (Log Panggilan)"
+                        android:textColor="#9C87F2"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Call Log Type & Direction -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Call Type"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_call_log_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <RadioButton
+                            android:id="@+id/radio_call_voice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Voice"
+                            android:textColor="#E3E6EB"
+                            android:buttonTint="#9C87F2"
+                            android:checked="true" />
+
+                        <RadioButton
+                            android:id="@+id/radio_call_video"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Video"
+                            android:textColor="#E3E6EB"
+                            android:layout_marginStart="24dp"
+                            android:buttonTint="#9C87F2" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Direction"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_call_log_direction"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <RadioButton
+                            android:id="@+id/radio_call_incoming"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Incoming"
+                            android:textColor="#E3E6EB"
+                            android:buttonTint="#9C87F2"
+                            android:checked="true" />
+
+                        <RadioButton
+                            android:id="@+id/radio_call_outgoing"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Outgoing"
+                            android:textColor="#E3E6EB"
+                            android:layout_marginStart="24dp"
+                            android:buttonTint="#9C87F2" />
+                    </RadioGroup>
+
+                    <!-- Status Answered vs Missed -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Status"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_call_log_result"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <RadioButton
+                            android:id="@+id/radio_call_connected"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Connected (Terhubung)"
+                            android:textColor="#E3E6EB"
+                            android:buttonTint="#9C87F2"
+                            android:checked="true" />
+
+                        <RadioButton
+                            android:id="@+id/radio_call_missed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Missed / Cancelled"
+                            android:textColor="#E3E6EB"
+                            android:layout_marginStart="16dp"
+                            android:buttonTint="#9C87F2" />
+                    </RadioGroup>
+
+                    <!-- Call Duration -->
+                    <LinearLayout
+                        android:id="@+id/layout_call_duration"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginBottom="16dp">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Call Duration"
+                                android:textColor="#8F9CAE"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:id="@+id/text_call_duration_preview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:text="5 min 0 sec"
+                                android:textColor="#9C87F2"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </RelativeLayout>
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_call_duration"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="5"
+                            android:valueTo="3600"
+                            android:value="300"
+                            app:thumbColor="#9C87F2"
+                            app:trackColorActive="#9C87F2"
+                            app:trackColorInactive="#303F54" />
+                    </LinearLayout>
+
+                    <!-- Call Log Timestamp -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Call Timestamp"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_call_date"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:backgroundTint="#1A222D"
+                            android:text="Set Date"
+                            android:textColor="#E3E6EB"
+                            android:textSize="13sp"
+                            app:cornerRadius="12dp"
+                            app:strokeColor="#303F54"
+                            app:strokeWidth="1dp" />
+
+                        <View
+                            android:layout_width="12dp"
+                            android:layout_height="1dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_call_time"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:backgroundTint="#1A222D"
+                            android:text="Set Time"
+                            android:textColor="#E3E6EB"
+                            android:textSize="13sp"
+                            app:cornerRadius="12dp"
+                            app:strokeColor="#303F54"
+                            app:strokeWidth="1dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/text_call_timestamp_preview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Timestamp: Just Now"
+                        android:textColor="#9C87F2"
+                        android:textSize="13sp"
+                        android:layout_marginStart="4dp" />
+                </LinearLayout>
+
+                <!-- Inject Call Log Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_inject_call"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:backgroundTint="#9C87F2"
+                    android:text="Inject Call History"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="28dp" />
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

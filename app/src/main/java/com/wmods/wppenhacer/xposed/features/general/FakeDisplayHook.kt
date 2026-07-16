@@ -1,8 +1,16 @@
 package com.wmods.wppenhacer.xposed.features.general
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.database.sqlite.SQLiteDatabase
+import android.os.Build
+import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
@@ -23,6 +31,8 @@ class FakeDisplayHook(loader: ClassLoader, preferences: SharedPreferences) : Fea
 
         hookContactManager()
         hookProfilePhotoManager()
+        hookConversationMenu()
+        registerBroadcastReceiver(Utils.application)
     }
 
     private fun hookContactManager() {
@@ -126,5 +136,158 @@ class FakeDisplayHook(loader: ClassLoader, preferences: SharedPreferences) : Fea
         } catch (e: Exception) {
             XposedBridge.log("WaEnhancer FakeDisplayHook Error: ProfilePhotoManager hook failed: ${e.message}")
         }
+    }
+
+    private fun hookConversationMenu() {
+        try {
+            val conversationClass = XposedHelpers.findClass("com.whatsapp.Conversation", classLoader)
+            
+            XposedBridge.hookAllMethods(conversationClass, "onCreateOptionsMenu", object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val menu = param.args[0] as android.view.Menu
+                    // Add "Fake Settings" menu item
+                    menu.add(android.view.Menu.NONE, 992211, 0, "Fake Settings")
+                }
+            })
+
+            XposedBridge.hookAllMethods(conversationClass, "onOptionsItemSelected", object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val item = param.args[0] as android.view.MenuItem
+                    if (item.itemId == 992211) {
+                        val activity = param.thisObject as android.app.Activity
+                        val userJid = WppCore.getCurrentUserJid()
+                        val rawJid = userJid?.phoneRawString ?: ""
+                        
+                        // Launch FakeDisplayActivity directly
+                        val intent = Intent().apply {
+                            component = android.content.ComponentName(
+                                BuildConfig.APPLICATION_ID,
+                                "com.wmods.wppenhacer.activities.FakeDisplayActivity"
+                            )
+                            putExtra("CHAT_JID", rawJid)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        activity.startActivity(intent)
+                        param.result = true
+                    }
+                }
+            })
+            XposedBridge.log("WaEnhancer FakeDisplayHook: Conversation menu hook registered successfully")
+        } catch (e: Exception) {
+            XposedBridge.log("WaEnhancer FakeDisplayHook Error: Conversation menu hook failed: ${e.message}")
+        }
+    }
+
+    private fun registerBroadcastReceiver(context: Context) {
+        val filter = IntentFilter().apply {
+            addAction("com.wmods.wppenhacer.INJECT_FAKE_MESSAGE")
+            addAction("com.wmods.wppenhacer.INJECT_FAKE_CALL")
+        }
+        
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context, intent: Intent) {
+                val action = intent.action ?: return
+                val db = MessageStore.getInstance().database ?: return
+                
+                if (action == "com.wmods.wppenhacer.INJECT_FAKE_MESSAGE") {
+                    val chatJid = intent.getStringExtra("chat_jid") ?: return
+                    val text = intent.getStringExtra("text") ?: return
+                    val fromMe = intent.getBooleanExtra("from_me", true)
+                    val timestamp = intent.getLongExtra("timestamp", System.currentTimeMillis())
+                    val status = intent.getIntExtra("status", 13)
+                    
+                    try {
+                        injectFakeMessage(db, chatJid, text, fromMe, timestamp, status)
+                        XposedBridge.log("WaEnhancer FakeDisplayHook: Injected fake message successfully")
+                    } catch (e: Exception) {
+                        XposedBridge.log("WaEnhancer FakeDisplayHook Error: Failed to inject fake message: ${e.message}")
+                    }
+                } else if (action == "com.wmods.wppenhacer.INJECT_FAKE_CALL") {
+                    val chatJid = intent.getStringExtra("chat_jid") ?: return
+                    val isOutgoing = intent.getBooleanExtra("is_outgoing", true)
+                    val isVideo = intent.getBooleanExtra("is_video", false)
+                    val isConnected = intent.getBooleanExtra("is_connected", true)
+                    val timestamp = intent.getLongExtra("timestamp", System.currentTimeMillis())
+                    val duration = intent.getIntExtra("duration", 60)
+                    
+                    try {
+                        injectFakeCallLog(db, chatJid, isOutgoing, isVideo, isConnected, timestamp, duration)
+                        XposedBridge.log("WaEnhancer FakeDisplayHook: Injected fake call log successfully")
+                    } catch (e: Exception) {
+                        XposedBridge.log("WaEnhancer FakeDisplayHook Error: Failed to inject fake call log: ${e.message}")
+                    }
+                }
+            }
+        }
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
+        } else {
+            context.registerReceiver(receiver, filter)
+        }
+    }
+
+    private fun injectFakeMessage(db: SQLiteDatabase, chatJid: String, text: String, fromMe: Boolean, timestamp: Long, status: Int) {
+        db.execSQL("INSERT OR IGNORE INTO jid (raw_string) VALUES (?)", arrayOf(chatJid))
+        var jidRowId: Long = -1
+        db.rawQuery("SELECT _id FROM jid WHERE raw_string = ?", arrayOf(chatJid)).use { cursor ->
+            if (cursor.moveToFirst()) {
+                jidRowId = cursor.getLong(0)
+            }
+        }
+        if (jidRowId == -1L) return
+
+        db.execSQL("INSERT OR IGNORE INTO chat (jid_row_id) VALUES (?)", arrayOf(jidRowId))
+        var chatRowId: Long = -1
+        db.rawQuery("SELECT _id FROM chat WHERE jid_row_id = ?", arrayOf(jidRowId.toString())).use { cursor ->
+            if (cursor.moveToFirst()) {
+                chatRowId = cursor.getLong(0)
+            }
+        }
+        if (chatRowId == -1L) return
+
+        val chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        val randomKey = "3EB0" + (1..12).map { chars.random() }.joinToString("")
+
+        db.execSQL(
+            "INSERT INTO message (chat_row_id, from_me, key_id, sender_jid_row_id, message_type, text_data, timestamp, status) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            arrayOf(
+                chatRowId,
+                if (fromMe) 1 else 0,
+                randomKey,
+                if (fromMe) -1 else jidRowId,
+                0,
+                text,
+                timestamp,
+                status
+            )
+        )
+    }
+
+    private fun injectFakeCallLog(db: SQLiteDatabase, chatJid: String, isOutgoing: Boolean, isVideo: Boolean, isConnected: Boolean, timestamp: Long, durationSeconds: Int) {
+        db.execSQL("INSERT OR IGNORE INTO jid (raw_string) VALUES (?)", arrayOf(chatJid))
+        var jidRowId: Long = -1
+        db.rawQuery("SELECT _id FROM jid WHERE raw_string = ?", arrayOf(chatJid)).use { cursor ->
+            if (cursor.moveToFirst()) {
+                jidRowId = cursor.getLong(0)
+            }
+        }
+        if (jidRowId == -1L) return
+
+        val callResult = if (isConnected) 1 else (if (isOutgoing) 3 else 2)
+
+        db.execSQL(
+            "INSERT INTO call_log (jid_row_id, from_me, timestamp, video_call, call_result, duration) " +
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            arrayOf(
+                jidRowId,
+                if (isOutgoing) 1 else 0,
+                timestamp,
+                if (isVideo) 1 else 0,
+                callResult,
+                durationSeconds
+            )
+        )
     }
 }

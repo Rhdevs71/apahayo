@@ -389,9 +389,21 @@ object WppCore {
     fun getActionUser(): Any? {
         try {
             if (mActionUser == null) {
-                mActionUser = actionUser?.constructors?.get(0)?.newInstance()
+                val clazz = actionUser
+                if (clazz != null) {
+                    try {
+                        val instanceField = clazz.getDeclaredField("INSTANCE")
+                        instanceField.isAccessible = true
+                        mActionUser = instanceField.get(null)
+                        XposedBridge.log("WaEnhancer WppCore: Obtained ActionUser from INSTANCE field")
+                    } catch (ignored: NoSuchFieldException) {
+                        mActionUser = clazz.constructors.getOrNull(0)?.newInstance()
+                        XposedBridge.log("WaEnhancer WppCore: Obtained ActionUser from constructor")
+                    }
+                }
             }
         } catch (e: Exception) {
+            XposedBridge.log("WaEnhancer WppCore getActionUser Error: ${e.message}")
             XposedBridge.log(e)
         }
         return mActionUser

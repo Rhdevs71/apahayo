@@ -1,6 +1,8 @@
 package com.wmods.wppenhacer.activities
 
 import android.app.Activity
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -16,6 +18,9 @@ import com.wmods.wppenhacer.utils.ContactHelper
 import com.wmods.wppenhacer.utils.RealPathUtil
 import com.wmods.wppenhacer.utils.WhatsAppContactPickerLauncher
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class FakeDisplayActivity : BaseActivity() {
 
@@ -24,6 +29,11 @@ class FakeDisplayActivity : BaseActivity() {
     private var selectedContactName: String? = null
     private var selectedPhotoPath: String? = null
 
+    // Calendar for fake message and call log injection
+    private val chatCalendar = Calendar.getInstance()
+    private val callCalendar = Calendar.getInstance()
+    private val dateFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFakeDisplayBinding.inflate(layoutInflater)
@@ -31,6 +41,18 @@ class FakeDisplayActivity : BaseActivity() {
 
         // Toolbar Back button
         binding.btnBack.setOnClickListener { onBackPressed() }
+
+        // Check if JID is passed from WhatsApp menu
+        val chatJidExtra = intent.getStringExtra("CHAT_JID")
+        if (chatJidExtra != null) {
+            selectedJid = chatJidExtra
+            selectedContactName = ContactHelper.getContactName(this, chatJidExtra) ?: chatJidExtra.split("@").getOrNull(0) ?: "Contact"
+            binding.textSelectedContact.text = selectedContactName
+            binding.textSelectedContact.setTextColor(0xFFE3E6EB.toInt())
+            binding.switchIsSelf.isChecked = false
+            binding.layoutContactSelect.visibility = View.VISIBLE
+            loadSettingsForJid(chatJidExtra)
+        }
 
         // Switch Self (Me) change listener
         binding.switchIsSelf.setOnCheckedChangeListener { _, isChecked ->
@@ -72,6 +94,229 @@ class FakeDisplayActivity : BaseActivity() {
 
         // Save Button Click
         binding.btnSave.setOnClickListener { saveFakeDisplaySettings() }
+
+        // Set up tab click listeners
+        setupTabs()
+
+        // Set up Fake Chat elements
+        setupFakeChatSection()
+
+        // Set up Fake Call elements
+        setupFakeCallSection()
+    }
+
+    private fun setupTabs() {
+        binding.tabDisplay.setOnClickListener {
+            selectTab(0)
+        }
+        binding.tabChat.setOnClickListener {
+            selectTab(1)
+        }
+        binding.tabCall.setOnClickListener {
+            selectTab(2)
+        }
+    }
+
+    private fun selectTab(index: Int) {
+        // Reset backgrounds
+        binding.tabDisplay.setBackgroundResource(0)
+        binding.tabChat.setBackgroundResource(0)
+        binding.tabCall.setBackgroundResource(0)
+        binding.tabDisplay.setTextColor(0x8F8F9CAE.toInt())
+        binding.tabChat.setTextColor(0x8F8F9CAE.toInt())
+        binding.tabCall.setTextColor(0x8F8F9CAE.toInt())
+
+        // Set selected layout
+        binding.layoutSectionDisplay.visibility = View.GONE
+        binding.layoutSectionChat.visibility = View.GONE
+        binding.layoutSectionCall.visibility = View.GONE
+
+        when (index) {
+            0 -> {
+                binding.tabDisplay.setBackgroundResource(R.drawable.bg_segmented_selected)
+                binding.tabDisplay.setTextColor(0xFFFFFFFF.toInt())
+                binding.layoutSectionDisplay.visibility = View.VISIBLE
+            }
+            1 -> {
+                binding.tabChat.setBackgroundResource(R.drawable.bg_segmented_selected)
+                binding.tabChat.setTextColor(0xFFFFFFFF.toInt())
+                binding.layoutSectionChat.visibility = View.VISIBLE
+            }
+            2 -> {
+                binding.tabCall.setBackgroundResource(R.drawable.bg_segmented_selected)
+                binding.tabCall.setTextColor(0xFFFFFFFF.toInt())
+                binding.layoutSectionCall.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun setupFakeChatSection() {
+        // Show/hide status option depending on Sender
+        binding.rgMsgSender.setOnCheckedChangeListener { _, checkedId ->
+            if (checkedId == R.id.radio_msg_me) {
+                binding.layoutMsgStatus.visibility = View.VISIBLE
+            } else {
+                binding.layoutMsgStatus.visibility = View.GONE
+            }
+        }
+
+        // Update time labels
+        updateChatTimeLabel()
+
+        binding.btnMsgDate.setOnClickListener {
+            DatePickerDialog(this, { _, year, month, day ->
+                chatCalendar.set(Calendar.YEAR, year)
+                chatCalendar.set(Calendar.MONTH, month)
+                chatCalendar.set(Calendar.DAY_OF_MONTH, day)
+                updateChatTimeLabel()
+            }, chatCalendar.get(Calendar.YEAR), chatCalendar.get(Calendar.MONTH), chatCalendar.get(Calendar.DAY_OF_MONTH)).show()
+        }
+
+        binding.btnMsgTime.setOnClickListener {
+            TimePickerDialog(this, { _, hour, minute ->
+                chatCalendar.set(Calendar.HOUR_OF_DAY, hour)
+                chatCalendar.set(Calendar.MINUTE, minute)
+                updateChatTimeLabel()
+            }, chatCalendar.get(Calendar.HOUR_OF_DAY), chatCalendar.get(Calendar.MINUTE), true).show()
+        }
+
+        // Inject message click listener
+        binding.btnInjectMessage.setOnClickListener {
+            val jid = selectedJid
+            if (jid == null) {
+                Toast.makeText(this, "Please select a target contact first", Toast.LENGTH_SHORT).show()
+                return
+            }
+            if (jid == "me") {
+                Toast.makeText(this, "Cannot inject messages inside 'Self/Me' profile settings", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val text = binding.editFakeMsgText.text.toString().trim()
+            if (text.isEmpty()) {
+                Toast.makeText(this, "Please enter message text", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val fromMe = binding.radioMsgMe.isChecked
+            val timestamp = chatCalendar.timeInMillis
+            val status = if (fromMe) {
+                when {
+                    binding.radioStatusRead.isChecked -> 13
+                    binding.radioStatusDelivered.isChecked -> 5
+                    else -> 4
+                }
+            } else {
+                0
+            }
+
+            // Send broadcast to Xposed hook running inside WhatsApp process
+            val intent = Intent("com.wmods.wppenhacer.INJECT_FAKE_MESSAGE").apply {
+                putExtra("chat_jid", jid)
+                putExtra("text", text)
+                putExtra("from_me", fromMe)
+                putExtra("timestamp", timestamp)
+                putExtra("status", status)
+            }
+            sendBroadcast(intent)
+
+            Toast.makeText(this, "Fake message injected! Close and open chat to refresh", Toast.LENGTH_SHORT).show()
+            binding.editFakeMsgText.setText("")
+        }
+    }
+
+    private fun updateChatTimeLabel() {
+        binding.textMsgTimestampPreview.text = "Timestamp: " + dateFormat.format(chatCalendar.time)
+    }
+
+    private fun setupFakeCallSection() {
+        // Duration slider listener
+        binding.sliderCallDuration.addOnChangeListener { _, value, _ ->
+            val totalSec = value.toInt()
+            val min = totalSec / 60
+            val sec = totalSec % 60
+            binding.textCallDurationPreview.text = String.format("%d min %d sec", min, sec)
+        }
+
+        // Update time label
+        updateCallTimeLabel()
+
+        binding.btnCallDate.setOnClickListener {
+            DatePickerDialog(this, { _, year, month, day ->
+                callCalendar.set(Calendar.YEAR, year)
+                callCalendar.set(Calendar.MONTH, month)
+                callCalendar.set(Calendar.DAY_OF_MONTH, day)
+                updateCallTimeLabel()
+            }, callCalendar.get(Calendar.YEAR), callCalendar.get(Calendar.MONTH), callCalendar.get(Calendar.DAY_OF_MONTH)).show()
+        }
+
+        binding.btnCallTime.setOnClickListener {
+            TimePickerDialog(this, { _, hour, minute ->
+                callCalendar.set(Calendar.HOUR_OF_DAY, hour)
+                callCalendar.set(Calendar.MINUTE, minute)
+                updateCallTimeLabel()
+            }, callCalendar.get(Calendar.HOUR_OF_DAY), callCalendar.get(Calendar.MINUTE), true).show()
+        }
+
+        // Inject Call history listener
+        binding.btnInjectCall.setOnClickListener {
+            val jid = selectedJid
+            if (jid == null) {
+                Toast.makeText(this, "Please select a target contact first", Toast.LENGTH_SHORT).show()
+                return
+            }
+            if (jid == "me") {
+                Toast.makeText(this, "Cannot inject calls inside 'Self/Me' settings", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val isVoice = binding.radioCallVoice.isChecked
+            val isIncoming = binding.radioCallIncoming.isChecked
+            val isConnected = binding.radioCallConnected.isChecked
+            val duration = binding.sliderCallDuration.value.toInt()
+            val timestamp = callCalendar.timeInMillis
+
+            // Send broadcast to Xposed hook running in WhatsApp process
+            val intent = Intent("com.wmods.wppenhacer.INJECT_FAKE_CALL").apply {
+                putExtra("chat_jid", jid)
+                putExtra("is_outgoing", !isIncoming)
+                putExtra("is_video", !isVoice)
+                putExtra("is_connected", isConnected)
+                putExtra("timestamp", timestamp)
+                putExtra("duration", duration)
+            }
+            sendBroadcast(intent)
+
+            Toast.makeText(this, "Fake call history injected successfully!", Toast.LENGTH_SHORT).show()
+        }
+
+        // Launch simulated incoming call screen
+        binding.btnLaunchCallSimulator.setOnClickListener {
+            val name = if (binding.switchNameEnabled.isChecked) {
+                binding.editFakeName.text.toString().trim()
+            } else {
+                selectedContactName
+            } ?: "Tokoh Politik"
+
+            val photo = if (binding.switchPhotoEnabled.isChecked) {
+                selectedPhotoPath ?: ""
+            } else {
+                ""
+            }
+
+            val isVideo = binding.radioCallSimVideo.isChecked
+
+            val intent = Intent(this, FakeCallActivity::class.java).apply {
+                putExtra("CONTACT_NAME", name)
+                putExtra("PHOTO_PATH", photo)
+                putExtra("IS_VIDEO", isVideo)
+            }
+            startActivity(intent)
+        }
+    }
+
+    private fun updateCallTimeLabel() {
+        binding.textCallTimestampPreview.text = "Timestamp: " + dateFormat.format(callCalendar.time)
     }
 
     private fun resetInputFields() {

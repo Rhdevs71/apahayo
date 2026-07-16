@@ -200,6 +200,12 @@
             android:parentActivityName=".activities.MainActivity" />
 
         <activity
+            android:name=".activities.FakeCallActivity"
+            android:theme="@style/AppTheme"
+            android:label="Simulated Call"
+            android:parentActivityName=".activities.MainActivity" />
+
+        <activity
             android:name=".activities.CustomFoldersActivity"
             android:theme="@style/AppTheme"
             android:label="Custom Chat Folders"
