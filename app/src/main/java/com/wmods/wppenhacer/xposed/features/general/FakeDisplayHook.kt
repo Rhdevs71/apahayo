@@ -187,7 +187,7 @@ class FakeDisplayHook(loader: ClassLoader, preferences: SharedPreferences) : Fea
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(ctx: Context, intent: Intent) {
                 val action = intent.action ?: return
-                val db = MessageStore.getInstance().database ?: return
+                val db = MessageStore.getInstance().getDatabase() ?: return
                 
                 if (action == "com.wmods.wppenhacer.INJECT_FAKE_MESSAGE") {
                     val chatJid = intent.getStringExtra("chat_jid") ?: return

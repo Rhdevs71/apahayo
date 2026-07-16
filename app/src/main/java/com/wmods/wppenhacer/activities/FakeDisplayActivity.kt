@@ -185,17 +185,17 @@ class FakeDisplayActivity : BaseActivity() {
             val jid = selectedJid
             if (jid == null) {
                 Toast.makeText(this, "Please select a target contact first", Toast.LENGTH_SHORT).show()
-                return
+                return@setOnClickListener
             }
             if (jid == "me") {
                 Toast.makeText(this, "Cannot inject messages inside 'Self/Me' profile settings", Toast.LENGTH_SHORT).show()
-                return
+                return@setOnClickListener
             }
 
             val text = binding.editFakeMsgText.text.toString().trim()
             if (text.isEmpty()) {
                 Toast.makeText(this, "Please enter message text", Toast.LENGTH_SHORT).show()
-                return
+                return@setOnClickListener
             }
 
             val fromMe = binding.radioMsgMe.isChecked
@@ -263,11 +263,11 @@ class FakeDisplayActivity : BaseActivity() {
             val jid = selectedJid
             if (jid == null) {
                 Toast.makeText(this, "Please select a target contact first", Toast.LENGTH_SHORT).show()
-                return
+                return@setOnClickListener
             }
             if (jid == "me") {
                 Toast.makeText(this, "Cannot inject calls inside 'Self/Me' settings", Toast.LENGTH_SHORT).show()
-                return
+                return@setOnClickListener
             }
 
             val isVoice = binding.radioCallVoice.isChecked
