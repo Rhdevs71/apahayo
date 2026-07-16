@@ -59,7 +59,7 @@ class FakeCallActivity : AppCompatActivity() {
             if (file.exists()) {
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
                 if (bitmap != null) {
-                    binding.img_call_profile.setImageBitmap(bitmap)
+                    binding.imgCallProfile.setImageBitmap(bitmap)
                     binding.imgBgBlur.setImageBitmap(bitmap)
                 }
             }
