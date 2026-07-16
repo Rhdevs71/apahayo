@@ -50,7 +50,10 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
         val packageName = lpparam.packageName
         val classLoader = lpparam.classLoader
 
-        if (packageName == BuildConfig.APPLICATION_ID) {
+        XposedBridge.log("WaEnhancer: handleLoadPackage for $packageName")
+
+        if (packageName == BuildConfig.APPLICATION_ID || packageName == "com.wmods.wppenhacer" || packageName == "com.wmods.wppenhacer.w4b") {
+            XposedBridge.log("WaEnhancer: Hooking isXposedEnabled for module package")
             XposedHelpers.findAndHookMethod(
                 MainActivity::class.java.name,
                 classLoader,

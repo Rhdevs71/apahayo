@@ -259,7 +259,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public static boolean isXposedEnabled() {
-        return false;
+        return Boolean.parseBoolean("false");
     }
 
     @Override
