@@ -44,6 +44,7 @@ object WppCore {
     internal var mCurrentActivity: Activity? = null
 
     private var mGenJidMethod: Method? = null
+    private var mGenJidCompanion: Any? = null
     private var bottomDialog: Class<*>? = null
     private lateinit var privPrefs: SharedPreferences
     private var mStartUpConfig: Any? = null
@@ -73,6 +74,8 @@ object WppCore {
 
         // init UserJID
         val companionField = FMessageWpp.UserJid.TYPE_JID.getDeclaredField("Companion")
+        companionField.isAccessible = true
+        mGenJidCompanion = companionField.get(null)
         mGenJidMethod = ReflectionUtils.findMethodUsingFilter(companionField.type) { m ->
             m.parameterCount == 1 && String::class.java == m.parameterTypes[0] && FMessageWpp.UserJid.TYPE_JID == m.returnType
         }
@@ -544,7 +547,7 @@ object WppCore {
     fun createUserJid(rawjid: String?): Any? {
         if (rawjid == null) return null
         return try {
-            mGenJidMethod?.invoke(null, rawjid)
+            mGenJidMethod?.invoke(mGenJidCompanion, rawjid)
         } catch (e: Exception) {
             XposedBridge.log(e)
             null
