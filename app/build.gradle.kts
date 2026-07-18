@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import com.google.protobuf.gradle.proto
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -10,6 +11,7 @@ plugins {
     alias(libs.plugins.materialthemebuilder)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.kspPlugin)
+    alias(libs.plugins.protobuf)
 }
 
 fun getGitHashCommit(): String {
@@ -182,6 +184,28 @@ android {
         generatePalette = true
     }
 
+    sourceSets {
+        named("main") {
+            val srcDirs = arrayOf(
+                "../morphe-patches/extensions/shared/library/src/main/java",
+                "../morphe-patches/extensions/shared-youtube/library/src/main/java",
+                "../morphe-patches/extensions/youtube/src/main/java",
+                "../morphe-patches/extensions/music/src/main/java",
+                "../morphe-patches/extensions/reddit/src/main/java",
+                "../morphe-patches-library/extension-library/src/main/java"
+            )
+            java.directories += srcDirs
+            kotlin.directories += srcDirs
+
+            proto {
+                srcDirs(
+                    "../morphe-patches/extensions/youtube/src/main/proto",
+                    "../morphe-patches/extensions/shared-youtube/library/src/main/proto",
+                )
+            }
+        }
+    }
+
 }
 
 kotlin {
@@ -275,11 +299,25 @@ afterEvaluate {
 
 
 dependencies {
-    implementation(project(":morphe-patches"))
     implementation("androidx.javascriptengine:javascriptengine:1.0.0-beta01")
     implementation("com.google.protobuf:protobuf-javalite:3.25.1")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.annotation:annotation:1.7.1")
+}
+
+protobuf {
+    protoc {
+        artifact = libs.protobuf.protoc.get().toString()
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
+            }
+        }
+    }
 }
