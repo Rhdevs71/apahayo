@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Rhpatch</string>
     <string name="application_name">Rhpatch</string>
     <string name="morphe_settings">Morphe</string>
     <string name="app_description">Rhpatch LSPosed module, powered by Morphe.</string>
