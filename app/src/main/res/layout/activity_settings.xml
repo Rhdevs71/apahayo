@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    android:background="@color/rhpatch_bg">
+
+    <!-- Custom Header Bar -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/rhpatch_surface"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/header_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rhpatch"
+            android:textColor="@color/rhpatch_text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"/>
+
+        <!-- Active/Inactive Status Badge -->
+        <TextView
+            android:id="@+id/active_status_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@color/rhpatch_bg"
+            android:textColor="@color/rhpatch_text_secondary"
+            android:textSize="12sp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="Checking..."
+            android:textStyle="bold"/>
+    </RelativeLayout>
+
+    <!-- Main Fragment Container -->
+    <FrameLayout
+        android:id="@+id/settings_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#2E3A4E" />
+
+    <!-- Custom Bottom Navigation Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/rhpatch_surface"
+        android:orientation="horizontal">
+
+        <!-- Tab 1: Overview -->
+        <LinearLayout
+            android:id="@+id/tab_overview"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground">
+            <TextView
+                android:id="@+id/tab_overview_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Overview"
+                android:textSize="14sp"
+                android:textColor="@color/rhpatch_accent"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <!-- Tab 2: Modules -->
+        <LinearLayout
+            android:id="@+id/tab_modules"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground">
+            <TextView
+                android:id="@+id/tab_modules_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Modules"
+                android:textSize="14sp"
+                android:textColor="@color/rhpatch_text_secondary"/>
+        </LinearLayout>
+
+        <!-- Tab 3: About -->
+        <LinearLayout
+            android:id="@+id/tab_about"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground">
+            <TextView
+                android:id="@+id/tab_about_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="About"
+                android:textSize="14sp"
+                android:textColor="@color/rhpatch_text_secondary"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

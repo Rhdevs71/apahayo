@@ -1,0 +1,109 @@
+package com.rhdevs.rhpatch.morphe.youtube.video.speed.custom
+
+import com.rhdevs.rhpatch.morphe.AccessFlags
+import com.rhdevs.rhpatch.morphe.Fingerprint
+import com.rhdevs.rhpatch.morphe.Opcode
+import com.wmods.wppenhacer.RequireAppVersion
+import com.rhdevs.rhpatch.morphe.findFieldDirect
+import com.rhdevs.rhpatch.morphe.findMethodDirect
+import com.rhdevs.rhpatch.morphe.fingerprint
+import com.rhdevs.rhpatch.morphe.literal
+import com.rhdevs.rhpatch.morphe.parameters
+import com.rhdevs.rhpatch.morphe.resourceMappings
+import com.rhdevs.rhpatch.morphe.returns
+import com.rhdevs.rhpatch.morphe.youtube.video.information.setPlaybackSpeedClass
+import com.rhdevs.rhpatch.morphe.youtube.video.information.setPlaybackSpeedMethodReference
+
+internal object GetOldPlaybackSpeedsFingerprint : Fingerprint(
+    parameters = listOf("[L", "I"),
+    strings = listOf("menu_item_playback_speed")
+)
+
+val speedUnavailableId get() = resourceMappings["string", "varispeed_unavailable_message"]
+
+internal val showOldPlaybackSpeedMenuFingerprint = fingerprint {
+    literal { speedUnavailableId }
+}
+
+internal val speedArrayGeneratorFingerprint = fingerprint {
+    accessFlags(AccessFlags.PUBLIC, AccessFlags.STATIC)
+    returns("[L")
+    parameters("L")
+    strings("0.0#")
+}
+
+// found in com.google.android.libraries.youtube.innertube.model.media.PlayerConfigModel
+val speedsFloatArrayField = findFieldDirect {
+    speedArrayGeneratorFingerprint().usingFields.single {
+        it.field.typeSign == "[F"
+    }.field
+}
+
+@RequireAppVersion("20.34.00")
+internal object ServerSideMaxSpeedFeatureFlagFingerprint : Fingerprint(
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    returnType = "Z",
+    filters = listOf(
+        literal(45719140L)
+    )
+)
+
+internal val speedLimiterFingerprint = findMethodDirect {
+    runCatching {
+        fingerprint {
+            accessFlags(AccessFlags.PUBLIC, AccessFlags.FINAL)
+            returns("V")
+            parameters("F")
+            opcodes(
+                Opcode.INVOKE_STATIC,
+                Opcode.MOVE_RESULT,
+                Opcode.IF_EQZ,
+                Opcode.CONST_HIGH16,
+                Opcode.GOTO,
+                Opcode.CONST_HIGH16,
+                Opcode.CONST_HIGH16,
+                Opcode.INVOKE_STATIC,
+            )
+        }
+    }.getOrElse {
+        fingerprint {
+            strings("setPlaybackRate")
+            methodMatcher {
+                addInvoke {
+                    parameters("F", "F", "F")
+                    returns("F")
+                }
+            }
+        }
+    }
+}
+
+val clampFloatFingerprint = findMethodDirect {
+    speedLimiterFingerprint().invokes.findMethod {
+        matcher {
+            parameters("F", "F", "F")
+            returns("F")
+        }
+    }.single()
+}
+
+val getPlaybackSpeedMethodReference = findMethodDirect {
+    setPlaybackSpeedClass().findMethod {
+        matcher {
+            returns("F")
+            addUsingNumber(1.0f)
+        }
+    }.single()
+}
+
+@get:RequireAppVersion("19.25.00")
+val onSpeedTapAndHoldFingerprint = findMethodDirect {
+    findMethod {
+        matcher {
+            addInvoke { descriptor = getPlaybackSpeedMethodReference().descriptor }
+            addInvoke { descriptor = setPlaybackSpeedMethodReference().descriptor }
+            addInvoke { name = "removeCallbacks" }
+            addUsingNumber(2.0f)
+        }
+    }.single()
+}

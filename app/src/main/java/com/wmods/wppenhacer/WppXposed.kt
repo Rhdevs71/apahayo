@@ -52,7 +52,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
         XposedBridge.log("WaEnhancer: handleLoadPackage for $packageName")
 
-        if (packageName == BuildConfig.APPLICATION_ID || packageName == "com.wmods.wppenhacer" || packageName == "com.wmods.wppenhacer.w4b") {
+        if (packageName == BuildConfig.APPLICATION_ID || packageName == "com.wmods.wppenhacer" || packageName == "com.wmods.wppenhacer.w4b" || packageName == "com.rhdevs.rhpatch") {
             XposedBridge.log("WaEnhancer: Hooking isXposedEnabled for module package")
             XposedHelpers.findAndHookMethod(
                 MainActivity::class.java.name,
@@ -84,7 +84,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
         if ((packageName == FeatureLoader.PACKAGE_WPP && App.isOriginalPackage) || packageName == FeatureLoader.PACKAGE_BUSINESS) {
             if (lpparam.isFirstApplication) { // I believe this may fix the problem when using multiple accounts, not yet tested
                 XposedBridge.log("[•] This package: ${lpparam.packageName}")
-                FeatureLoader.start(classLoader, lpparam.appInfo.sourceDir)
+                FeatureLoader.start(classLoader, lpparam.appInfo.sourceDir)`n            } else {`n                try {`n                    com.rhdevs.rhpatch.MainHook().handleLoadPackage(lpparam)`n                } catch (e: Exception) {`n                    XposedBridge.log("Rhpatch: Error loading multi-app module for $packageName")`n                }
                 disableSecureFlag()
             }
         }
@@ -149,6 +149,9 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
     @Throws(Throwable::class)
     override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam) {
+        try {
+            com.rhdevs.rhpatch.MainHook().initZygote(startupParam)
+        } catch (e: Exception) {}
         MODULE_PATH = startupParam.modulePath
     }
 

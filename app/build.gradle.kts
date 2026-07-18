@@ -46,7 +46,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.wmods.wppenhacer"
+        applicationId = "com.rhdevs.rhpatch"
         minSdk = 28
         //noinspection OldTargetApi
         targetSdk = 34
@@ -271,4 +271,15 @@ afterEvaluate {
             }
         }
     }
+}
+
+
+dependencies {
+    implementation(project(":morphe-patches"))
+    implementation("androidx.javascriptengine:javascriptengine:1.0.0-beta01")
+    implementation("com.google.protobuf:protobuf-javalite:3.25.1")
+    implementation("org.apache.commons:commons-collections4:4.4")
+    implementation("org.apache.commons:commons-lang3:3.14.0")
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("androidx.annotation:annotation:1.7.1")
 }

@@ -1,33 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="app_icon_size">48dp</dimen>
-    <dimen name="tab_layout_height">48dp</dimen>
-    <dimen name="home_primary_elevation">8dp</dimen>
-
-    <dimen name="card_radius_small">12dp</dimen>
-    <dimen name="card_radius_medium">16dp</dimen>
-    <dimen name="card_radius_large">20dp</dimen>
-    <dimen name="card_radius_xl">24dp</dimen>
-
-    <dimen name="card_elevation_low">2dp</dimen>
-    <dimen name="card_elevation_medium">4dp</dimen>
-    <dimen name="card_elevation_high">8dp</dimen>
-
-    <dimen name="spacing_xs">4dp</dimen>
-    <dimen name="spacing_small">8dp</dimen>
-    <dimen name="spacing_medium">16dp</dimen>
-    <dimen name="spacing_large">24dp</dimen>
-    <dimen name="spacing_xl">32dp</dimen>
-
-    <dimen name="button_height">48dp</dimen>
-    <dimen name="button_min_width">120dp</dimen>
-
-    <dimen name="icon_size_small">20dp</dimen>
-    <dimen name="icon_size_medium">24dp</dimen>
-    <dimen name="icon_size_large">32dp</dimen>
-
-    <dimen name="status_card_min_height">72dp</dimen>
-    <dimen name="status_icon_size">28dp</dimen>
-
-    <dimen name="nav_bar_height">64dp</dimen>
-    <dimen name="nav_icon_size">24dp</dimen>
+    <dimen name="inline_controls_bottom_bar_height">36dp</dimen>
+    <dimen name="controls_overlay_action_button_size">48dp</dimen>
+    <dimen name="controls_overlay_action_button_padding">12dp</dimen>
+    <dimen name="brand_interaction_default_bottom_margin">44dp</dimen>
+    <dimen name="add_text_side_padding">6dp</dimen>
+    <dimen name="ad_overlay_ad_text_padding">4dp</dimen>
+    <dimen name="extra_extra_small_font_size">10sp</dimen>
+    <dimen name="extra_large_font_size">20sp</dimen>
+    <dimen name="extra_small_font_size">12sp</dimen>
+    <dimen name="huge_font_size">22sp</dimen>
+    <dimen name="large_font_size">18sp</dimen>
+    <dimen name="medium_font_size">16sp</dimen>
+    <dimen name="small_font_size">14sp</dimen>
 </resources>
