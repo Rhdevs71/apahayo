@@ -1811,7 +1811,7 @@ object Unobfuscator {
                     modifiers(Modifier.PUBLIC or Modifier.FINAL)
                     returnType(Boolean::class.javaPrimitiveType!!)
                 }
-            }.singleOrNull() ?: throw RuntimeException("ActionUser class not found")
+            }.firstOrNull() ?: throw RuntimeException("ActionUser class not found")
             result.declaredClass!!.getInstance(loader)
         }
     }
