@@ -14,6 +14,7 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
