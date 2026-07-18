@@ -1,4 +1,14 @@
 [versions]
+morphe-patches-library = "1.5.0-dev.3"
+annotation = "1.10.0"
+androidx-javascriptengine = "1.1.0"
+collections4 = "4.5.0"
+gson = "2.14.0"
+lang3 = "3.20.0"
+guava = "33.6.0-jre"
+hiddenapi = "6.1"
+protobuf = "0.10.0"
+protoc = "4.35.1"
 arscblamer = "1.0"
 bcpkix-jdk18on = "1.83"
 betterypermissionhelper = "1.0.3"
@@ -19,6 +29,17 @@ markwon = "4.6.2"
 remotePreferences = "0.8"
 
 [libraries]
+morphe-patches-library = { module = "app.morphe:morphe-patches-library", version.ref = "morphe-patches-library" }
+morphe-extensions-library = { module = "app.morphe:morphe-extensions-library", version.ref = "morphe-patches-library" }
+annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
+androidx-javascriptengine = { module = "androidx.javascriptengine:javascriptengine", version.ref = "androidx-javascriptengine" }
+collections4 = { module = "org.apache.commons:commons-collections4", version.ref = "collections4" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "lang3" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+hiddenapi = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenapi" }
+protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protoc" }
+protobuf-protoc = { module = "com.google.protobuf:protoc", version.ref = "protoc" }
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
@@ -50,7 +71,10 @@ markwon-core = { module = "io.noties.markwon:core", version.ref = "markwon" }
 remote-preferences = { module = "com.crossbowffs.remotepreferences:remotepreferences", version.ref = "remotePreferences" }
 
 [plugins]
+protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 materialthemebuilder = { id = "dev.rikka.tools.materialthemebuilder", version = "1.5.1" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kspPlugin = { id = "com.google.devtools.ksp", version = "2.2.21-2.0.4" }
+
+android-library = { id = "com.android.library", version.ref = "agp" }
