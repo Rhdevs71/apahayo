@@ -18,7 +18,7 @@
         <item>android</item>
     </string-array>
 
-    <string-array name="supported_versions_whatsapp">
+    <string-array name="supported_versions_wpp">
         <item>2.26.18.xx</item>
         <item>2.26.19.xx</item>
         <item>2.26.20.xx</item>
