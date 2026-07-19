@@ -4,10 +4,10 @@ import com.rhdevs.rhpatch.hoodles.morphe.alltrails.AllTrailsPatches
 import com.rhdevs.rhpatch.morphe.music.YTMusicPatches
 import com.rhdevs.rhpatch.morphe.reddit.RedditPatches
 import com.rhdevs.rhpatch.morphe.youtube.YouTubePatches
-import com.wmods.wppenhacer.Revanced.googlephotos.GooglePhotosPatches
-import com.wmods.wppenhacer.Revanced.meta.MetaPatches
-import com.wmods.wppenhacer.Revanced.photomath.PhotomathPatches
-import com.wmods.wppenhacer.Revanced.strava.StravaPatches
+import com.rhdevs.rhpatch.revanced.googlephotos.GooglePhotosPatches
+import com.rhdevs.rhpatch.revanced.meta.MetaPatches
+import com.rhdevs.rhpatch.revanced.photomath.PhotomathPatches
+import com.rhdevs.rhpatch.revanced.strava.StravaPatches
 
 class AppPatchInfo(val appName: String, val packageName: String, val patches: Array<Patch>)
 

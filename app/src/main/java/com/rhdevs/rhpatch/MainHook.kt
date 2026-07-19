@@ -15,6 +15,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import com.rhdevs.rhpatch.common.UpdateChecker
 import com.rhdevs.rhpatch.morphe.ResourceFinder
 import com.rhdevs.rhpatch.morphe.resourceMappings
+import com.wmods.wppenhacer.BuildConfig
 
 class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
     lateinit var startupParam: StartupParam

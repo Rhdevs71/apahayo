@@ -17,7 +17,7 @@ import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
-import com.wmods.wppenhacer.BuildConfig.DEBUG
+import com.wmods.wppenhacer.BuildConfig
 import com.rhdevs.rhpatch.morphe.Fingerprint
 import org.luckypray.dexkit.DexKitBridge
 import org.luckypray.dexkit.DexKitCacheBridge

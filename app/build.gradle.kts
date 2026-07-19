@@ -28,6 +28,16 @@ fun getGitHashCommit(): String {
     }
 }
 
+fun getGitCommitDate(): Long {
+    return try {
+        val processBuilder = ProcessBuilder("git", "log", "-1", "--format=%ct")
+        val process = processBuilder.start()
+        process.inputStream.bufferedReader().readText().trim().toLong()
+    } catch (_: Exception) {
+        System.currentTimeMillis() / 1000
+    }
+}
+
 val gitHash: String = getGitHashCommit().uppercase(Locale.getDefault())
 
 android {
@@ -59,6 +69,11 @@ android {
         versionCode = 154
         versionName = "1.5.5 ($gitHash)"
         multiDexEnabled = true
+
+        val patchVersion = "1.5.0-dev.3"
+        buildConfigField("String", "PATCH_VERSION", "\"$patchVersion\"")
+        buildConfigField("String", "COMMIT_HASH", "\"$gitHash\"")
+        buildConfigField("long", "COMMIT_DATE", "${getGitCommitDate()}L")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -214,12 +229,19 @@ android {
 
 kotlin {
     compilerOptions {
+        freeCompilerArgs.addAll(
+            "-Xno-param-assertions",
+            "-Xno-receiver-assertions",
+            "-Xno-call-assertions",
+            "-Xcontext-parameters"
+        )
         jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
 dependencies {
     implementation(libs.colorpicker)
+    implementation(libs.fuel)
     implementation(files("libs/dexkit-android.aar"))
     implementation(libs.flatbuffers)
     compileOnly(libs.libxposed.legacy)

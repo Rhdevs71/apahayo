@@ -27,6 +27,7 @@ nav = "2.9.6"
 kotlin = "2.2.21"
 markwon = "4.6.2"
 remotePreferences = "0.8"
+fuel = "3.0.0-alpha04"
 
 [libraries]
 morphe-patches-library = { module = "app.morphe:morphe-patches-library", version.ref = "morphe-patches-library" }
@@ -69,6 +70,7 @@ rikkax-widget-borderview = { module = "dev.rikka.rikkax.widget:borderview", vers
 material = { module = "com.google.android.material:material", version = "1.13.0" }
 markwon-core = { module = "io.noties.markwon:core", version.ref = "markwon" }
 remote-preferences = { module = "com.crossbowffs.remotepreferences:remotepreferences", version.ref = "remotePreferences" }
+fuel = { group = "com.github.kittinunf.fuel", name = "fuel", version.ref = "fuel" }
 
 [plugins]
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }

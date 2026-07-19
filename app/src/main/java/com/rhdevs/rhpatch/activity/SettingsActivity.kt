@@ -219,7 +219,17 @@ class SettingsActivity : Activity() {
             val view = inflater.inflate(R.layout.fragment_modules, container, false)
             val containerLayout = view.findViewById<LinearLayout>(R.id.modules_container)
             
-            val pm = context.packageManager`n`n            val waCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)`n            waCard.findViewById<TextView>(R.id.app_name).text = "WhatsApp/Business (WaEnhancer)"`n            waCard.findViewById<TextView>(R.id.app_package).text = "com.whatsapp / com.whatsapp.w4b"`n            val waBadge = waCard.findViewById<TextView>(R.id.status_badge)`n            waBadge.text = "Installed"`n            waBadge.setTextColor(Color.parseColor("#10B981"))`n            waCard.setOnClickListener {`n                startActivity(Intent(context, com.wmods.wppenhacer.activities.MainActivity::class.java))`n            }`n            containerLayout.addView(waCard)
+            val pm = context.packageManager
+            val waCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
+            waCard.findViewById<TextView>(R.id.app_name).text = "WhatsApp/Business (WaEnhancer)"
+            waCard.findViewById<TextView>(R.id.app_package).text = "com.whatsapp / com.whatsapp.w4b"
+            val waBadge = waCard.findViewById<TextView>(R.id.status_badge)
+            waBadge.text = "Installed"
+            waBadge.setTextColor(Color.parseColor("#10B981"))
+            waCard.setOnClickListener {
+                startActivity(Intent(context, com.wmods.wppenhacer.activities.MainActivity::class.java))
+            }
+            containerLayout.addView(waCard)
             for (appPatchInfo in appPatchConfigurations) {
                 val isInstalled = runCatching {
                     pm.getPackageInfo(appPatchInfo.packageName, 0)
