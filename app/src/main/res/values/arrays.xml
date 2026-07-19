@@ -255,4 +255,78 @@
         <item>2</item>
         <item>6</item>
     </string-array>
+
+    <!-- New Arrays for Translate, Voice Changer, Media Cleaner -->
+    <string-array name="translate_lang_entries">
+        <item>English (en)</item>
+        <item>Indonesian (id)</item>
+        <item>Spanish (es)</item>
+        <item>Arabic (ar)</item>
+        <item>Russian (ru)</item>
+        <item>Portuguese (pt)</item>
+        <item>French (fr)</item>
+    </string-array>
+    <string-array name="translate_lang_values">
+        <item>en</item>
+        <item>id</item>
+        <item>es</item>
+        <item>ar</item>
+        <item>ru</item>
+        <item>pt</item>
+        <item>fr</item>
+    </string-array>
+
+    <string-array name="voice_changer_entries">
+        <item>None (NONE)</item>
+        <item>Chipmunk (CHIPMUNK)</item>
+        <item>Deep Voice (DEEP)</item>
+        <item>Slow Motion (SLOW)</item>
+        <item>Fast Forward (FAST)</item>
+    </string-array>
+    <string-array name="voice_changer_values">
+        <item>NONE</item>
+        <item>CHIPMUNK</item>
+        <item>DEEP</item>
+        <item>SLOW</item>
+        <item>FAST</item>
+    </string-array>
+
+    <string-array name="media_cleaner_days_entries">
+        <item>7 Days</item>
+        <item>15 Days</item>
+        <item>30 Days</item>
+        <item>60 Days</item>
+        <item>90 Days</item>
+    </string-array>
+    <string-array name="media_cleaner_days_values">
+        <item>7</item>
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+    </string-array>
+
+    <string-array name="ai_model_entries">
+        <item>Llama 3 8B (llama3-8b-8192)</item>
+        <item>Llama 3.1 70B (llama-3.1-70b-versatile)</item>
+        <item>Llama 3.1 8B (llama-3.1-8b-instant)</item>
+        <item>Mixtral 8x7B (mixtral-8x7b-32768)</item>
+    </string-array>
+    <string-array name="ai_model_values">
+        <item>llama3-8b-8192</item>
+        <item>llama-3.1-70b-versatile</item>
+        <item>llama-3.1-8b-instant</item>
+        <item>mixtral-8x7b-32768</item>
+    </string-array>
+
+    <string-array name="ai_provider_entries">
+        <item>Groq AI</item>
+        <item>OpenAI GPT</item>
+        <item>Google Gemini</item>
+    </string-array>
+    <string-array name="ai_provider_values">
+        <item>groq</item>
+        <item>openai</item>
+        <item>gemini</item>
+    </string-array>
 </resources>
