@@ -1,7 +1,7 @@
 package com.rhdevs.rhpatch.revanced.strava
 
-import com.wmods.wppenhacer.Revanced.strava.subscription.UnlockSubscription
-import com.wmods.wppenhacer.Revanced.strava.upselling.DisableSubscriptionSuggestions
+import com.rhdevs.rhpatch.revanced.strava.subscription.UnlockSubscription
+import com.rhdevs.rhpatch.revanced.strava.upselling.DisableSubscriptionSuggestions
 
 val StravaPatches = arrayOf(
     UnlockSubscription,

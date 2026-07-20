@@ -1,5 +1,5 @@
 package com.rhdevs.rhpatch.revanced.photomath
 
-import com.wmods.wppenhacer.Revanced.photomath.misc.unlock.plus.UnlockPlus
+import com.rhdevs.rhpatch.revanced.photomath.misc.unlock.plus.UnlockPlus
 
 val PhotomathPatches = arrayOf(UnlockPlus)
