@@ -35,7 +35,7 @@ import app.morphe.extension.shared.Logger;
 import app.morphe.extension.shared.ResourceType;
 import app.morphe.extension.shared.ResourceUtils;
 import app.morphe.extension.shared.Utils;
-import com.rhdevs.rhpatch.BuildConfig;
+import com.wmods.wppenhacer.BuildConfig;
 
 /**
  * Opens a dialog showing official links.

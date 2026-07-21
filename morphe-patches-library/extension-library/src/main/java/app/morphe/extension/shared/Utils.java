@@ -57,7 +57,7 @@ import app.morphe.extension.shared.settings.BooleanSetting;
 import app.morphe.extension.shared.settings.StringSetting;
 import app.morphe.extension.shared.ui.Dim;
 
-import io.github.nexalloy.BuildConfig;
+import com.wmods.wppenhacer.BuildConfig;
 
 @SuppressWarnings("NewApi")
 public class Utils {

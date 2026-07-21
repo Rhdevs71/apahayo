@@ -242,6 +242,7 @@ kotlin {
 dependencies {
     implementation(libs.colorpicker)
     implementation(libs.fuel)
+    implementation(libs.hiddenapi)
     implementation(files("libs/dexkit-android.aar"))
     implementation(libs.flatbuffers)
     compileOnly(libs.libxposed.legacy)
@@ -327,7 +328,7 @@ afterEvaluate {
 
 dependencies {
     implementation("androidx.javascriptengine:javascriptengine:1.0.0-beta01")
-    implementation("com.google.protobuf:protobuf-javalite:3.25.1")
+    implementation(libs.protobuf.javalite)
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("com.google.code.gson:gson:2.10.1")

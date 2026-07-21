@@ -6,7 +6,7 @@ import static app.morphe.extension.shared.settings.Setting.parent;
 
 import app.morphe.extension.shared.Logger;
 
-import io.github.nexalloy.BuildConfig;
+import com.wmods.wppenhacer.BuildConfig;
 
 /**
  * Settings shared across multiple apps.
