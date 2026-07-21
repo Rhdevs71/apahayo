@@ -3,7 +3,7 @@ package com.rhdevs.rhpatch.morphe.youtube.video.speed.custom
 import com.rhdevs.rhpatch.morphe.AccessFlags
 import com.rhdevs.rhpatch.morphe.Fingerprint
 import com.rhdevs.rhpatch.morphe.Opcode
-import com.wmods.wppenhacer.RequireAppVersion
+import com.rhdevs.rhpatch.RequireAppVersion
 import com.rhdevs.rhpatch.morphe.findFieldDirect
 import com.rhdevs.rhpatch.morphe.findMethodDirect
 import com.rhdevs.rhpatch.morphe.fingerprint

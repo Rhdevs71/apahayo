@@ -1,6 +1,6 @@
 package com.rhdevs.rhpatch.morphe.youtube.misc.playercontrols
 
-import com.wmods.wppenhacer.RequireAppVersion
+import com.rhdevs.rhpatch.RequireAppVersion
 import com.rhdevs.rhpatch.SkipTest
 import com.rhdevs.rhpatch.morphe.AccessFlags
 import com.rhdevs.rhpatch.morphe.Fingerprint

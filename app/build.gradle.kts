@@ -271,6 +271,7 @@ dependencies {
     annotationProcessor(libs.lombok)
     implementation(libs.markwon.core)
     implementation(libs.remote.preferences)
+    compileOnly(project(":stub"))
 }
 
 

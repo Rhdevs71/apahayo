@@ -26,6 +26,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "Wa Enhancer"
 include(":app")
+include(":stub")
 
 include("morphe-patches")
 project(":morphe-patches").projectDir = file("morphe-patches")

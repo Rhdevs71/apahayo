@@ -4,7 +4,7 @@ import com.rhdevs.rhpatch.morphe.AccessFlags
 import com.rhdevs.rhpatch.morphe.Fingerprint
 import com.rhdevs.rhpatch.morphe.Opcode
 import com.rhdevs.rhpatch.morphe.OpcodesFilter
-import com.wmods.wppenhacer.RequireAppVersion
+import com.rhdevs.rhpatch.RequireAppVersion
 import com.rhdevs.rhpatch.morphe.literal
 
 internal object StartVideoInformerFingerprint : Fingerprint(
