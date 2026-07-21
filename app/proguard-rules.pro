@@ -43,3 +43,18 @@
 -keepclasseswithmembers class com.assemblyai.api.** {
      *;
 }
+
+-keep class com.rhdevs.rhpatch.R { *; }
+-keep class com.rhdevs.rhpatch.R$* { *; }
+-keepclassmembers class com.rhdevs.rhpatch.R$* {
+     public static <fields>;
+}
+
+-keepclasseswithmembers class com.rhdevs.rhpatch.** {
+     *;
+}
+
+-keepclasseswithmembernames class com.rhdevs.rhpatch.**
+
+-keep class app.morphe.** { *; }
+-keep class org.luckypray.dexkit.** { *; }
