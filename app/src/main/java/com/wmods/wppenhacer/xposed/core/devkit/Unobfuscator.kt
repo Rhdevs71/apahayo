@@ -54,22 +54,25 @@ object Unobfuscator {
         } catch (e: Throwable) {
             de.robv.android.xposed.XposedBridge.log("Rhpatch: Unobfuscator System.loadLibrary('dexkit') failed: ${e.message}. Trying absolute path...")
             try {
-                val moduleFile = java.io.File(com.wmods.wppenhacer.WppXposed.MODULE_PATH)
+                val moduleFile = java.io.File(com.rhdevs.rhpatch.XposedInit.modulePath)
                 val parent = moduleFile.parentFile
-                if (parent == null) throw e
-                val libNames = arrayOf("lib/arm64-v8a/libdexkit.so", "lib/arm64/libdexkit.so", "lib/armeabi-v7a/libdexkit.so")
-                var loaded = false
-                for (name in libNames) {
-                    val libFile = java.io.File(parent, name)
-                    if (libFile.exists()) {
-                        System.load(libFile.absolutePath)
-                        de.robv.android.xposed.XposedBridge.log("Rhpatch: Successfully loaded dexkit from ${libFile.absolutePath}")
-                        loaded = true
-                        break
+                if (parent != null) {
+                    val libNames = arrayOf("lib/arm64-v8a/libdexkit.so", "lib/arm64/libdexkit.so", "lib/armeabi-v7a/libdexkit.so")
+                    var loaded = false
+                    for (name in libNames) {
+                        val libFile = java.io.File(parent, name)
+                        if (libFile.exists()) {
+                            System.load(libFile.absolutePath)
+                            de.robv.android.xposed.XposedBridge.log("Rhpatch: Successfully loaded dexkit from ${libFile.absolutePath}")
+                            loaded = true
+                            break
+                        }
                     }
-                }
-                if (!loaded) {
-                    throw UnsatisfiedLinkError("Could not find libdexkit.so in ${parent.absolutePath}")
+                    if (!loaded) {
+                        throw UnsatisfiedLinkError("Could not find libdexkit.so in ${parent.absolutePath}")
+                    }
+                } else {
+                    throw UnsatisfiedLinkError("Parent directory of module path is null")
                 }
             } catch (ex: Throwable) {
                 de.robv.android.xposed.XposedBridge.log("Rhpatch: Unobfuscator Absolute path load failed: ${ex.message}")
