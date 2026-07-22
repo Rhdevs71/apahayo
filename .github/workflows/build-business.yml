@@ -47,3 +47,13 @@ jobs:
         with:
           name: Rhpatch-Business
           path: app/build/outputs/apk/business/debug/Rhpatch-Business*.apk
+
+      - name: Send Discord Webhook (Success)
+        if: success()
+        run: |
+          curl -H "Content-Type: application/json" -d '{"content": "✅ **Build Business Succeeded!** APK is ready."}' "https://discordapp.com/api/webhooks/1529453865794273400/taVxty7GXyz73IRYVu64fq7tdkFabXFVIO3cmvO26V6ERF__WSX51IfYCJjV5aVevp_L"
+
+      - name: Send Discord Webhook (Failure)
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" -d '{"content": "❌ **Build Business Failed!** Please check GitHub Actions logs."}' "https://discordapp.com/api/webhooks/1529453865794273400/taVxty7GXyz73IRYVu64fq7tdkFabXFVIO3cmvO26V6ERF__WSX51IfYCJjV5aVevp_L"

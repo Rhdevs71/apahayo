@@ -161,18 +161,24 @@ class FeatureLoader {
                         currentVersion = packageInfo.versionName
                         installCrashHandler(application, packageInfo.versionName.orEmpty())
 
+                        try {
+                            initializeModuleContext()
+                        } catch (e: Exception) {
+                            XposedBridge.log("Failed to initialize module context: ${e.message}")
+                        }
+
                         val resIdArray = if (application.packageName == PACKAGE_WPP)
                             R.array.supported_versions_wpp
                         else
                             R.array.supported_versions_business
 
                         supportedVersions =
-                            application.resources.getStringArray(resIdArray).toList()
+                            moduleContext?.resources?.getStringArray(resIdArray)?.toList() ?: emptyList()
+                            
                         application.registerActivityLifecycleCallbacks(WaCallback())
                         registerReceivers()
 
                         try {
-                            initializeModuleContext()
                             val timeMillis = System.currentTimeMillis()
                             UnobfuscatorCache.init(application)
                             SharedPreferencesWrapper.hookInit(application.classLoader)
