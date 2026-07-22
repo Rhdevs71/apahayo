@@ -51,7 +51,16 @@ class ToastViewer(classLoader: ClassLoader, preferences:SharedPreferences) :
         XposedBridge.hookMethod(onSeenReceiptForStatus, object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
-                val receiptType = param.args[1] as Int
+                val arg1 = param.args[1]
+                val receiptType = if (arg1 is Int) arg1 else {
+                    try {
+                        val intFields = arg1.javaClass.declaredFields.filter { it.type == Int::class.javaPrimitiveType }
+                        if (intFields.isNotEmpty()) {
+                            intFields[0].isAccessible = true
+                            intFields[0].getInt(arg1)
+                        } else -1
+                    } catch (e: Exception) { -1 }
+                }
                 if (receiptType != 13) return
                 val fStatusField = ReflectionUtils.findFieldUsingFilter(param.thisObject.javaClass) {
                     f -> FStatusWpp.TYPE.isAssignableFrom(f.type)

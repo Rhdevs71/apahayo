@@ -324,29 +324,36 @@ object WppCore {
                     val param = senderMethod.parameterTypes[i]
                     newObject[i] = ReflectionUtils.getDefaultValue(param)
                 }
-                val index =
-                    ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, String::class.java)
+                val index = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, String::class.java)
                 newObject[index] = message
                 
-                val indexList =
-                    ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, List::class.java)
+                val indexList = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, List::class.java)
                 if (indexList != -1) {
-                    newObject[indexList] = Collections.singletonList(userJid)
-                } else {
-                    var indexJid = senderMethod.parameterTypes.indexOfFirst {
-                        it.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID) || 
-                        it.isAssignableFrom(FMessageWpp.UserJid.TYPE_USERJID) || 
-                        it.name.endsWith("Jid", ignoreCase = true)
-                    }
-                    
-                    if (indexJid != -1) {
-                        newObject[indexJid] = userJid
-                    }
+                    newObject[indexList] = emptyList<Any>()
+                }
+                
+                val indexBoolean = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, Boolean::class.javaPrimitiveType)
+                if (indexBoolean != -1) {
+                    newObject[indexBoolean] = false
+                }
+                
+                val indexJid = senderMethod.parameterTypes.indexOfFirst {
+                    it.name.endsWith("Jid", ignoreCase = true) || it == FMessageWpp.UserJid.TYPE_JID || it == FMessageWpp.UserJid.TYPE_USERJID || (it.isInterface && !it.name.startsWith("java.") && !it.name.startsWith("android.") && it.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID))
+                }
+                
+                if (indexJid != -1) {
+                    newObject[indexJid] = userJid
                 }
                 
                 senderMethod.invoke(getActionUser(), *newObject)
                 XposedBridge.log("WaEnhancer WppCore: Message sent successfully to JID")
             } else {
+                XposedBridge.log("WaEnhancer WppCore: sendMessage method not found. Available methods in ActionUser:")
+                actionUserClass?.declaredMethods?.forEach { method ->
+                    if (method.parameterTypes.any { it == String::class.java }) {
+                        XposedBridge.log(" - ${method.name}(${method.parameterTypes.joinToString { it.simpleName }})")
+                    }
+                }
                 throw Exception("sendMessage method not found in ActionUser for JID")
             }
         } catch (e: Exception) {

@@ -166,11 +166,7 @@ android {
         resValues = true
     }
 
-    packaging {
-        jniLibs {
-            useLegacyPackaging = true
-        }
-    }
+
 
 
     lint {

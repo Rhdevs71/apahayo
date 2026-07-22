@@ -50,17 +50,23 @@ val HideAds = patch(
         }
 
         stringMethods.forEach { method ->
-            XposedBridge.hookMethod(method, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val fieldName = param.result as? String ?: return
-                    if (adKeys.contains(fieldName.lowercase())) {
-                        param.result = fieldName + "_blocked"
+            try {
+                XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        val fieldName = param.result as? String ?: return
+                        if (adKeys.contains(fieldName.lowercase())) {
+                            param.result = fieldName + "_blocked"
+                        }
                     }
-                }
-            })
+                })
+            } catch (e: IllegalArgumentException) {
+                // Ignore abstract methods that slip through the filter
+            } catch (e: Exception) {
+                XposedBridge.log("Rhpatch: [Ads] Failed to hook method ${method.name}: ${e.message}")
+            }
         }
 
-        XposedBridge.log("Rhpatch: [Ads] Dynamic JSON parser hooks installed successfully on class ${parserClass.name} (hooked ${stringMethods.size} methods)")
+        XposedBridge.log("Rhpatch: [Ads] Dynamic JSON parser hooks installed successfully on class ${parserClass.name} (found ${stringMethods.size} methods)")
     }.onFailure {
         XposedBridge.log("Rhpatch: [Ads] Custom JSON parser hook failed: $it")
     }
