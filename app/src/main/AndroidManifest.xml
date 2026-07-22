@@ -185,48 +185,56 @@
             android:name=".activities.MessageSchedulerActivity"
             android:theme="@style/AppTheme"
             android:label="Message Scheduler"
+            android:exported="true"
             android:parentActivityName=".activities.MainActivity" />
 
         <activity
             android:name=".activities.EditScheduledMessageActivity"
             android:theme="@style/AppTheme"
             android:label="Schedule Message"
+            android:exported="true"
             android:parentActivityName=".activities.MessageSchedulerActivity" />
 
         <activity
             android:name=".activities.AutoReplyActivity"
             android:theme="@style/AppTheme"
             android:label="Auto Reply"
+            android:exported="true"
             android:parentActivityName=".activities.MainActivity" />
 
         <activity
             android:name=".activities.EditAutoReplyRuleActivity"
             android:theme="@style/AppTheme"
             android:label="Auto Reply Rule"
+            android:exported="true"
             android:parentActivityName=".activities.AutoReplyActivity" />
 
         <activity
             android:name=".activities.FakeDisplayActivity"
             android:theme="@style/AppTheme"
             android:label="Fake Display Settings"
+            android:exported="true"
             android:parentActivityName=".activities.MainActivity" />
 
         <activity
             android:name=".activities.FakeCallActivity"
             android:theme="@style/AppTheme"
             android:label="Simulated Call"
+            android:exported="true"
             android:parentActivityName=".activities.MainActivity" />
 
         <activity
             android:name=".activities.CustomFoldersActivity"
             android:theme="@style/AppTheme"
             android:label="Custom Chat Folders"
+            android:exported="true"
             android:parentActivityName=".activities.MainActivity" />
 
         <activity
             android:name=".activities.EditFolderActivity"
             android:theme="@style/AppTheme"
             android:label="Edit Folder"
+            android:exported="true"
             android:parentActivityName=".activities.CustomFoldersActivity" />
 
         <service

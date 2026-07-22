@@ -42,6 +42,24 @@ class AppPatchSettingsActivity : Activity() {
         fragmentManager.beginTransaction()
             .replace(R.id.app_patch_settings_container, fragment)
             .commit()
+
+        if (appName == "YouTube" || appName == "Instagram") {
+            val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
+            if (!prefs.getBoolean("ytdlnis_prompt_shown", false)) {
+                android.app.AlertDialog.Builder(this)
+                    .setTitle("Rekomendasi Paket Pendukung")
+                    .setMessage("Untuk mendukung pengunduhan media eksternal (terutama dari YouTube/Instagram), sangat disarankan untuk menginstall YTDLnis.\n\nApakah Anda ingin mengunduhnya sekarang?")
+                    .setPositiveButton("Unduh") { _, _ ->
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/deniscerri/ytdlnis/releases")))
+                        prefs.edit().putBoolean("ytdlnis_prompt_shown", true).apply()
+                    }
+                    .setNegativeButton("Nanti") { _, _ ->
+                        prefs.edit().putBoolean("ytdlnis_prompt_shown", true).apply()
+                    }
+                    .setCancelable(false)
+                    .show()
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

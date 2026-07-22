@@ -13,7 +13,7 @@ val PlayerResponseMethodHook = patch {
     val PARAMETER_PROTO_BUFFER = 2
     val PARAMETER_PLAYLIST_ID = 3
     var parameterIsShortAndOpeningOrPlaying = -1
-    ::playerParameterBuilderFingerprint.dexMethod.apply {
+    ::playerParameterBuilderFingerprint.dexMethod!!.apply {
         parameterIsShortAndOpeningOrPlaying =
             paramTypeNames.zip(paramTypeNames.indices)
                 .indexOfFirst { (type, i) -> i >= 10 && type == "boolean" }

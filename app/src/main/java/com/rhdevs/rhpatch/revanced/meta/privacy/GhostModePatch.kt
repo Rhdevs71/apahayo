@@ -7,12 +7,23 @@ import com.rhdevs.rhpatch.patch
 import com.rhdevs.rhpatch.hookMethod
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedBridge
+import com.rhdevs.rhpatch.morphe.findMethodListDirect
+import com.rhdevs.rhpatch.morphe.fingerprintList
 
 val DMSeenFingerprint = findMethodDirect(
     fingerprint {
         returns("V")
         strings("mark_thread_seen-")
         accessFlags(AccessFlags.PUBLIC, AccessFlags.STATIC, AccessFlags.FINAL)
+    }
+)
+
+val StorySeenFingerprints = findMethodListDirect(
+    fingerprintList {
+        returns("Z")
+        classMatcher {
+            strings("media/seen/?reel=%s&live_vod=0")
+        }
     }
 )
 
@@ -25,4 +36,16 @@ val GhostModePatch = patch(
         ::DMSeenFingerprint.hookMethod(XC_MethodReplacement.returnConstant(null))
         XposedBridge.log("Rhpatch: [GhostMode] DM Seen (mark_thread_seen) disabled")
     }.onFailure { XposedBridge.log("Rhpatch: [GhostMode] DMSeen hook failed: $it") }
+
+    // Story Seen Hook
+    runCatching {
+        val methods = ::StorySeenFingerprints.dexMethodList
+        val targetMethod = methods.lastOrNull()?.toMethod()
+        if (targetMethod != null) {
+            XposedBridge.hookMethod(targetMethod, XC_MethodReplacement.returnConstant(false))
+            XposedBridge.log("Rhpatch: [GhostMode] Story Seen disabled")
+        } else {
+            XposedBridge.log("Rhpatch: [GhostMode] Story Seen method not found")
+        }
+    }.onFailure { XposedBridge.log("Rhpatch: [GhostMode] Story Seen hook failed: $it") }
 }

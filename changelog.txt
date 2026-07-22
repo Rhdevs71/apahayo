@@ -1,3 +1,9 @@
 [ADDED]
+* Added Instagram Ghost Mode (Hide Seen on DM & Story)
+* Added basic Hide Ads patch for Instagram Lite (com.instagram.lite)
+* Fixed Message Scheduler bug (messages failing/delayed due to media cleaner blocking thread and missing exact alarm permission)
+* Fixed Fake Settings menus not being clickable (exported Activities)
+* Fixed "1.1.1.1 Not installed" bug in WaEnhancer settings
+* Fixed Google Photos Pixel Unlimited Storage spoofing (migrated to XposedHelpers)
 * Added floating navigation bar (WAE -> Customization -> Floating Bottom Bar)
 * Added alert if the HMA is blocking the module

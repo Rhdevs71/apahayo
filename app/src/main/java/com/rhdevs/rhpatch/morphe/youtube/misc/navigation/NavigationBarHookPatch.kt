@@ -88,7 +88,7 @@ val NavigationBarHook = patch(
     // Hook the back button visibility.
     ToolbarLayoutFingerprint.hookMethod(scopedHook(DexMethod("Landroid/view/ViewGroup;->findViewById(I)Landroid/view/View;").toMember()) {
         val appCompatToolbarClass =
-            classLoader.loadClass(AppCompatToolbarBackButtonFingerprint.dexMethod.className)
+            classLoader.loadClass(AppCompatToolbarBackButtonFingerprint.dexMethod!!.className)
         val getNavigationIcon = AppCompatToolbarBackButtonFingerprint.method
         val toolbarContainerId = toolbarContainerId
         after {

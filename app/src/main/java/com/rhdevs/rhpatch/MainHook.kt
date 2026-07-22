@@ -32,7 +32,7 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         if (!lpparam.isFirstApplication) return
 
-        if (lpparam.packageName == "com.rhdevs.rhpatch.pro" || lpparam.packageName == "io.github.chsbuffer.revancedxposed") {
+        if (lpparam.packageName == "com.rhdevs.rhpatch" || lpparam.packageName == "com.wmods.wppenhacer" || lpparam.packageName == "com.rhdevs.rhpatch.pro" || lpparam.packageName == "io.github.chsbuffer.revancedxposed") {
             runCatching {
                 val clazz = lpparam.classLoader.loadClass("com.rhdevs.rhpatch.activity.SettingsActivity")
                 XposedHelpers.findAndHookMethod(

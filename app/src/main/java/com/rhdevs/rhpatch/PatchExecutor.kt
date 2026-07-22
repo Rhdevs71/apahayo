@@ -287,49 +287,49 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
         }
     }
 
-    val KProperty0<FindMethodFunc>.dexMethod
+    val KProperty0<FindMethodFunc>.dexMethod: DexMethod?
         get() = getDexMethod(this.name, this.get())
 
     val KProperty0<FindMethodFunc>.method
-        get() = dexMethod.toMethod()
+        get() = dexMethod!!.toMethod()
 
     val KProperty0<FindMethodFunc>.constructor
-        get() = dexMethod.toConstructor()
+        get() = dexMethod!!.toConstructor()
 
     val KProperty0<FindMethodFunc>.member
-        get() = dexMethod.toMember()
+        get() = dexMethod!!.toMember()
 
     val KProperty0<FindMethodFunc>.memberOrNull
         get() = runCatching { this.member }.getOrNull()
 
     fun KProperty0<FindMethodFunc>.hookMethod(block: HookDsl<IHookCallback>.() -> Unit) {
-        dexMethod.hookMethod(block)
+        dexMethod?.hookMethod(block)
     }
 
     fun KProperty0<FindMethodFunc>.hookMethod(callback: XC_MethodHook) {
-        dexMethod.hookMethod(callback)
+        dexMethod?.hookMethod(callback)
     }
 
     val KProperty0<FindMethodListFunc>.dexMethodList
         get() = getDexMethods(this.name, this.get())
 
-    val KProperty0<FindFieldFunc>.dexField
+    val KProperty0<FindFieldFunc>.dexField: DexField?
         get() = getDexField(this.name, this.get())
 
     val KProperty0<FindFieldFunc>.field
-        get() = dexField.toField()
+        get() = dexField!!.toField()
 
     val KProperty0<FindFieldFunc>.declaredClass
-        get() = classLoader.loadClass(dexField.declaredClassName)
+        get() = classLoader.loadClass(dexField!!.declaredClassName)
 
     val KProperty0<FindFieldFunc>.type
-        get() = classLoader.loadClass(dexField.className)
+        get() = classLoader.loadClass(dexField!!.className)
 
-    val KProperty0<FindClassFunc>.dexClass
+    val KProperty0<FindClassFunc>.dexClass: DexClass?
         get() = getDexClass(this.name, this.get())
 
     val KProperty0<FindClassFunc>.clazz
-        get() = dexClass.toClass()
+        get() = dexClass!!.toClass()
 
     // Fingerprint object extensions
 
@@ -337,24 +337,24 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
         get() = this::class.simpleName ?: error("Anonymous Fingerprint has no cache key")
 
     fun Fingerprint.hookMethod(block: HookDsl<IHookCallback>.() -> Unit) {
-        getDexMethod(cacheKey) { this@hookMethod.run() }.hookMethod(block)
+        getDexMethod(cacheKey) { this@hookMethod.run() }?.hookMethod(block)
     }
 
     fun Fingerprint.hookMethod(callback: XC_MethodHook) {
-        getDexMethod(cacheKey) { this@hookMethod.run() }.hookMethod(callback)
+        getDexMethod(cacheKey) { this@hookMethod.run() }?.hookMethod(callback)
     }
 
     val Fingerprint.dexMethod get() = getDexMethod(cacheKey) { this@dexMethod.run() }
 
-    val Fingerprint.member get() = dexMethod.toMember()
+    val Fingerprint.member get() = dexMethod!!.toMember()
 
     val Fingerprint.memberOrNull get() = runCatching { this.member }.getOrNull()
 
-    val Fingerprint.method get() = dexMethod.toMethod()
+    val Fingerprint.method get() = dexMethod!!.toMethod()
 
-    val Fingerprint.declaredClass get() = classLoader.loadClass(dexMethod.declaredClassName)
+    val Fingerprint.declaredClass get() = classLoader.loadClass(dexMethod!!.declaredClassName)
 
-    val Fingerprint.constructor get() = dexMethod.toConstructor()
+    val Fingerprint.constructor get() = dexMethod!!.toConstructor()
 
     private inline fun <reified T : Any> wrapFind(
         key: String,
@@ -390,15 +390,15 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
 
     private inline fun getDexClass(
         key: String, crossinline findFunc: DexKitBridge.() -> ClassData
-    ): DexClass = dexkit.getClassDirectOrNull(key, wrapFind(key, findFunc) { it.descriptor })!!
+    ): DexClass? = dexkit.getClassDirectOrNull(key, wrapFind(key, findFunc) { it.descriptor })
 
     private inline fun getDexMethod(
         key: String, crossinline findFunc: DexKitBridge.() -> MethodData
-    ): DexMethod = dexkit.getMethodDirectOrNull(key, wrapFind(key, findFunc) { it.descriptor })!!
+    ): DexMethod? = dexkit.getMethodDirectOrNull(key, wrapFind(key, findFunc) { it.descriptor })
 
     private inline fun getDexField(
         key: String, crossinline findFunc: DexKitBridge.() -> FieldData
-    ): DexField = dexkit.getFieldDirectOrNull(key, wrapFind(key, findFunc) { it.descriptor })!!
+    ): DexField? = dexkit.getFieldDirectOrNull(key, wrapFind(key, findFunc) { it.descriptor })
 
     private inline fun getDexMethods(
         key: String, crossinline findFunc: DexKitBridge.() -> List<MethodData>

@@ -19,7 +19,7 @@ val appPatchConfigurations = listOf(
     AppPatchInfo("Google Photos", "com.google.android.apps.photos", GooglePhotosPatches),
     AppPatchInfo("Photomath", "com.microblink.photomath", PhotomathPatches),
     AppPatchInfo("Instagram", "com.instagram.android", MetaPatches),
-    AppPatchInfo("Instagram Lite", "com.instagram.lite", MetaPatches),
+    AppPatchInfo("Instagram Lite", "com.instagram.lite", com.rhdevs.rhpatch.revanced.metalite.MetaLitePatches),
     AppPatchInfo("Threads", "com.instagram.barcelona", MetaPatches),
     AppPatchInfo("TikTok", "com.zhiliaoapp.musically", com.rhdevs.rhpatch.revanced.tiktok.TikTokPatches),
     AppPatchInfo("TikTok (Play Store)", "com.ss.android.ugc.trill", com.rhdevs.rhpatch.revanced.tiktok.TikTokPatches),

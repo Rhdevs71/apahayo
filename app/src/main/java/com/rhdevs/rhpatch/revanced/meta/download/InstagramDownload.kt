@@ -246,20 +246,35 @@ fun captureUrlFromPostContainer(clickedView: View) {
     }
 
     val container = highestContainer ?: return
-    val igImageView = findPostMediaImageView(container)
-    if (igImageView != null) {
-        runCatching {
-            val imageUrl = XposedHelpers.getObjectField(igImageView, "A0C")
-            if (imageUrl != null) {
-                val url = XposedHelpers.callMethod(imageUrl, "getUrl") as? String
-                if (!url.isNullOrEmpty() && isInstagramCdnUrl(url)) {
-                    lastKnownMediaUrl = url
-                    lastKnownIsVideo = url.contains(".mp4") || url.contains("video")
-                    XposedBridge.log("Rhpatch: [Download] Captured media URL from container: $url")
-                }
-            }
+    
+    // First, check if lastKnownMediaUrl was recently updated (within 5 seconds) and is a video
+    // (ExoPlayer hook updates this when playback starts)
+    if (lastKnownIsVideo && !lastKnownMediaUrl.isNullOrEmpty()) {
+        // Assume video is correct if it's currently playing
+        return
+    }
+
+    // Otherwise, search for IgImageView in the container tree that we have tracked
+    val foundUrl = searchUrlInTree(container)
+    if (foundUrl != null) {
+        lastKnownMediaUrl = foundUrl
+        lastKnownIsVideo = foundUrl.contains(".mp4") || foundUrl.contains("video")
+        XposedBridge.log("Rhpatch: [Download] Captured media URL from container tree: $foundUrl")
+    }
+}
+
+fun searchUrlInTree(view: View): String? {
+    if (imageUrls.containsKey(view)) {
+        return imageUrls[view]
+    }
+    if (view is ViewGroup) {
+        for (i in 0 until view.childCount) {
+            val child = view.getChildAt(i) ?: continue
+            val found = searchUrlInTree(child)
+            if (found != null) return found
         }
     }
+    return null
 }
 
 fun findPostMediaImageView(parent: ViewGroup): View? {
@@ -375,7 +390,7 @@ fun injectDownloadAboveShareSheet(rv: View, context: Context) {
         if (!url.isNullOrEmpty()) {
             downloadInstagramMedia(context, url, isVideo)
         } else {
-            Toast.makeText(context, "URL tidak ditemukan. Gunakan 'Salin Tautan' (Copy link) bawaan IG untuk download via YTDLnis.", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "URL tidak ditemukan. Tonton video beberapa detik atau ulangi.", Toast.LENGTH_LONG).show()
         }
     }
 

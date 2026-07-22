@@ -351,7 +351,7 @@ open class Fingerprint internal constructor(
     }
 
     context(dexkit: DexKitBridge)
-    fun run(): MethodData {
+    fun runAll(): List<MethodData> {
         val methodMatcher = buildMethodMatcher()
 
         val results = if (classMatcherBlock != null) {
@@ -369,6 +369,12 @@ open class Fingerprint internal constructor(
                 matcher(methodMatcher)
             }
         }
+        return results
+    }
+
+    context(dexkit: DexKitBridge)
+    fun run(): MethodData {
+        val results = runAll()
         if (results.size != 1) {
             val name = this::class.simpleName ?: "Anonymous Fingerprint"
             val list = results.joinToString("\n  ") { it.descriptor }
@@ -516,6 +522,10 @@ fun DexKitBridge.fingerprint(block: FingerprintDsl.() -> Unit): MethodData {
 
 fun fingerprint(block: FingerprintDsl.() -> Unit): FindMethodFunc {
     return { FingerprintDsl(block).build().run() }
+}
+
+fun fingerprintList(block: FingerprintDsl.() -> Unit): FindMethodListFunc {
+    return { FingerprintDsl(block).build().runAll() }
 }
 
 fun findMethodDirect(block: FindMethodFunc) = block

@@ -59,12 +59,20 @@ class SchedulerService : Service() {
 
         fun processNow(context: Context) {
             try {
-                cleanMediaIfNecessary(context)
                 processPendingMessages(context)
             } catch (e: Exception) {
                 Log.e(TAG, "Error in scheduler: ${e.message}")
             } finally {
                 SchedulerHelper.scheduleNextAlarm(context)
+                
+                // Run clean media in a detached thread so it doesn't block processNow
+                Thread {
+                    try {
+                        cleanMediaIfNecessary(context)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }.start()
             }
         }
 
@@ -130,12 +138,6 @@ class SchedulerService : Service() {
             for (message in pendingMessages) {
                 Log.d(TAG, "processPendingMessages: sending message id ${message.id} to WhatsApp JID: ${message.jid}")
                 sendMessageToWhatsApp(context, message)
-                try {
-                    // Wait up to 5 seconds for status feedback broadcast
-                    Thread.sleep(5000)
-                } catch (e: InterruptedException) {
-                    e.printStackTrace()
-                }
             }
         }
 

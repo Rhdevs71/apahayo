@@ -56,8 +56,23 @@ val SpoofFeaturesPatch = patch(
         }
     }
 
-    DexMethod("Landroid/app/ApplicationPackageManager;->hasSystemFeature(Ljava/lang/String;)Z")
-        .hookMethod(hook)
-    DexMethod("Landroid/app/ApplicationPackageManager;->hasSystemFeature(Ljava/lang/String;I)Z")
-        .hookMethod(hook)
+    try {
+        XposedHelpers.findAndHookMethod(
+            "android.app.ApplicationPackageManager",
+            null,
+            "hasSystemFeature",
+            String::class.java,
+            hook
+        )
+        XposedHelpers.findAndHookMethod(
+            "android.app.ApplicationPackageManager",
+            null,
+            "hasSystemFeature",
+            String::class.java,
+            Int::class.javaPrimitiveType,
+            hook
+        )
+    } catch (e: Exception) {
+        // Ignore
+    }
 }

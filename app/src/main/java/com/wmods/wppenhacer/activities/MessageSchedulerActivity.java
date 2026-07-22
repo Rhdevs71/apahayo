@@ -43,6 +43,15 @@ public class MessageSchedulerActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMessageSchedulerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            android.app.AlarmManager alarmManager = (android.app.AlarmManager) getSystemService(android.content.Context.ALARM_SERVICE);
+            if (!alarmManager.canScheduleExactAlarms()) {
+                Intent intent = new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                intent.setData(android.net.Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+            }
+        }
 
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
