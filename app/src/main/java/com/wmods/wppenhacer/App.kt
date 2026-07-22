@@ -41,10 +41,10 @@ class App : Application() {
         }
         if (sharedPreferences != null) {
             try {
-                val file = XposedHelpers.getObjectField(sharedPreferences, "file") as File
-                file.setReadable(true)
-                file.setWritable(true)
-                file.setExecutable(true)
+                val file = java.io.File(filesDir.parentFile, "shared_prefs/${packageName}_preferences.xml")
+                if (file.exists()) {
+                    file.setReadable(true, false)
+                }
             } catch (e: Throwable) {
                 e.printStackTrace()
             }

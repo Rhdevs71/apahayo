@@ -10,19 +10,31 @@ val SpoofFeaturesPatch = patch(
     name = "Spoof features",
     description = "Spoofs the device to enable Google Pixel exclusive features, including unlimited storage.",
 ) {
-    val buildInfo = mapOf(
-        "BRAND" to "google",
-        "MANUFACTURER" to "Google",
-        "DEVICE" to "marlin",
-        "PRODUCT" to "marlin",
-        "MODEL" to "Pixel XL",
-        "FINGERPRINT" to "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys"
-    )
-
-    val buildClazz = Build::class.java
-    for ((k, v) in buildInfo) {
-        XposedHelpers.setStaticObjectField(buildClazz, k, v)
-    }
+    XposedHelpers.findAndHookMethod("android.os.SystemProperties", classLoader, "get", String::class.java, object : XC_MethodHook() {
+        override fun afterHookedMethod(param: MethodHookParam) {
+            when (param.args[0] as String) {
+                "ro.product.brand" -> param.result = "google"
+                "ro.product.manufacturer" -> param.result = "Google"
+                "ro.product.model" -> param.result = "Pixel XL"
+                "ro.product.name" -> param.result = "marlin"
+                "ro.product.device" -> param.result = "marlin"
+                "ro.build.fingerprint" -> param.result = "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys"
+            }
+        }
+    })
+    
+    XposedHelpers.findAndHookMethod("android.os.SystemProperties", classLoader, "get", String::class.java, String::class.java, object : XC_MethodHook() {
+        override fun afterHookedMethod(param: MethodHookParam) {
+            when (param.args[0] as String) {
+                "ro.product.brand" -> param.result = "google"
+                "ro.product.manufacturer" -> param.result = "Google"
+                "ro.product.model" -> param.result = "Pixel XL"
+                "ro.product.name" -> param.result = "marlin"
+                "ro.product.device" -> param.result = "marlin"
+                "ro.build.fingerprint" -> param.result = "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys"
+            }
+        }
+    })
 
     val featuresToEnable = setOf(
         "com.google.android.apps.photos.NEXUS_PRELOAD",

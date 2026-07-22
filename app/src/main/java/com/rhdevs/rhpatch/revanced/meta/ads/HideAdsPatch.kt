@@ -41,7 +41,8 @@ val HideAds = patch(
         // Find all methods returning String and taking 0 parameters (concrete or abstract!)
         val stringMethods = parserClass.methods.filter {
             it.returnType == String::class.java &&
-            it.parameterCount == 0
+            it.parameterCount == 0 &&
+            !java.lang.reflect.Modifier.isAbstract(it.modifiers)
         }
 
         if (stringMethods.isEmpty()) {

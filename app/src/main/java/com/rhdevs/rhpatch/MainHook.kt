@@ -61,8 +61,12 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 }
             }
 
-            val patches = patchesByPackage[lpparam.packageName] ?: return@inContext
-            PatchExecutor(app, lpparam).applyPatches(patches)
+            try {
+                val patches = patchesByPackage[lpparam.packageName] ?: return@inContext
+                PatchExecutor(app, lpparam).applyPatches(patches)
+            } catch (e: Throwable) {
+                XposedBridge.log("Rhpatch: Error executing PatchExecutor for ${lpparam.packageName}: ${e.stackTraceToString()}")
+            }
         }
     }
 
@@ -96,17 +100,22 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
 }
 
 fun inContext(lpparam: LoadPackageParam, f: (Application) -> Unit) {
-    val appClazz = XposedHelpers.findClass(lpparam.appInfo.className, lpparam.classLoader)
+    val className = lpparam.appInfo.className ?: "android.app.Application"
+    val appClazz = XposedHelpers.findClass(className, lpparam.classLoader)
     XposedBridge.hookMethod(appClazz.getMethod("onCreate"), object : XC_MethodHook() {
         override fun beforeHookedMethod(param: MethodHookParam) {
-            val app = param.thisObject as Application
-            Utils.setContext(app)
-            f(app)
-            if (XposedInit.modulePath.startsWith("/data/app/")) {
-                val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, "prefs")
-                if (!prefs.file.canRead() || !prefs.getBoolean("disable_auto_check_update", false)) {
-                    UpdateChecker().hookNewActivity()
+            try {
+                val app = param.thisObject as Application
+                Utils.setContext(app)
+                f(app)
+                if (XposedInit.modulePath.startsWith("/data/app/")) {
+                    val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, "prefs")
+                    if (!prefs.file.canRead() || !prefs.getBoolean("disable_auto_check_update", false)) {
+                        UpdateChecker().hookNewActivity()
+                    }
                 }
+            } catch (e: Throwable) {
+                XposedBridge.log("Rhpatch: Error inside inContext onCreate hook: " + e.message)
             }
         }
     })

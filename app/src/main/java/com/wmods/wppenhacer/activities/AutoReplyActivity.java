@@ -55,7 +55,13 @@ public class AutoReplyActivity extends BaseActivity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         binding.switchGlobalAutoReply.setChecked(prefs.getBoolean("auto_reply_enabled", false));
         binding.switchGlobalAutoReply.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            prefs.edit().putBoolean("auto_reply_enabled", isChecked).apply();
+            prefs.edit().putBoolean("auto_reply_enabled", isChecked).commit();
+            try {
+                java.io.File file = new java.io.File(getFilesDir().getParentFile(), "shared_prefs/" + getPackageName() + "_preferences.xml");
+                if (file.exists()) {
+                    file.setReadable(true, false);
+                }
+            } catch (Exception ignored) {}
             Toast.makeText(this, isChecked ? "Auto Reply enabled globally" : "Auto Reply disabled globally", Toast.LENGTH_SHORT).show();
         });
 
@@ -127,7 +133,13 @@ public class AutoReplyActivity extends BaseActivity {
             }
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
-            prefs.edit().putString("auto_reply_rules", array.toString()).apply();
+            prefs.edit().putString("auto_reply_rules", array.toString()).commit();
+            try {
+                java.io.File file = new java.io.File(appContext.getFilesDir().getParentFile(), "shared_prefs/" + appContext.getPackageName() + "_preferences.xml");
+                if (file.exists()) {
+                    file.setReadable(true, false);
+                }
+            } catch (Exception ignored) {}
         });
     }
 

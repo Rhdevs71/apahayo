@@ -307,28 +307,14 @@ object WppCore {
         try {
             val actionUserClass = getActionUserClass()
             var senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
-                List::class.java.isAssignableFrom(method.returnType) &&
-                        ReflectionUtils.findIndexOfType(
-                            method.parameterTypes,
-                            String::class.java
-                        ) != -1
-            }
-            if (senderMethod == null) {
-                senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
-                    val params = method.parameterTypes
-                    ReflectionUtils.findIndexOfType(params, List::class.java) != -1 &&
-                            ReflectionUtils.findIndexOfType(params, String::class.java) != -1 &&
-                            method.name != "toString"
+                val params = method.parameterTypes
+                val hasString = ReflectionUtils.findIndexOfType(params, String::class.java) != -1
+                val hasJid = params.any { 
+                    it.name.endsWith("Jid", ignoreCase = true) || 
+                    it.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID) || 
+                    it.isAssignableFrom(FMessageWpp.UserJid.TYPE_USERJID) 
                 }
-            }
-            if (senderMethod == null) {
-                senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
-                    val params = method.parameterTypes
-                    ReflectionUtils.findIndexOfType(params, String::class.java) != -1 &&
-                            (ReflectionUtils.findIndexOfType(params, FMessageWpp.UserJid.TYPE_JID) != -1 ||
-                             ReflectionUtils.findIndexOfType(params, FMessageWpp.UserJid.TYPE_USERJID) != -1) &&
-                            method.name != "toString"
-                }
+                hasString && hasJid && method.name != "toString"
             }
 
             if (senderMethod != null) {
@@ -346,14 +332,14 @@ object WppCore {
                 if (indexList != -1) {
                     newObject[indexList] = Collections.singletonList(userJid)
                 } else {
-                    val indexJid = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.UserJid.TYPE_JID)
+                    var indexJid = senderMethod.parameterTypes.indexOfFirst {
+                        it.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID) || 
+                        it.isAssignableFrom(FMessageWpp.UserJid.TYPE_USERJID) || 
+                        it.name.endsWith("Jid", ignoreCase = true)
+                    }
+                    
                     if (indexJid != -1) {
                         newObject[indexJid] = userJid
-                    } else {
-                        val indexUserJid = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.UserJid.TYPE_USERJID)
-                        if (indexUserJid != -1) {
-                            newObject[indexUserJid] = userJid
-                        }
                     }
                 }
                 
