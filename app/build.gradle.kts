@@ -336,12 +336,12 @@ afterEvaluate {
 
 
 dependencies {
-    implementation("androidx.javascriptengine:javascriptengine:1.0.0-beta01")
+    implementation("androidx.javascriptengine:javascriptengine:1.1.0")
     implementation(libs.protobuf.javalite)
-    implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("org.apache.commons:commons-lang3:3.14.0")
-    implementation("com.google.code.gson:gson:2.10.1")
-    implementation("androidx.annotation:annotation:1.7.1")
+    implementation("org.apache.commons:commons-collections4:4.5.0")
+    implementation("org.apache.commons:commons-lang3:3.20.0")
+    implementation("com.google.code.gson:gson:2.14.0")
+    implementation("androidx.annotation:annotation:1.10.0")
 }
 
 protobuf {
