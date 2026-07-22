@@ -357,7 +357,7 @@ public class HomeFragment extends BaseFragment {
         binding.statusTitle3.setText(R.string.business_is_not_running_or_has_not_been_activated_in_lsposed);
         binding.status3.getChildAt(0).setBackgroundResource(R.drawable.gradient_error);
         binding.statusSummary3.setVisibility(View.GONE);
-        binding.rebootBtn2.setVisibility(View.GONE);
+        binding.rebootBtn2.setVisibility(View.VISIBLE);
     }
 
     private void disableWpp(FragmentActivity activity) {
@@ -365,12 +365,17 @@ public class HomeFragment extends BaseFragment {
         binding.statusTitle2.setText(R.string.whatsapp_is_not_running_or_has_not_been_activated_in_lsposed);
         binding.status2.getChildAt(0).setBackgroundResource(R.drawable.gradient_error);
         binding.statusSummary1.setVisibility(View.GONE);
-        binding.rebootBtn.setVisibility(View.GONE);
+        binding.rebootBtn.setVisibility(View.VISIBLE);
     }
 
     private static void checkWpp(FragmentActivity activity) {
         Intent checkWpp = new Intent(BuildConfig.APPLICATION_ID + ".CHECK_WPP");
+        checkWpp.setPackage(FeatureLoader.PACKAGE_WPP);
         activity.sendBroadcast(checkWpp);
+
+        Intent checkBusiness = new Intent(BuildConfig.APPLICATION_ID + ".CHECK_WPP");
+        checkBusiness.setPackage(FeatureLoader.PACKAGE_BUSINESS);
+        activity.sendBroadcast(checkBusiness);
     }
 
     private void checkForUpdates() {
