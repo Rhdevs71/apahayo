@@ -23,4 +23,11 @@
         app:iconTint="@color/text_on_gradient"
         app:showAsAction="ifRoom" />
 
+
+    <item
+        android:id="@+id/navigation_recordings"
+        android:icon="@drawable/ic_recording"
+        android:title="@string/recordings_manager"
+        app:iconTint="@color/text_on_gradient"
+        app:showAsAction="ifRoom" />
 </menu>

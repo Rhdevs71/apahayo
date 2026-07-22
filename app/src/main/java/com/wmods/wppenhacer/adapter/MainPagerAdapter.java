@@ -10,7 +10,6 @@ import com.wmods.wppenhacer.ui.fragments.CustomizationFragment;
 import com.wmods.wppenhacer.ui.fragments.GeneralFragment;
 import com.wmods.wppenhacer.ui.fragments.HomeFragment;
 import com.wmods.wppenhacer.ui.fragments.MediaFragment;
-import com.wmods.wppenhacer.ui.fragments.ModulesFragment;
 import com.wmods.wppenhacer.ui.fragments.PrivacyFragment;
 import com.wmods.wppenhacer.ui.fragments.RecordingsFragment;
 
@@ -32,17 +31,12 @@ public class MainPagerAdapter extends FragmentStateAdapter {
         if (position == 2) return new HomeFragment();
         if (position == 3) return new MediaFragment();
         if (position == 4) return new CustomizationFragment();
-        if (isRecordingEnabled) {
-            if (position == 5) return new RecordingsFragment();
-            if (position == 6) return new ModulesFragment();
-        } else {
-            if (position == 5) return new ModulesFragment();
-        }
+        if (isRecordingEnabled && position == 5) return new RecordingsFragment();
         return new HomeFragment();
     }
 
     @Override
     public int getItemCount() {
-        return isRecordingEnabled ? 7 : 6;
+        return isRecordingEnabled ? 6 : 5;
     }
 }

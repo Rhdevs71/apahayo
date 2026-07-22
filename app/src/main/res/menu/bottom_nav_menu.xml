@@ -32,4 +32,4 @@
         android:title="@string/recordings_manager" />
 
 
-    <item android:id="@+id/navigation_modules" android:icon="@drawable/ic_dashboard_black_24dp" android:title="Modules" />`n</menu>
+</menu>

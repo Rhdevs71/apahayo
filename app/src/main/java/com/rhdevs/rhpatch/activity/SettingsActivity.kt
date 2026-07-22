@@ -221,7 +221,7 @@ class SettingsActivity : Activity() {
             
             val pm = context.packageManager
             val waCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
-            waCard.findViewById<TextView>(R.id.app_name).text = "WhatsApp/Business (WaEnhancer)"
+            waCard.findViewById<TextView>(R.id.app_name).text = "WhatsApp/Business"
             waCard.findViewById<TextView>(R.id.app_package).text = "com.whatsapp / com.whatsapp.w4b"
             val waBadge = waCard.findViewById<TextView>(R.id.status_badge)
             waBadge.text = "Installed"
