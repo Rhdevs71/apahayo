@@ -332,7 +332,7 @@ object WppCore {
                     newObject[indexList] = emptyList<Any>()
                 }
                 
-                val indexBoolean = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, Boolean::class.javaPrimitiveType)
+                val indexBoolean = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, Boolean::class.javaPrimitiveType!!)
                 if (indexBoolean != -1) {
                     newObject[indexBoolean] = false
                 }

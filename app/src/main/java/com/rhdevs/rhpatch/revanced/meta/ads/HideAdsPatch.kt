@@ -4,74 +4,44 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import com.rhdevs.rhpatch.patch
+import com.rhdevs.rhpatch.revanced.meta.devkit.MetaUnobfuscator
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
 val HideAds = patch(
     name = "Hide Ads (Instagram)",
-    description = "Block sponsored posts and stories at parser and UI level"
+    description = "Block sponsored posts and stories using Piko-style DexKit fingerprint"
 ) {
 
-    // ── Strategy 1: Instagram Custom JSON Parser Key Renamer ─────────────────
     runCatching {
-        val parserClass = findParserClass(classLoader)
-            ?: throw ClassNotFoundException("Could not find Instagram JSON parser class dynamically")
-
-        val adKeys = setOf(
-            "injected",
-            "ad_metadata",
-            "ad_tag",
-            "android_links",
-            "ad_action",
-            "is_sponsored",
-            "sponsored",
-            "is_ad",
-            "ad",
-            "sponsored_label",
-            "sponsored_label_text",
-            "label_type",
-            "is_paid_partnership",
-            "paid_partnership",
-            "commerciality_status",
-            "is_in_feed_ad",
-            "feed_ads"
-        )
-
-        // Find all methods returning String and taking 0 parameters (concrete or abstract!)
-        val stringMethods = parserClass.methods.filter {
-            it.returnType == String::class.java &&
-            it.parameterCount == 0 &&
-            !java.lang.reflect.Modifier.isAbstract(it.modifiers)
+        // Initialize DexKit for Instagram
+        if (!MetaUnobfuscator.init(appContext)) {
+            XposedBridge.log("Rhpatch: [Ads] Failed to initialize MetaUnobfuscator")
+            return@runCatching
         }
 
-        if (stringMethods.isEmpty()) {
-            throw NoSuchMethodException("No String-returning methods found on parser class")
-        }
-
-        stringMethods.forEach { method ->
-            try {
+        // Piko Fingerprint for Disable Ads: "Is ad pod"
+        val adMethods = MetaUnobfuscator.findMethodUsingStrings("Is ad pod")
+        
+        if (adMethods.isEmpty()) {
+            XposedBridge.log("Rhpatch: [Ads] Could not find method containing 'Is ad pod'")
+        } else {
+            adMethods.forEach { method ->
                 XposedBridge.hookMethod(method, object : XC_MethodHook() {
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        val fieldName = param.result as? String ?: return
-                        if (adKeys.contains(fieldName.lowercase())) {
-                            param.result = fieldName + "_blocked"
-                        }
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        // Immediately return true to signify 'is ad disabled' / 'is ad pod'
+                        param.result = true
                     }
                 })
-            } catch (e: IllegalArgumentException) {
-                // Ignore abstract methods that slip through the filter
-            } catch (e: Exception) {
-                XposedBridge.log("Rhpatch: [Ads] Failed to hook method ${method.name}: ${e.message}")
             }
+            XposedBridge.log("Rhpatch: [Ads] DexKit 'Is ad pod' hooks installed successfully on ${adMethods.size} methods")
         }
-
-        XposedBridge.log("Rhpatch: [Ads] Dynamic JSON parser hooks installed successfully on class ${parserClass.name} (found ${stringMethods.size} methods)")
     }.onFailure {
-        XposedBridge.log("Rhpatch: [Ads] Custom JSON parser hook failed: $it")
+        XposedBridge.log("Rhpatch: [Ads] DexKit hook failed: $it")
     }
 
-    // ── Strategy 2: Hook TextView.setText for UI fallback ────────────────────
+    // ── Strategy 2: Hook TextView.setText for UI fallback (Retained as backup) ──
     runCatching {
         XposedHelpers.findAndHookMethod(
             android.widget.TextView::class.java,
@@ -90,54 +60,10 @@ val HideAds = patch(
                 }
             }
         )
-        XposedBridge.log("Rhpatch: [Ads] TextView.setText hook installed")
+        XposedBridge.log("Rhpatch: [Ads] TextView.setText fallback hook installed")
     }.onFailure {
         XposedBridge.log("Rhpatch: [Ads] TextView.setText hook failed: $it")
     }
-}
-
-private fun findParserClass(classLoader: ClassLoader): Class<*>? {
-    // 1. Try DirectThreadThemeInfo (New Instagram versions like v438)
-    runCatching {
-        val themeInfoClass = classLoader.loadClass("com.instagram.direct.model.DirectThreadThemeInfo")
-
-        val method = themeInfoClass.declaredMethods.find {
-            it.returnType == themeInfoClass &&
-            it.parameterCount == 1 &&
-            it.parameterTypes[0].name.startsWith("X.")
-        }
-        val paramType = method?.parameterTypes?.first()
-        if (paramType != null) {
-            XposedBridge.log("Rhpatch: Found parser class via DirectThreadThemeInfo: ${paramType.name}")
-            return paramType
-        }
-    }
-
-    // 2. Try Skywalker helper list
-    val helperClassNames = listOf(
-        "com.instagram.realtimeclient.SkywalkerCommand__JsonHelper",
-        "com.instagram.realtimeclient.RealtimeStoreKey_ShimValueWithId__JsonHelper",
-        "com.instagram.realtimeclient.requeststream.IgnoredData__JsonHelper",
-        "com.instagram.realtimeclient.requeststream.String__JsonHelper",
-        "com.instagram.realtimeclient.DirectApiError__JsonHelper"
-    )
-    for (name in helperClassNames) {
-        runCatching {
-            val clazz = classLoader.loadClass(name)
-            val method = clazz.declaredMethods.find {
-                it.name == "parseFromJson" &&
-                it.parameterCount == 1 &&
-                !it.parameterTypes[0].isPrimitive &&
-                it.parameterTypes[0] != String::class.java
-            }
-            val paramType = method?.parameterTypes?.first()
-            if (paramType != null) {
-                XposedBridge.log("Rhpatch: Found parser class via Skywalker helper: ${paramType.name}")
-                return paramType
-            }
-        }
-    }
-    return null
 }
 
 fun isSponsoredLabel(text: String): Boolean =
@@ -169,3 +95,4 @@ fun hideRecyclerItemContaining(child: View) {
         current = parent as? View
     }
 }
+
