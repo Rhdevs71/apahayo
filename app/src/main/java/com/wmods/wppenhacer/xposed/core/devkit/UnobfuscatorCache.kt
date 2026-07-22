@@ -28,8 +28,8 @@ import java.util.concurrent.atomic.AtomicReference
 
 class UnobfuscatorCache private constructor(private val mApplication: Application) {
 
-    val sPrefsCacheHooks: SharedPreferences
-    private val sPrefsCacheStrings: SharedPreferences
+    lateinit var sPrefsCacheHooks: SharedPreferences
+    private lateinit var sPrefsCacheStrings: SharedPreferences
     private val reverseResourceMap = HashMap<String, String>()
 
     init {
@@ -55,7 +55,11 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
                 || versionName != savedVersionName
                 || savedCacheSchemaVersion != CACHE_SCHEMA_VERSION
             ) {
-                Utils.showToast(mApplication.getString(R.string.starting_cache), Toast.LENGTH_LONG)
+                try {
+                    Utils.showToast(mApplication.getString(R.string.starting_cache), Toast.LENGTH_LONG)
+                } catch (e: Exception) {
+                    XposedBridge.log("WaEnhancer: Cache started, but R.string.starting_cache not found.")
+                }
                 sPrefsCacheHooks.edit(commit = true) { clear() }
                 sPrefsCacheHooks.edit(commit = true) { putLong("version", currentVersion) }
                 sPrefsCacheHooks.edit(commit = true) { putLong("updateTime", lastUpdateTime) }
@@ -70,7 +74,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
             }
             initCacheStrings()
         } catch (e: Exception) {
-            throw RuntimeException("Can't initialize UnobfuscatorCache: ${e.message}", e)
+            XposedBridge.log("WaEnhancer Error: Can't initialize UnobfuscatorCache: ${e.message}")
         }
     }
 

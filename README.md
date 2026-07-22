@@ -4,8 +4,9 @@ Rhpatch is an LSPosed module designed to enhance the experience of various Andro
 
 ## Features
 - **WhatsApp Enhancements**: Custom themes, privacy controls, media cleaners, and voice changers.
-- **Instagram Patches**: Hide ads (sponsored posts/stories), download media, and more. 
+- **Instagram Patches**: Hide ads (sponsored posts/stories), download media (long click share button), Ghost Mode (hide read receipts for DMs), and more. 
 *(Ported using DexKit runtime scanning for maximum compatibility across versions).*
+- **YouTube Enhancements**: Supports external downloaders (like YTDLnis) directly from the player.
 
 ## Acknowledgements & Open Source Licenses
 This project incorporates ideas, architectures, and snippets from the following amazing open-source projects:

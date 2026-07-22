@@ -121,7 +121,6 @@ val InstagramDownload = patch(
                                 listener.onClick(v)
                             }
                         }
-                        // Use a class name containing RhpatchWrapper
                         class RhpatchWrapperListener(val orig: View.OnClickListener) : View.OnClickListener {
                             override fun onClick(v: View) {
                                 shareClickedTime = System.currentTimeMillis()
@@ -130,6 +129,23 @@ val InstagramDownload = patch(
                             }
                         }
                         param.args[0] = RhpatchWrapperListener(listener)
+                        
+                        // Add long click listener as a reliable fallback
+                        try {
+                            view.setOnLongClickListener { v ->
+                                captureUrlFromPostContainer(v)
+                                val url = lastKnownMediaUrl
+                                if (!url.isNullOrEmpty()) {
+                                    downloadInstagramMedia(v.context, url, lastKnownIsVideo)
+                                    true
+                                } else {
+                                    Toast.makeText(v.context, "URL media belum tertangkap. Tonton video lebih lama.", Toast.LENGTH_SHORT).show()
+                                    true
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // Ignore
+                        }
                     }
                 }
             }

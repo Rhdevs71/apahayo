@@ -46,8 +46,8 @@ class FakeDisplayHook(loader: ClassLoader, preferences: SharedPreferences) : Fea
                     val waContact = com.wmods.wppenhacer.xposed.core.components.WaContactWpp(contact)
                     val jidObj = waContact.userJid.userJid ?: return
                     
-                    val isMe = XposedHelpers.callMethod(jidObj, "isMe") as? Boolean ?: false
-                    val rawJid = XposedHelpers.callMethod(jidObj, "getRawString") as? String ?: return
+                    val isMe = try { XposedHelpers.callMethod(jidObj, "isMe") as? Boolean ?: false } catch(e: Exception) { false }
+                    val rawJid = try { XposedHelpers.callMethod(jidObj, "getRawString") as? String ?: return } catch(e: Exception) { return }
                     val jidKey = if (isMe || rawJid.contains("me")) "me" else rawJid
 
                     val nameEnabled = prefs.getBoolean("fake_display_name_enabled_$jidKey", false)
@@ -99,8 +99,8 @@ class FakeDisplayHook(loader: ClassLoader, preferences: SharedPreferences) : Fea
                         arg != null && (arg.javaClass.name.contains("Jid") || arg.javaClass.simpleName == "UserJid")
                     }
                     val jidKey = if (jidObj != null) {
-                        val isMe = XposedHelpers.callMethod(jidObj, "isMe") as? Boolean ?: false
-                        val rawJid = XposedHelpers.callMethod(jidObj, "getRawString") as? String ?: ""
+                        val isMe = try { XposedHelpers.callMethod(jidObj, "isMe") as? Boolean ?: false } catch(e: Exception) { false }
+                        val rawJid = try { XposedHelpers.callMethod(jidObj, "getRawString") as? String ?: "" } catch(e: Exception) { "" }
                         if (isMe || rawJid.contains("me")) "me" else rawJid
                     } else {
                         // Check if contact object is passed
@@ -114,8 +114,8 @@ class FakeDisplayHook(loader: ClassLoader, preferences: SharedPreferences) : Fea
                         } ?: return
                         userJidField.isAccessible = true
                         val j = userJidField.get(contactObj) ?: return
-                        val isMe = XposedHelpers.callMethod(j, "isMe") as? Boolean ?: false
-                        val rawJid = XposedHelpers.callMethod(j, "getRawString") as? String ?: ""
+                        val isMe = try { XposedHelpers.callMethod(j, "isMe") as? Boolean ?: false } catch(e: Exception) { false }
+                        val rawJid = try { XposedHelpers.callMethod(j, "getRawString") as? String ?: "" } catch(e: Exception) { "" }
                         if (isMe || rawJid.contains("me")) "me" else rawJid
                     }
 
