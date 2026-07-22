@@ -66,6 +66,7 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 PatchExecutor(app, lpparam).applyPatches(patches)
             } catch (e: Throwable) {
                 XposedBridge.log("Rhpatch: Error executing PatchExecutor for ${lpparam.packageName}: ${e.stackTraceToString()}")
+                android.widget.Toast.makeText(app, "Rhpatch Fatal Error: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
             }
         }
     }

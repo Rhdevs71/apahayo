@@ -233,9 +233,9 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
         val success = failedPatches.isEmpty()
         if (DEBUG) {
             XposedBridge.log("${lpparam.appInfo.packageName} version: ${getAppVersion()}")
-            if (success) {
-                Utils.showToastLong("apply patches success")
-            }
+        }
+        if (success) {
+            Utils.showToastLong("apply patches success")
         }
     }
 
