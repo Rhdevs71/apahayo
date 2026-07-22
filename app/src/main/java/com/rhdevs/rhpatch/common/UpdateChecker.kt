@@ -1,4 +1,4 @@
-package com.rhdevs.rhpatch.common
+﻿package com.rhdevs.rhpatch.common
 
 import android.R
 import android.app.Activity
@@ -54,8 +54,8 @@ data class VersionInfo(val versionCode: Int, val versionName: String) {
     }
 }
 
-const val OWNER = "Rhpatch"
-const val REPO = "Rhpatch"
+const val OWNER = "Rhdevs71"
+const val REPO = "apahayo"
 const val currentVersionCode = BuildConfig.VERSION_CODE
 
 class UpdateChecker() : CoroutineScope {

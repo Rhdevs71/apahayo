@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/rhpatch_bg"
+    android:background="@color/apahayo_bg"
     android:padding="16dp"
     android:fillViewport="true">
 
@@ -16,7 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Dashboard"
-            android:textColor="@color/rhpatch_text_primary"
+            android:textColor="@color/apahayo_text_primary"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginBottom="4dp" />
@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Customize your apps with Rhpatch"
-            android:textColor="@color/rhpatch_text_secondary"
+            android:textColor="@color/apahayo_text_secondary"
             android:textSize="12sp"
             android:layout_marginBottom="18dp" />
 
@@ -42,7 +42,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="MODULE STATUS"
-                android:textColor="@color/rhpatch_text_secondary"
+                android:textColor="@color/apahayo_text_secondary"
                 android:textSize="10sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.1"
@@ -67,7 +67,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:text="LSPosed"
-                    android:textColor="@color/rhpatch_text_secondary"
+                    android:textColor="@color/apahayo_text_secondary"
                     android:textSize="11sp"
                     android:background="@drawable/badge_background"
                     android:paddingLeft="8dp"
@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Rhpatch is loaded and functioning correctly."
-                android:textColor="@color/rhpatch_text_secondary"
+                android:textColor="@color/apahayo_text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -103,7 +103,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="HELP &amp; FAQ"
-                android:textColor="@color/rhpatch_text_secondary"
+                android:textColor="@color/apahayo_text_secondary"
                 android:textSize="10sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.1"
@@ -113,7 +113,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Frequently Asked Questions"
-                android:textColor="@color/rhpatch_text_primary"
+                android:textColor="@color/apahayo_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -122,7 +122,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Tap to open the online wiki and troubleshoot common issues."
-                android:textColor="@color/rhpatch_text_secondary"
+                android:textColor="@color/apahayo_text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -142,7 +142,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="UPDATE CENTER"
-                android:textColor="@color/rhpatch_text_secondary"
+                android:textColor="@color/apahayo_text_secondary"
                 android:textSize="10sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.1"
@@ -152,7 +152,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Check for Updates"
-                android:textColor="@color/rhpatch_text_primary"
+                android:textColor="@color/apahayo_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -161,7 +161,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:textColor="@color/rhpatch_text_secondary"
+                android:textColor="@color/apahayo_text_secondary"
                 android:textSize="11sp"
                 android:lineSpacingMultiplier="1.2"
                 android:text="Checking version..." />

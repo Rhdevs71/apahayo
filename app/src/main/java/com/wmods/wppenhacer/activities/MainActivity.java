@@ -14,7 +14,8 @@ import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.tabs.TabLayout;
 import com.waseemsabir.betterypermissionhelper.BatteryPermissionHelper;
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.R;
@@ -51,44 +52,28 @@ public class MainActivity extends BaseActivity {
 
         binding.viewPager.setPageTransformer(new DepthPageTransformer());
 
-        var prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
-        if (!prefs.getBoolean("call_recording_enable", false)) {
-            binding.navView.getMenu().findItem(R.id.navigation_recordings).setVisible(false);
-        }
-
-        binding.navView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @SuppressLint("NonConstantResourceId")
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
-                if (itemId == R.id.navigation_chat) {
-                    binding.viewPager.setCurrentItem(0, true);
-                    return true;
-                } else if (itemId == R.id.navigation_privacy) {
-                    binding.viewPager.setCurrentItem(1, true);
-                    return true;
-                } else if (itemId == R.id.navigation_home) {
-                    binding.viewPager.setCurrentItem(2, true);
-                    return true;
-                } else if (itemId == R.id.navigation_media) {
-                    binding.viewPager.setCurrentItem(3, true);
-                    return true;
-                } else if (itemId == R.id.navigation_colors) {
-                    binding.viewPager.setCurrentItem(4, true);
-                    return true;
-                } else if (itemId == R.id.navigation_recordings) {
-                    binding.viewPager.setCurrentItem(5);
-                    return true;
-                }
-                return false;
+        
+        android.content.SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
+        boolean isRecEnabled = prefs.getBoolean("call_recording_enable", false);
+        new TabLayoutMediator(binding.navView, binding.viewPager, (tab, position) -> {
+            if (position == 0) { tab.setText(R.string.general); tab.setIcon(R.drawable.ic_general); }
+            else if (position == 1) { tab.setText(R.string.privacy); tab.setIcon(R.drawable.ic_privacy); }
+            else if (position == 2) { tab.setText(R.string.title_home); tab.setIcon(R.drawable.ic_home_black_24dp); }
+            else if (position == 3) { tab.setText(R.string.media); tab.setIcon(R.drawable.ic_media); }
+            else if (position == 4) { tab.setText(R.string.perso); tab.setIcon(R.drawable.ic_dashboard_black_24dp); }
+            else if (isRecEnabled) {
+                if (position == 5) { tab.setText(R.string.recordings_manager); tab.setIcon(R.drawable.ic_recording); }
+                else if (position == 6) { tab.setText("Modules"); tab.setIcon(R.drawable.ic_dashboard_black_24dp); }
+            } else {
+                if (position == 5) { tab.setText("Modules"); tab.setIcon(R.drawable.ic_dashboard_black_24dp); }
             }
-        });
+        }).attach();
 
         binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                binding.navView.getMenu().getItem(position).setChecked(true);
+                
                 
                 // Handle pending scroll after page change
                 if (pendingScrollToFragment == position && pendingScrollToPreference != null) {

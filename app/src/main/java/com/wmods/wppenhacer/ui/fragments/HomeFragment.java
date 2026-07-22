@@ -387,7 +387,7 @@ public class HomeFragment extends BaseFragment {
                         .build();
 
                 var request = new Request.Builder()
-                        .url("https://api.github.com/repos/Dev4Mod/WaEnhancer/releases/latest")
+                        .url("https://api.github.com/repos/Rhdevs71/apahayo/releases/latest")
                         .build();
 
                 try (var response = client.newCall(request).execute()) {

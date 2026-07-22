@@ -10,6 +10,7 @@ import com.wmods.wppenhacer.ui.fragments.CustomizationFragment;
 import com.wmods.wppenhacer.ui.fragments.GeneralFragment;
 import com.wmods.wppenhacer.ui.fragments.HomeFragment;
 import com.wmods.wppenhacer.ui.fragments.MediaFragment;
+import com.wmods.wppenhacer.ui.fragments.ModulesFragment;
 import com.wmods.wppenhacer.ui.fragments.PrivacyFragment;
 import com.wmods.wppenhacer.ui.fragments.RecordingsFragment;
 
@@ -26,18 +27,22 @@ public class MainPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return switch (position) {
-            case 0 -> new GeneralFragment();
-            case 1 -> new PrivacyFragment();
-            case 3 -> new MediaFragment();
-            case 4 -> new CustomizationFragment();
-            case 5 -> new RecordingsFragment();
-            default -> new HomeFragment();
-        };
+        if (position == 0) return new GeneralFragment();
+        if (position == 1) return new PrivacyFragment();
+        if (position == 2) return new HomeFragment();
+        if (position == 3) return new MediaFragment();
+        if (position == 4) return new CustomizationFragment();
+        if (isRecordingEnabled) {
+            if (position == 5) return new RecordingsFragment();
+            if (position == 6) return new ModulesFragment();
+        } else {
+            if (position == 5) return new ModulesFragment();
+        }
+        return new HomeFragment();
     }
 
     @Override
     public int getItemCount() {
-        return isRecordingEnabled ? 6 : 5;
+        return isRecordingEnabled ? 7 : 6;
     }
 }

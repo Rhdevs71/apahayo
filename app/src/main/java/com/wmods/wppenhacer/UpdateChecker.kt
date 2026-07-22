@@ -15,8 +15,8 @@ import java.util.concurrent.TimeUnit
 class UpdateChecker(private val mActivity: Activity) : Runnable {
 
     companion object {
-        private const val LATEST_RELEASE_API = "https://api.github.com/repos/Dev4Mod/WaEnhancer/releases/latest"
-        private const val TELEGRAM_UPDATE_URL = "https://t.me/waenhancher"
+        private const val LATEST_RELEASE_API = "https://api.github.com/repos/Rhdevs71/apahayo/releases/latest"
+        private const val TELEGRAM_UPDATE_URL = "https://t.me/rhdevs"
 
         private val httpClient: OkHttpClient by lazy {
             OkHttpClient.Builder()
@@ -81,14 +81,14 @@ class UpdateChecker(private val mActivity: Activity) : Runnable {
             val formattedDate = formatPublishedDate(publishedAt)
 
             val message = buildString {
-                append("📦 **Version:** `").append(hash).append("`\n")
+                append("ðŸ“¦ **Version:** `").append(hash).append("`\n")
                 if (formattedDate.isNotEmpty()) {
-                    append("📅 **Released:** ").append(formattedDate).append("\n")
+                    append("ðŸ“… **Released:** ").append(formattedDate).append("\n")
                 }
                 append("\n### What's New\n\n").append(changelog)
             }
 
-            dialog.setTitle("🎉 New Update Available!")
+            dialog.setTitle("ðŸŽ‰ New Update Available!")
             dialog.setMessage(markwon.toMarkdown(message))
             dialog.setNegativeButton("Ignore") { dialog, _ ->
                 WppCore.setPrivString("ignored_version", hash)

@@ -4,13 +4,13 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:background="@color/rhpatch_bg">
+    android:background="@color/apahayo_bg">
 
     <!-- Custom Header Bar -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:background="@color/rhpatch_surface"
+        android:background="@color/apahayo_surface"
         android:padding="16dp">
 
         <TextView
@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Rhpatch"
-            android:textColor="@color/rhpatch_text_primary"
+            android:textColor="@color/apahayo_text_primary"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_centerVertical="true"/>
@@ -30,8 +30,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:background="@color/rhpatch_bg"
-            android:textColor="@color/rhpatch_text_secondary"
+            android:background="@color/apahayo_bg"
+            android:textColor="@color/apahayo_text_secondary"
             android:textSize="12sp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
@@ -57,7 +57,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@color/rhpatch_surface"
+        android:background="@color/apahayo_surface"
         android:orientation="horizontal">
 
         <!-- Tab 1: Overview -->
@@ -77,7 +77,7 @@
                 android:layout_height="wrap_content"
                 android:text="Overview"
                 android:textSize="14sp"
-                android:textColor="@color/rhpatch_accent"
+                android:textColor="@color/apahayo_accent"
                 android:textStyle="bold"/>
         </LinearLayout>
 
@@ -98,7 +98,7 @@
                 android:layout_height="wrap_content"
                 android:text="Modules"
                 android:textSize="14sp"
-                android:textColor="@color/rhpatch_text_secondary"/>
+                android:textColor="@color/apahayo_text_secondary"/>
         </LinearLayout>
 
         <!-- Tab 3: About -->
@@ -118,7 +118,7 @@
                 android:layout_height="wrap_content"
                 android:text="About"
                 android:textSize="14sp"
-                android:textColor="@color/rhpatch_text_secondary"/>
+                android:textColor="@color/apahayo_text_secondary"/>
         </LinearLayout>
     </LinearLayout>
 

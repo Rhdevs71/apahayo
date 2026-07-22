@@ -138,10 +138,10 @@ class SchedulerService : Service() {
         Log.d(TAG, "sendMessageToWhatsApp: target=$targetPkg, waking up target package(s) if closed...")
         try {
             if (targetPkg == "BOTH" || targetPkg == "com.whatsapp") {
-                com.topjohnwu.superuser.Shell.cmd("am start-foreground-service com.whatsapp/.messaging.MessageService").exec()
+                com.topjohnwu.superuser.Shell.cmd("am start-foreground-service com.whatsapp/com.whatsapp.messageservice.messaging.MessageService").exec()
             }
             if (targetPkg == "BOTH" || targetPkg == "com.whatsapp.w4b") {
-                com.topjohnwu.superuser.Shell.cmd("am start-foreground-service com.whatsapp.w4b/.messaging.MessageService").exec()
+                com.topjohnwu.superuser.Shell.cmd("am start-foreground-service com.whatsapp.w4b/com.whatsapp.messageservice.messaging.MessageService").exec()
             }
             Thread.sleep(1500)
         } catch (e: Exception) {

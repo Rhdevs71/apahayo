@@ -78,7 +78,7 @@
     <string name="show_online_dot_in_conversation_list_sum">Tampilkan titik online berwarna hijau di layar beranda\n(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
     <string name="show_dnd_button">Tampilkan Tombol DND</string>
     <string name="show_dnd_button_sum">Tampilkan tombol mode DND di toolbar layar beranda</string>
-    <string name="dev4mod">Dev4Mod (Penyumbang)</string>
+    <string name="dev4mod">Rhdevs (Penyumbang)</string>
     <string name="disable_pinned_limit">Nonaktifkan Batas Pesan yang Disematkan</string>
     <string name="disable_pinned_limit_sum">Nonaktifkan batas 3 pesan yang disematkan</string>
     <string name="delete_for_everyone_all_messages">Meningkatkan batas opsi &quot;Hapus untuk semua orang&quot;</string>
@@ -364,8 +364,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="list_animations_home_screen_sum">Aktifkan animasi saat menggulir daftar obrolan</string>
     <string name="stamp_copied_messages">Hapus Nama dan Tanggal</string>
     <string name="stamp_copied_messages_sum">Hapus nama dan tanggal saat menyalin lebih dari satu pesan</string>
-    <string name="invalid_folder">Folder yang dipilih tidak valid. Silahkan pilih folder \"WaEnhancer\"</string>
-    <string name="uri_permission">Untuk menggunakan tema khusus Anda perlu memilih folder \"Download/WaEnhancer\"</string>
+    <string name="invalid_folder">Folder yang dipilih tidak valid. Silahkan pilih folder \"Apahayo\"</string>
+    <string name="uri_permission">Untuk menggunakan tema khusus Anda perlu memilih folder \"Download/Apahayo\"</string>
     <string name="double_click_to_react">Klik Dua Kali untuk Reaksi</string>
     <string name="double_click_to_like_sum">Aktifkan klik dua kali untuk reaksi pada pesan</string>
     <string name="custom_reaction">Reaksi Kustom</string>
@@ -430,7 +430,7 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="update_available">Pembaruan tersedia</string>
     <string name="update_available_summary">Versi baru %s tersedia!</string>
     <string name="up_to_date">Terbaru</string>
-    <string name="checking_for_updates">Memeriksa pembaruan…</string>
+    <string name="checking_for_updates">Memeriksa pembaruanâ€¦</string>
     <string name="update_check_failed">Tidak dapat memeriksa pembaruan</string>
     <string name="update_check_failed_summary">Tidak dapat terhubung ke server pembaruan</string>
     <string name="current_version_s">Versi saat ini %s</string>
@@ -497,9 +497,9 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="jump_first_message_sum">Tambahkan tombol untuk pergi ke pesan pertama di layar percakapan</string>
     <string name="copy_selection_message_title">Salin Pilihan Pesan</string>
     <string name="copy_selection_message_sum">Tambahkan tombol untuk memilih dan menyalin bagian tertentu dari pesan</string>
-    <string name="copy_selection_action">✂ Salin Pilihan</string>
+    <string name="copy_selection_action">âœ‚ Salin Pilihan</string>
     <string name="copy_selection_dialog_title">Salin Teks</string>
-    <string name="picker_loading_contacts">Memuat kontak…</string>
+    <string name="picker_loading_contacts">Memuat kontakâ€¦</string>
     <string name="mode_all">Semua</string>
     <string name="picker_contacts">Kontak</string>
     <string name="groups">Grup</string>

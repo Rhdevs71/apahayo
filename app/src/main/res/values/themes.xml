@@ -2,14 +2,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="MainTheme" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/rhpatch_bg</item>
-        <item name="android:colorAccent">@color/rhpatch_accent</item>
+        <item name="android:windowBackground">@color/apahayo_bg</item>
+        <item name="android:colorAccent">@color/apahayo_accent</item>
         <item name="android:fitsSystemWindows">true</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
 
-        <item name="android:textColorPrimary">@color/rhpatch_text_primary</item>
-        <item name="android:textColorSecondary">@color/rhpatch_text_secondary</item>
+        <item name="android:textColorPrimary">@color/apahayo_text_primary</item>
+        <item name="android:textColorSecondary">@color/apahayo_text_secondary</item>
     </style>
 
     <style name="ListDividerNull">
@@ -17,11 +17,11 @@
     </style>
 
     <style name="SettingsTheme" parent="android:Theme.Material">
-        <item name="android:windowBackground">@color/rhpatch_bg</item>
-        <item name="android:colorBackground">@color/rhpatch_bg</item>
-        <item name="android:textColorPrimary">@color/rhpatch_text_primary</item>
-        <item name="android:textColorSecondary">@color/rhpatch_text_secondary</item>
-        <item name="android:colorAccent">@color/rhpatch_accent</item>
+        <item name="android:windowBackground">@color/apahayo_bg</item>
+        <item name="android:colorBackground">@color/apahayo_bg</item>
+        <item name="android:textColorPrimary">@color/apahayo_text_primary</item>
+        <item name="android:textColorSecondary">@color/apahayo_text_secondary</item>
+        <item name="android:colorAccent">@color/apahayo_accent</item>
         <item name="android:fitsSystemWindows">true</item>
         <item name="android:singleLineTitle">false</item>
         <item name="android:listDivider">@null</item>
@@ -30,12 +30,12 @@
     </style>
 
     <style name="CustomActionBar" parent="android:Widget.Material.ActionBar">
-        <item name="android:background">@color/rhpatch_surface</item>
+        <item name="android:background">@color/apahayo_surface</item>
         <item name="android:titleTextStyle">@style/CustomActionBarTitle</item>
     </style>
 
     <style name="CustomActionBarTitle" parent="android:TextAppearance.Material.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/rhpatch_text_primary</item>
+        <item name="android:textColor">@color/apahayo_text_primary</item>
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
     </style>

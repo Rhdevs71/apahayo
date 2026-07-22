@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/rhpatch_bg"
+    android:background="@color/apahayo_bg"
     android:padding="16dp">
 
     <LinearLayout
@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Modules"
-            android:textColor="@color/rhpatch_text_primary"
+            android:textColor="@color/apahayo_text_primary"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginBottom="4dp" />
@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Enable or configure patches for supported apps"
-            android:textColor="@color/rhpatch_text_secondary"
+            android:textColor="@color/apahayo_text_secondary"
             android:textSize="12sp"
             android:layout_marginBottom="18dp" />
 
