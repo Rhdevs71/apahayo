@@ -113,8 +113,10 @@ class AppPatchSettingsActivity : Activity() {
                     setOnPreferenceChangeListener { _, _ ->
                         val vibrator =
                             context.getSystemService(VIBRATOR_SERVICE) as Vibrator?
-                        if (vibrator?.hasVibrator() ?: false) {
-                            vibrator.vibrate(50)
+                        if (vibrator?.hasVibrator() == true) {
+                            try {
+                                vibrator.vibrate(50)
+                            } catch (_: Exception) {}
                         }
                         true
                     }
