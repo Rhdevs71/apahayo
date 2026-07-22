@@ -162,7 +162,32 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
     private val moduleRel = BuildConfig.COMMIT_HASH
     private var cache = SharedPrefCache(appContext)
     internal var dexkit = run {
-        System.loadLibrary("dexkit")
+        try {
+            System.loadLibrary("dexkit")
+        } catch (e: Throwable) {
+            XposedBridge.log("Rhpatch: System.loadLibrary('dexkit') failed: ${e.message}. Trying absolute path...")
+            try {
+                val moduleFile = java.io.File(XposedInit.modulePath)
+                val parent = moduleFile.parentFile
+                val libNames = arrayOf("lib/arm64-v8a/libdexkit.so", "lib/arm64/libdexkit.so", "lib/armeabi-v7a/libdexkit.so")
+                var loaded = false
+                for (name in libNames) {
+                    val libFile = java.io.File(parent, name)
+                    if (libFile.exists()) {
+                        System.load(libFile.absolutePath)
+                        XposedBridge.log("Rhpatch: Successfully loaded dexkit from ${libFile.absolutePath}")
+                        loaded = true
+                        break
+                    }
+                }
+                if (!loaded) {
+                    throw UnsatisfiedLinkError("Could not find libdexkit.so in ${parent?.absolutePath}")
+                }
+            } catch (ex: Throwable) {
+                XposedBridge.log("Rhpatch: Absolute path load failed: ${ex.message}")
+                throw e
+            }
+        }
         DexKitCacheBridge.init(cache)
         DexKitCacheBridge.create("", lpparam.appInfo.sourceDir)
     }
