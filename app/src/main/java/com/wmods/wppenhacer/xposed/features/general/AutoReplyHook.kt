@@ -366,10 +366,14 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
             if (senderMethod == null) {
                 senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
                     val params = method.parameterTypes
-                    ReflectionUtils.findIndexOfType(params, String::class.java) != -1 &&
-                            (ReflectionUtils.findIndexOfType(params, FMessageWpp.UserJid.TYPE_JID) != -1 ||
-                             ReflectionUtils.findIndexOfType(params, FMessageWpp.UserJid.TYPE_USERJID) != -1) &&
-                            method.name != "toString"
+                    val hasString = ReflectionUtils.findIndexOfType(params, String::class.java) != -1
+                    val hasJid = params.any { param ->
+                        param.name.endsWith("Jid", ignoreCase = true) || 
+                        param == FMessageWpp.UserJid.TYPE_JID || 
+                        param == FMessageWpp.UserJid.TYPE_USERJID ||
+                        (param.isInterface && !param.name.startsWith("java.") && !param.name.startsWith("android.") && param.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID))
+                    }
+                    hasString && hasJid && method.name != "toString"
                 }
             }
 

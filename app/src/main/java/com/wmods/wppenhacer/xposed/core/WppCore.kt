@@ -309,10 +309,11 @@ object WppCore {
             var senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
                 val params = method.parameterTypes
                 val hasString = ReflectionUtils.findIndexOfType(params, String::class.java) != -1
-                val hasJid = params.any { 
-                    it.name.endsWith("Jid", ignoreCase = true) || 
-                    it.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID) || 
-                    it.isAssignableFrom(FMessageWpp.UserJid.TYPE_USERJID) 
+                val hasJid = params.any { param ->
+                    param.name.endsWith("Jid", ignoreCase = true) || 
+                    param == FMessageWpp.UserJid.TYPE_JID || 
+                    param == FMessageWpp.UserJid.TYPE_USERJID ||
+                    (param.isInterface && !param.name.startsWith("java.") && !param.name.startsWith("android.") && param.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID))
                 }
                 hasString && hasJid && method.name != "toString"
             }
