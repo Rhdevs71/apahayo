@@ -81,16 +81,17 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
         ScopeHook.hook(lpparam)
 
-        if ((packageName == FeatureLoader.PACKAGE_WPP && App.isOriginalPackage) || packageName == FeatureLoader.PACKAGE_BUSINESS) {
-            if (lpparam.isFirstApplication) { // I believe this may fix the problem when using multiple accounts, not yet tested
+        try {
+            com.rhdevs.rhpatch.MainHook().handleLoadPackage(lpparam)
+        } catch (e: Exception) {
+            XposedBridge.log("Rhpatch: Error loading multi-app module for $packageName")
+        }
+
+        if (packageName == FeatureLoader.PACKAGE_WPP || packageName == FeatureLoader.PACKAGE_BUSINESS) {
+            if (lpparam.isFirstApplication) {
                 XposedBridge.log("[•] This package: ${lpparam.packageName}")
                 FeatureLoader.start(classLoader, lpparam.appInfo.sourceDir)
             } else {
-                try {
-                    com.rhdevs.rhpatch.MainHook().handleLoadPackage(lpparam)
-                } catch (e: Exception) {
-                    XposedBridge.log("Rhpatch: Error loading multi-app module for $packageName")
-                }
                 disableSecureFlag()
             }
         }
