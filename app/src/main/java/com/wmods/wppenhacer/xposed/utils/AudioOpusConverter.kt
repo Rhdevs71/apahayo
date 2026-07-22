@@ -27,6 +27,7 @@ object AudioOpusConverter {
             try {
                 val moduleFile = java.io.File(com.wmods.wppenhacer.WppXposed.MODULE_PATH)
                 val parent = moduleFile.parentFile
+                if (parent == null) return
                 val libNames = arrayOf("lib/arm64-v8a/libaudio_opus_converter.so", "lib/arm64/libaudio_opus_converter.so", "lib/armeabi-v7a/libaudio_opus_converter.so")
                 var loaded = false
                 for (name in libNames) {
@@ -39,7 +40,7 @@ object AudioOpusConverter {
                     }
                 }
                 if (!loaded) {
-                    android.util.Log.e(TAG, "Could not find libaudio_opus_converter.so in ${parent?.absolutePath}")
+                    android.util.Log.e(TAG, "Could not find libaudio_opus_converter.so in ${parent.absolutePath}")
                 }
             } catch (ex: Throwable) {
                 android.util.Log.e(TAG, "Absolute path load failed: ${ex.message}")

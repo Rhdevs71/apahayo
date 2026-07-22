@@ -169,6 +169,7 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
             try {
                 val moduleFile = java.io.File(XposedInit.modulePath)
                 val parent = moduleFile.parentFile
+                if (parent == null) throw e
                 val libNames = arrayOf("lib/arm64-v8a/libdexkit.so", "lib/arm64/libdexkit.so", "lib/armeabi-v7a/libdexkit.so")
                 var loaded = false
                 for (name in libNames) {
@@ -181,7 +182,7 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
                     }
                 }
                 if (!loaded) {
-                    throw UnsatisfiedLinkError("Could not find libdexkit.so in ${parent?.absolutePath}")
+                    throw UnsatisfiedLinkError("Could not find libdexkit.so in ${parent.absolutePath}")
                 }
             } catch (ex: Throwable) {
                 XposedBridge.log("Rhpatch: Absolute path load failed: ${ex.message}")

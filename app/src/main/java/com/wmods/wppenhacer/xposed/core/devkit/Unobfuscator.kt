@@ -56,6 +56,7 @@ object Unobfuscator {
             try {
                 val moduleFile = java.io.File(com.wmods.wppenhacer.WppXposed.MODULE_PATH)
                 val parent = moduleFile.parentFile
+                if (parent == null) throw e
                 val libNames = arrayOf("lib/arm64-v8a/libdexkit.so", "lib/arm64/libdexkit.so", "lib/armeabi-v7a/libdexkit.so")
                 var loaded = false
                 for (name in libNames) {
@@ -68,7 +69,7 @@ object Unobfuscator {
                     }
                 }
                 if (!loaded) {
-                    throw UnsatisfiedLinkError("Could not find libdexkit.so in ${parent?.absolutePath}")
+                    throw UnsatisfiedLinkError("Could not find libdexkit.so in ${parent.absolutePath}")
                 }
             } catch (ex: Throwable) {
                 de.robv.android.xposed.XposedBridge.log("Rhpatch: Unobfuscator Absolute path load failed: ${ex.message}")
