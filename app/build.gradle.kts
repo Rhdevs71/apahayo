@@ -76,6 +76,11 @@ android {
         buildConfigField("long", "COMMIT_DATE", "${getGitCommitDate()}L")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    
+    androidResources {
+        additionalParameters += arrayOf("--allow-reserved-package-id", "--package-id", "0x4b")
+    }
 
         signingConfigs.create("config") {
             val androidStoreFile = project.findProperty("androidStoreFile") as String?
