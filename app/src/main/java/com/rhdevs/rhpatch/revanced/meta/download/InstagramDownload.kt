@@ -12,6 +12,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewParent
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -211,7 +212,7 @@ val InstagramDownload = patch(
                             isDialog = true
                             break
                         }
-                        parent = parent?.parent
+                        parent = parent?.parent ?: (parent as? View)?.parent
                     }
 
                     if (!isDialog) return
