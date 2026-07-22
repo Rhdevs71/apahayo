@@ -4,6 +4,7 @@ import com.rhdevs.rhpatch.hoodles.morphe.alltrails.AllTrailsPatches
 import com.rhdevs.rhpatch.morphe.music.YTMusicPatches
 import com.rhdevs.rhpatch.morphe.reddit.RedditPatches
 import com.rhdevs.rhpatch.morphe.youtube.YouTubePatches
+import com.rhdevs.rhpatch.revanced.cloudflare.CloudflarePatches
 import com.rhdevs.rhpatch.revanced.googlephotos.GooglePhotosPatches
 import com.rhdevs.rhpatch.revanced.meta.MetaPatches
 import com.rhdevs.rhpatch.revanced.photomath.PhotomathPatches
@@ -18,10 +19,12 @@ val appPatchConfigurations = listOf(
     AppPatchInfo("Google Photos", "com.google.android.apps.photos", GooglePhotosPatches),
     AppPatchInfo("Photomath", "com.microblink.photomath", PhotomathPatches),
     AppPatchInfo("Instagram", "com.instagram.android", MetaPatches),
+    AppPatchInfo("Instagram Lite", "com.instagram.lite", MetaPatches),
     AppPatchInfo("Threads", "com.instagram.barcelona", MetaPatches),
     AppPatchInfo("TikTok", "com.zhiliaoapp.musically", com.rhdevs.rhpatch.revanced.tiktok.TikTokPatches),
     AppPatchInfo("Strava", "com.strava", StravaPatches),
     AppPatchInfo("AllTrails", "com.alltrails.alltrails", AllTrailsPatches),
+    AppPatchInfo("1.1.1.1", "com.cloudflare.onedotonedotonedotone", CloudflarePatches),
 )
 
 val patchesByPackage = appPatchConfigurations.associate { it.packageName to it.patches }
