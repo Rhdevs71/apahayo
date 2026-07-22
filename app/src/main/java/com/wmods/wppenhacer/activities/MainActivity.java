@@ -108,6 +108,22 @@ public class MainActivity extends BaseActivity {
         createMainDir();
         FilePicker.registerFilePicker(this);
         
+        // Show YTDLnis prompt
+        if (!prefs.getBoolean("ytdlnis_prompt_shown", false)) {
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Rekomendasi Paket Pendukung")
+                .setMessage("Untuk mendukung pengunduhan media eksternal (terutama dari YouTube/Instagram), sangat disarankan untuk menginstall YTDLnis.\n\nApakah Anda ingin mengunduhnya sekarang?")
+                .setPositiveButton("Unduh", (dialog, which) -> {
+                    startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/deniscerri/ytdlnis/releases")));
+                    prefs.edit().putBoolean("ytdlnis_prompt_shown", true).apply();
+                })
+                .setNegativeButton("Nanti", (dialog, which) -> {
+                    prefs.edit().putBoolean("ytdlnis_prompt_shown", true).apply();
+                })
+                .setCancelable(false)
+                .show();
+        }
+
         // Handle incoming navigation from search
         handleIncomingIntent(getIntent());
     }

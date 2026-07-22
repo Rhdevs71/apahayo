@@ -42,8 +42,8 @@ class SchedulerService : Service() {
         Log.d(TAG, "onStartCommand: processing pending messages")
         executor.execute {
             try {
-                cleanMediaIfNecessary()
-                processPendingMessages()
+                cleanMediaIfNecessary(this@SchedulerService)
+                processPendingMessages(this@SchedulerService)
             } catch (e: Exception) {
                 Log.e(TAG, "Error in scheduler: ${e.message}")
             } finally {

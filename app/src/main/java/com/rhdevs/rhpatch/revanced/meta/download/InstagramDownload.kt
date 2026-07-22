@@ -27,6 +27,9 @@ var lastKnownMediaUrl: String? = null
 var lastKnownIsVideo: Boolean = false
 var shareClickedTime: Long = 0
 
+val playerUrls = java.util.WeakHashMap<Any, String>()
+val imageUrls = java.util.WeakHashMap<View, String>()
+
 val InstagramDownload = patch(
     name = "Instagram Media Downloader",
     description = "Add download button to Instagram share sheet"
@@ -46,15 +49,37 @@ val InstagramDownload = patch(
                     runCatching {
                         XposedBridge.hookMethod(method, object : XC_MethodHook() {
                             override fun beforeHookedMethod(param: MethodHookParam) {
-                                extractUrlFromArgs(param.args)
+                                val url = extractUrlFromArgs(param.args)
+                                if (url != null) {
+                                    playerUrls[param.thisObject] = url
+                                }
+                            }
+                        })
+                    }
+                }
+                
+                // Track when video actually starts playing
+                cls.declaredMethods.filter { m ->
+                    m.name == "setPlayWhenReady" && m.parameterCount == 1
+                }.forEach { method ->
+                    runCatching {
+                        XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                            override fun beforeHookedMethod(param: MethodHookParam) {
+                                val play = param.args[0] as? Boolean ?: return
+                                if (play) {
+                                    playerUrls[param.thisObject]?.let { url ->
+                                        lastKnownMediaUrl = url
+                                        lastKnownIsVideo = url.contains(".mp4") || url.contains("video")
+                                    }
+                                }
                             }
                         })
                     }
                 }
             }
         }
-        XposedBridge.log("Rhpatch: [Download] ExoPlayer hooks installed")
-    }.onFailure { XposedBridge.log("Rhpatch: [Download] ExoPlayer failed: $it") }
+        XposedBridge.log("Rhpatch: [Download] ExoPlayer tracking hooks installed")
+    }.onFailure { XposedBridge.log("Rhpatch: [Download] ExoPlayer tracking failed: $it") }
 
     // ── Capture image URL via IgImageView ─────────────────────────────────────
     runCatching {
@@ -69,15 +94,24 @@ val InstagramDownload = patch(
                         val imageUrl = param.args.firstOrNull { it != null && it::class.java.name.contains("ImageUrl") } ?: return
                         val url = XposedHelpers.callMethod(imageUrl, "getUrl") as? String ?: return
                         if (isInstagramCdnUrl(url) && !url.contains("profile_pic")) {
-                            lastKnownMediaUrl = url
-                            lastKnownIsVideo = false
+                            imageUrls[param.thisObject as View] = url
                         }
                     }
                 })
             }
         }
-        XposedBridge.log("Rhpatch: [Download] IgImageView hooks installed successfully")
-    }.onFailure { XposedBridge.log("Rhpatch: [Download] IgImageView hook failed: $it") }
+        
+        // Track when image is actually drawn
+        XposedHelpers.findAndHookMethod(igImageViewClass, "onDraw", android.graphics.Canvas::class.java, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                imageUrls[param.thisObject as View]?.let { url ->
+                    lastKnownMediaUrl = url
+                    lastKnownIsVideo = false
+                }
+            }
+        })
+        XposedBridge.log("Rhpatch: [Download] IgImageView tracking hooks installed successfully")
+    }.onFailure { XposedBridge.log("Rhpatch: [Download] IgImageView tracking hook failed: $it") }
 
     // ── Intercept Share Button click to capture target post URL ────────────────
     runCatching {
@@ -177,7 +211,7 @@ val InstagramDownload = patch(
                             isDialog = true
                             break
                         }
-                        parent = parent.parent
+                        parent = parent?.parent
                     }
 
                     if (!isDialog) return
@@ -250,11 +284,11 @@ fun findPostMediaImageView(parent: ViewGroup): View? {
 }
 
 /** Extracts Instagram CDN URL from method arguments */
-fun extractUrlFromArgs(args: Array<Any?>) {
+fun extractUrlFromArgs(args: Array<Any?>): String? {
     args.forEach { arg ->
         if (arg == null) return@forEach
-        runCatching {
-            val url: String? = when {
+        val url = runCatching {
+            val u: String? = when {
                 arg is Uri -> arg.toString()
                 arg is String -> arg
                 else -> {
@@ -267,12 +301,15 @@ fun extractUrlFromArgs(args: Array<Any?>) {
                     uri?.toString()
                 }
             }
-            if (!url.isNullOrEmpty() && isInstagramCdnUrl(url)) {
-                lastKnownMediaUrl = url
-                lastKnownIsVideo = url.contains(".mp4") || url.contains("video")
+            if (!u.isNullOrEmpty() && isInstagramCdnUrl(u)) {
+                return@runCatching u
             }
-        }
+            null
+        }.getOrNull()
+        
+        if (url != null) return url
     }
+    return null
 }
 
 fun isInstagramCdnUrl(url: String): Boolean =
