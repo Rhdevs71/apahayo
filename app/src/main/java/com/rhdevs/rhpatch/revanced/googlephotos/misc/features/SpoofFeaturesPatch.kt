@@ -10,20 +10,16 @@ val SpoofFeaturesPatch = patch(
     name = "Spoof features",
     description = "Spoofs the device to enable Google Pixel exclusive features, including unlimited storage.",
 ) {
-    XposedHelpers.findAndHookMethod("android.app.Application", classLoader, "onCreate", object : XC_MethodHook() {
-        override fun beforeHookedMethod(param: MethodHookParam) {
-            try {
-                XposedHelpers.setStaticObjectField(Build::class.java, "BRAND", "google")
-                XposedHelpers.setStaticObjectField(Build::class.java, "MANUFACTURER", "Google")
-                XposedHelpers.setStaticObjectField(Build::class.java, "MODEL", "Pixel XL")
-                XposedHelpers.setStaticObjectField(Build::class.java, "DEVICE", "marlin")
-                XposedHelpers.setStaticObjectField(Build::class.java, "PRODUCT", "marlin")
-                XposedHelpers.setStaticObjectField(Build::class.java, "FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys")
-            } catch (e: Exception) {
-                // Ignore
-            }
-        }
-    })
+    try {
+        XposedHelpers.setStaticObjectField(Build::class.java, "BRAND", "google")
+        XposedHelpers.setStaticObjectField(Build::class.java, "MANUFACTURER", "Google")
+        XposedHelpers.setStaticObjectField(Build::class.java, "MODEL", "Pixel XL")
+        XposedHelpers.setStaticObjectField(Build::class.java, "DEVICE", "marlin")
+        XposedHelpers.setStaticObjectField(Build::class.java, "PRODUCT", "marlin")
+        XposedHelpers.setStaticObjectField(Build::class.java, "FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys")
+    } catch (e: Exception) {
+        // Ignore
+    }
 
     val featuresToEnable = setOf(
         "com.google.android.apps.photos.NEXUS_PRELOAD",

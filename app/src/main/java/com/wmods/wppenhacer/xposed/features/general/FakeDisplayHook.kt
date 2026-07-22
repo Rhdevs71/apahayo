@@ -46,8 +46,8 @@ class FakeDisplayHook(loader: ClassLoader, preferences: SharedPreferences) : Fea
                     val waContact = com.wmods.wppenhacer.xposed.core.components.WaContactWpp(contact)
                     val jidObj = waContact.userJid.userJid ?: return
                     
-                    val isMe = try { XposedHelpers.callMethod(jidObj, "isMe") as? Boolean ?: false } catch(e: Exception) { false }
-                    val rawJid = try { XposedHelpers.callMethod(jidObj, "getRawString") as? String ?: return } catch(e: Exception) { return }
+                    val isMe = try { XposedHelpers.callMethod(jidObj, "isMe") as? Boolean ?: false } catch(e: Throwable) { false }
+                    val rawJid = try { XposedHelpers.callMethod(jidObj, "getRawString") as? String ?: return } catch(e: Throwable) { return }
                     val jidKey = if (isMe || rawJid.contains("me")) "me" else rawJid
 
                     val nameEnabled = prefs.getBoolean("fake_display_name_enabled_$jidKey", false)

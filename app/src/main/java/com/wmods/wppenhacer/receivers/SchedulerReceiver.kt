@@ -20,6 +20,7 @@ class SchedulerReceiver : BroadcastReceiver() {
             SchedulerHelper.scheduleNextAlarm(context)
         } else if (action == "com.wmods.wppenhacer.TRIGGER_ALARM") {
             Log.d("SchedulerReceiver", "onReceive: TRIGGER_ALARM received, acquiring wake lock")
+            val pendingResult = goAsync()
             val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
             val wakeLock = powerManager.newWakeLock(
                 PowerManager.PARTIAL_WAKE_LOCK,
@@ -27,9 +28,16 @@ class SchedulerReceiver : BroadcastReceiver() {
             )
             wakeLock.acquire(15 * 1000L) // 15 seconds timeout
 
-            val serviceIntent = Intent(context, SchedulerService::class.java)
-            ContextCompat.startForegroundService(context, serviceIntent)
-            Log.d("SchedulerReceiver", "onReceive: started SchedulerService foreground")
+            Thread {
+                try {
+                    SchedulerService.processNow(context)
+                } finally {
+                    if (wakeLock.isHeld) {
+                        wakeLock.release()
+                    }
+                    pendingResult.finish()
+                }
+            }.start()
         }
     }
 }

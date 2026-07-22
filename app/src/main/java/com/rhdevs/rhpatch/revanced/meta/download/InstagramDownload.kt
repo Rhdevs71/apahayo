@@ -168,16 +168,23 @@ val InstagramDownload = patch(
                     val context = rv.context ?: return
                     if (!context.packageName.contains("instagram", ignoreCase = true)) return
 
-                    // Check if share button was clicked recently (within 3 seconds)
-                    val timeDiff = System.currentTimeMillis() - shareClickedTime
-                    if (timeDiff > 3000) {
-                        return
+                    // Check if rv is inside a bottom sheet or dialog
+                    var isDialog = false
+                    var parent: ViewParent? = rv.parent
+                    while (parent != null) {
+                        val parentClassName = parent.javaClass.name.lowercase()
+                        if (parentClassName.contains("bottomsheet") || parentClassName.contains("dialog") || parentClassName.contains("popup")) {
+                            isDialog = true
+                            break
+                        }
+                        parent = parent.parent
                     }
+
+                    if (!isDialog) return
 
                     // Avoid double injection
                     if (rv.getTag(0x52680001) == "rhp_ok") return
                     rv.setTag(0x52680001, "rhp_ok")
-                    shareClickedTime = 0 // Reset immediately to prevent multi-injection
 
                     // Add delay to ensure parent view hierarchy is built
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -224,7 +231,7 @@ fun findPostMediaImageView(parent: ViewGroup): View? {
     for (i in 0 until parent.childCount) {
         val child = parent.getChildAt(i) ?: continue
         val className = child.javaClass.name
-        if (className.contains("IgImageView") || className.contains("IgProgressImageView")) {
+        if (className.contains("IgImageView") || className.contains("IgProgressImageView") || className.contains("TextureView") || className.contains("SurfaceView")) {
             // Filter out small icons/avatars (post media is always large on screen)
             if (child.width > 200 && child.height > 200) {
                 if (className.contains("IgProgressImageView") && child is ViewGroup) {
@@ -326,12 +333,11 @@ fun injectDownloadAboveShareSheet(rv: View, context: Context) {
 
     row.setOnClickListener {
         val url = lastKnownMediaUrl
-        if (url.isNullOrEmpty()) {
-            Toast.makeText(context,
-                "URL tidak ditemukan. Ulangi kembali atau buka share lagi.",
-                Toast.LENGTH_LONG).show()
+        val isVideo = lastKnownIsVideo
+        if (!url.isNullOrEmpty()) {
+            downloadInstagramMedia(context, url, isVideo)
         } else {
-            downloadInstagramMedia(context, url, lastKnownIsVideo)
+            Toast.makeText(context, "URL tidak ditemukan. Gunakan 'Salin Tautan' (Copy link) bawaan IG untuk download via YTDLnis.", Toast.LENGTH_LONG).show()
         }
     }
 

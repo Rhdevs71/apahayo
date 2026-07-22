@@ -22,6 +22,7 @@ val appPatchConfigurations = listOf(
     AppPatchInfo("Instagram Lite", "com.instagram.lite", MetaPatches),
     AppPatchInfo("Threads", "com.instagram.barcelona", MetaPatches),
     AppPatchInfo("TikTok", "com.zhiliaoapp.musically", com.rhdevs.rhpatch.revanced.tiktok.TikTokPatches),
+    AppPatchInfo("TikTok (Play Store)", "com.ss.android.ugc.trill", com.rhdevs.rhpatch.revanced.tiktok.TikTokPatches),
     AppPatchInfo("Strava", "com.strava", StravaPatches),
     AppPatchInfo("AllTrails", "com.alltrails.alltrails", AllTrailsPatches),
     AppPatchInfo("1.1.1.1", "com.cloudflare.onedotonedotonedotone", CloudflarePatches),

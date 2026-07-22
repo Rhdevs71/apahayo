@@ -54,117 +54,126 @@ class SchedulerService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun cleanMediaIfNecessary() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val enabled = prefs.getBoolean("media_cleaner_enabled", false)
-        if (!enabled) return
+    companion object {
+        private const val TAG = "SchedulerService"
 
-        val now = System.currentTimeMillis()
-        val lastClean = prefs.getLong("media_cleaner_last_run", 0L)
-        if (now - lastClean < 24 * 60 * 60 * 1000L) {
-            return
+        fun processNow(context: Context) {
+            try {
+                cleanMediaIfNecessary(context)
+                processPendingMessages(context)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in scheduler: ${e.message}")
+            } finally {
+                SchedulerHelper.scheduleNextAlarm(context)
+            }
         }
 
-        val cleanDaysStr = prefs.getString("media_cleaner_days", "30") ?: "30"
-        val cleanDays = cleanDaysStr.toIntOrNull() ?: 30
-        Log.d(TAG, "cleanMediaIfNecessary: running media cleaner for files older than $cleanDays days")
+        private fun cleanMediaIfNecessary(context: Context) {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            val enabled = prefs.getBoolean("media_cleaner_enabled", false)
+            if (!enabled) return
 
-        try {
-            val mediaRoot = File(Environment.getExternalStorageDirectory(), "Android/media/com.whatsapp/WhatsApp/Media")
-            val mediaRootBusiness = File(Environment.getExternalStorageDirectory(), "Android/media/com.whatsapp.w4b/WhatsApp Business/Media")
+            val now = System.currentTimeMillis()
+            val lastClean = prefs.getLong("media_cleaner_last_run", 0L)
+            if (now - lastClean < 24 * 60 * 60 * 1000L) {
+                return
+            }
 
-            cleanDirectory(mediaRoot, cleanDays)
-            cleanDirectory(mediaRootBusiness, cleanDays)
+            val cleanDaysStr = prefs.getString("media_cleaner_days", "30") ?: "30"
+            val cleanDays = cleanDaysStr.toIntOrNull() ?: 30
+            Log.d(TAG, "cleanMediaIfNecessary: running media cleaner for files older than $cleanDays days")
 
-            prefs.edit().putLong("media_cleaner_last_run", now).apply()
-            Log.d(TAG, "cleanMediaIfNecessary: media cleanup completed successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "cleanMediaIfNecessary Error: ${e.message}")
-            e.printStackTrace()
+            try {
+                val mediaRoot = File(Environment.getExternalStorageDirectory(), "Android/media/com.whatsapp/WhatsApp/Media")
+                val mediaRootBusiness = File(Environment.getExternalStorageDirectory(), "Android/media/com.whatsapp.w4b/WhatsApp Business/Media")
+
+                cleanDirectory(mediaRoot, cleanDays)
+                cleanDirectory(mediaRootBusiness, cleanDays)
+
+                prefs.edit().putLong("media_cleaner_last_run", now).apply()
+                Log.d(TAG, "cleanMediaIfNecessary: media cleanup completed successfully")
+            } catch (e: Exception) {
+                Log.e(TAG, "cleanMediaIfNecessary Error: ${e.message}")
+                e.printStackTrace()
+            }
         }
-    }
 
-    private fun cleanDirectory(dir: File, days: Int) {
-        if (!dir.exists() || !dir.isDirectory) return
-        val files = dir.listFiles() ?: return
-        val threshold = System.currentTimeMillis() - (days * 24 * 60 * 60 * 1000L)
+        private fun cleanDirectory(dir: File, days: Int) {
+            if (!dir.exists() || !dir.isDirectory) return
+            val files = dir.listFiles() ?: return
+            val threshold = System.currentTimeMillis() - (days * 24 * 60 * 60 * 1000L)
 
-        for (file in files) {
-            if (file.isDirectory) {
-                cleanDirectory(file, days)
-            } else {
-                if (file.lastModified() < threshold) {
-                    val deleted = file.delete()
-                    if (deleted) {
-                        Log.d(TAG, "cleanDirectory: deleted expired file: ${file.name}")
+            for (file in files) {
+                if (file.isDirectory) {
+                    cleanDirectory(file, days)
+                } else {
+                    if (file.lastModified() < threshold) {
+                        val deleted = file.delete()
+                        if (deleted) {
+                            Log.d(TAG, "cleanDirectory: deleted expired file: ${file.name}")
+                        }
                     }
                 }
             }
         }
-    }
 
-    private fun processPendingMessages() {
-        val db = AppDatabase.getInstance(this)
-        val now = System.currentTimeMillis()
-        val pendingMessages = db.scheduledMessageDao().getPendingBefore(now)
+        private fun processPendingMessages(context: Context) {
+            val db = AppDatabase.getInstance(context)
+            val now = System.currentTimeMillis()
+            val pendingMessages = db.scheduledMessageDao().getPendingBefore(now)
 
-        if (pendingMessages.isEmpty()) {
-            return
+            if (pendingMessages.isEmpty()) {
+                return
+            }
+
+            Log.d(TAG, "processPendingMessages: found ${pendingMessages.size} pending messages at $now")
+            for (message in pendingMessages) {
+                Log.d(TAG, "processPendingMessages: sending message id ${message.id} to WhatsApp JID: ${message.jid}")
+                sendMessageToWhatsApp(context, message)
+                try {
+                    // Wait up to 5 seconds for status feedback broadcast
+                    Thread.sleep(5000)
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
+                }
+            }
         }
 
-        Log.d(TAG, "processPendingMessages: found ${pendingMessages.size} pending messages at $now")
-        for (message in pendingMessages) {
-            Log.d(TAG, "processPendingMessages: sending message id ${message.id} to WhatsApp JID: ${message.jid}")
-            sendMessageToWhatsApp(message)
+        private fun sendMessageToWhatsApp(context: Context, message: ScheduledMessage) {
+            val targetPkg = message.targetPackage ?: "BOTH"
+            val intent = Intent("com.wmods.wppenhacer.SCHEDULED_SEND").apply {
+                putExtra("id", message.id)
+                putExtra("jid", message.jid)
+                putExtra("messageText", message.messageText)
+                putExtra("mediaPath", message.mediaPath)
+                putExtra("mediaType", message.mediaType)
+            }
+
+            Log.d(TAG, "sendMessageToWhatsApp: target=$targetPkg, waking up target package(s) if closed...")
             try {
-                // Wait up to 5 seconds for status feedback broadcast
-                Thread.sleep(5000)
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
+                if (targetPkg == "BOTH" || targetPkg == "com.whatsapp") {
+                    com.topjohnwu.superuser.Shell.cmd("am start-foreground-service com.whatsapp/com.whatsapp.messageservice.messaging.MessageService").exec()
+                }
+                if (targetPkg == "BOTH" || targetPkg == "com.whatsapp.w4b") {
+                    com.topjohnwu.superuser.Shell.cmd("am start-foreground-service com.whatsapp.w4b/com.whatsapp.messageservice.messaging.MessageService").exec()
+                }
+                Thread.sleep(1500)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to start WhatsApp foreground service: ${e.message}")
             }
-        }
-    }
 
-    private fun sendMessageToWhatsApp(message: ScheduledMessage) {
-        val targetPkg = message.targetPackage ?: "BOTH"
-        val intent = Intent("com.wmods.wppenhacer.SCHEDULED_SEND").apply {
-            putExtra("id", message.id)
-            putExtra("jid", message.jid)
-            putExtra("messageText", message.messageText)
-            putExtra("mediaPath", message.mediaPath)
-            putExtra("mediaType", message.mediaType)
-        }
-
-        Log.d(TAG, "sendMessageToWhatsApp: target=$targetPkg, waking up target package(s) if closed...")
-        try {
             if (targetPkg == "BOTH" || targetPkg == "com.whatsapp") {
-                com.topjohnwu.superuser.Shell.cmd("am start-foreground-service com.whatsapp/com.whatsapp.messageservice.messaging.MessageService").exec()
+                val broadcastWpp = Intent(intent).apply { `package` = "com.whatsapp" }
+                context.sendBroadcast(broadcastWpp)
+                Log.d(TAG, "Broadcast sent to com.whatsapp")
             }
+
             if (targetPkg == "BOTH" || targetPkg == "com.whatsapp.w4b") {
-                com.topjohnwu.superuser.Shell.cmd("am start-foreground-service com.whatsapp.w4b/com.whatsapp.messageservice.messaging.MessageService").exec()
+                val broadcastBusiness = Intent(intent).apply { `package` = "com.whatsapp.w4b" }
+                context.sendBroadcast(broadcastBusiness)
+                Log.d(TAG, "Broadcast sent to com.whatsapp.w4b")
             }
-            Thread.sleep(1500)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to start WhatsApp foreground service: ${e.message}")
         }
-
-        if (targetPkg == "BOTH" || targetPkg == "com.whatsapp") {
-            val broadcastWpp = Intent(intent).apply { `package` = "com.whatsapp" }
-            sendBroadcast(broadcastWpp)
-            Log.d(TAG, "Broadcast sent to com.whatsapp")
-        }
-
-        if (targetPkg == "BOTH" || targetPkg == "com.whatsapp.w4b") {
-            val broadcastBusiness = Intent(intent).apply { `package` = "com.whatsapp.w4b" }
-            sendBroadcast(broadcastBusiness)
-            Log.d(TAG, "Broadcast sent to com.whatsapp.w4b")
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d(TAG, "onDestroy: service destroyed")
-        executor.shutdown()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
