@@ -157,30 +157,30 @@ val InstagramDownload = patch(
                             }
                         }
                         class RhpatchWrapperListener(val orig: View.OnClickListener) : View.OnClickListener {
+                            var lastClickTime = 0L
                             override fun onClick(v: View) {
-                                shareClickedTime = System.currentTimeMillis()
-                                captureUrlFromPostContainer(v)
-                                orig.onClick(v)
+                                val now = System.currentTimeMillis()
+                                if (now - lastClickTime < 500) {
+                                    // Double click detected!
+                                    captureUrlFromPostContainer(v)
+                                    val url = lastKnownMediaUrl
+                                    if (!url.isNullOrEmpty()) {
+                                        Toast.makeText(v.context, "Rhpatch: Memulai Download...", Toast.LENGTH_SHORT).show()
+                                        downloadInstagramMedia(v.context, url, lastKnownIsVideo)
+                                    } else {
+                                        Toast.makeText(v.context, "URL media belum tertangkap. Tonton video lebih lama.", Toast.LENGTH_SHORT).show()
+                                    }
+                                    lastClickTime = 0L // Reset
+                                } else {
+                                    // Single click
+                                    lastClickTime = now
+                                    shareClickedTime = now
+                                    captureUrlFromPostContainer(v)
+                                    orig.onClick(v)
+                                }
                             }
                         }
                         param.args[0] = RhpatchWrapperListener(listener)
-                        
-                        // Add long click listener as a reliable fallback
-                        try {
-                            view.setOnLongClickListener { v ->
-                                captureUrlFromPostContainer(v)
-                                val url = lastKnownMediaUrl
-                                if (!url.isNullOrEmpty()) {
-                                    downloadInstagramMedia(v.context, url, lastKnownIsVideo)
-                                    true
-                                } else {
-                                    Toast.makeText(v.context, "URL media belum tertangkap. Tonton video lebih lama.", Toast.LENGTH_SHORT).show()
-                                    true
-                                }
-                            }
-                        } catch (e: Exception) {
-                            // Ignore
-                        }
                     }
                 }
             }
@@ -208,7 +208,9 @@ val InstagramDownload = patch(
                     var parent: ViewParent? = rv.parent
                     while (parent != null) {
                         val parentClassName = parent.javaClass.name.lowercase()
-                        if (parentClassName.contains("bottomsheet") || parentClassName.contains("dialog") || parentClassName.contains("popup")) {
+                        if (parentClassName.contains("bottomsheet") || parentClassName.contains("dialog") || 
+                            parentClassName.contains("popup") || parentClassName.contains("igds") || 
+                            parentClassName.contains("drawer") || parentClassName.contains("share")) {
                             isDialog = true
                             break
                         }
@@ -257,11 +259,15 @@ fun captureUrlFromPostContainer(clickedView: View) {
     }
 
     // Otherwise, search for IgImageView in the container tree that we have tracked
-    val foundUrl = searchUrlInTree(container)
+    var foundUrl = searchUrlInTree(container)
+    if (foundUrl == null) {
+        // Fallback to the most recently updated URL globally if tree search fails
+        foundUrl = lastKnownMediaUrl
+    }
     if (foundUrl != null) {
         lastKnownMediaUrl = foundUrl
         lastKnownIsVideo = foundUrl.contains(".mp4") || foundUrl.contains("video")
-        XposedBridge.log("Rhpatch: [Download] Captured media URL from container tree: $foundUrl")
+        XposedBridge.log("Rhpatch: [Download] Captured media URL: $foundUrl")
     }
 }
 

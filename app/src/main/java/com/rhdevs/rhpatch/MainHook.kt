@@ -21,12 +21,9 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
     lateinit var startupParam: StartupParam
     lateinit var lpparam: LoadPackageParam
     lateinit var app: Application
-    var targetPackageName: String? = null
 
     fun shouldHook(packageName: String): Boolean {
-        if (!patchesByPackage.containsKey(packageName)) return false
-        if (targetPackageName == null) targetPackageName = packageName
-        return targetPackageName == packageName
+        return patchesByPackage.containsKey(packageName)
     }
 
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
@@ -49,15 +46,25 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
         // Run Google Photos spoof immediately before Application context is even created
         if (lpparam.packageName == "com.google.android.apps.photos") {
             try {
-                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "BRAND", "google")
-                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "MANUFACTURER", "Google")
-                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "MODEL", "Pixel XL")
-                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "DEVICE", "marlin")
-                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "PRODUCT", "marlin")
-                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys")
-                XposedBridge.log("Rhpatch: Successfully spoofed Google Photos device immediately in handleLoadPackage")
-            } catch (e: Exception) {
-                XposedBridge.log("Rhpatch: Failed to spoof Google Photos device: ${e.message}")
+                val systemPropertiesClass = XposedHelpers.findClass("android.os.SystemProperties", lpparam.classLoader)
+                val getHook = object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        val key = param.args[0] as String
+                        when (key) {
+                            "ro.product.brand" -> param.result = "google"
+                            "ro.product.manufacturer" -> param.result = "Google"
+                            "ro.product.model" -> param.result = "Pixel XL"
+                            "ro.product.device" -> param.result = "marlin"
+                            "ro.product.name" -> param.result = "marlin"
+                            "ro.build.fingerprint" -> param.result = "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys"
+                        }
+                    }
+                }
+                XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java, getHook)
+                XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java, String::class.java, getHook)
+                XposedBridge.log("Rhpatch: Successfully spoofed SystemProperties for Google Photos")
+            } catch (e: Throwable) {
+                XposedBridge.log("Rhpatch: Failed to spoof Google Photos SystemProperties: ${e.message}")
             }
         }
 
@@ -116,23 +123,26 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
 }
 
 fun inContext(lpparam: LoadPackageParam, f: (Application) -> Unit) {
-    val className = lpparam.appInfo.className ?: "android.app.Application"
-    val appClazz = XposedHelpers.findClass(className, lpparam.classLoader)
-    XposedBridge.hookMethod(appClazz.getMethod("onCreate"), object : XC_MethodHook() {
-        override fun beforeHookedMethod(param: MethodHookParam) {
-            try {
-                val app = param.thisObject as Application
-                Utils.setContext(app)
-                f(app)
-                if (XposedInit.modulePath.startsWith("/data/app/")) {
-                    val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, "prefs")
-                    if (!prefs.file.canRead() || !prefs.getBoolean("disable_auto_check_update", false)) {
-                        UpdateChecker().hookNewActivity()
+    XposedHelpers.findAndHookMethod(
+        Application::class.java,
+        "onCreate",
+        object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                try {
+                    val app = param.thisObject as Application
+                    if (app.packageName != lpparam.packageName) return
+                    Utils.setContext(app)
+                    f(app)
+                    if (XposedInit.modulePath.startsWith("/data/app/")) {
+                        val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, "prefs")
+                        if (!prefs.file.canRead() || !prefs.getBoolean("disable_auto_check_update", false)) {
+                            UpdateChecker().hookNewActivity()
+                        }
                     }
+                } catch (e: Throwable) {
+                    XposedBridge.log("Rhpatch: Error inside inContext onCreate hook: " + e.message)
                 }
-            } catch (e: Throwable) {
-                XposedBridge.log("Rhpatch: Error inside inContext onCreate hook: " + e.message)
             }
         }
-    })
+    )
 }
