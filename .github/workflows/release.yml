@@ -53,18 +53,22 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build all variants
-        run: ./gradlew assembleWhatsappDebug assembleBusinessDebug -Pminify=true
+      - name: Build APK
+        run: ./gradlew assembleDebug -Pminify=true
+
+      - name: Find APK
+        id: find_apk
+        run: |
+          APK_PATH=$(find app/build/outputs/apk/debug -name "RHpatch*.apk" | head -n 1)
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload to GitHub release
         uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: Rhpatch ${{ steps.vars.outputs.version }}
+          name: RHpatch ${{ steps.vars.outputs.version }}
           body_path: changelog.txt
-          files: |
-            app/build/outputs/apk/whatsapp/debug/Rhpatch*.apk
-            app/build/outputs/apk/business/debug/Rhpatch-Business*.apk
+          files: ${{ steps.find_apk.outputs.apk_path }}
           tag_name: ${{ steps.vars.outputs.tag }}
 
       - name: Read changelog
@@ -78,13 +82,16 @@ jobs:
 
       - name: Post to Telegram channel
         if: ${{ env.BOT_TOKEN != '' }}
-        uses: Dev4Mod/telegram-github-action@master
+        uses: appleboy/telegram-action@master
         with:
           to: ${{ env.CHANNEL_ID }}
           token: ${{ env.BOT_TOKEN }}
           format: markdown
           disable_web_page_preview: true
+          document: ${{ steps.find_apk.outputs.apk_path }}
           message: |
+            🚀 *New RHpatch Release* 🚀
+
             ${{ steps.changelog.outputs.content }}
 
-            Release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.vars.outputs.tag }}
+            🔗 *Release Link*: https://github.com/${{ github.repository }}/releases/tag/${{ steps.vars.outputs.tag }}
