@@ -15,30 +15,8 @@ object MetaUnobfuscator {
         try {
             System.loadLibrary("dexkit")
         } catch (e: Throwable) {
-            XposedBridge.log("Rhpatch: MetaUnobfuscator System.loadLibrary('dexkit') failed: ${e.message}. Trying absolute path...")
-            try {
-                val moduleFile = java.io.File(com.rhdevs.rhpatch.XposedInit.modulePath)
-                val parent = moduleFile.parentFile
-                if (parent != null) {
-                    val libNames = arrayOf("lib/arm64-v8a/libdexkit.so", "lib/arm64/libdexkit.so", "lib/armeabi-v7a/libdexkit.so")
-                    var loaded = false
-                    for (libName in libNames) {
-                        val libFile = java.io.File(parent, libName)
-                        if (libFile.exists()) {
-                            System.load(libFile.absolutePath)
-                            XposedBridge.log("Rhpatch: Successfully loaded dexkit for Meta from ${libFile.absolutePath}")
-                            loaded = true
-                            break
-                        }
-                    }
-                    if (!loaded) {
-                        throw Exception("Dexkit shared library not found in module apk")
-                    }
-                }
-            } catch (ex: Throwable) {
-                XposedBridge.log("Rhpatch: MetaUnobfuscator Absolute path load failed: ${ex.message}")
-                return false
-            }
+            XposedBridge.log("Rhpatch: MetaUnobfuscator System.loadLibrary('dexkit') failed: ${e.message}")
+            return false
         }
 
         return try {
