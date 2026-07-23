@@ -233,46 +233,7 @@ val InstagramDownload = patch(
         XposedBridge.log("Rhpatch: [Download] RecyclerView hooks installed")
     }.onFailure { XposedBridge.log("Rhpatch: [Download] RecyclerView failed: $it") }
 
-    // Fallback: Hook Dialog.show to catch bottom sheets that don't use RecyclerView (e.g. Jetpack Compose wrappers)
-    runCatching {
-        XposedHelpers.findAndHookMethod(
-            android.app.Dialog::class.java,
-            "show",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val dialog = param.thisObject as? android.app.Dialog ?: return
-                    val context = dialog.context
-                    if (!context.packageName.contains("instagram", ignoreCase = true)) return
 
-                    // Check if it's a bottom sheet
-                    if (!dialog.javaClass.name.lowercase().contains("bottomsheet") && !dialog.javaClass.name.lowercase().contains("igdsbottomsheet")) return
-
-                    val window = dialog.window ?: return
-                    val decorView = window.decorView as? ViewGroup ?: return
-
-                    // Avoid double injection using a tag on the dialog object directly, or adding a dummy view
-                    if (decorView.findViewWithTag<View>("rhp_dlg") != null) return
-                    val dummy = View(context).apply { tag = "rhp_dlg"; visibility = View.GONE }
-                    decorView.addView(dummy)
-
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        runCatching {
-                            // Find the first inner ViewGroup that has children to inject into
-                            var target: View = decorView
-                            if (decorView.childCount > 0 && decorView.getChildAt(0) is ViewGroup) {
-                                target = decorView.getChildAt(0)
-                                if ((target as ViewGroup).childCount > 0) {
-                                    target = target.getChildAt(0)
-                                }
-                            }
-                            injectDownloadAboveShareSheet(target, context)
-                        }.onFailure { XposedBridge.log("Rhpatch: [Download] Dialog injection failed: $it") }
-                    }, 500)
-                }
-            }
-        )
-        XposedBridge.log("Rhpatch: [Download] Dialog hooks installed")
-    }.onFailure { XposedBridge.log("Rhpatch: [Download] Dialog hook failed: $it") }
 }
 
 fun captureUrlFromPostContainer(clickedView: View) {
