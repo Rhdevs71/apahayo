@@ -250,9 +250,10 @@ val InstagramDownload = patch(
                     val window = dialog.window ?: return
                     val decorView = window.decorView as? ViewGroup ?: return
 
-                    // Avoid double injection
-                    if (decorView.getTag(0x52680002) == "rhp_dlg") return
-                    decorView.setTag(0x52680002, "rhp_dlg")
+                    // Avoid double injection using a tag on the dialog object directly, or adding a dummy view
+                    if (decorView.findViewWithTag<View>("rhp_dlg") != null) return
+                    val dummy = View(context).apply { tag = "rhp_dlg"; visibility = View.GONE }
+                    decorView.addView(dummy)
 
                     Handler(Looper.getMainLooper()).postDelayed({
                         runCatching {
