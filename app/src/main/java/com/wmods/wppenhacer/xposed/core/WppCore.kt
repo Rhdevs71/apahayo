@@ -313,7 +313,7 @@ object WppCore {
                     param.name.endsWith("Jid", ignoreCase = true) || 
                     param == FMessageWpp.UserJid.TYPE_JID || 
                     param == FMessageWpp.UserJid.TYPE_USERJID ||
-                    (param.isInterface && !param.name.startsWith("java.") && !param.name.startsWith("android.") && param.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID))
+                    (!param.name.startsWith("java.") && !param.name.startsWith("android.") && (param.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID) || FMessageWpp.UserJid.TYPE_JID.isAssignableFrom(param)))
                 }
                 hasString && hasJid && method.name != "toString"
             }
@@ -337,8 +337,8 @@ object WppCore {
                     newObject[indexBoolean] = false
                 }
                 
-                val indexJid = senderMethod.parameterTypes.indexOfFirst {
-                    it.name.endsWith("Jid", ignoreCase = true) || it == FMessageWpp.UserJid.TYPE_JID || it == FMessageWpp.UserJid.TYPE_USERJID || (it.isInterface && !it.name.startsWith("java.") && !it.name.startsWith("android.") && it.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID))
+                val indexJid = senderMethod.parameterTypes.indexOfFirst { param ->
+                    param.name.endsWith("Jid", ignoreCase = true) || param == FMessageWpp.UserJid.TYPE_JID || param == FMessageWpp.UserJid.TYPE_USERJID || (!param.name.startsWith("java.") && !param.name.startsWith("android.") && (param.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID) || FMessageWpp.UserJid.TYPE_JID.isAssignableFrom(param)))
                 }
                 
                 if (indexJid != -1) {

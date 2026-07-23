@@ -234,6 +234,7 @@ dependencies {
     implementation(libs.hiddenapi)
     implementation(files("libs/dexkit-android.aar"))
     implementation(libs.flatbuffers)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     compileOnly(libs.libxposed.legacy)
     ksp(libs.androidx.room.compiler)
 
