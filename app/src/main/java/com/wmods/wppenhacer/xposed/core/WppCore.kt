@@ -312,14 +312,14 @@ object WppCore {
         if (userJid == null) return
         try {
             val actionUserClass = getActionUserClass()
-            var senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
+            val userJidClass = userJid.javaClass
+            val senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
                 val params = method.parameterTypes
-                val hasString = ReflectionUtils.findIndexOfType(params, String::class.java) != -1
+                if (method.parameterCount !in 2..3) return@findMethodUsingFilterIfExists false
+                
+                val hasString = params.contains(String::class.java)
                 val hasJid = params.any { param ->
-                    param.name.endsWith("Jid", ignoreCase = true) || 
-                    param == FMessageWpp.UserJid.TYPE_JID || 
-                    param == FMessageWpp.UserJid.TYPE_USERJID ||
-                    (!param.name.startsWith("java.") && !param.name.startsWith("android.") && (param.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID) || FMessageWpp.UserJid.TYPE_JID.isAssignableFrom(param)))
+                    param == FMessageWpp.UserJid.TYPE_JID || param == FMessageWpp.UserJid.TYPE_USERJID || param == FMessageWpp.UserJid.TYPE_PHONEUSERJID
                 }
                 hasString && hasJid && method.name != "toString"
             }
@@ -344,7 +344,7 @@ object WppCore {
                 }
                 
                 val indexJid = senderMethod.parameterTypes.indexOfFirst { param ->
-                    param.name.endsWith("Jid", ignoreCase = true) || param == FMessageWpp.UserJid.TYPE_JID || param == FMessageWpp.UserJid.TYPE_USERJID || (!param.name.startsWith("java.") && !param.name.startsWith("android.") && (param.isAssignableFrom(FMessageWpp.UserJid.TYPE_JID) || FMessageWpp.UserJid.TYPE_JID.isAssignableFrom(param)))
+                    param == FMessageWpp.UserJid.TYPE_JID || param == FMessageWpp.UserJid.TYPE_USERJID || param == FMessageWpp.UserJid.TYPE_PHONEUSERJID
                 }
                 
                 if (indexJid != -1) {
