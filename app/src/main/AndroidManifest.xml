@@ -39,7 +39,7 @@
 
 
     <application
-        android:extractNativeLibs="true"
+        android:extractNativeLibs="false"
         android:forceQueryable="true"
         android:name=".App"
         android:allowBackup="true"

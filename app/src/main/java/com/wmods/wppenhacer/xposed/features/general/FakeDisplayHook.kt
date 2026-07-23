@@ -225,71 +225,10 @@ class FakeDisplayHook(loader: ClassLoader, preferences: SharedPreferences) : Fea
     }
 
     private fun injectFakeMessage(db: SQLiteDatabase, chatJid: String, text: String, fromMe: Boolean, timestamp: Long, status: Int) {
-        db.execSQL("INSERT OR IGNORE INTO jid (raw_string) VALUES (?)", arrayOf(chatJid))
-        var jidRowId: Long = -1
-        db.rawQuery("SELECT _id FROM jid WHERE raw_string = ?", arrayOf(chatJid)).use { cursor ->
-            if (cursor.moveToFirst()) {
-                jidRowId = cursor.getLong(0)
-            }
-        }
-        if (jidRowId == -1L) return
-
-        db.execSQL("INSERT OR IGNORE INTO chat (jid_row_id) VALUES (?)", arrayOf(jidRowId))
-        var chatRowId: Long = -1
-        db.rawQuery("SELECT _id FROM chat WHERE jid_row_id = ?", arrayOf(jidRowId.toString())).use { cursor ->
-            if (cursor.moveToFirst()) {
-                chatRowId = cursor.getLong(0)
-            }
-        }
-        if (chatRowId == -1L) return
-
-        val chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        val sb = java.lang.StringBuilder("3EB0")
-        val random = java.util.Random()
-        for (i in 1..12) {
-            sb.append(chars[random.nextInt(chars.length)])
-        }
-        val randomKey = sb.toString()
-
-        db.execSQL(
-            "INSERT INTO message (chat_row_id, from_me, key_id, sender_jid_row_id, message_type, text_data, timestamp, status) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            arrayOf(
-                chatRowId,
-                if (fromMe) 1 else 0,
-                randomKey,
-                if (fromMe) -1 else jidRowId,
-                0,
-                text,
-                timestamp,
-                status
-            )
-        )
+        // Disabled by user request to fix crashes
     }
 
     private fun injectFakeCallLog(db: SQLiteDatabase, chatJid: String, isOutgoing: Boolean, isVideo: Boolean, isConnected: Boolean, timestamp: Long, durationSeconds: Int) {
-        db.execSQL("INSERT OR IGNORE INTO jid (raw_string) VALUES (?)", arrayOf(chatJid))
-        var jidRowId: Long = -1
-        db.rawQuery("SELECT _id FROM jid WHERE raw_string = ?", arrayOf(chatJid)).use { cursor ->
-            if (cursor.moveToFirst()) {
-                jidRowId = cursor.getLong(0)
-            }
-        }
-        if (jidRowId == -1L) return
-
-        val callResult = if (isConnected) 1 else (if (isOutgoing) 3 else 2)
-
-        db.execSQL(
-            "INSERT INTO call_log (jid_row_id, from_me, timestamp, video_call, call_result, duration) " +
-            "VALUES (?, ?, ?, ?, ?, ?)",
-            arrayOf(
-                jidRowId,
-                if (isOutgoing) 1 else 0,
-                timestamp,
-                if (isVideo) 1 else 0,
-                callResult,
-                durationSeconds
-            )
-        )
+        // Disabled by user request to fix crashes
     }
 }

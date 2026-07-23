@@ -220,10 +220,16 @@ object WppCore {
         return try {
             XposedBridge.log("Trying to connect to ${baseClient.javaClass.simpleName}")
             client = baseClient
-           runBlocking {
-                val canLoad = baseClient.connect()
-                if (!canLoad) throw Exception()
-                true
+            val originalClassLoader = Thread.currentThread().contextClassLoader
+            try {
+                Thread.currentThread().contextClassLoader = WppCore::class.java.classLoader
+                runBlocking {
+                    val canLoad = baseClient.connect()
+                    if (!canLoad) throw Exception()
+                    true
+                }
+            } finally {
+                Thread.currentThread().contextClassLoader = originalClassLoader
             }
         } catch (_: Exception) {
             false
