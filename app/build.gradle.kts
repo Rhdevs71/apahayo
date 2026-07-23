@@ -162,7 +162,7 @@ android {
     }
 
     applicationVariants.all {
-        val appName = "Apahayo"
+        val appName = "RHpatch"
 
         outputs.all {
             (this as BaseVariantOutputImpl).outputFileName = "$appName-$versionName.apk"
