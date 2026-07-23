@@ -24,3 +24,4 @@ All notable changes to this project will be documented in this file.
 - **Resource Not Found Crash**: Handled `Resources$NotFoundException` in `UnobfuscatorCache.kt` gracefully to prevent fatal crashes during module initialization when resources fail to inject via LSPosed.
 - **WhatsApp Startup Crash**: Fixed a fatal `Resources$NotFoundException` crash during initialization by ensuring `moduleContext` is loaded before querying module-specific resource arrays (e.g. `supported_versions_wpp`).
 - **Compilation Error**: Fixed `Argument type mismatch` in `WppCore.kt` related to `Boolean::class.javaPrimitiveType`.
+- **DexKit Fatal Error**: Fixed `UnsatisfiedLinkError` on module update by removing `android:extractNativeLibs="true"` and ensuring `useLegacyPackaging = false`. This allows the target app to load the uncompressed `libdexkit.so` directly from the APK, resolving permission denials.
