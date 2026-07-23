@@ -40,10 +40,14 @@ val GhostModePatch = patch(
     // Story Seen Hook
     runCatching {
         val methods = ::StorySeenFingerprints.dexMethodList
-        val targetMethod = methods.lastOrNull()?.toMethod()
-        if (targetMethod != null) {
-            XposedBridge.hookMethod(targetMethod, XC_MethodReplacement.returnConstant(false))
-            XposedBridge.log("Rhpatch: [GhostMode] Story Seen disabled")
+        if (methods.isNotEmpty()) {
+            methods.forEach { dexMethod ->
+                val targetMethod = dexMethod.toMethod()
+                if (targetMethod != null) {
+                    XposedBridge.hookMethod(targetMethod, XC_MethodReplacement.returnConstant(false))
+                }
+            }
+            XposedBridge.log("Rhpatch: [GhostMode] Story Seen disabled (${methods.size} methods hooked)")
         } else {
             XposedBridge.log("Rhpatch: [GhostMode] Story Seen method not found")
         }

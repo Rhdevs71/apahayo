@@ -46,20 +46,7 @@ android {
     compileSdk = 36
     ndkVersion = "28.2.13676358"
 
-    flavorDimensions += "version"
 
-    productFlavors {
-        create("whatsapp") {
-            dimension = "version"
-            applicationIdSuffix = ""
-            isDefault = true
-        }
-        create("business") {
-            dimension = "version"
-            applicationIdSuffix = ".w4b"
-            resValue("string", "app_name", "Rhpatch Business")
-        }
-    }
 
     defaultConfig {
         applicationId = "com.rhdevs.rhpatch"
@@ -175,10 +162,7 @@ android {
     }
 
     applicationVariants.all {
-        val appName = when (flavorName) {
-            "business" -> "Rhpatch-Business"
-            else -> "Rhpatch"
-        }
+        val appName = "Apahayo"
 
         outputs.all {
             (this as BaseVariantOutputImpl).outputFileName = "$appName-$versionName.apk"
@@ -299,7 +283,7 @@ interface InjectedExecOps {
 
 
 afterEvaluate {
-    listOf("installWhatsappDebug", "installBusinessDebug").forEach { taskName ->
+    listOf("installDebug").forEach { taskName ->
         tasks.findByName(taskName)?.doLast {
             runCatching {
                 val injected  = project.objects.newInstance<InjectedExecOps>()

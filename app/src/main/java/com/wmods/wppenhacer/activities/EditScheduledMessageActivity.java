@@ -263,11 +263,15 @@ public class EditScheduledMessageActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == ContactPickerPreference.REQUEST_CONTACT_PICKER && resultCode == RESULT_OK && data != null) {
-            ArrayList<ContactPickerResult> results = (ArrayList<ContactPickerResult>) data.getSerializableExtra("picker_contacts");
-            if (results != null && !results.isEmpty()) {
-                ContactPickerResult result = results.get(0);
-                selectedJid = result.jid();
-                selectedContactName = result.fullName();
+            ArrayList<String> jids = data.getStringArrayListExtra("contacts");
+            ArrayList<String> names = data.getStringArrayListExtra("contact_names");
+            
+            if (jids != null && !jids.isEmpty()) {
+                selectedJid = jids.get(0);
+                if (names != null && !names.isEmpty()) {
+                    selectedContactName = names.get(0);
+                }
+                
                 if (selectedContactName == null || selectedContactName.isEmpty()) {
                     selectedContactName = ContactHelper.getContactName(this, selectedJid);
                 }

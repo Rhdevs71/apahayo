@@ -767,6 +767,12 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
 
             val intent = Intent().apply {
                 putStringArrayListExtra("contacts", contacts)
+                
+                // Pass names as simple string array to avoid BadParcelableException cross-process
+                val names = ArrayList<String>()
+                orderedResults.forEach { names.add(it.fullName ?: "") }
+                putStringArrayListExtra("contact_names", names)
+                
                 putExtra("contacts_data", legacyContacts)
                 putExtra(EXTRA_PICKER_RESULTS, orderedResults)
                 if (resultKey != null) {

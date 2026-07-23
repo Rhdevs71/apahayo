@@ -46,6 +46,21 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
         if (!shouldHook(lpparam.packageName)) return
         this.lpparam = lpparam
 
+        // Run Google Photos spoof immediately before Application context is even created
+        if (lpparam.packageName == "com.google.android.apps.photos") {
+            try {
+                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "BRAND", "google")
+                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "MANUFACTURER", "Google")
+                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "MODEL", "Pixel XL")
+                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "DEVICE", "marlin")
+                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "PRODUCT", "marlin")
+                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys")
+                XposedBridge.log("Rhpatch: Successfully spoofed Google Photos device immediately in handleLoadPackage")
+            } catch (e: Exception) {
+                XposedBridge.log("Rhpatch: Failed to spoof Google Photos device: ${e.message}")
+            }
+        }
+
         inContext(lpparam) { app ->
             this.app = app
             if (isReVancedPatched(lpparam)) {

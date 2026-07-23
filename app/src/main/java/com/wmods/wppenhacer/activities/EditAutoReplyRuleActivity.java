@@ -206,9 +206,9 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == ContactPickerPreference.REQUEST_CONTACT_PICKER && resultCode == RESULT_OK && data != null) {
-            ArrayList<ContactPickerResult> results = (ArrayList<ContactPickerResult>) data.getSerializableExtra("picker_contacts");
-            if (results != null && !results.isEmpty()) {
-                selectedJidsCsv = results.stream().map(ContactPickerResult::jid).collect(Collectors.joining(","));
+            ArrayList<String> jids = data.getStringArrayListExtra("contacts");
+            if (jids != null && !jids.isEmpty()) {
+                selectedJidsCsv = String.join(",", jids);
                 updateContactsFieldText();
             }
         }

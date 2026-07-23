@@ -182,46 +182,7 @@ class FakeDisplayActivity : BaseActivity() {
 
         // Inject message click listener
         binding.btnInjectMessage.setOnClickListener {
-            val jid = selectedJid
-            if (jid == null) {
-                Toast.makeText(this, "Please select a target contact first", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (jid == "me") {
-                Toast.makeText(this, "Cannot inject messages inside 'Self/Me' profile settings", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val text = binding.editFakeMsgText.text.toString().trim()
-            if (text.isEmpty()) {
-                Toast.makeText(this, "Please enter message text", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val fromMe = binding.radioMsgMe.isChecked
-            val timestamp = chatCalendar.timeInMillis
-            val status = if (fromMe) {
-                when {
-                    binding.radioStatusRead.isChecked -> 13
-                    binding.radioStatusDelivered.isChecked -> 5
-                    else -> 4
-                }
-            } else {
-                0
-            }
-
-            // Send broadcast to Xposed hook running inside WhatsApp process
-            val intent = Intent("com.wmods.wppenhacer.INJECT_FAKE_MESSAGE").apply {
-                putExtra("chat_jid", jid)
-                putExtra("text", text)
-                putExtra("from_me", fromMe)
-                putExtra("timestamp", timestamp)
-                putExtra("status", status)
-            }
-            sendBroadcast(intent)
-
-            Toast.makeText(this, "Fake message injected! Close and open chat to refresh", Toast.LENGTH_SHORT).show()
-            binding.editFakeMsgText.setText("")
+            Toast.makeText(this, "Fitur dinonaktifkan sementara karena menyebabkan corrupt database WhatsApp", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -260,34 +221,7 @@ class FakeDisplayActivity : BaseActivity() {
 
         // Inject Call history listener
         binding.btnInjectCall.setOnClickListener {
-            val jid = selectedJid
-            if (jid == null) {
-                Toast.makeText(this, "Please select a target contact first", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (jid == "me") {
-                Toast.makeText(this, "Cannot inject calls inside 'Self/Me' settings", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val isVoice = binding.radioCallVoice.isChecked
-            val isIncoming = binding.radioCallIncoming.isChecked
-            val isConnected = binding.radioCallConnected.isChecked
-            val duration = binding.sliderCallDuration.value.toInt()
-            val timestamp = callCalendar.timeInMillis
-
-            // Send broadcast to Xposed hook running in WhatsApp process
-            val intent = Intent("com.wmods.wppenhacer.INJECT_FAKE_CALL").apply {
-                putExtra("chat_jid", jid)
-                putExtra("is_outgoing", !isIncoming)
-                putExtra("is_video", !isVoice)
-                putExtra("is_connected", isConnected)
-                putExtra("timestamp", timestamp)
-                putExtra("duration", duration)
-            }
-            sendBroadcast(intent)
-
-            Toast.makeText(this, "Fake call history injected successfully!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Fitur dinonaktifkan sementara karena menyebabkan corrupt database WhatsApp", Toast.LENGTH_LONG).show()
         }
 
         // Launch simulated incoming call screen

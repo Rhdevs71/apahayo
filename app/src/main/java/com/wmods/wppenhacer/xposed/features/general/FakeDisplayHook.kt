@@ -32,7 +32,7 @@ class FakeDisplayHook(loader: ClassLoader, preferences: SharedPreferences) : Fea
         hookContactManager()
         hookProfilePhotoManager()
         hookConversationMenu()
-        registerBroadcastReceiver(Utils.application)
+        // registerBroadcastReceiver(Utils.application) // Disabled to prevent DB corruption
     }
 
     private fun hookContactManager() {
