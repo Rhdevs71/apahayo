@@ -53,7 +53,10 @@ public class MainActivity extends BaseActivity {
 
         var prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
         if (!prefs.getBoolean("call_recording_enable", false)) {
-            binding.navView.getMenu().findItem(R.id.navigation_recordings).setVisible(false);
+            MenuItem recordingsItem = binding.toolbar.getMenu().findItem(R.id.navigation_recordings);
+            if (recordingsItem != null) {
+                recordingsItem.setVisible(false);
+            }
         }
 
         
