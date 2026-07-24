@@ -14,7 +14,7 @@ jobs:
       BOT_TOKEN: "8976405279:AAEg1lt_btbscr8BlDG2pJ0bL-2fX6PuDmk"
       CHANNEL_ID: "-1003965036298"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
