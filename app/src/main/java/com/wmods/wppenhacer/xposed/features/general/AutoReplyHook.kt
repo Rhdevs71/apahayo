@@ -404,7 +404,6 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                     newObject[indexJid] = when (expectedType) {
                         FMessageWpp.UserJid.TYPE_USERJID -> wrapped.userJid ?: userJid
                         FMessageWpp.UserJid.TYPE_PHONEUSERJID -> wrapped.phoneJid ?: userJid
-                        FMessageWpp.UserJid.TYPE_DEVICEJID -> wrapped.deviceJid ?: userJid
                         else -> userJid
                     }
                 }
