@@ -116,28 +116,27 @@ val InstagramDownload = patch(
 
     // ── Inject Download Button into Dialogs (Share Sheet) ─────────────────────
     runCatching {
-        XposedHelpers.findAndHookMethod(
-            android.app.Dialog::class.java,
-            "show",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val dialog = param.thisObject as? android.app.Dialog ?: return
-                    val context = dialog.context
-                    if (!context.packageName.contains("instagram", ignoreCase = true)) return
-
-                    val window = dialog.window ?: return
-                    val decorView = window.decorView as? ViewGroup ?: return
-                    
-                    // Identify if it's a bottom sheet/share sheet by checking window properties or decorView children
-                    val isBottomSheet = decorView.toString().contains("BottomSheet") || 
-                            dialog.javaClass.name.lowercase().contains("bottomsheet") ||
-                            dialog.javaClass.name.lowercase().contains("share")
+        // Try hooking DialogFragment.show since Instagram uses IgBottomSheetFragment
+        val dialogFragmentClass = XposedHelpers.findClassIfExists("androidx.fragment.app.DialogFragment", classLoader)
+        if (dialogFragmentClass != null) {
+            val showMethods = dialogFragmentClass.declaredMethods.filter { it.name == "show" }
+            showMethods.forEach { method ->
+                XposedBridge.hookMethod(
+                    method,
+                    object : XC_MethodHook() {
+                        override fun afterHookedMethod(param: MethodHookParam) {
+                            val dialogFragment = param.thisObject
                             
-                    // We only want to inject into bottom sheets
-                    if (!isBottomSheet && dialog.javaClass.name != "android.app.Dialog") return
+                            // Try to get the underlying Dialog
+                            val dialog = XposedHelpers.callMethod(dialogFragment, "getDialog") as? android.app.Dialog ?: return
+                            val context = dialog.context
+                            if (!context.packageName.contains("instagram", ignoreCase = true)) return
 
-                    // Avoid double injection
-                    if (decorView.findViewWithTag<View>("rhp_dl_btn") != null) return
+                            val window = dialog.window ?: return
+                            val decorView = window.decorView as? ViewGroup ?: return
+                            
+                            // Avoid double injection
+                            if (decorView.findViewWithTag<View>("rhp_dl_btn") != null) return
 
                     // Check if lastKnownMediaUrl is populated, if not, try to scan the Activity
                     if (lastKnownMediaUrl.isNullOrEmpty()) {
@@ -163,11 +162,13 @@ val InstagramDownload = patch(
                             injectFloatingDownloadButton(decorView, context)
                         }
                     }, 200)
-                }
+                        }
+                    }
+                )
             }
-        )
-        XposedBridge.log("Rhpatch: [Download] Dialog.show hook installed")
-    }.onFailure { XposedBridge.log("Rhpatch: [Download] Dialog.show hook failed: $it") }
+        }
+        XposedBridge.log("Rhpatch: [Download] DialogFragment.show hook installed")
+    }.onFailure { XposedBridge.log("Rhpatch: [Download] DialogFragment.show hook failed: $it") }
 }
 
 fun searchUrlInTree(view: View): String? {

@@ -1,4 +1,6 @@
 <resources>
+    <string name="accessibility_service_description">WaEnhancer Auto Sender Service: Digunakan untuk membangunkan layar dan mengirim pesan WhatsApp secara otomatis yang telah dijadwalkan.</string>
+    <string name="device_admin_description">Digunakan untuk mematikan layar (mengunci perangkat) kembali setelah pesan WhatsApp otomatis selesai dikirimkan agar menghemat baterai dan menjaga keamanan.</string>
     <string name="force_restore_backup">Force Restore Backup</string>
     <string name="force_restore_backup_summary">Launch the restore backup screen manually. Use this if you skipped restoration during setup.</string>
     <string name="app_name" translatable="false">Rhpatch</string>

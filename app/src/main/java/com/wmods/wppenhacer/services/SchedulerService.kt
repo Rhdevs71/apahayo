@@ -151,6 +151,16 @@ class SchedulerService : Service() {
                 putExtra("mediaType", message.mediaType)
             }
 
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            val useAccessibility = prefs.getBoolean("use_accessibility_sender", false)
+
+            if (useAccessibility) {
+                val phone = message.jid.substringBefore("@")
+                Log.d(TAG, "sendMessageToWhatsApp: Routing to AccessibilityService for $phone")
+                com.rhdevs.rhpatch.services.AutoSenderAccessibilityService.enqueueTask(phone, message.messageText)
+                return
+            }
+
             Log.d(TAG, "sendMessageToWhatsApp: target=$targetPkg, waking up target package(s) if closed...")
             try {
                 if (targetPkg == "BOTH" || targetPkg == "com.whatsapp") {

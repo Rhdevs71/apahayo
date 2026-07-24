@@ -1,14 +1,11 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
 ## [Unreleased]
 ### Added
-- **TikTok Downloader**: Added TikTok global package name support to fix watermark issues.
+- **WhatsApp**: Added Accessibility Auto-Sender Fallback (SKEDit style) with Screen Lock (Device Admin) capability for 100% reliable scheduled messages.
 
 ### Fixed
-- **Google Photos Spoofing**: Fixed device spoofing not working properly due to late application execution (moved spoof to `handleLoadPackage`).
-- **WhatsApp Message Scheduler**: Fixed crashing during scheduled message dispatch due to JID type mismatch (`IllegalArgumentException`).
-- **WhatsApp Auto-Reply**: Fixed Auto-Reply crashing on quoted messages due to similar JID type mismatch.
-- **Instagram Media Downloader**: Overhauled IG Downloader to use a Floating Download Button, fixing Share Sheet UI crashes (`ClassCastException`).
-- **Compilation**: Fixed unresolved reference `deviceJid` compilation error in `WppCore.kt` and `AutoReplyHook.kt`.
+- **Discord**: Fixed Ghost Mode, Anti-Delete, and Reveal Hidden Channels compatibility.
+- **Instagram**: Fixed Floating Download Button hook on the new Bottom Sheet UI.
+- **TikTok**: Fixed Mandatory Login bypass crash and share URL sanitizer.
+- **WhatsApp**: Fixed Message Scheduler & Auto-Reply crashes (`IllegalArgumentException`) by improving DexKit method resolution.

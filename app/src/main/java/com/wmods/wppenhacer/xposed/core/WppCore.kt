@@ -333,7 +333,7 @@ object WppCore {
                     param == FMessageWpp.UserJid.TYPE_USERJID || 
                     param == FMessageWpp.UserJid.TYPE_PHONEUSERJID ||
                     (FMessageWpp.UserJid.TYPE_JID != null && FMessageWpp.UserJid.TYPE_JID.isAssignableFrom(param)) ||
-                    (param.name.length <= 15 && !param.name.startsWith("java.") && !param.name.startsWith("android."))
+                    (userJid != null && param.isAssignableFrom(userJid.javaClass))
                 }
                 hasString && hasJid && method.name != "toString"
             }

@@ -32,6 +32,12 @@
             app:title="Auto Reply"
             app:summary="Auto reply keywords, delay and target filters" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="use_accessibility_sender"
+            app:defaultValue="false"
+            app:summary="Use Screen Unlock + UI Auto-Click to send scheduled messages (Enable if Xposed background sender fails after WA update)"
+            app:title="Accessibility Auto-Sender Fallback" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

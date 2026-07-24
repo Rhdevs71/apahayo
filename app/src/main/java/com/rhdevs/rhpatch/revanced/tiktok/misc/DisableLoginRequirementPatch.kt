@@ -25,7 +25,7 @@ val DisableLoginRequirementPatch = patch(
         methods.forEach { dexMethod ->
             if (dexMethod.name == "enableForcedLogin" || dexMethod.name == "shouldShowForcedLogin") {
                 val method = dexMethod.toMethod()
-                if (method != null) {
+                if (method != null && !java.lang.reflect.Modifier.isAbstract(method.modifiers)) {
                     XposedBridge.hookMethod(method, XC_MethodReplacement.returnConstant(false))
                     hooked++
                 }

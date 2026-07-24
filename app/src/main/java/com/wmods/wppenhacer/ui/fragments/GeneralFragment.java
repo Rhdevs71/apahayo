@@ -62,6 +62,49 @@ public class GeneralFragment extends BaseFragment {
                 android.content.Intent intent = new android.content.Intent(getContext(), com.wmods.wppenhacer.activities.CustomFoldersActivity.class);
                 startActivity(intent);
                 return true;
+            } else if ("use_accessibility_sender".equals(key)) {
+                if (preference instanceof rikka.material.preference.MaterialSwitchPreference) {
+                    boolean isChecked = ((rikka.material.preference.MaterialSwitchPreference) preference).isChecked();
+                    if (isChecked) {
+                        // Check if accessibility service is enabled
+                        boolean accessibilityEnabled = false;
+                        android.view.accessibility.AccessibilityManager am = (android.view.accessibility.AccessibilityManager) getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
+                        java.util.List<android.accessibilityservice.AccessibilityServiceInfo> enabledServices = am.getEnabledAccessibilityServiceList(android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK);
+                        for (android.accessibilityservice.AccessibilityServiceInfo service : enabledServices) {
+                            if (service.getId().contains("AutoSenderAccessibilityService")) {
+                                accessibilityEnabled = true;
+                                break;
+                            }
+                        }
+                        
+                        // Check if device admin is enabled
+                        android.app.admin.DevicePolicyManager dpm = (android.app.admin.DevicePolicyManager) getContext().getSystemService(android.content.Context.DEVICE_POLICY_SERVICE);
+                        android.content.ComponentName componentName = new android.content.ComponentName(getContext(), com.rhdevs.rhpatch.receivers.WaDeviceAdminReceiver.class);
+                        boolean adminEnabled = dpm.isAdminActive(componentName);
+
+                        if (!accessibilityEnabled || !adminEnabled) {
+                            new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                                .setTitle("Perizinan Tambahan Diperlukan")
+                                .setMessage("Fitur 'Accessibility Auto-Sender' memerlukan akses Aksesibilitas (untuk klik otomatis) dan Administrator Perangkat (untuk mengunci layar kembali).\n\nMohon izinkan keduanya di pengaturan.")
+                                .setPositiveButton("Buka Pengaturan", (dialog, which) -> {
+                                    if (!accessibilityEnabled) {
+                                        startActivity(new android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                                    }
+                                    if (!adminEnabled) {
+                                        android.content.Intent intent = new android.content.Intent(android.app.admin.DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+                                        intent.putExtra(android.app.admin.DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
+                                        intent.putExtra(android.app.admin.DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Diperlukan untuk mengunci layar otomatis.");
+                                        startActivity(intent);
+                                    }
+                                })
+                                .setNegativeButton("Batal", (dialog, which) -> {
+                                    ((rikka.material.preference.MaterialSwitchPreference) preference).setChecked(false);
+                                })
+                                .show();
+                        }
+                    }
+                }
+                return true;
             }
 
             return super.onPreferenceTreeClick(preference);
