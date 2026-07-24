@@ -83,14 +83,17 @@ public class GeneralFragment extends BaseFragment {
                         boolean adminEnabled = dpm.isAdminActive(componentName);
 
                         if (!accessibilityEnabled || !adminEnabled) {
+                            final boolean finalAccessibilityEnabled = accessibilityEnabled;
+                            final boolean finalAdminEnabled = adminEnabled;
+
                             new androidx.appcompat.app.AlertDialog.Builder(getContext())
                                 .setTitle("Perizinan Tambahan Diperlukan")
                                 .setMessage("Fitur 'Accessibility Auto-Sender' memerlukan akses Aksesibilitas (untuk klik otomatis) dan Administrator Perangkat (untuk mengunci layar kembali).\n\nMohon izinkan keduanya di pengaturan.")
                                 .setPositiveButton("Buka Pengaturan", (dialog, which) -> {
-                                    if (!accessibilityEnabled) {
+                                    if (!finalAccessibilityEnabled) {
                                         startActivity(new android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS));
                                     }
-                                    if (!adminEnabled) {
+                                    if (!finalAdminEnabled) {
                                         android.content.Intent intent = new android.content.Intent(android.app.admin.DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
                                         intent.putExtra(android.app.admin.DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
                                         intent.putExtra(android.app.admin.DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Diperlukan untuk mengunci layar otomatis.");
