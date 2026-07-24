@@ -70,7 +70,24 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 }
                 XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java, getHook)
                 XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java, String::class.java, getHook)
-                XposedBridge.log("Rhpatch: Successfully spoofed SystemProperties and Build for Google Photos")
+                
+                // Spoof system features to ensure Pixel features are unlocked
+                XposedHelpers.findAndHookMethod(
+                    "android.app.ApplicationPackageManager", 
+                    lpparam.classLoader, 
+                    "hasSystemFeature", 
+                    String::class.java, 
+                    object : XC_MethodHook() {
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            val feature = param.args[0] as? String ?: return
+                            if (feature.startsWith("com.google.android.feature.PIXEL_")) {
+                                param.result = true
+                            }
+                        }
+                    }
+                )
+                
+                XposedBridge.log("Rhpatch: Successfully spoofed SystemProperties, Build, and SystemFeatures for Google Photos")
             } catch (e: Throwable) {
                 XposedBridge.log("Rhpatch: Failed to spoof Google Photos SystemProperties/Build: ${e.message}")
             }

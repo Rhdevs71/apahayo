@@ -396,7 +396,11 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                 newObject[jidIndex] = Collections.singletonList(userJid)
             } else {
                 val indexJid = senderMethod.parameterTypes.indexOfFirst { param ->
-                    param == FMessageWpp.UserJid.TYPE_JID || param == FMessageWpp.UserJid.TYPE_USERJID || param == FMessageWpp.UserJid.TYPE_PHONEUSERJID
+                    param == FMessageWpp.UserJid.TYPE_JID || 
+                    param == FMessageWpp.UserJid.TYPE_USERJID || 
+                    param == FMessageWpp.UserJid.TYPE_PHONEUSERJID ||
+                    (FMessageWpp.UserJid.TYPE_JID != null && FMessageWpp.UserJid.TYPE_JID.isAssignableFrom(param)) ||
+                    (param.name.length <= 15 && !param.name.startsWith("java.") && !param.name.startsWith("android."))
                 }
                 if (indexJid != -1) {
                     val expectedType = senderMethod.parameterTypes[indexJid]

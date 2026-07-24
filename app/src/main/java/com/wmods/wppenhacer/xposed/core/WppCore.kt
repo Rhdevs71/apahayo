@@ -258,8 +258,12 @@ object WppCore {
                 senderMethod = ReflectionUtils.findMethodUsingFilter(actionUser) { method ->
                     val params = method.parameterTypes
                     ReflectionUtils.findIndexOfType(params, String::class.java) != -1 &&
-                            (ReflectionUtils.findIndexOfType(params, FMessageWpp.UserJid.TYPE_JID) != -1 ||
-                             ReflectionUtils.findIndexOfType(params, FMessageWpp.UserJid.TYPE_USERJID) != -1) &&
+                            params.any { param -> 
+                                param == FMessageWpp.UserJid.TYPE_JID || 
+                                param == FMessageWpp.UserJid.TYPE_USERJID || 
+                                (FMessageWpp.UserJid.TYPE_JID != null && FMessageWpp.UserJid.TYPE_JID.isAssignableFrom(param)) ||
+                                (param.name.length <= 15 && !param.name.startsWith("java.") && !param.name.startsWith("android."))
+                            } &&
                             method.name != "toString"
                 }
             }
@@ -288,13 +292,20 @@ object WppCore {
             if (indexList != -1) {
                 newObject[indexList] = Collections.singletonList(userJid)
             } else {
-                val indexJid = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.UserJid.TYPE_JID)
+                val indexJid = senderMethod.parameterTypes.indexOfFirst { param ->
+                    param == FMessageWpp.UserJid.TYPE_JID || 
+                    param == FMessageWpp.UserJid.TYPE_USERJID || 
+                    (FMessageWpp.UserJid.TYPE_JID != null && FMessageWpp.UserJid.TYPE_JID.isAssignableFrom(param)) ||
+                    (param.name.length <= 15 && !param.name.startsWith("java.") && !param.name.startsWith("android."))
+                }
+                
                 if (indexJid != -1) {
-                    newObject[indexJid] = userJid
-                } else {
-                    val indexUserJid = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.UserJid.TYPE_USERJID)
-                    if (indexUserJid != -1) {
-                        newObject[indexUserJid] = userJid
+                    val expectedType = senderMethod.parameterTypes[indexJid]
+                    val wrapped = FMessageWpp.UserJid(userJid)
+                    newObject[indexJid] = when (expectedType) {
+                        FMessageWpp.UserJid.TYPE_USERJID -> wrapped.userJid ?: userJid
+                        FMessageWpp.UserJid.TYPE_PHONEUSERJID -> wrapped.phoneJid ?: userJid
+                        else -> userJid
                     }
                 }
             }
@@ -318,7 +329,11 @@ object WppCore {
                 
                 val hasString = params.contains(String::class.java)
                 val hasJid = params.any { param ->
-                    param == FMessageWpp.UserJid.TYPE_JID || param == FMessageWpp.UserJid.TYPE_USERJID || param == FMessageWpp.UserJid.TYPE_PHONEUSERJID
+                    param == FMessageWpp.UserJid.TYPE_JID || 
+                    param == FMessageWpp.UserJid.TYPE_USERJID || 
+                    param == FMessageWpp.UserJid.TYPE_PHONEUSERJID ||
+                    (FMessageWpp.UserJid.TYPE_JID != null && FMessageWpp.UserJid.TYPE_JID.isAssignableFrom(param)) ||
+                    (param.name.length <= 15 && !param.name.startsWith("java.") && !param.name.startsWith("android."))
                 }
                 hasString && hasJid && method.name != "toString"
             }
@@ -343,7 +358,11 @@ object WppCore {
                 }
                 
                 val indexJid = senderMethod.parameterTypes.indexOfFirst { param ->
-                    param == FMessageWpp.UserJid.TYPE_JID || param == FMessageWpp.UserJid.TYPE_USERJID || param == FMessageWpp.UserJid.TYPE_PHONEUSERJID
+                    param == FMessageWpp.UserJid.TYPE_JID || 
+                    param == FMessageWpp.UserJid.TYPE_USERJID || 
+                    param == FMessageWpp.UserJid.TYPE_PHONEUSERJID ||
+                    (FMessageWpp.UserJid.TYPE_JID != null && FMessageWpp.UserJid.TYPE_JID.isAssignableFrom(param)) ||
+                    (param.name.length <= 15 && !param.name.startsWith("java.") && !param.name.startsWith("android."))
                 }
                 
                 if (indexJid != -1) {
