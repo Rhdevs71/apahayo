@@ -139,9 +139,23 @@ val InstagramDownload = patch(
                     // Avoid double injection
                     if (decorView.findViewWithTag<View>("rhp_dl_btn") != null) return
 
-                    // Check if lastKnownMediaUrl is populated
-                    val url = lastKnownMediaUrl
-                    if (url.isNullOrEmpty()) return
+                    // Check if lastKnownMediaUrl is populated, if not, try to scan the Activity
+                    if (lastKnownMediaUrl.isNullOrEmpty()) {
+                        val activity = dialog.ownerActivity ?: (context as? android.app.Activity)
+                        if (activity != null) {
+                            val activityDecor = activity.window?.decorView as? ViewGroup
+                            if (activityDecor != null) {
+                                val url = searchUrlInTree(activityDecor)
+                                if (url != null) {
+                                    lastKnownMediaUrl = url
+                                    lastKnownIsVideo = url.contains(".mp4") || url.contains("video")
+                                    XposedBridge.log("Rhpatch: [Download] Fallback scan found URL: $url")
+                                }
+                            }
+                        }
+                    }
+
+                    if (lastKnownMediaUrl.isNullOrEmpty()) return
 
                     // Add delay to ensure views are laid out
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -154,34 +168,6 @@ val InstagramDownload = patch(
         )
         XposedBridge.log("Rhpatch: [Download] Dialog.show hook installed")
     }.onFailure { XposedBridge.log("Rhpatch: [Download] Dialog.show hook failed: $it") }
-
-
-}
-
-fun captureUrlFromPostContainer(clickedView: View) {
-    // Only capture if we don't already have one playing
-    if (lastKnownIsVideo && !lastKnownMediaUrl.isNullOrEmpty()) {
-        return
-    }
-
-    var highestContainer: ViewGroup? = clickedView.parent as? ViewGroup
-    var current: View? = clickedView
-    repeat(6) {
-        val parent = current?.parent as? ViewGroup
-        if (parent != null) {
-            highestContainer = parent
-            current = parent
-        }
-    }
-
-    val container = highestContainer ?: return
-    
-    var foundUrl = searchUrlInTree(container)
-    if (foundUrl != null) {
-        lastKnownMediaUrl = foundUrl
-        lastKnownIsVideo = foundUrl.contains(".mp4") || foundUrl.contains("video")
-        XposedBridge.log("Rhpatch: [Download] Captured media URL via UI tree: $foundUrl")
-    }
 }
 
 fun searchUrlInTree(view: View): String? {
