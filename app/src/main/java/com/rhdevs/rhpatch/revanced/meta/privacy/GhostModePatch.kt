@@ -41,13 +41,13 @@ val GhostModePatch = patch(
     runCatching {
         val methods = ::StorySeenFingerprints.dexMethodList
         if (methods.isNotEmpty()) {
-            methods.forEach { dexMethod ->
-                val targetMethod = dexMethod.toMethod()
-                if (targetMethod != null) {
-                    XposedBridge.hookMethod(targetMethod, XC_MethodReplacement.returnConstant(false))
-                }
+            // Piko only patches the last method returning Z in that class!
+            val dexMethod = methods.last()
+            val targetMethod = dexMethod.toMethod()
+            if (targetMethod != null && !java.lang.reflect.Modifier.isAbstract(targetMethod.modifiers)) {
+                XposedBridge.hookMethod(targetMethod, XC_MethodReplacement.returnConstant(false))
+                XposedBridge.log("Rhpatch: [GhostMode] Story Seen disabled")
             }
-            XposedBridge.log("Rhpatch: [GhostMode] Story Seen disabled (${methods.size} methods hooked)")
         } else {
             XposedBridge.log("Rhpatch: [GhostMode] Story Seen method not found")
         }

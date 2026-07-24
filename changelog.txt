@@ -31,3 +31,9 @@ All notable changes to this project will be documented in this file.
 - **Media Downloader**: Added fallback mechanism to use last known media URL when view tree search fails.
 - **Message Scheduler WhatsApp**: Rewrote `sendMessageToJid` reflection logic in `WppCore.kt` to dynamically support the heavily obfuscated `A00(X.1i1, String)` method in WhatsApp 2.26.27.85+.
 - **Fake Display**: Removed `FakeDisplayHook` module entirely per user request.
+
+- Fixed Google Photos device spoofing not working properly due to late application execution
+- Fixed WhatsApp Message Scheduler crashing due to JID type mismatch
+- Fixed WhatsApp Auto-Reply crashing on quoted messages due to JID type mismatch
+- Overhauled Instagram Media Downloader to use Floating Download Button to fix Share Sheet UI crashes
+- Added TikTok global package name support to fix watermark issues

@@ -312,7 +312,6 @@ object WppCore {
         if (userJid == null) return
         try {
             val actionUserClass = getActionUserClass()
-            val userJidClass = userJid.javaClass
             val senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
                 val params = method.parameterTypes
                 if (method.parameterCount !in 2..3) return@findMethodUsingFilterIfExists false
@@ -348,7 +347,14 @@ object WppCore {
                 }
                 
                 if (indexJid != -1) {
-                    newObject[indexJid] = userJid
+                    val expectedType = senderMethod.parameterTypes[indexJid]
+                    val wrapped = FMessageWpp.UserJid(userJid)
+                    newObject[indexJid] = when (expectedType) {
+                        FMessageWpp.UserJid.TYPE_USERJID -> wrapped.userJid ?: userJid
+                        FMessageWpp.UserJid.TYPE_PHONEUSERJID -> wrapped.phoneJid ?: userJid
+                        FMessageWpp.UserJid.TYPE_DEVICEJID -> wrapped.deviceJid ?: userJid
+                        else -> userJid
+                    }
                 }
                 
                 senderMethod.invoke(getActionUser(), *newObject)

@@ -114,131 +114,56 @@ val InstagramDownload = patch(
         XposedBridge.log("Rhpatch: [Download] IgImageView tracking hooks installed successfully")
     }.onFailure { XposedBridge.log("Rhpatch: [Download] IgImageView tracking hook failed: $it") }
 
-    // ── Intercept Share Button click to capture target post URL ────────────────
+    // ── Inject Download Button into Dialogs (Share Sheet) ─────────────────────
     runCatching {
         XposedHelpers.findAndHookMethod(
-            View::class.java,
-            "performClick",
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val view = param.thisObject as? View ?: return
-                    val context = view.context ?: return
-                    if (!context.packageName.contains("instagram", ignoreCase = true)) return
-
-                    val desc = view.contentDescription?.toString()?.lowercase() ?: ""
-                    if (desc.contains("share") || desc.contains("bagikan") || desc.contains("send") || desc.contains("kirim") || desc.contains("direct") || desc.contains("pesawat")) {
-                        shareClickedTime = System.currentTimeMillis()
-                        captureUrlFromPostContainer(view)
-                    }
-                }
-            }
-        )
-
-        XposedHelpers.findAndHookMethod(
-            View::class.java,
-            "setOnClickListener",
-            View.OnClickListener::class.java,
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val listener = param.args[0] as? View.OnClickListener ?: return
-                    val view = param.thisObject as? View ?: return
-                    
-                    // Skip wrapping our own wrapper
-                    if (listener.javaClass.name.contains("RhpatchWrapper")) return
-                    
-                    val desc = view.contentDescription?.toString()?.lowercase() ?: ""
-                    if (desc.contains("share") || desc.contains("bagikan") || desc.contains("send") || desc.contains("kirim") || desc.contains("direct") || desc.contains("pesawat")) {
-                        // Wrap click listener
-                        val wrapper = object : View.OnClickListener {
-                            override fun onClick(v: View) {
-                                shareClickedTime = System.currentTimeMillis()
-                                captureUrlFromPostContainer(v)
-                                listener.onClick(v)
-                            }
-                        }
-                        class RhpatchWrapperListener(val orig: View.OnClickListener) : View.OnClickListener {
-                            var lastClickTime = 0L
-                            override fun onClick(v: View) {
-                                val now = System.currentTimeMillis()
-                                if (now - lastClickTime < 500) {
-                                    // Double click detected!
-                                    captureUrlFromPostContainer(v)
-                                    val url = lastKnownMediaUrl
-                                    if (!url.isNullOrEmpty()) {
-                                        Toast.makeText(v.context, "Rhpatch: Memulai Download...", Toast.LENGTH_SHORT).show()
-                                        downloadInstagramMedia(v.context, url, lastKnownIsVideo)
-                                    } else {
-                                        Toast.makeText(v.context, "URL media belum tertangkap. Tonton video lebih lama.", Toast.LENGTH_SHORT).show()
-                                    }
-                                    lastClickTime = 0L // Reset
-                                } else {
-                                    // Single click
-                                    lastClickTime = now
-                                    shareClickedTime = now
-                                    captureUrlFromPostContainer(v)
-                                    orig.onClick(v)
-                                }
-                            }
-                        }
-                        param.args[0] = RhpatchWrapperListener(listener)
-                    }
-                }
-            }
-        )
-        XposedBridge.log("Rhpatch: [Download] Share click listener hooks installed")
-    }.onFailure { XposedBridge.log("Rhpatch: [Download] Share click hook failed: $it") }
-
-    // ── Inject download row into share sheet via RecyclerView.onAttachedToWindow ──
-    runCatching {
-        val recyclerViewClass = XposedHelpers.findClassIfExists(
-            "androidx.recyclerview.widget.RecyclerView", classLoader
-        ) ?: throw ClassNotFoundException("RecyclerView not found")
-
-        XposedHelpers.findAndHookMethod(
-            recyclerViewClass,
-            "onAttachedToWindow",
+            android.app.Dialog::class.java,
+            "show",
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    val rv = param.thisObject as? View ?: return
-                    val context = rv.context ?: return
+                    val dialog = param.thisObject as? android.app.Dialog ?: return
+                    val context = dialog.context
                     if (!context.packageName.contains("instagram", ignoreCase = true)) return
 
-                    // Check if rv is inside a bottom sheet or dialog
-                    var isDialog = false
-                    var parent: ViewParent? = rv.parent
-                    while (parent != null) {
-                        val parentClassName = parent.javaClass.name.lowercase()
-                        if (parentClassName.contains("bottomsheet") || parentClassName.contains("dialog") || 
-                            parentClassName.contains("popup") || parentClassName.contains("igds") || 
-                            parentClassName.contains("drawer") || parentClassName.contains("share")) {
-                            isDialog = true
-                            break
-                        }
-                        parent = parent?.parent ?: (parent as? View)?.parent
-                    }
-
-                    if (!isDialog) return
+                    val window = dialog.window ?: return
+                    val decorView = window.decorView as? ViewGroup ?: return
+                    
+                    // Identify if it's a bottom sheet/share sheet by checking window properties or decorView children
+                    val isBottomSheet = decorView.toString().contains("BottomSheet") || 
+                            dialog.javaClass.name.lowercase().contains("bottomsheet") ||
+                            dialog.javaClass.name.lowercase().contains("share")
+                            
+                    // We only want to inject into bottom sheets
+                    if (!isBottomSheet && dialog.javaClass.name != "android.app.Dialog") return
 
                     // Avoid double injection
-                    if (rv.getTag(0x52680001) == "rhp_ok") return
-                    rv.setTag(0x52680001, "rhp_ok")
+                    if (decorView.findViewWithTag<View>("rhp_dl_btn") != null) return
 
-                    // Add delay to ensure parent view hierarchy is built
+                    // Check if lastKnownMediaUrl is populated
+                    val url = lastKnownMediaUrl
+                    if (url.isNullOrEmpty()) return
+
+                    // Add delay to ensure views are laid out
                     Handler(Looper.getMainLooper()).postDelayed({
                         runCatching {
-                            injectDownloadAboveShareSheet(rv, context)
+                            injectFloatingDownloadButton(decorView, context)
                         }
-                    }, 100)
+                    }, 200)
                 }
             }
         )
-        XposedBridge.log("Rhpatch: [Download] RecyclerView hooks installed")
-    }.onFailure { XposedBridge.log("Rhpatch: [Download] RecyclerView failed: $it") }
+        XposedBridge.log("Rhpatch: [Download] Dialog.show hook installed")
+    }.onFailure { XposedBridge.log("Rhpatch: [Download] Dialog.show hook failed: $it") }
 
 
 }
 
 fun captureUrlFromPostContainer(clickedView: View) {
+    // Only capture if we don't already have one playing
+    if (lastKnownIsVideo && !lastKnownMediaUrl.isNullOrEmpty()) {
+        return
+    }
+
     var highestContainer: ViewGroup? = clickedView.parent as? ViewGroup
     var current: View? = clickedView
     repeat(6) {
@@ -251,23 +176,11 @@ fun captureUrlFromPostContainer(clickedView: View) {
 
     val container = highestContainer ?: return
     
-    // First, check if lastKnownMediaUrl was recently updated (within 5 seconds) and is a video
-    // (ExoPlayer hook updates this when playback starts)
-    if (lastKnownIsVideo && !lastKnownMediaUrl.isNullOrEmpty()) {
-        // Assume video is correct if it's currently playing
-        return
-    }
-
-    // Otherwise, search for IgImageView in the container tree that we have tracked
     var foundUrl = searchUrlInTree(container)
-    if (foundUrl == null) {
-        // Fallback to the most recently updated URL globally if tree search fails
-        foundUrl = lastKnownMediaUrl
-    }
     if (foundUrl != null) {
         lastKnownMediaUrl = foundUrl
         lastKnownIsVideo = foundUrl.contains(".mp4") || foundUrl.contains("video")
-        XposedBridge.log("Rhpatch: [Download] Captured media URL: $foundUrl")
+        XposedBridge.log("Rhpatch: [Download] Captured media URL via UI tree: $foundUrl")
     }
 }
 
@@ -285,29 +198,6 @@ fun searchUrlInTree(view: View): String? {
     return null
 }
 
-fun findPostMediaImageView(parent: ViewGroup): View? {
-    for (i in 0 until parent.childCount) {
-        val child = parent.getChildAt(i) ?: continue
-        val className = child.javaClass.name
-        if (className.contains("IgImageView") || className.contains("IgProgressImageView") || className.contains("TextureView") || className.contains("SurfaceView")) {
-            // Filter out small icons/avatars (post media is always large on screen)
-            if (child.width > 200 && child.height > 200) {
-                if (className.contains("IgProgressImageView") && child is ViewGroup) {
-                    val inner = findPostMediaImageView(child)
-                    if (inner != null) return inner
-                }
-                return child
-            }
-        }
-        if (child is ViewGroup) {
-            val found = findPostMediaImageView(child)
-            if (found != null) return found
-        }
-    }
-    return null
-}
-
-/** Extracts Instagram CDN URL from method arguments */
 fun extractUrlFromArgs(args: Array<Any?>): String? {
     args.forEach { arg ->
         if (arg == null) return@forEach
@@ -341,101 +231,55 @@ fun isInstagramCdnUrl(url: String): Boolean =
     (url.contains(".jpg") || url.contains(".jpeg") || url.contains(".mp4") ||
         url.contains("video") || url.contains("scontent"))
 
-fun injectDownloadAboveShareSheet(rv: View, context: Context) {
-    val parent = rv.parent as? ViewGroup ?: return
-    if (parent.findViewWithTag<View>("rhp_dl_row") != null) return
+fun injectFloatingDownloadButton(decorView: ViewGroup, context: Context) {
+    if (decorView.findViewWithTag<View>("rhp_dl_btn") != null) return
 
     val dp = context.resources.displayMetrics.density
 
-    // Container row
-    val row = LinearLayout(context).apply {
-        tag = "rhp_dl_row"
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        setPadding((20 * dp).toInt(), (14 * dp).toInt(), (20 * dp).toInt(), (10 * dp).toInt())
-        isClickable = true
-        isFocusable = true
-    }
-
-    val iconSize = (46 * dp).toInt()
-    val circle = FrameLayout(context).apply {
+    // Create a floating action button style container
+    val btn = FrameLayout(context).apply {
+        tag = "rhp_dl_btn"
         background = GradientDrawable().apply {
             shape = GradientDrawable.OVAL
-            setColor(0xFF3A3A3C.toInt())
+            setColor(Color.parseColor("#E1306C")) // Instagram Pink-ish
+            setStroke((1.5f * dp).toInt(), Color.WHITE)
         }
+        isClickable = true
+        isFocusable = true
+        elevation = 8 * dp
     }
+
+    val iconSize = (56 * dp).toInt()
     val icon = ImageView(context).apply {
         setImageResource(android.R.drawable.stat_sys_download)
         setColorFilter(Color.WHITE)
         scaleType = ImageView.ScaleType.CENTER_INSIDE
-        setPadding((10 * dp).toInt(), (10 * dp).toInt(), (10 * dp).toInt(), (10 * dp).toInt())
+        setPadding((12 * dp).toInt(), (12 * dp).toInt(), (12 * dp).toInt(), (12 * dp).toInt())
     }
-    circle.addView(icon, FrameLayout.LayoutParams(iconSize, iconSize))
+    btn.addView(icon, FrameLayout.LayoutParams(iconSize, iconSize))
 
-    val label = TextView(context).apply {
-        text = "Unduh"
-        val typedValue = TypedValue()
-        val theme = context.theme
-        val colorRes = if (theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)) {
-            typedValue.data
-        } else {
-            Color.WHITE
-        }
-        setTextColor(colorRes)
-        textSize = 14f
-        setPadding((16 * dp).toInt(), 0, 0, 0)
-    }
-
-    row.addView(circle, LinearLayout.LayoutParams(iconSize, iconSize))
-    row.addView(label, LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.WRAP_CONTENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT
-    ))
-
-    row.setOnClickListener {
+    btn.setOnClickListener {
         val url = lastKnownMediaUrl
         val isVideo = lastKnownIsVideo
         if (!url.isNullOrEmpty()) {
             downloadInstagramMedia(context, url, isVideo)
         } else {
-            Toast.makeText(context, "URL tidak ditemukan. Tonton video beberapa detik atau ulangi.", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "URL tidak ditemukan. Ulangi setelah memutar media.", Toast.LENGTH_LONG).show()
         }
     }
 
-    // Wrap rv and row in a vertical LinearLayout to prevent overlapping in FrameLayout/CoordinatorLayout
-    val rvIndex = (0 until parent.childCount).indexOfFirst { parent.getChildAt(it) == rv }
-    val insertIdx = if (rvIndex < 0) 0 else rvIndex
-    val origParams = rv.layoutParams
+    // Add to top-right of the dialog
+    val params = FrameLayout.LayoutParams(iconSize, iconSize).apply {
+        gravity = Gravity.TOP or Gravity.END
+        topMargin = (24 * dp).toInt()
+        marginEnd = (24 * dp).toInt()
+    }
 
     runCatching {
-        // Remove rv from parent
-        parent.removeView(rv)
-
-        val wrapper = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = origParams // Inherit original layout params from rv
-        }
-
-        // Add row and rv to the wrapper
-        wrapper.addView(row, ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        ))
-        
-        // Add rv below row
-        val rvParams = if (origParams is LinearLayout.LayoutParams) {
-            LinearLayout.LayoutParams(origParams.width, origParams.height, origParams.weight)
-        } else {
-            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        }
-        wrapper.addView(rv, rvParams)
-
-        // Add wrapper back to parent at original index
-        parent.addView(wrapper, insertIdx)
-        XposedBridge.log("Rhpatch: [Download] Wrapped RecyclerView and injected download row successfully")
+        decorView.addView(btn, params)
+        XposedBridge.log("Rhpatch: [Download] Injected floating download button")
     }.onFailure {
-        XposedBridge.log("Rhpatch: [Download] Wrap failed, falling back to simple addView: $it")
-        runCatching { parent.addView(row) }
+        XposedBridge.log("Rhpatch: [Download] Failed to add floating button: $it")
     }
 }
 

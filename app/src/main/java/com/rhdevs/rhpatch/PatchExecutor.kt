@@ -150,9 +150,20 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
     /**
      * @see com.rhdevs.rhpatch.activity.AppPatchSettingsActivity.AppPatchSettingsFragment.onCreate
      * */
-    private val patchPreferences = XSharedPreferences(
-        BuildConfig.APPLICATION_ID, lpparam.packageName
-    ).takeIf { it.file.canRead() }
+    private val patchPreferences: android.content.SharedPreferences? = try {
+        val xprefs = XSharedPreferences(BuildConfig.APPLICATION_ID, lpparam.packageName)
+        if (xprefs.file.canRead()) {
+            xprefs
+        } else {
+            com.crossbowffs.remotepreferences.RemotePreferences(
+                appContext,
+                BuildConfig.APPLICATION_ID + ".preferences",
+                lpparam.packageName
+            )
+        }
+    } catch (e: Exception) {
+        null
+    }
 
     private lateinit var patches: Array<Patch>
     private val appliedPatches = mutableSetOf<Patch>()
@@ -234,8 +245,8 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
         if (DEBUG) {
             XposedBridge.log("${lpparam.appInfo.packageName} version: ${getAppVersion()}")
         }
-        if (success) {
-            Utils.showToastLong("apply patches success")
+        if (success && appliedPatches.isNotEmpty()) {
+            Utils.showToastLong("Rhpatch: ${appliedPatches.size} patches applied")
         }
     }
 

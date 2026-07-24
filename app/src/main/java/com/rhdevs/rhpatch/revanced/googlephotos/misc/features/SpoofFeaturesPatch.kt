@@ -22,6 +22,7 @@ val SpoofFeaturesPatch = patch(
     }
 
     val featuresToEnable = setOf(
+        "com.google.android.apps.photos.PIXEL_2016_PRELOAD",
         "com.google.android.apps.photos.NEXUS_PRELOAD",
         "com.google.android.apps.photos.nexus_preload",
     )

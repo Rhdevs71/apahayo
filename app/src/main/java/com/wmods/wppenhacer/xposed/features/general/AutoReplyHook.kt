@@ -395,22 +395,24 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
             if (jidIndex != -1) {
                 newObject[jidIndex] = Collections.singletonList(userJid)
             } else {
-                val indexJid = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.UserJid.TYPE_JID)
+                val indexJid = senderMethod.parameterTypes.indexOfFirst { param ->
+                    param == FMessageWpp.UserJid.TYPE_JID || param == FMessageWpp.UserJid.TYPE_USERJID || param == FMessageWpp.UserJid.TYPE_PHONEUSERJID
+                }
                 if (indexJid != -1) {
-                    newObject[indexJid] = userJid
-                } else {
-                    val indexUserJid = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.UserJid.TYPE_USERJID)
-                    if (indexUserJid != -1) {
-                        newObject[indexUserJid] = userJid
+                    val expectedType = senderMethod.parameterTypes[indexJid]
+                    val wrapped = FMessageWpp.UserJid(userJid)
+                    newObject[indexJid] = when (expectedType) {
+                        FMessageWpp.UserJid.TYPE_USERJID -> wrapped.userJid ?: userJid
+                        FMessageWpp.UserJid.TYPE_PHONEUSERJID -> wrapped.phoneJid ?: userJid
+                        FMessageWpp.UserJid.TYPE_DEVICEJID -> wrapped.deviceJid ?: userJid
+                        else -> userJid
                     }
                 }
             }
 
-            if (quoteMessage != null) {
-                val quotedIndex = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.TYPE)
-                if (quotedIndex != -1) {
-                    newObject[quotedIndex] = quoteMessage.getObject()
-                }
+            val msgIndex = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, FMessageWpp.TYPE)
+            if (msgIndex != -1) {
+                newObject[msgIndex] = quoteMessage.getObject()
             }
 
             senderMethod.invoke(actionUser, *newObject)

@@ -66,24 +66,6 @@
             app:entryValues="@array/voice_changer_values"
             app:title="Voice Effect" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="fake_chat_editor_enabled"
-            app:defaultValue="false"
-            app:summary="Allows editing message texts locally"
-            app:title="Fake Chat Editor" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="fake_display_enabled"
-            app:defaultValue="false"
-            app:summary="Allows overriding contact display names and profile photos on WhatsApp screen"
-            app:title="Fake Display" />
-
-        <Preference
-            app:dependency="fake_display_enabled"
-            app:key="fake_display_settings"
-            app:iconSpaceReserved="false"
-            app:title="Configure Fake Display"
-            app:summary="Set custom names and photos for contacts or self" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="custom_folders_enabled"

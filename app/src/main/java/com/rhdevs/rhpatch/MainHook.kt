@@ -46,6 +46,14 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
         // Run Google Photos spoof immediately before Application context is even created
         if (lpparam.packageName == "com.google.android.apps.photos") {
             try {
+                // Set Build fields early before they are read by app code
+                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "BRAND", "google")
+                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "MANUFACTURER", "Google")
+                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "MODEL", "Pixel XL")
+                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "DEVICE", "marlin")
+                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "PRODUCT", "marlin")
+                XposedHelpers.setStaticObjectField(android.os.Build::class.java, "FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys")
+
                 val systemPropertiesClass = XposedHelpers.findClass("android.os.SystemProperties", lpparam.classLoader)
                 val getHook = object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
@@ -62,9 +70,9 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 }
                 XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java, getHook)
                 XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java, String::class.java, getHook)
-                XposedBridge.log("Rhpatch: Successfully spoofed SystemProperties for Google Photos")
+                XposedBridge.log("Rhpatch: Successfully spoofed SystemProperties and Build for Google Photos")
             } catch (e: Throwable) {
-                XposedBridge.log("Rhpatch: Failed to spoof Google Photos SystemProperties: ${e.message}")
+                XposedBridge.log("Rhpatch: Failed to spoof Google Photos SystemProperties/Build: ${e.message}")
             }
         }
 
