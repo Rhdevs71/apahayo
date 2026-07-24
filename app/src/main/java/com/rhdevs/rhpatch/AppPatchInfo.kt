@@ -27,6 +27,7 @@ val appPatchConfigurations = listOf(
     AppPatchInfo("Strava", "com.strava", StravaPatches),
     AppPatchInfo("AllTrails", "com.alltrails.alltrails", AllTrailsPatches),
     AppPatchInfo("1.1.1.1", "com.cloudflare.onedotonedotonedotone", CloudflarePatches),
+    AppPatchInfo("Discord", "com.discord", com.rhdevs.rhpatch.revanced.discord.DiscordPatches),
 )
 
 val patchesByPackage = appPatchConfigurations.associate { it.packageName to it.patches }
