@@ -78,7 +78,9 @@ jobs:
           script: |
             const fs = require('fs');
             const changelog = fs.readFileSync('changelog.txt', 'utf8').trim();
-            core.setOutput('content', changelog);
+            // Telegram message limit is 4096 characters. We truncate to 3500 to leave room for the header and footer.
+            const truncated = changelog.length > 3500 ? changelog.substring(0, 3500) + '\n\n... (Lihat selengkapnya di GitHub)' : changelog;
+            core.setOutput('content', truncated);
 
       - name: Post to Telegram channel
         if: ${{ env.BOT_TOKEN != '' }}
