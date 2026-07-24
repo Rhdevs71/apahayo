@@ -4,36 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
-- **Telegram Notifications**: Set up a GitHub Action workflow to automatically send updates to a private Telegram channel.
-- **Repository Cleanup**: Removed legacy script files, obsolete localization configurations, and completely modernized the README.md documentation.
-- **Instagram Ghost Mode (Piko)**: Ported Piko's Ghost Mode to hide read receipts for Direct Messages (`mark_thread_seen-`) and Stories.
-- **Instagram Downloader Fallback**: Added a long-click listener on the Instagram Share button as a reliable fallback to download media.
-- **Instagram Patching Engine**: Introduced `MetaUnobfuscator` using DexKit to dynamically scan and patch Instagram at runtime.
-- **Instagram Hide Ads**: Ported Piko's `DisableAdsFingerprint` (`Is ad pod`) to block sponsored posts and stories.
-- **Instagram Hook Flags**: Created foundation to intercept `MobileConfig` flags using Piko's `__fbt_null__` fingerprint.
-
-### Changed
-- **Unified Build System**: Removed product flavors (whatsapp/business) to create a single, unified "Apahayo" APK output.
+- **TikTok Downloader**: Added TikTok global package name support to fix watermark issues.
 
 ### Fixed
-- **WhatsApp Crash (Fake Settings)**: Disabled direct SQLite `INSERT INTO` injections for "Fake Messages" and "Fake Call Logs" to prevent fatal crashes and database corruption.
-- **WhatsApp Crash (Message Scheduler)**: Fixed `IllegalArgumentException` (method argument type mismatch) during reflective method invocation `sendMessageToJid` by implementing strict type checking for `Jid` classes, fixing crashes on newer WhatsApp versions.
-- **Google Photos Spoofing**: Moved the device spoofing patch to run immediately during `handleLoadPackage` (before `Application.onCreate`) so Google Photos initializes with Pixel XL identifiers.
-- **Instagram Downloader**: Fixed missing download button by updating `GhostModePatch.kt` logic and adding `BottomSheetDialog.show` hook fallback.
-- **Fake Settings Crash**: Wrapped `isMe()` and `getRawString()` calls in `FakeDisplayHook.kt` with `try-catch` blocks to prevent `NoSuchMethodError` and allow the Fake Settings menu to function correctly in newer WhatsApp versions.
-- **Resource Not Found Crash**: Handled `Resources$NotFoundException` in `UnobfuscatorCache.kt` gracefully to prevent fatal crashes during module initialization when resources fail to inject via LSPosed.
-- **WhatsApp Startup Crash**: Fixed a fatal `Resources$NotFoundException` crash during initialization by ensuring `moduleContext` is loaded before querying module-specific resource arrays (e.g. `supported_versions_wpp`).
-- **Compilation Error**: Fixed `Argument type mismatch` in `WppCore.kt` related to `Boolean::class.javaPrimitiveType`.
-- **DexKit Fatal Error**: Fixed `UnsatisfiedLinkError` on module update by removing `android:extractNativeLibs="true"` and ensuring `useLegacyPackaging = false`. This allows the target app to load the uncompressed `libdexkit.so` directly from the APK, resolving permission denials.
-- **Module Injection Logic**: Fixed `targetPackageName` bug in `MainHook.kt` which was blocking patches for 1.1.1.1, TikTok, and other multi-process apps.
-- **DataStore Crash on Threads/IG Lite**: Separated Threads and Instagram Lite from standard `MetaPatches` to prevent DataStore and layout force closes. They now only use `HideAds` patches.
-- **Ghost Mode Crash**: Filtered out abstract methods during `StorySeen` DexKit method searching to fix `Cannot hook abstract methods` crash.
-- **Media Downloader**: Added fallback mechanism to use last known media URL when view tree search fails.
-- **Message Scheduler WhatsApp**: Rewrote `sendMessageToJid` reflection logic in `WppCore.kt` to dynamically support the heavily obfuscated `A00(X.1i1, String)` method in WhatsApp 2.26.27.85+.
-- **Fake Display**: Removed `FakeDisplayHook` module entirely per user request.
-
-- Fixed Google Photos device spoofing not working properly due to late application execution
-- Fixed WhatsApp Message Scheduler crashing due to JID type mismatch
-- Fixed WhatsApp Auto-Reply crashing on quoted messages due to JID type mismatch
-- Overhauled Instagram Media Downloader to use Floating Download Button to fix Share Sheet UI crashes
-- Added TikTok global package name support to fix watermark issues
+- **Google Photos Spoofing**: Fixed device spoofing not working properly due to late application execution (moved spoof to `handleLoadPackage`).
+- **WhatsApp Message Scheduler**: Fixed crashing during scheduled message dispatch due to JID type mismatch (`IllegalArgumentException`).
+- **WhatsApp Auto-Reply**: Fixed Auto-Reply crashing on quoted messages due to similar JID type mismatch.
+- **Instagram Media Downloader**: Overhauled IG Downloader to use a Floating Download Button, fixing Share Sheet UI crashes (`ClassCastException`).
+- **Compilation**: Fixed unresolved reference `deviceJid` compilation error in `WppCore.kt` and `AutoReplyHook.kt`.
