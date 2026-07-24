@@ -1,4 +1,10 @@
-# Changelog
+Rhpatch v1.5.6
+- New: Universal Auto-Sender (Telegram, SMS, Email, WA)
+- New: Screen Unlock Keyguard Bypass Engine (PIN/Sandi)
+- New: Universal Scheduler Tab in App
+- Fix: AutoSenderAccessibilityService logic
+
+
 
 ## [Unreleased]
 ### Added

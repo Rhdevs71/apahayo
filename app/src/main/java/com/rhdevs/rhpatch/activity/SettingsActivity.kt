@@ -77,16 +77,19 @@ class SettingsActivity : Activity() {
 
     private fun setupTabs() {
         val tabOverview = findViewById<View>(R.id.tab_overview)
+        val tabScheduler = findViewById<View>(R.id.tab_scheduler)
         val tabModules = findViewById<View>(R.id.tab_modules)
         val tabAbout = findViewById<View>(R.id.tab_about)
 
         tabOverview.setOnClickListener { switchTab(0) }
-        tabModules.setOnClickListener { switchTab(1) }
-        tabAbout.setOnClickListener { switchTab(2) }
+        tabScheduler.setOnClickListener { switchTab(1) }
+        tabModules.setOnClickListener { switchTab(2) }
+        tabAbout.setOnClickListener { switchTab(3) }
     }
 
     private fun switchTab(index: Int) {
         val tabOverviewText = findViewById<TextView>(R.id.tab_overview_text)
+        val tabSchedulerText = findViewById<TextView>(R.id.tab_scheduler_text)
         val tabModulesText = findViewById<TextView>(R.id.tab_modules_text)
         val tabAboutText = findViewById<TextView>(R.id.tab_about_text)
 
@@ -94,24 +97,32 @@ class SettingsActivity : Activity() {
         val secondaryColor = Color.parseColor("#94A3B8")
 
         tabOverviewText.setTextColor(secondaryColor)
+        tabSchedulerText.setTextColor(secondaryColor)
         tabModulesText.setTextColor(secondaryColor)
         tabAboutText.setTextColor(secondaryColor)
 
-        val fragment: Fragment = when (index) {
+        var fragment: Fragment? = null
+        when (index) {
             0 -> {
                 tabOverviewText.setTextColor(accentColor)
-                OverviewFragment()
+                fragment = OverviewFragment()
             }
             1 -> {
-                tabModulesText.setTextColor(accentColor)
-                ModulesFragment()
+                tabSchedulerText.setTextColor(accentColor)
+                fragment = UniversalSchedulerFragment()
             }
             2 -> {
-                tabAboutText.setTextColor(accentColor)
-                AboutFragment()
+                tabModulesText.setTextColor(accentColor)
+                fragment = ModulesFragment()
             }
-            else -> return
+            3 -> {
+                tabAboutText.setTextColor(accentColor)
+                fragment = aboutPreference as Fragment
+            }
+            else -> fragment = OverviewFragment()
         }
+        
+        if (fragment == null) return
 
         fragmentManager.beginTransaction()
             .replace(R.id.settings_container, fragment)
@@ -211,6 +222,48 @@ class SettingsActivity : Activity() {
             }
 
             return view
+        }
+    }
+
+    class UniversalSchedulerFragment : Fragment() {
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+            // For now we will return a simple programmatic view, we can extract this to XML later
+            val context = activity
+            val layout = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(40, 40, 40, 40)
+                setBackgroundColor(Color.parseColor("#0F172A")) // apahayo_bg
+            }
+
+            val title = TextView(context).apply {
+                text = "Universal Scheduler"
+                textSize = 24f
+                setTextColor(Color.WHITE)
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setPadding(0, 0, 0, 40)
+            }
+            layout.addView(title)
+
+            val desc = TextView(context).apply {
+                text = "Jadwalkan pesan otomatis untuk Telegram, SMS, Email, dan lainnya lengkap dengan fitur Screen Unlock Keyguard Bypass."
+                textSize = 14f
+                setTextColor(Color.parseColor("#94A3B8"))
+                setPadding(0, 0, 0, 60)
+            }
+            layout.addView(desc)
+            
+            // Temporary button to Lock Screen Config
+            val btnLockConfig = android.widget.Button(context).apply {
+                text = "Konfigurasi Kunci Layar (PIN/Sandi)"
+                setBackgroundColor(Color.parseColor("#3B82F6"))
+                setTextColor(Color.WHITE)
+                setOnClickListener {
+                    startActivity(Intent(context, com.rhdevs.rhpatch.ui.ScreenLockConfigActivity::class.java))
+                }
+            }
+            layout.addView(btnLockConfig)
+
+            return layout
         }
     }
 

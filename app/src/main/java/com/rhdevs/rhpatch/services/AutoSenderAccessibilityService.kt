@@ -2,14 +2,18 @@ package com.rhdevs.rhpatch.services
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
+import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Path
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.util.Base64
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Toast
@@ -17,16 +21,24 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 class AutoSenderAccessibilityService : AccessibilityService() {
 
-    data class SendTask(val phone: String, val message: String)
+    data class Task(val phone: String, val message: String, val targetApp: String = "whatsapp")
 
     companion object {
+        private const val TAG = "WaEnhancerAccessibility"
         private var instance: AutoSenderAccessibilityService? = null
-        private val taskQueue = ConcurrentLinkedQueue<SendTask>()
+        private val taskQueue = ConcurrentLinkedQueue<Task>()
         private var isProcessing = false
         private var wakeLock: PowerManager.WakeLock? = null
 
         fun enqueueTask(phone: String, message: String) {
-            taskQueue.add(SendTask(phone, message))
+            Log.d(TAG, "Task enqueued for $phone")
+            taskQueue.add(Task(phone, message, "whatsapp"))
+            processNextTask()
+        }
+
+        fun enqueueUniversalTask(id: Int, targetApp: String, contact: String, messageText: String) {
+            Log.d(TAG, "Universal Task enqueued for $contact on $targetApp")
+            taskQueue.add(Task(contact, messageText, targetApp))
             processNextTask()
         }
 
@@ -43,13 +55,13 @@ class AutoSenderAccessibilityService : AccessibilityService() {
     }
 
     private val handler = Handler(Looper.getMainLooper())
-    private var currentTask: SendTask? = null
-    private var step = 0 // 0: Wake/Unlock, 1: Launch WA, 2: Click Send, 3: Close
+    private var currentTask: Task? = null
+    private var step = 0
 
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
-        Toast.makeText(this, "WaEnhancer Auto Sender Connected", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Rhpatch Universal Auto Sender Connected", Toast.LENGTH_SHORT).show()
         processNextTask()
     }
 
@@ -57,19 +69,36 @@ class AutoSenderAccessibilityService : AccessibilityService() {
         instance = null
         return super.onUnbind(intent)
     }
+    
+    private fun getSavedPin(): String {
+        val prefs = getSharedPreferences("screen_lock_prefs", Context.MODE_PRIVATE)
+        val encoded = prefs.getString("saved_pin", "") ?: ""
+        if (encoded.isEmpty()) return ""
+        return try {
+            String(Base64.decode(encoded, Base64.DEFAULT))
+        } catch (e: Exception) {
+            ""
+        }
+    }
 
-    private fun executeTask(task: SendTask) {
+    private fun executeTask(task: Task) {
         currentTask = task
         step = 0
-        
-        // Step 0: Wake up screen
         wakeUpScreen()
         
-        // Wait for screen to turn on, then launch WhatsApp
         handler.postDelayed({
-            step = 1
-            launchWhatsApp(task)
-        }, 1000)
+            val kgm = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            if (kgm.isKeyguardLocked) {
+                step = 1 // Unlock Step
+                performGlobalAction(GLOBAL_ACTION_HOME)
+                handler.postDelayed({
+                    swipeUpToUnlock()
+                }, 1000)
+            } else {
+                step = 2 // Launch App Step
+                launchTargetApp(task)
+            }
+        }, 1500)
     }
 
     private fun wakeUpScreen() {
@@ -85,21 +114,93 @@ class AutoSenderAccessibilityService : AccessibilityService() {
                 PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE,
                 "WaEnhancer:AutoSenderWakeLock"
             )
-            wakeLock?.acquire(10 * 60 * 1000L /*10 minutes*/)
-            
-            // TODO: Implement PIN/Swipe to unlock if necessary using gestures
-            // For now, assuming no secure lock screen or user handles it
+            wakeLock?.acquire(10 * 60 * 1000L)
         }
     }
-
-    private fun launchWhatsApp(task: SendTask) {
-        val uri = Uri.parse("whatsapp://send?phone=${task.phone}&text=${Uri.encode(task.message)}")
-        val intent = Intent(Intent.ACTION_VIEW, uri)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
+    
+    private fun swipeUpToUnlock() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val metrics = resources.displayMetrics
+            val path = Path()
+            val startY = metrics.heightPixels * 0.8f
+            val endY = metrics.heightPixels * 0.2f
+            val x = metrics.widthPixels / 2f
+            path.moveTo(x, startY)
+            path.lineTo(x, endY)
+            
+            val gesture = GestureDescription.Builder()
+                .addStroke(GestureDescription.StrokeDescription(path, 0, 300))
+                .build()
+                
+            dispatchGesture(gesture, object : AccessibilityService.GestureResultCallback() {
+                override fun onCompleted(gestureDescription: GestureDescription?) {
+                    handler.postDelayed({ typePin() }, 1000)
+                }
+            }, null)
+        }
+    }
+    
+    private fun typePin() {
+        val pin = getSavedPin()
+        if (pin.isEmpty()) {
+            Toast.makeText(this, "PIN belum dikonfigurasi!", Toast.LENGTH_SHORT).show()
+            finishTask()
+            return
+        }
         
-        // Fail-safe to reset processing if WhatsApp doesn't open
-        handler.postDelayed(timeoutRunnable, 10000)
+        val root = rootInActiveWindow
+        if (root != null) {
+            val pinField = root.findAccessibilityNodeInfosByViewId("com.android.systemui:id/pinEntry")
+            if (pinField.isNotEmpty()) {
+                val args = Bundle().apply {
+                    putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, pin)
+                }
+                pinField[0].performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+                performGlobalAction(GLOBAL_ACTION_HOME)
+                handler.postDelayed({
+                    step = 2
+                    launchTargetApp(currentTask!!)
+                }, 2000)
+                return
+            }
+        }
+        
+        handler.postDelayed({
+            step = 2
+            launchTargetApp(currentTask!!)
+        }, 3000)
+    }
+
+    private fun launchTargetApp(task: Task) {
+        val intent = when (task.targetApp) {
+            "whatsapp" -> {
+                Intent(Intent.ACTION_VIEW, Uri.parse("whatsapp://send?phone=${task.phone}&text=${Uri.encode(task.message)}"))
+            }
+            "telegram" -> {
+                Intent(Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=${task.phone}")).apply {
+                    putExtra("android.intent.extra.TEXT", task.message)
+                }
+            }
+            "sms" -> {
+                Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${task.phone}")).apply {
+                    putExtra("sms_body", task.message)
+                }
+            }
+            "email" -> {
+                Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${task.phone}")).apply {
+                    putExtra(Intent.EXTRA_SUBJECT, "Automated Message")
+                    putExtra(Intent.EXTRA_TEXT, task.message)
+                }
+            }
+            else -> return
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        try {
+            startActivity(intent)
+            handler.postDelayed(timeoutRunnable, 15000)
+        } catch (e: Exception) {
+            finishTask()
+        }
     }
 
     private val timeoutRunnable = Runnable {
@@ -113,47 +214,61 @@ class AutoSenderAccessibilityService : AccessibilityService() {
 
         val packageName = event.packageName?.toString() ?: ""
 
-        if (packageName.contains("whatsapp")) {
-            if (step == 1 && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-                // Wait a bit for the chat to fully load
-                handler.removeCallbacks(timeoutRunnable)
-                handler.postDelayed({
-                    step = 2
-                    findAndClickSendButton()
-                }, 1000)
-            } else if (step == 2 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-                // Sometimes the button appears slightly later
-                findAndClickSendButton()
+        if (step == 2) {
+            if (currentTask!!.targetApp == "whatsapp" && packageName.contains("whatsapp")) {
+                handleWhatsApp(event)
+            } else if (currentTask!!.targetApp == "telegram" && packageName.contains("org.telegram.messenger")) {
+                handleTelegram(event)
             }
         }
     }
-
-    private fun findAndClickSendButton() {
-        if (step != 2) return
-        
-        val rootNode = rootInActiveWindow ?: return
-        
-        // Find send button. WhatsApp uses content description "Send" or ID "send"
-        var sendButton: AccessibilityNodeInfo? = null
-        
-        val nodesById = rootNode.findAccessibilityNodeInfosByViewId("com.whatsapp:id/send")
-        if (nodesById.isNotEmpty()) {
-            sendButton = nodesById[0]
-        } else {
-            val nodesByDesc = rootNode.findAccessibilityNodeInfosByText("Send")
-            if (nodesByDesc.isNotEmpty()) {
-                sendButton = nodesByDesc[0]
-            }
-        }
-
-        if (sendButton != null && sendButton.isClickable) {
-            sendButton.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-            step = 3
-            
-            // Wait for message to be sent, then close
+    
+    private fun handleWhatsApp(event: AccessibilityEvent) {
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            handler.removeCallbacks(timeoutRunnable)
             handler.postDelayed({
-                closeWhatsApp()
+                step = 3
+                findAndClickSendButton("com.whatsapp:id/send")
             }, 1000)
+        } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+            findAndClickSendButton("com.whatsapp:id/send")
+        }
+    }
+    
+    private fun handleTelegram(event: AccessibilityEvent) {
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            handler.removeCallbacks(timeoutRunnable)
+            handler.postDelayed({
+                step = 3
+                val root = rootInActiveWindow ?: return@postDelayed
+                val inputFields = root.findAccessibilityNodeInfosByViewId("org.telegram.messenger:id/chat_message_edit")
+                if (inputFields.isNotEmpty()) {
+                    val args = Bundle().apply { putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, currentTask!!.message) }
+                    inputFields[0].performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+                }
+                handler.postDelayed({ findAndClickSendButton("org.telegram.messenger:id/chat_send_button") }, 500)
+            }, 1500)
+        } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+             findAndClickSendButton("org.telegram.messenger:id/chat_send_button")
+        }
+    }
+
+    private fun findAndClickSendButton(viewId: String) {
+        if (step != 3) return
+        val rootNode = rootInActiveWindow ?: return
+
+        val sendNodes = rootNode.findAccessibilityNodeInfosByViewId(viewId)
+        if (sendNodes.isNotEmpty()) {
+            for (node in sendNodes) {
+                if (node.isClickable || node.contentDescription?.contains("Send") == true || node.contentDescription?.contains("Kirim") == true) {
+                    node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    handler.postDelayed({
+                        performGlobalAction(GLOBAL_ACTION_HOME)
+                        finishTask()
+                    }, 1000)
+                    return
+                }
+            }
         }
     }
 

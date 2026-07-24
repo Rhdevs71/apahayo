@@ -81,7 +81,27 @@
                 android:textStyle="bold"/>
         </LinearLayout>
 
-        <!-- Tab 2: Modules -->
+        <!-- Tab 2: Scheduler (New) -->
+        <LinearLayout
+            android:id="@+id/tab_scheduler"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground">
+            <TextView
+                android:id="@+id/tab_scheduler_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Scheduler"
+                android:textSize="14sp"
+                android:textColor="@color/apahayo_text_secondary"/>
+        </LinearLayout>
+
+        <!-- Tab 3: Modules -->
         <LinearLayout
             android:id="@+id/tab_modules"
             android:layout_width="0dp"
