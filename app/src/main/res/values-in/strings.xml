@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="force_restore_backup">Paksa Pulihkan Cadangan</string>
     <string name="force_restore_backup_summary">Luncurkan layar pemulihan cadangan secara manual. Gunakan ini jika Anda melewatkan pemulihan selama pencadangan</string>
@@ -206,7 +206,7 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="copy_to_clipboard">Menyalin ke papan klip</string>
     <string name="copied_to_clipboard">Disalin ke papan klip</string>
     <string name="error_detected">Kesalahan terdeteksi</string>
-    <string name="whatsapp_crash_report">Laporan kesalahan WhatsApp</string>
+    <string name="whatsapp_crash_report">Rhpatch Crash Report</string>
     <string name="crash_info">Informasi kesalahan</string>
     <string name="crash_trace">Jejak</string>
     <string name="whatsapp_version">Versi WhatsApp</string>
@@ -430,7 +430,7 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="update_available">Pembaruan tersedia</string>
     <string name="update_available_summary">Versi baru %s tersedia!</string>
     <string name="up_to_date">Terbaru</string>
-    <string name="checking_for_updates">Memeriksa pembaruanâ€¦</string>
+    <string name="checking_for_updates">Memeriksa pembaruanÃ¢â‚¬Â¦</string>
     <string name="update_check_failed">Tidak dapat memeriksa pembaruan</string>
     <string name="update_check_failed_summary">Tidak dapat terhubung ke server pembaruan</string>
     <string name="current_version_s">Versi saat ini %s</string>
@@ -497,9 +497,9 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="jump_first_message_sum">Tambahkan tombol untuk pergi ke pesan pertama di layar percakapan</string>
     <string name="copy_selection_message_title">Salin Pilihan Pesan</string>
     <string name="copy_selection_message_sum">Tambahkan tombol untuk memilih dan menyalin bagian tertentu dari pesan</string>
-    <string name="copy_selection_action">âœ‚ Salin Pilihan</string>
+    <string name="copy_selection_action">Ã¢Å“â€š Salin Pilihan</string>
     <string name="copy_selection_dialog_title">Salin Teks</string>
-    <string name="picker_loading_contacts">Memuat kontakâ€¦</string>
+    <string name="picker_loading_contacts">Memuat kontakÃ¢â‚¬Â¦</string>
     <string name="mode_all">Semua</string>
     <string name="picker_contacts">Kontak</string>
     <string name="groups">Grup</string>

@@ -1,4 +1,4 @@
-﻿package com.rhdevs.rhpatch.common
+package com.rhdevs.rhpatch.common
 
 import android.R
 import android.app.Activity
@@ -9,6 +9,9 @@ import android.net.Uri
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
+import android.widget.Toast
+import android.os.Handler
+import android.os.Looper
 import app.morphe.extension.shared.Logger
 import app.morphe.extension.shared.Utils
 import com.google.gson.Gson
@@ -105,6 +108,15 @@ class UpdateChecker() : CoroutineScope {
                 )
                 if (response.statusCode != 200) {
                     Logger.printException { "Failed to fetch latest release: HTTP ${response.statusCode}" }
+                    if (!silent) {
+                        Handler(Looper.getMainLooper()).post {
+                            if (response.statusCode == 404) {
+                                Toast.makeText(requireActivity(), "Tidak ada rilis yang ditemukan (404).", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(requireActivity(), "Gagal memeriksa pembaruan (HTTP ${response.statusCode}).", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
                     return@launch
                 }
 
@@ -118,10 +130,19 @@ class UpdateChecker() : CoroutineScope {
                     showUpdateDialog()
                 } else {
                     Logger.printInfo { "no update found for Rhpatch" }
-                    if (!silent) Utils.showToastLong("Rhpatch is up to date.")
+                    if (!silent) {
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(requireActivity(), "Rhpatch is up to date.", Toast.LENGTH_LONG).show()
+                        }
+                    }
                 }
             } catch (e: Throwable) {
                 Logger.printException({ "checkUpdate error" }, e)
+                if (!silent) {
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(requireActivity(), "Failed to check for updates.", Toast.LENGTH_LONG).show()
+                    }
+                }
             }
         }
     }
@@ -179,7 +200,9 @@ class UpdateChecker() : CoroutineScope {
             requireActivity().startActivity(intent)
         } catch (e: Exception) {
             e.printStackTrace()
-            Utils.showToastLong(e.message.toString())
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(requireActivity(), e.message.toString(), Toast.LENGTH_LONG).show()
+            }
         }
     }
 }

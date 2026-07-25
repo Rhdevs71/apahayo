@@ -26,7 +26,6 @@ public class PrivacyFragment extends BasePreferenceFragment {
     @Override
     public void onResume() {
         super.onResume();
-        setDisplayHomeAsUpEnabled(false);
     }
 
 

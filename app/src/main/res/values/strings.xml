@@ -1,5 +1,5 @@
-<resources>
-    <string name="accessibility_service_description">WaEnhancer Auto Sender Service: Digunakan untuk membangunkan layar dan mengirim pesan WhatsApp secara otomatis yang telah dijadwalkan.</string>
+﻿<resources>
+    <string name="accessibility_service_description">Rhpatch Auto Sender Service: Digunakan untuk membangunkan layar dan mengirim pesan WhatsApp secara otomatis yang telah dijadwalkan.</string>
     <string name="device_admin_description">Digunakan untuk mematikan layar (mengunci perangkat) kembali setelah pesan WhatsApp otomatis selesai dikirimkan agar menghemat baterai dan menjaga keamanan.</string>
     <string name="force_restore_backup">Force Restore Backup</string>
     <string name="force_restore_backup_summary">Launch the restore backup screen manually. Use this if you skipped restoration during setup.</string>
@@ -206,7 +206,7 @@
     <string name="copy_to_clipboard">Copy to clipboard</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="error_detected">Error detected</string>
-    <string name="whatsapp_crash_report">WhatsApp crash report</string>
+    <string name="whatsapp_crash_report">Rhpatch Crash Report</string>
     <string name="crash_info">Crash info</string>
     <string name="crash_trace">Trace</string>
     <string name="whatsapp_version">WhatsApp version</string>
@@ -433,7 +433,7 @@
     <string name="update_available">Update Available</string>
     <string name="update_available_summary">New version %s is available!</string>
     <string name="up_to_date">Up to Date</string>
-    <string name="checking_for_updates">Checking for updatesâ€¦</string>
+    <string name="checking_for_updates">Checking for updatesÃ¢â‚¬Â¦</string>
     <string name="update_check_failed">Unable to Check for Updates</string>
     <string name="update_check_failed_summary">Could not reach update server</string>
     <string name="current_version_s">Current version %s</string>
@@ -496,9 +496,9 @@
     <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
     <string name="copy_selection_message_title">Copy Message Selection</string>
     <string name="copy_selection_message_sum">Add a button to select and copy a specific part of a message</string>
-    <string name="copy_selection_action">âœ‚ Copy Selection</string>
+    <string name="copy_selection_action">Ã¢Å“â€š Copy Selection</string>
     <string name="copy_selection_dialog_title">Copy Text</string>
-    <string name="picker_loading_contacts">Loading contactsâ€¦</string>
+    <string name="picker_loading_contacts">Loading contactsÃ¢â‚¬Â¦</string>
     <string name="mode_all">All</string>
     <string name="picker_contacts">Contacts</string>
     <string name="groups">Groups</string>
@@ -576,4 +576,6 @@
     <string name="diag_hma_blocked">Hide My App List is hiding rhpatch from:</string>
     <string name="diag_hma_disable">Disable the block for WhatsApp/Business in Hide My App List so rhpatch can work correctly.</string>
     <string name="diag_copied">Line copied to clipboard</string>
+    <string name="navigation_drawer_open">Buka Navigasi Laci</string>
+    <string name="navigation_drawer_close">Tutup Navigasi Laci</string>
 </resources>

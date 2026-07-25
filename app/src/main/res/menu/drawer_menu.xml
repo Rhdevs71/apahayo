@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_drawer_status"
+            android:icon="@drawable/ic_home_black_24dp"
+            android:title="Status Modul &amp; Cadangan" />
+        
+        <item
+            android:id="@+id/nav_drawer_media"
+            android:icon="@drawable/ic_media"
+            android:title="Media" />
+        
+        <item
+            android:id="@+id/nav_drawer_customization"
+            android:icon="@drawable/ic_dashboard_black_24dp"
+            android:title="Kustomisasi" />
+    </group>
+</menu>

@@ -302,11 +302,15 @@ object WppCore {
                 if (indexJid != -1) {
                     val expectedType = senderMethod.parameterTypes[indexJid]
                     val wrapped = FMessageWpp.UserJid(userJid)
-                    newObject[indexJid] = when (expectedType) {
-                        FMessageWpp.UserJid.TYPE_USERJID -> wrapped.userJid ?: userJid
-                        FMessageWpp.UserJid.TYPE_PHONEUSERJID -> wrapped.phoneJid ?: userJid
-                        else -> userJid
-                    }
+                    val possibleJids = listOfNotNull(
+                        if (expectedType == FMessageWpp.UserJid.TYPE_USERJID) wrapped.userJid else null,
+                        if (expectedType == FMessageWpp.UserJid.TYPE_PHONEUSERJID) wrapped.phoneJid else null,
+                        wrapped.userJid,
+                        wrapped.phoneJid,
+                        userJid
+                    )
+                    
+                    newObject[indexJid] = possibleJids.firstOrNull { expectedType.isAssignableFrom(it.javaClass) } ?: userJid
                 }
             }
             
@@ -329,11 +333,9 @@ object WppCore {
                 
                 val hasString = params.contains(String::class.java)
                 val hasJid = params.any { param ->
-                    param == FMessageWpp.UserJid.TYPE_JID || 
-                    param == FMessageWpp.UserJid.TYPE_USERJID || 
-                    param == FMessageWpp.UserJid.TYPE_PHONEUSERJID ||
-                    (FMessageWpp.UserJid.TYPE_JID != null && FMessageWpp.UserJid.TYPE_JID.isAssignableFrom(param)) ||
-                    (userJid != null && param.isAssignableFrom(userJid.javaClass))
+                    val wrapped = FMessageWpp.UserJid(userJid)
+                    val possibleJids = listOfNotNull(wrapped.userJid, wrapped.phoneJid, userJid)
+                    possibleJids.any { j -> param.isAssignableFrom(j.javaClass) }
                 }
                 hasString && hasJid && method.name != "toString"
             }
@@ -358,21 +360,23 @@ object WppCore {
                 }
                 
                 val indexJid = senderMethod.parameterTypes.indexOfFirst { param ->
-                    param == FMessageWpp.UserJid.TYPE_JID || 
-                    param == FMessageWpp.UserJid.TYPE_USERJID || 
-                    param == FMessageWpp.UserJid.TYPE_PHONEUSERJID ||
-                    (FMessageWpp.UserJid.TYPE_JID != null && FMessageWpp.UserJid.TYPE_JID.isAssignableFrom(param)) ||
-                    (param.name.length <= 15 && !param.name.startsWith("java.") && !param.name.startsWith("android."))
+                    val wrapped = FMessageWpp.UserJid(userJid)
+                    val possibleJids = listOfNotNull(wrapped.userJid, wrapped.phoneJid, userJid)
+                    possibleJids.any { j -> param.isAssignableFrom(j.javaClass) }
                 }
                 
                 if (indexJid != -1) {
                     val expectedType = senderMethod.parameterTypes[indexJid]
                     val wrapped = FMessageWpp.UserJid(userJid)
-                    newObject[indexJid] = when (expectedType) {
-                        FMessageWpp.UserJid.TYPE_USERJID -> wrapped.userJid ?: userJid
-                        FMessageWpp.UserJid.TYPE_PHONEUSERJID -> wrapped.phoneJid ?: userJid
-                        else -> userJid
-                    }
+                    val possibleJids = listOfNotNull(
+                        if (expectedType == FMessageWpp.UserJid.TYPE_USERJID) wrapped.userJid else null,
+                        if (expectedType == FMessageWpp.UserJid.TYPE_PHONEUSERJID) wrapped.phoneJid else null,
+                        wrapped.userJid,
+                        wrapped.phoneJid,
+                        userJid
+                    )
+                    
+                    newObject[indexJid] = possibleJids.firstOrNull { expectedType.isAssignableFrom(it.javaClass) } ?: userJid
                 }
                 
                 senderMethod.invoke(getActionUser(), *newObject)

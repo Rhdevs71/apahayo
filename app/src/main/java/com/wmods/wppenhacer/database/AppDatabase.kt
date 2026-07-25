@@ -5,11 +5,28 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [ScheduledMessage::class, AutoReplyRule::class, FakeChatBackup::class], version = 4, exportSchema = false)
+import com.rhdevs.rhpatch.scheduler.db.UniversalTaskEntity
+import com.rhdevs.rhpatch.scheduler.db.UniversalTemplateEntity
+import com.rhdevs.rhpatch.scheduler.db.UniversalRecipientEntity
+import com.rhdevs.rhpatch.scheduler.db.UniversalSchedulerDao
+
+@Database(
+    entities = [
+        ScheduledMessage::class, 
+        AutoReplyRule::class, 
+        FakeChatBackup::class,
+        UniversalTaskEntity::class,
+        UniversalTemplateEntity::class,
+        UniversalRecipientEntity::class
+    ], 
+    version = 6, 
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun scheduledMessageDao(): ScheduledMessageDao
     abstract fun autoReplyRuleDao(): AutoReplyRuleDao
     abstract fun fakeChatBackupDao(): FakeChatBackupDao
+    abstract fun universalSchedulerDao(): UniversalSchedulerDao
 
     companion object {
         @Volatile

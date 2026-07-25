@@ -136,7 +136,8 @@
             android:padding="16dp"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground">
+            android:foreground="?android:attr/selectableItemBackground"
+            android:layout_marginBottom="14dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -165,6 +166,45 @@
                 android:textSize="11sp"
                 android:lineSpacingMultiplier="1.2"
                 android:text="Checking version..." />
+        </LinearLayout>
+
+        <!-- Root Diagnostic Card -->
+        <LinearLayout
+            android:id="@+id/card_diag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DIAGNOSTICS"
+                android:textColor="@color/apahayo_text_secondary"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="6dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Root &amp; System Log"
+                android:textColor="@color/apahayo_text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Check root access and view LSPosed logs for troubleshooting."
+                android:textColor="@color/apahayo_text_secondary"
+                android:textSize="12sp" />
         </LinearLayout>
 
     </LinearLayout>

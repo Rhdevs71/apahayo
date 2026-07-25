@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="force_restore_backup">Paksa Pulihkan Cadangan</string>
     <string name="force_restore_backup_summary">Luncurkan layar pemulihan cadangan secara manual. Gunakan ini jika Anda melewatkan pemulihan selama pengaturan.</string>
@@ -209,7 +209,7 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="copy_to_clipboard">Menyalin ke papan klip</string>
     <string name="copied_to_clipboard">Disalin ke papan klip</string>
     <string name="error_detected">Kesalahan terdeteksi</string>
-    <string name="whatsapp_crash_report">WhatsApp crash report</string>
+    <string name="whatsapp_crash_report">Rhpatch Crash Report</string>
     <string name="crash_info">Crash info</string>
     <string name="crash_trace">Trace</string>
     <string name="whatsapp_version">WhatsApp version</string>
@@ -433,7 +433,7 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="update_available">Update Available</string>
     <string name="update_available_summary">New version %s is available!</string>
     <string name="up_to_date">Up to Date</string>
-    <string name="checking_for_updates">Checking for updates…</string>
+    <string name="checking_for_updates">Checking for updatesâ€¦</string>
     <string name="update_check_failed">Unable to Check for Updates</string>
     <string name="update_check_failed_summary">Could not reach update server</string>
     <string name="current_version_s">Current version %s</string>
@@ -498,9 +498,9 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="jump_first_message_sum">Tambahkan tombol untuk melewati pesan pertama di layar percakapan</string>
     <string name="copy_selection_message_title">Salin Pilihan Pesan</string>
     <string name="copy_selection_message_sum">Tambahkan tombol untuk memilih dan menyalin bagian tertentu dari pesan</string>
-    <string name="copy_selection_action">✂ Salin Pilihan</string>
+    <string name="copy_selection_action">âœ‚ Salin Pilihan</string>
     <string name="copy_selection_dialog_title">Salin Teks</string>
-    <string name="picker_loading_contacts">Loading contacts…</string>
+    <string name="picker_loading_contacts">Loading contactsâ€¦</string>
     <string name="mode_all">All</string>
     <string name="picker_contacts">Contacts</string>
     <string name="groups">Groups</string>

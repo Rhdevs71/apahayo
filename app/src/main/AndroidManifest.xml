@@ -16,6 +16,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -75,6 +78,7 @@
         <activity
             android:name="com.rhdevs.rhpatch.activity.SettingsActivity"
             android:exported="true"
+            android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -94,10 +98,39 @@
             android:launchMode="singleTop">
         </activity>
 
-        <activity
-            android:name=".activities.AboutActivity"
-            android:theme="@style/AppTheme" />
 
+        <activity
+            android:name="com.rhdevs.rhpatch.activity.SchedulerDashboardActivity"
+            android:label="Universal Scheduler"
+            android:theme="@style/AppTheme"
+            android:exported="false" />
+            
+        <activity
+            android:name="com.rhdevs.rhpatch.activity.ComposeScheduleActivity"
+            android:label="Buat Jadwal"
+            android:theme="@style/AppTheme"
+            android:exported="false" />
+            
+        <activity
+            android:name="com.rhdevs.rhpatch.activity.AutomationCountdownActivity"
+            android:label="Menjalankan Jadwal..."
+            android:theme="@style/AppTheme"
+            android:excludeFromRecents="true"
+            android:showOnLockScreen="true"
+            android:exported="false" />
+            
+        <activity
+            android:name="com.rhdevs.rhpatch.activity.PermissionCheckActivity"
+            android:label="Pemeriksaan Izin"
+            android:theme="@style/AppTheme"
+            android:exported="false" />
+            
+        <activity
+            android:name="com.rhdevs.rhpatch.activity.TroubleshootingActivity"
+            android:label="Pusat Bantuan"
+            android:theme="@style/AppTheme"
+            android:exported="false" />
+            
         <activity
             android:name="com.wmods.wppenhacer.activities.CrashReportActivity"
             android:label="Crash Report"
@@ -286,11 +319,11 @@
             </intent-filter>
         </receiver>
 
+        <!-- Auto Sender Accessibility Service -->
         <service
-            android:name=".services.AutoSenderAccessibilityService"
-            android:enabled="true"
+            android:name="com.rhdevs.rhpatch.services.AutoSenderAccessibilityService"
             android:exported="true"
-            android:label="WaEnhancer Auto Sender"
+            android:label="Rhpatch Universal Auto Sender"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
@@ -300,10 +333,21 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
+        <!-- Auto Reply Notification Listener Service -->
+        <service
+            android:name="com.rhdevs.rhpatch.services.AutoReplyService"
+            android:label="Rhpatch Auto Reply"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
         <receiver
-            android:name=".receivers.WaDeviceAdminReceiver"
+            android:name="com.rhdevs.rhpatch.receivers.WaDeviceAdminReceiver"
             android:description="@string/device_admin_description"
-            android:label="WaEnhancer Auto Sender Lock"
+            android:label="@string/app_name"
             android:permission="android.permission.BIND_DEVICE_ADMIN"
             android:exported="true">
             <meta-data

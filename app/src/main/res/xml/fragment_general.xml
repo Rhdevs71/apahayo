@@ -21,12 +21,6 @@
         app:title="Automation &amp; Replies">
 
         <Preference
-            app:key="message_scheduler_settings"
-            app:iconSpaceReserved="false"
-            app:title="Message Scheduler"
-            app:summary="Schedule text and media messages" />
-
-        <Preference
             app:key="auto_reply_settings"
             app:iconSpaceReserved="false"
             app:title="Auto Reply"

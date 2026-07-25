@@ -23,10 +23,15 @@ class UniversalAlarmReceiver : BroadcastReceiver() {
         val contact = intent.getStringExtra("contact") ?: return
         val messageText = intent.getStringExtra("messageText") ?: return
 
-        // Route to AccessibilityService for Keyguard bypass and UI injection
-        com.rhdevs.rhpatch.services.AutoSenderAccessibilityService.enqueueUniversalTask(
-            id, targetApp, contact, messageText
-        )
+        // Start Countdown Activity
+        val countdownIntent = Intent(context, com.rhdevs.rhpatch.activity.AutomationCountdownActivity::class.java).apply {
+            putExtra("taskId", id)
+            putExtra("targetApp", targetApp)
+            putExtra("contact", contact)
+            putExtra("messageText", messageText)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
+        context.startActivity(countdownIntent)
     }
 }
 

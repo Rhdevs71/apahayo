@@ -20,6 +20,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import java.io.File
 import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
 
 class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) : Feature(loader, preferences) {
 
@@ -63,6 +64,15 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
                     val messageText = intent.getStringExtra("messageText") ?: ""
                     val mediaPath = intent.getStringExtra("mediaPath")
                     val mediaType = intent.getStringExtra("mediaType")
+
+                    if (id != -1) {
+                        val lastProcessed = processedTimes[id] ?: 0L
+                        if (System.currentTimeMillis() - lastProcessed < 60_000L) {
+                            XposedBridge.log("WaEnhancer MessageSchedulerHook onReceive: Message $id was processed recently. Ignoring duplicate trigger.")
+                            return
+                        }
+                        processedTimes[id] = System.currentTimeMillis()
+                    }
 
                     XposedBridge.log("WaEnhancer MessageSchedulerHook onReceive: Message trigger received for id $id, JID: $jid")
 
@@ -210,5 +220,9 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
             `package` = BuildConfig.APPLICATION_ID
         }
         Utils.application.sendBroadcast(intent)
+    }
+
+    companion object {
+        private val processedTimes = ConcurrentHashMap<Int, Long>()
     }
 }

@@ -16,12 +16,6 @@
         app:iconTint="@color/text_on_gradient"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/menu_about"
-        android:icon="@drawable/about"
-        android:title="@string/about"
-        app:iconTint="@color/text_on_gradient"
-        app:showAsAction="ifRoom" />
 
 
     <item

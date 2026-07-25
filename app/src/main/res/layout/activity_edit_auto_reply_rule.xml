@@ -170,34 +170,33 @@
                         android:textSize="16sp" />
                 </LinearLayout>
 
-                <!-- Wildcard & Regex Radio Group -->
-                <RadioGroup
-                    android:id="@+id/radio_group_matching"
-                    android:layout_width="match_parent"
+                <!-- Matching Type Dropdown -->
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
+                    android:text="Matching type"
+                    android:textColor="#8F9CAE"
+                    android:textSize="12sp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginBottom="-8dp"
+                    android:elevation="2dp"
+                    android:background="#141A26"
+                    android:paddingHorizontal="4dp" />
 
-                    <RadioButton
-                        android:id="@+id/radio_wildcard"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Wildcard (*)"
-                        android:textColor="#E3E6EB"
-                        android:textSize="14sp"
-                        android:buttonTint="#9C87F2"
-                        android:checked="true"
-                        android:layout_marginEnd="24dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_bordered_box_nested"
+                    android:paddingHorizontal="16dp"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
 
-                    <RadioButton
-                        android:id="@+id/radio_regex"
-                        android:layout_width="wrap_content"
+                    <Spinner
+                        android:id="@+id/spinner_matching_type"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Regex"
-                        android:textColor="#E3E6EB"
-                        android:textSize="14sp"
-                        android:buttonTint="#9C87F2" />
-                </RadioGroup>
+                        android:backgroundTint="#E3E6EB" />
+                </LinearLayout>
 
                 <!-- Ignore Case Checkbox -->
                 <CheckBox
@@ -410,19 +409,125 @@
                     android:gravity="center_vertical"
                     android:layout_marginBottom="16dp">
 
+                    <Spinner
+                        android:id="@+id/spinner_reply_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#E3E6EB" />
+                </LinearLayout>
+
+                <!-- AI Settings Box (Visible only if Reply Type is AI) -->
+                <LinearLayout
+                    android:id="@+id/layout_ai_settings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Text"
+                        android:text="AI Provider"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginBottom="-8dp"
+                        android:elevation="2dp"
+                        android:background="#141A26"
+                        android:paddingHorizontal="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_bordered_box_nested"
+                        android:paddingHorizontal="16dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+                        <Spinner
+                            android:id="@+id/spinner_ai_provider"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#E3E6EB" />
+                    </LinearLayout>
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AI Model"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginBottom="-8dp"
+                        android:elevation="2dp"
+                        android:background="#141A26"
+                        android:paddingHorizontal="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_bordered_box_nested"
+                        android:paddingHorizontal="16dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+                        <Spinner
+                            android:id="@+id/spinner_ai_model"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#E3E6EB" />
+                    </LinearLayout>
+
+                    <!-- Custom Model Name (Visible if Custom chosen) -->
+                    <EditText
+                        android:id="@+id/edit_custom_model"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_bordered_box_nested"
+                        android:paddingHorizontal="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Enter custom model id"
                         android:textColor="#E3E6EB"
-                        android:textSize="16sp" />
+                        android:textColorHint="#5A687C"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="API Keys (Comma separated for failover)"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginBottom="-8dp"
+                        android:elevation="2dp"
+                        android:background="#141A26"
+                        android:paddingHorizontal="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_bordered_box_nested"
+                        android:padding="12dp"
+                        android:layout_marginBottom="16dp">
+                        <EditText
+                            android:id="@+id/edit_api_keys"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minLines="3"
+                            android:gravity="top"
+                            android:background="@null"
+                            android:hint="key1,key2,key3..."
+                            android:textColor="#E3E6EB"
+                            android:textColorHint="#5A687C"
+                            android:textSize="16sp" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <!-- Reply Text Input -->
                 <TextView
+                    android:id="@+id/label_reply_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reply text — use {{contact_name}} and {{group_name}}"
+                    android:text="Reply text (Use ||| to separate multiple/random replies)"
                     android:textColor="#8F9CAE"
                     android:textSize="12sp"
                     android:layout_marginStart="12dp"
@@ -432,6 +537,7 @@
                     android:paddingHorizontal="4dp" />
 
                 <LinearLayout
+                    android:id="@+id/layout_reply_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"

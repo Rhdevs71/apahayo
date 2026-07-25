@@ -116,7 +116,6 @@ public class GeneralFragment extends BaseFragment {
         @Override
         public void onResume() {
             super.onResume();
-            setDisplayHomeAsUpEnabled(false);
         }
     }
 

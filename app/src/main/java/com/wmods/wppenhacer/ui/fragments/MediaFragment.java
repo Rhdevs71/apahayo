@@ -21,7 +21,6 @@ public class MediaFragment extends BasePreferenceFragment {
     @Override
     public void onResume() {
         super.onResume();
-        setDisplayHomeAsUpEnabled(false);
     }
 
     @Override

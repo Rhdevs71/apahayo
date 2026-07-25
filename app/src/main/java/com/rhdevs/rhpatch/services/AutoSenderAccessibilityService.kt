@@ -17,28 +17,36 @@ import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Toast
+import com.rhdevs.rhpatch.scheduler.db.UniversalTaskEntity
+import com.wmods.wppenhacer.database.AppDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentLinkedQueue
+import android.app.Notification
+import android.app.RemoteInput
+import com.wmods.wppenhacer.database.AutoReplyRule
 
 class AutoSenderAccessibilityService : AccessibilityService() {
 
-    data class Task(val phone: String, val message: String, val targetApp: String = "whatsapp")
+    data class Task(val id: Int, val phone: String, val message: String, val targetApp: String = "whatsapp", val mediaPath: String? = null, val mediaType: String? = null)
 
     companion object {
-        private const val TAG = "WaEnhancerAccessibility"
+        private const val TAG = "RhpatchAutoSender"
         private var instance: AutoSenderAccessibilityService? = null
         private val taskQueue = ConcurrentLinkedQueue<Task>()
         private var isProcessing = false
         private var wakeLock: PowerManager.WakeLock? = null
 
         fun enqueueTask(phone: String, message: String) {
-            Log.d(TAG, "Task enqueued for $phone")
-            taskQueue.add(Task(phone, message, "whatsapp"))
+            Log.d(TAG, "Legacy Task enqueued for $phone")
+            taskQueue.add(Task(-1, phone, message, "whatsapp"))
             processNextTask()
         }
 
-        fun enqueueUniversalTask(id: Int, targetApp: String, contact: String, messageText: String) {
+        fun enqueueUniversalTask(id: Int, targetApp: String, contact: String, messageText: String, mediaPath: String? = null, mediaType: String? = null) {
             Log.d(TAG, "Universal Task enqueued for $contact on $targetApp")
-            taskQueue.add(Task(contact, messageText, targetApp))
+            taskQueue.add(Task(id, contact, messageText, targetApp, mediaPath, mediaType))
             processNextTask()
         }
 
@@ -110,9 +118,10 @@ class AutoSenderAccessibilityService : AccessibilityService() {
         }
 
         if (!isScreenOn) {
+            @Suppress("DEPRECATION")
             wakeLock = pm.newWakeLock(
                 PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE,
-                "WaEnhancer:AutoSenderWakeLock"
+                "Rhpatch:AutoSenderWakeLock"
             )
             wakeLock?.acquire(10 * 60 * 1000L)
         }
@@ -143,54 +152,143 @@ class AutoSenderAccessibilityService : AccessibilityService() {
     private fun typePin() {
         val pin = getSavedPin()
         if (pin.isEmpty()) {
-            Toast.makeText(this, "PIN belum dikonfigurasi!", Toast.LENGTH_SHORT).show()
-            finishTask()
+            // Pin not set, assume Swipe-to-unlock was enough
+            handler.postDelayed({
+                step = 2
+                launchTargetApp(currentTask!!)
+            }, 1000)
             return
         }
         
-        val root = rootInActiveWindow
-        if (root != null) {
-            val pinField = root.findAccessibilityNodeInfosByViewId("com.android.systemui:id/pinEntry")
-            if (pinField.isNotEmpty()) {
-                val args = Bundle().apply {
-                    putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, pin)
+        for (i in pin.indices) {
+            val digit = pin[i]
+            val delay = (i * 300).toLong()
+            handler.postDelayed({
+                val rootNode = rootInActiveWindow
+                if (rootNode != null) {
+                    clickNodeByText(rootNode, digit.toString())
                 }
-                pinField[0].performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
-                performGlobalAction(GLOBAL_ACTION_HOME)
-                handler.postDelayed({
-                    step = 2
-                    launchTargetApp(currentTask!!)
-                }, 2000)
-                return
-            }
+            }, delay)
         }
-        
+
+        // Wait for all digits to be clicked, then press Enter if needed, or wait for auto-unlock
+        val totalDelay = (pin.length * 300 + 1000).toLong()
         handler.postDelayed({
+            // Try to click enter button (sometimes 'OK' or an arrow icon, but let's hope it auto-submits or user doesn't require enter)
+            // Just wait and launch
             step = 2
             launchTargetApp(currentTask!!)
-        }, 3000)
+        }, totalDelay)
+    }
+
+    private fun clickNodeByText(node: AccessibilityNodeInfo?, text: String) {
+        if (node == null) return
+        val nodeText = node.text?.toString() ?: ""
+        val nodeDesc = node.contentDescription?.toString() ?: ""
+        if (nodeText == text || nodeDesc == text) {
+            node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            return
+        }
+        for (i in 0 until node.childCount) {
+            clickNodeByText(node.getChild(i), text)
+        }
     }
 
     private fun launchTargetApp(task: Task) {
+        if (task.mediaPath != null) {
+            val fileUri = Uri.parse(task.mediaPath)
+            val intent = Intent(Intent.ACTION_SEND)
+            intent.type = if (task.mediaType == "IMAGE") "image/*" else if (task.mediaType == "VIDEO") "video/*" else if (task.mediaType == "AUDIO") "audio/*" else "*/*"
+            intent.putExtra(Intent.EXTRA_STREAM, fileUri)
+            if (task.message.isNotEmpty()) {
+                intent.putExtra(Intent.EXTRA_TEXT, task.message)
+            }
+            val phoneJid = if (task.phone.contains("@")) task.phone else "${task.phone}@s.whatsapp.net"
+            when (task.targetApp) {
+                "whatsapp" -> {
+                    intent.setPackage("com.whatsapp")
+                    intent.putExtra("jid", phoneJid)
+                }
+                "whatsapp_business" -> {
+                    intent.setPackage("com.whatsapp.w4b")
+                    intent.putExtra("jid", phoneJid)
+                }
+                "telegram" -> intent.setPackage("org.telegram.messenger")
+                "messenger" -> intent.setPackage("com.facebook.orca")
+                // For direct targets using ACTION_SEND, some apps might require chooser or specific package
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            try {
+                startActivity(intent)
+                handler.postDelayed(timeoutRunnable, 15000)
+            } catch (e: Exception) {
+                finishTask(false)
+            }
+            return
+        }
+
         val intent = when (task.targetApp) {
-            "whatsapp" -> {
-                Intent(Intent.ACTION_VIEW, Uri.parse("whatsapp://send?phone=${task.phone}&text=${Uri.encode(task.message)}"))
+            "whatsapp", "whatsapp_business" -> {
+                val pkg = if (task.targetApp == "whatsapp_business") "com.whatsapp.w4b" else "com.whatsapp"
+                val i = Intent(Intent.ACTION_VIEW, Uri.parse("whatsapp://send?phone=${task.phone}&text=${Uri.encode(task.message)}"))
+                i.setPackage(pkg)
+                i
             }
             "telegram" -> {
-                Intent(Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=${task.phone}")).apply {
-                    putExtra("android.intent.extra.TEXT", task.message)
+                val encodedMsg = Uri.encode(task.message)
+                val cleanPhone = task.phone.replace(" ", "")
+                if (cleanPhone.matches(Regex("^[0-9+\\-]+$"))) {
+                    Intent(Intent.ACTION_VIEW, Uri.parse("tg://msg?to=$cleanPhone&text=$encodedMsg"))
+                } else {
+                    val username = if (cleanPhone.startsWith("@")) cleanPhone.substring(1) else cleanPhone
+                    Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/$username?text=$encodedMsg"))
                 }
             }
+            "telegram_group" -> {
+                Intent(Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=${task.phone}"))
+            }
             "sms" -> {
-                Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${task.phone}")).apply {
-                    putExtra("sms_body", task.message)
+                try {
+                    val smsManager = android.telephony.SmsManager.getDefault()
+                    smsManager.sendTextMessage(task.phone, null, task.message, null, null)
+                    finishTask(true)
+                    return
+                } catch (e: Exception) {
+                    Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${task.phone}")).apply {
+                        putExtra("sms_body", task.message)
+                    }
+                }
+            }
+            "call" -> {
+                try {
+                    val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:${task.phone}"))
+                    callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(callIntent)
+                    handler.postDelayed({ finishTask(true) }, 3000)
+                    return
+                } catch (e: Exception) {
+                    return
                 }
             }
             "email" -> {
-                Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${task.phone}")).apply {
-                    putExtra(Intent.EXTRA_SUBJECT, "Automated Message")
-                    putExtra(Intent.EXTRA_TEXT, task.message)
+                var subject = "Automated Message"
+                var body = task.message
+                if (task.message.contains("|||")) {
+                    val parts = task.message.split("|||", limit = 2)
+                    subject = parts[0]
+                    body = parts[1]
                 }
+                val uriString = "mailto:${task.phone}?subject=${Uri.encode(subject)}&body=${Uri.encode(body)}"
+                Intent(Intent.ACTION_SENDTO, Uri.parse(uriString))
+            }
+            "messenger" -> {
+                Intent(Intent.ACTION_VIEW, Uri.parse("fb-messenger://user-thread/${task.phone}"))
+            }
+            "instagram" -> {
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://ig.me/m/${task.phone}"))
+            }
+            "discord" -> {
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.com/users/${task.phone}"))
             }
             else -> return
         }
@@ -199,26 +297,45 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             startActivity(intent)
             handler.postDelayed(timeoutRunnable, 15000)
         } catch (e: Exception) {
-            finishTask()
+            finishTask(false)
         }
     }
 
     private val timeoutRunnable = Runnable {
-        if (isProcessing) {
-            finishTask()
+        if (step in 1..3) {
+            finishTask(false)
         }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event == null || !isProcessing || currentTask == null) return
+        if (event == null) return
+
+        if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
+            val data = event.parcelableData
+            if (data is Notification) {
+                val packageName = event.packageName?.toString() ?: return
+                val extras = data.extras
+                val title = extras.getString(Notification.EXTRA_TITLE) ?: ""
+                val text = extras.getString(Notification.EXTRA_TEXT) ?: ""
+                if (text.isNotEmpty() && title.isNotEmpty()) {
+                    handleAutoReplyViaNotification(packageName, title, text, data)
+                }
+            }
+        }
+
+        if (currentTask == null) return
 
         val packageName = event.packageName?.toString() ?: ""
 
-        if (step == 2) {
-            if (currentTask!!.targetApp == "whatsapp" && packageName.contains("whatsapp")) {
-                handleWhatsApp(event)
-            } else if (currentTask!!.targetApp == "telegram" && packageName.contains("org.telegram.messenger")) {
-                handleTelegram(event)
+        if (step == 2 || step == 3) {
+            when (currentTask!!.targetApp) {
+                "whatsapp" -> if (packageName.contains("whatsapp")) handleWhatsApp(event)
+                "telegram", "telegram_group" -> if (packageName.contains("org.telegram.messenger") || packageName.contains("telegram")) handleTelegram(event)
+                "sms" -> if (packageName.contains("mms") || packageName.contains("messaging")) handleSMS(event)
+                "email" -> if (packageName.contains("gm") || packageName.contains("email")) handleEmail(event)
+                "messenger" -> if (packageName.contains("orca") || packageName.contains("facebook")) handleFacebookMessenger(event)
+                "instagram" -> if (packageName.contains("instagram")) handleInstagram(event)
+                "discord" -> if (packageName.contains("discord")) handleDiscord(event)
             }
         }
     }
@@ -241,16 +358,115 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             handler.postDelayed({
                 step = 3
                 val root = rootInActiveWindow ?: return@postDelayed
+                // Attempt to find chat box (often it's pre-filled by Intent, but sometimes needs click)
                 val inputFields = root.findAccessibilityNodeInfosByViewId("org.telegram.messenger:id/chat_message_edit")
                 if (inputFields.isNotEmpty()) {
                     val args = Bundle().apply { putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, currentTask!!.message) }
                     inputFields[0].performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
                 }
-                handler.postDelayed({ findAndClickSendButton("org.telegram.messenger:id/chat_send_button") }, 500)
+                handler.postDelayed({ 
+                    findAndClickSendButton("org.telegram.messenger:id/chat_send_button") 
+                    handler.postDelayed({
+                        if (step == 3) findAndClickSendButtonByDescOrText("send", "kirim")
+                    }, 500)
+                }, 500)
             }, 1500)
         } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
              findAndClickSendButton("org.telegram.messenger:id/chat_send_button")
+             if (step == 3) findAndClickSendButtonByDescOrText("send", "kirim")
         }
+    }
+
+    private fun handleSMS(event: AccessibilityEvent) {
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            handler.removeCallbacks(timeoutRunnable)
+            handler.postDelayed({
+                step = 3
+                // In generic SMS apps, the send button id varies. We'll search by description/text.
+                findAndClickSendButtonByDescOrText("send", "kirim")
+            }, 1500)
+        } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+             findAndClickSendButtonByDescOrText("send", "kirim")
+        }
+    }
+
+    private fun handleEmail(event: AccessibilityEvent) {
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            handler.removeCallbacks(timeoutRunnable)
+            handler.postDelayed({
+                step = 3
+                // Gmail send button usually has contentDescription "Send" or id "send"
+                findAndClickSendButton("com.google.android.gm:id/send")
+                handler.postDelayed({
+                    if (step == 3) findAndClickSendButtonByDescOrText("send", "kirim")
+                }, 500)
+            }, 1500)
+        } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+             findAndClickSendButton("com.google.android.gm:id/send")
+             if (step == 3) findAndClickSendButtonByDescOrText("send", "kirim")
+        }
+    }
+
+    private fun handleFacebookMessenger(event: AccessibilityEvent) {
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            handler.removeCallbacks(timeoutRunnable)
+            handler.postDelayed({
+                step = 3
+                val root = rootInActiveWindow ?: return@postDelayed
+                // Attempt to find chat box for Messenger
+                findAndSetTextByContentDescOrText(root, currentTask!!.message, "Type a message", "Tulis pesan")
+                handler.postDelayed({ findAndClickSendButtonByDescOrText("send", "kirim") }, 500)
+            }, 1500)
+        } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+            findAndClickSendButtonByDescOrText("send", "kirim")
+        }
+    }
+
+    private fun handleInstagram(event: AccessibilityEvent) {
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            handler.removeCallbacks(timeoutRunnable)
+            handler.postDelayed({
+                step = 3
+                val root = rootInActiveWindow ?: return@postDelayed
+                findAndSetTextByContentDescOrText(root, currentTask!!.message, "Message", "Pesan")
+                handler.postDelayed({ findAndClickSendButtonByDescOrText("send", "kirim") }, 500)
+            }, 1500)
+        } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+            findAndClickSendButtonByDescOrText("send", "kirim")
+        }
+    }
+
+    private fun handleDiscord(event: AccessibilityEvent) {
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            handler.removeCallbacks(timeoutRunnable)
+            handler.postDelayed({
+                step = 3
+                val root = rootInActiveWindow ?: return@postDelayed
+                findAndSetTextByContentDescOrText(root, currentTask!!.message, "Message", "Pesan")
+                handler.postDelayed({ findAndClickSendButtonByDescOrText("send", "kirim") }, 500)
+            }, 1500)
+        } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+            findAndClickSendButtonByDescOrText("send", "kirim")
+        }
+    }
+
+    private fun findAndSetTextByContentDescOrText(node: AccessibilityNodeInfo, textToSet: String, vararg keywords: String): Boolean {
+        val desc = node.contentDescription?.toString()?.lowercase() ?: ""
+        val text = node.text?.toString()?.lowercase() ?: ""
+        
+        for (keyword in keywords) {
+            if (desc.contains(keyword.lowercase()) || text.contains(keyword.lowercase())) {
+                val args = Bundle().apply { putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, textToSet) }
+                node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+                return true
+            }
+        }
+        
+        for (i in 0 until node.childCount) {
+            val child = node.getChild(i)
+            if (child != null && findAndSetTextByContentDescOrText(child, textToSet, *keywords)) return true
+        }
+        return false
     }
 
     private fun findAndClickSendButton(viewId: String) {
@@ -260,11 +476,12 @@ class AutoSenderAccessibilityService : AccessibilityService() {
         val sendNodes = rootNode.findAccessibilityNodeInfosByViewId(viewId)
         if (sendNodes.isNotEmpty()) {
             for (node in sendNodes) {
-                if (node.isClickable || node.contentDescription?.contains("Send") == true || node.contentDescription?.contains("Kirim") == true) {
+                if (node.isClickable || node.contentDescription?.toString()?.contains("Send", true) == true || node.contentDescription?.toString()?.contains("Kirim", true) == true) {
+                    step = 4 // Prevent looping
                     node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                     handler.postDelayed({
                         performGlobalAction(GLOBAL_ACTION_HOME)
-                        finishTask()
+                        finishTask(true)
                     }, 1000)
                     return
                 }
@@ -272,16 +489,58 @@ class AutoSenderAccessibilityService : AccessibilityService() {
         }
     }
 
-    private fun closeWhatsApp() {
-        // Press BACK button globally
-        performGlobalAction(GLOBAL_ACTION_BACK)
-        handler.postDelayed({
-            performGlobalAction(GLOBAL_ACTION_HOME)
-            finishTask()
-        }, 500)
+    private fun findAndClickSendButtonByDescOrText(vararg keywords: String) {
+        if (step != 3) return
+        val rootNode = rootInActiveWindow ?: return
+        
+        fun searchNode(node: AccessibilityNodeInfo): Boolean {
+            val desc = node.contentDescription?.toString()?.lowercase() ?: ""
+            val text = node.text?.toString()?.lowercase() ?: ""
+            
+            for (keyword in keywords) {
+                if (desc.contains(keyword) || text.contains(keyword) || node.viewIdResourceName?.lowercase()?.contains(keyword) == true) {
+                    var clickableNode: AccessibilityNodeInfo? = node
+                    while (clickableNode != null && !clickableNode.isClickable) {
+                        clickableNode = clickableNode.parent
+                    }
+                    if (clickableNode != null) {
+                        step = 4 // Prevent looping
+                        clickableNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        handler.postDelayed({
+                            performGlobalAction(GLOBAL_ACTION_HOME)
+                            finishTask(true)
+                        }, 1000)
+                        return true
+                    }
+                }
+            }
+            
+            for (i in 0 until node.childCount) {
+                val child = node.getChild(i)
+                if (child != null && searchNode(child)) return true
+            }
+            return false
+        }
+        
+        searchNode(rootNode)
     }
 
-    private fun finishTask() {
+    private fun finishTask(success: Boolean) {
+        if (!isProcessing) return
+        val taskId = currentTask?.id ?: -1
+        val statusStr = if (success) "SUCCESS" else "FAILED"
+        
+        // Update database
+        if (taskId != -1) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val db = AppDatabase.getInstance(applicationContext).universalSchedulerDao()
+                val entity = db.getAllTasks().find { it.id == taskId }
+                if (entity != null) {
+                    db.updateTask(entity.copy(status = statusStr))
+                }
+            }
+        }
+
         isProcessing = false
         currentTask = null
         step = 0
@@ -294,15 +553,115 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             }
         } catch (e: Exception) {}
         
-        // Lock screen using Device Admin
-        try {
-            val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
-            if (dpm.isAdminActive(android.content.ComponentName(this, com.rhdevs.rhpatch.receivers.WaDeviceAdminReceiver::class.java))) {
-                dpm.lockNow()
-            }
-        } catch (e: Exception) {}
+        // Send Broadcast to close AutomationCountdownActivity
+        val intent = Intent("com.rhdevs.rhpatch.AUTOMATION_COMPLETE")
+        sendBroadcast(intent)
+        
+        // Remove device lock (user request)
+        // try {
+        //     val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
+        //     val adminComponent = android.content.ComponentName(this, com.rhdevs.rhpatch.receivers.WaDeviceAdminReceiver::class.java)
+        //     if (dpm.isAdminActive(adminComponent)) {
+        //         dpm.lockNow()
+        //     }
+        // } catch (e: Exception) {}
         
         processNextTask()
+    }
+
+    private val SUPPORTED_APPS = listOf(
+        "com.whatsapp",
+        "com.whatsapp.w4b",
+        "org.telegram.messenger",
+        "com.facebook.orca",
+        "com.instagram.android",
+        "com.discord"
+    )
+
+    private fun handleAutoReplyViaNotification(packageName: String, title: String, text: String, notification: Notification) {
+        if (!SUPPORTED_APPS.contains(packageName)) return
+
+        val replyAction = findReplyAction(notification) ?: return
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val db = AppDatabase.getInstance(applicationContext).autoReplyRuleDao()
+            val activeRules = db.getActiveRules()
+            
+            for (rule in activeRules) {
+                if (isMatch(text, rule)) {
+                    Log.d(TAG, "Matched rule: ${rule.keywords}")
+                    val replyMsg = processAiIfNeeded(rule.replyText, rule, text)
+                    sendReply(replyAction, replyMsg)
+                    break 
+                }
+            }
+        }
+    }
+
+    private fun processAiIfNeeded(originalReply: String, rule: AutoReplyRule, incomingText: String): String {
+        if (rule.replyType == "AI" || rule.isAi) {
+            // Placeholder for AI generation. 
+            // We would call Gemini/ChatGPT API here. For now return a dummy AI text or original
+            return "[AI] $originalReply" 
+        } else if (rule.replyType == "RANDOM") {
+            val options = originalReply.split("|||")
+            return options.random()
+        }
+        return originalReply
+    }
+
+    private fun isMatch(incomingText: String, rule: AutoReplyRule): Boolean {
+        val keywords = rule.keywords.split(",").map { it.trim() }
+        val textToMatch = if (rule.ignoreCase) incomingText.lowercase() else incomingText
+        
+        for (keyword in keywords) {
+            val kw = if (rule.ignoreCase) keyword.lowercase() else keyword
+            if (kw.isEmpty()) continue
+            
+            when (rule.matchingType) {
+                "EXACT" -> if (textToMatch == kw) return true
+                "CONTAINS" -> if (textToMatch.contains(kw)) return true
+                "STARTS_WITH" -> if (textToMatch.startsWith(kw)) return true
+                "ENDS_WITH" -> if (textToMatch.endsWith(kw)) return true
+                "REGEX" -> {
+                    try {
+                        val regex = if (rule.ignoreCase) Regex(kw, RegexOption.IGNORE_CASE) else Regex(kw)
+                        if (regex.containsMatchIn(textToMatch)) return true
+                    } catch (e: Exception) { }
+                }
+            }
+        }
+        return false
+    }
+
+    private fun findReplyAction(notification: Notification): Notification.Action? {
+        val actions = notification.actions ?: return null
+        for (action in actions) {
+            val remoteInputs = action.remoteInputs ?: continue
+            for (remoteInput in remoteInputs) {
+                if (remoteInput.allowFreeFormInput) {
+                    return action
+                }
+            }
+        }
+        return null
+    }
+
+    private fun sendReply(action: Notification.Action, replyText: String) {
+        val remoteInputs = action.remoteInputs ?: return
+        val remoteInput = remoteInputs.firstOrNull { it.allowFreeFormInput } ?: return
+
+        val intent = Intent()
+        val bundle = Bundle()
+        bundle.putCharSequence(remoteInput.resultKey, replyText)
+        RemoteInput.addResultsToIntent(arrayOf(remoteInput), intent, bundle)
+
+        try {
+            action.actionIntent.send(this, 0, intent)
+            Log.d(TAG, "Auto-reply sent via AccessibilityService: $replyText")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to send auto-reply", e)
+        }
     }
 
     override fun onInterrupt() {

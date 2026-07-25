@@ -26,17 +26,16 @@ public class MainPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        if (position == 0) return new GeneralFragment();
-        if (position == 1) return new PrivacyFragment();
+        if (position == 0) return new PrivacyFragment();
+        if (position == 1) return new GeneralFragment();
         if (position == 2) return new HomeFragment();
         if (position == 3) return new MediaFragment();
         if (position == 4) return new CustomizationFragment();
-        if (isRecordingEnabled && position == 5) return new RecordingsFragment();
-        return new HomeFragment();
+        return new PrivacyFragment();
     }
 
     @Override
     public int getItemCount() {
-        return isRecordingEnabled ? 6 : 5;
+        return 5;
     }
 }

@@ -197,7 +197,11 @@ public class AutoReplyActivity extends BaseActivity {
                         rule.getForwardJid(),
                         rule.isAi(),
                         rule.getIgnoreCase(),
-                        rule.getTargetContacts()
+                        rule.getTargetContacts(),
+                        rule.getReplyType(),
+                        rule.getAiProvider(),
+                        rule.getAiPrompt(),
+                        rule.getAttachmentUri()
                     );
                     db.autoReplyRuleDao().update(updatedRule);
                     syncRulesToSharedPreferences(itemView.getContext());

@@ -70,63 +70,32 @@ class SettingsActivity : Activity() {
 
         badge.post {
             if (savedInstanceState == null) {
-                switchTab(0)
+                switchFragment(OverviewFragment())
             }
         }
     }
 
     private fun setupTabs() {
-        val tabOverview = findViewById<View>(R.id.tab_overview)
-        val tabScheduler = findViewById<View>(R.id.tab_scheduler)
-        val tabModules = findViewById<View>(R.id.tab_modules)
-        val tabAbout = findViewById<View>(R.id.tab_about)
-
-        tabOverview.setOnClickListener { switchTab(0) }
-        tabScheduler.setOnClickListener { switchTab(1) }
-        tabModules.setOnClickListener { switchTab(2) }
-        tabAbout.setOnClickListener { switchTab(3) }
+        val bottomNav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_overview -> switchFragment(OverviewFragment())
+                R.id.nav_scheduler -> {
+                    startActivity(Intent(this, SchedulerDashboardActivity::class.java))
+                    false // Don't select the tab visually since it opens a new activity
+                }
+                R.id.nav_modules -> switchFragment(ModulesFragment())
+                R.id.nav_about -> switchFragment(AboutFragment())
+                else -> false
+            }
+        }
     }
 
-    private fun switchTab(index: Int) {
-        val tabOverviewText = findViewById<TextView>(R.id.tab_overview_text)
-        val tabSchedulerText = findViewById<TextView>(R.id.tab_scheduler_text)
-        val tabModulesText = findViewById<TextView>(R.id.tab_modules_text)
-        val tabAboutText = findViewById<TextView>(R.id.tab_about_text)
-
-        val accentColor = Color.parseColor("#3B82F6")
-        val secondaryColor = Color.parseColor("#94A3B8")
-
-        tabOverviewText.setTextColor(secondaryColor)
-        tabSchedulerText.setTextColor(secondaryColor)
-        tabModulesText.setTextColor(secondaryColor)
-        tabAboutText.setTextColor(secondaryColor)
-
-        var fragment: Fragment? = null
-        when (index) {
-            0 -> {
-                tabOverviewText.setTextColor(accentColor)
-                fragment = OverviewFragment()
-            }
-            1 -> {
-                tabSchedulerText.setTextColor(accentColor)
-                fragment = UniversalSchedulerFragment()
-            }
-            2 -> {
-                tabModulesText.setTextColor(accentColor)
-                fragment = ModulesFragment()
-            }
-            3 -> {
-                tabAboutText.setTextColor(accentColor)
-                fragment = aboutPreference as Fragment
-            }
-            else -> fragment = OverviewFragment()
-        }
-        
-        if (fragment == null) return
-
+    private fun switchFragment(fragment: Fragment): Boolean {
         fragmentManager.beginTransaction()
             .replace(R.id.settings_container, fragment)
             .commit()
+        return true
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -221,7 +190,53 @@ class SettingsActivity : Activity() {
                 }
             }
 
+            view.findViewById<View>(R.id.card_diag).setOnClickListener {
+                showDiagnosticsDialog(view.context)
+            }
+
             return view
+        }
+
+        private fun showDiagnosticsDialog(context: android.content.Context) {
+            val dialogBinding = com.wmods.wppenhacer.databinding.DialogDiagnosticsLogBinding.inflate(layoutInflater)
+            val adapter = com.wmods.wppenhacer.adapter.LogLineAdapter()
+
+            dialogBinding.logRecycler.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
+            dialogBinding.logRecycler.adapter = adapter
+
+            val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+                .setTitle(com.wmods.wppenhacer.R.string.diag_dialog_title)
+                .setView(dialogBinding.root)
+                .setPositiveButton(com.wmods.wppenhacer.R.string.diag_close, null)
+                .setCancelable(true)
+                .show()
+
+            val handler = android.os.Handler(android.os.Looper.getMainLooper())
+            val queue = java.util.ArrayList<com.wmods.wppenhacer.utils.RootDiagnostics.LogEntry>()
+
+            com.wmods.wppenhacer.utils.RootDiagnostics.runDiagnostics(context, object : com.wmods.wppenhacer.utils.RootDiagnostics.Callback {
+                override fun onLog(entry: com.wmods.wppenhacer.utils.RootDiagnostics.LogEntry) {
+                    if (!isAdded) return
+                    queue.add(entry)
+                }
+            })
+
+            val poller = object : Runnable {
+                private var emptyCycles = 0
+                override fun run() {
+                    if (!isAdded || !dialog.isShowing) return
+                    if (queue.isNotEmpty()) {
+                        emptyCycles = 0
+                        adapter.add(queue.removeAt(0))
+                        dialogBinding.logRecycler.smoothScrollToPosition(adapter.itemCount - 1)
+                        handler.postDelayed(this, 120)
+                    } else if (emptyCycles < 50) {
+                        emptyCycles++
+                        handler.postDelayed(this, 120)
+                    }
+                }
+            }
+            handler.postDelayed(poller, 120)
         }
     }
 
@@ -318,6 +333,32 @@ class SettingsActivity : Activity() {
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             val view = inflater.inflate(R.layout.fragment_about, container, false)
             view.findViewById<TextView>(R.id.about_version).text = "Version ${BuildConfig.VERSION_NAME} (${BuildConfig.COMMIT_HASH})"
+            
+            view.findViewById<View>(R.id.btn_bagibagi).setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://bagibagi.co/Rh7155")))
+            }
+            view.findViewById<View>(R.id.btn_saweria).setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://saweria.co/RH7155")))
+            }
+            view.findViewById<View>(R.id.btn_sociabuzz).setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://sociabuzz.com/abogoboga7155/tribe")))
+            }
+            view.findViewById<View>(R.id.btn_install_guide).setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Rhdevs71/apahayo/blob/main/installation_guide.md")))
+            }
+            view.findViewById<View>(R.id.btn_contribution).setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Rhdevs71/apahayo/blob/main/contribution.md")))
+            }
+            view.findViewById<View>(R.id.btn_github).setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Rhdevs71/apahayo")))
+            }
+            view.findViewById<View>(R.id.btn_telegram).setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/apahayo")))
+            }
+            view.findViewById<View>(R.id.btn_license).setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Rhdevs71/apahayo/blob/main/LICENSE")))
+            }
+
             return view
         }
     }

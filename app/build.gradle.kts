@@ -317,6 +317,7 @@ afterEvaluate {
 
 
 dependencies {
+    implementation(libs.material)
     implementation("androidx.javascriptengine:javascriptengine:1.0.0-beta01")
     implementation(libs.protobuf.javalite)
     implementation("org.apache.commons:commons-collections4:4.4")

@@ -173,27 +173,42 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                     val isAi = ruleObj.optBoolean("isAi", false)
 
                     executor.execute {
-                        val replyContent = if (isAi) {
-                            val apiKey = prefs.getString("ai_api_key", "") ?: ""
+                        val replyContentList = if (isAi || ruleObj.optString("replyType", "TEXT") == "AI") {
+                            val apiKeysRaw = prefs.getString("ai_api_key", "") ?: ""
+                            val apiKeys = apiKeysRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                             val apiModel = prefs.getString("ai_model", "llama3-8b-8192") ?: "llama3-8b-8192"
                             val aiProvider = prefs.getString("ai_provider", "groq") ?: "groq"
-                            if (apiKey.isNotEmpty()) {
-                                queryAiChatbot(apiKey, messageText, apiModel, aiProvider) ?: "AI Responder failed to formulate reply."
-                            } else {
-                                "AI API Key is missing in settings."
+                            
+                            var aiResponse: String? = null
+                            for (key in apiKeys) {
+                                aiResponse = queryAiChatbot(key, messageText, apiModel, aiProvider)
+                                if (aiResponse != null) break
                             }
+                            listOf(aiResponse ?: "AI Responder failed to formulate reply.")
                         } else {
-                            replyText
+                            val replyType = ruleObj.optString("replyType", "TEXT")
+                            if (replyType == "RANDOM") {
+                                val options = replyText.split("|||")
+                                listOf(options.random())
+                            } else if (replyType == "MULTIPLE") {
+                                replyText.split("|||")
+                            } else {
+                                listOf(replyText)
+                            }
                         }
 
-                        mainHandler.postDelayed({
-                            if (isForward && forwardJid.isNotEmpty()) {
-                                val forwardText = "[Forwarded from +$number]: $messageText"
-                                sendAutoReply(jid = forwardJid, replyText = forwardText, quoteMessage = null)
-                            } else {
-                                sendAutoReply(jid = rawJid, replyText = replyContent, quoteMessage = if (quoteOriginal) quoteMessage else null)
-                            }
-                        }, delaySec * 1000L)
+                        var currentDelay = delaySec * 1000L
+                        for (content in replyContentList) {
+                            mainHandler.postDelayed({
+                                if (isForward && forwardJid.isNotEmpty()) {
+                                    val forwardText = "[Forwarded from +$number]: $messageText\n\n$content"
+                                    sendAutoReply(jid = forwardJid, replyText = forwardText, quoteMessage = null)
+                                } else {
+                                    sendAutoReply(jid = rawJid, replyText = content, quoteMessage = if (quoteOriginal) quoteMessage else null)
+                                }
+                            }, currentDelay)
+                            currentDelay += 1000L
+                        }
                     }
                     break
                 }
@@ -212,6 +227,8 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
             when (matchingType) {
                 "EXACT" -> if (msgClean == keyword) return true
                 "CONTAINS" -> if (msgClean.contains(keyword)) return true
+                "STARTS_WITH" -> if (msgClean.startsWith(keyword)) return true
+                "ENDS_WITH" -> if (msgClean.endsWith(keyword)) return true
                 "WILDCARD" -> {
                     try {
                         val regexStr = "^" + Regex.escape(keyword).replace("\\*", ".*") + "$"

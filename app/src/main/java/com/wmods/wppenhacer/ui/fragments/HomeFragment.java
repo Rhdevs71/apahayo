@@ -96,7 +96,7 @@ public class HomeFragment extends BaseFragment {
 
         binding.scrollDiagBtn.setOnClickListener(view -> {
             animateClick(view);
-            binding.nestedScrollView.post(() -> binding.nestedScrollView.smoothScrollTo(0, binding.diagCard.getTop()));
+            binding.nestedScrollView.post(() -> binding.nestedScrollView.smoothScrollBy(0, 500));
         });
 
         binding.rebootBtn2.setOnClickListener(view -> {
@@ -120,15 +120,7 @@ public class HomeFragment extends BaseFragment {
             resetConfigs(this.getContext());
         });
 
-        binding.updateCard.setOnClickListener(view -> {
-            animateClick(view);
-            Utils.openLink(requireActivity(), "https://t.me/waenhancher");
-        });
-
-        binding.diagBtn.setOnClickListener(view -> {
-            animateClick(view);
-            showDiagnosticsDialog();
-        });
+        // Removed updateCard and diagBtn references
 
         checkForUpdates();
 
@@ -143,8 +135,6 @@ public class HomeFragment extends BaseFragment {
         var slideUp = AnimationUtils.loadAnimation(context, R.anim.slide_up);
         var fadeIn = AnimationUtils.loadAnimation(context, R.anim.fade_in);
 
-        binding.status.startAnimation(slideUp);
-
         binding.status2.postDelayed(() -> {
             if (!isAdded() || binding == null) return;
             var anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up);
@@ -156,17 +146,6 @@ public class HomeFragment extends BaseFragment {
             var anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up);
             binding.status3.startAnimation(anim);
         }, 200);
-
-        binding.infoCard.postDelayed(() -> {
-            if (!isAdded() || binding == null) return;
-            binding.infoCard.startAnimation(fadeIn);
-        }, 300);
-
-        binding.updateCard.postDelayed(() -> {
-            if (!isAdded() || binding == null) return;
-            var anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up);
-            binding.updateCard.startAnimation(anim);
-        }, 400);
     }
 
     private void animateClick(View view) {
@@ -177,7 +156,6 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        setDisplayHomeAsUpEnabled(false);
     }
 
     @SuppressLint("StringFormatInvalid")
@@ -311,18 +289,6 @@ public class HomeFragment extends BaseFragment {
 
     @SuppressLint("StringFormatInvalid")
     private void checkStateWpp(FragmentActivity activity) {
-
-        if (MainActivity.isXposedEnabled()) {
-            binding.statusIcon.setImageResource(R.drawable.ic_round_check_circle_24);
-            binding.statusTitle.setText(R.string.module_enabled);
-            binding.statusSummary.setText(String.format(getString(R.string.version_s), BuildConfig.VERSION_NAME));
-            binding.status.getChildAt(0).setBackgroundResource(R.drawable.gradient_success);
-        } else {
-            binding.statusIcon.setImageResource(R.drawable.ic_round_error_outline_24);
-            binding.statusTitle.setText(R.string.module_disabled);
-            binding.status.getChildAt(0).setBackgroundResource(R.drawable.gradient_error);
-            binding.statusSummary.setVisibility(View.GONE);
-        }
         if (isInstalled(FeatureLoader.PACKAGE_WPP) && App.isOriginalPackage()) {
             disableWpp(activity);
         } else {
@@ -331,16 +297,6 @@ public class HomeFragment extends BaseFragment {
         if (App.isOriginalPackage())
             binding.status3.setVisibility(View.GONE);
         checkWpp(activity);
-        binding.deviceName.setText(Build.MANUFACTURER);
-        binding.sdk.setText(String.valueOf(Build.VERSION.SDK_INT));
-        binding.modelName.setText(Build.DEVICE);
-        if (App.isOriginalPackage()) {
-            binding.listWpp.setText(Arrays.toString(activity.getResources().getStringArray(R.array.supported_versions_wpp)));
-        } else {
-            binding.listWppTitle.setVisibility(View.GONE);
-            binding.listWpp.setVisibility(View.GONE);
-        }
-        binding.listBusiness.setText(Arrays.toString(activity.getResources().getStringArray(R.array.supported_versions_business)));
     }
 
     private boolean isInstalled(String packageWpp) {
@@ -379,76 +335,11 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void checkForUpdates() {
-        var context = getContext();
-        if (context == null) return;
-
-        binding.updateSummary.setText(getString(R.string.current_version_s, BuildConfig.VERSION_NAME));
-
-        new Thread(() -> {
-            try {
-                var client = new OkHttpClient.Builder()
-                        .connectTimeout(10, TimeUnit.SECONDS)
-                        .readTimeout(10, TimeUnit.SECONDS)
-                        .build();
-
-                var request = new Request.Builder()
-                        .url("https://api.github.com/repos/Rhdevs71/apahayo/releases/latest")
-                        .build();
-
-                try (var response = client.newCall(request).execute()) {
-                    if (!response.isSuccessful()) {
-                        updateCardState(false, false, null);
-                        return;
-                    }
-
-                    var body = response.body();
-
-                    var content = body.string();
-                    var release = new JSONObject(content);
-                    var tagName = release.optString("tag_name", "");
-
-                    if (tagName.isBlank()) {
-                        updateCardState(true, true, null);
-                        return;
-                    }
-
-                    var hash = tagName.split("-")[1].trim();
-                    var isNewVersion = !BuildConfig.VERSION_NAME.toLowerCase().contains(hash.toLowerCase());
-
-                    updateCardState(true, !isNewVersion, tagName);
-                }
-            } catch (UnknownHostException e) {
-                updateCardState(false, false, null);
-            } catch (Exception e) {
-                updateCardState(false, false, null);
-            }
-        }).start();
+        // Redesigned: Handled by UpdateChecker.kt
     }
 
     private void updateCardState(boolean success, boolean isUpToDate, @Nullable String newVersion) {
-        var activity = getActivity();
-        if (activity == null || !isAdded()) return;
-
-        activity.runOnUiThread(() -> {
-            if (binding == null) return;
-
-            if (!success) {
-                binding.updateIcon.setImageResource(R.drawable.ic_round_error_outline_24);
-                binding.updateTitle.setText(R.string.update_check_failed);
-                binding.updateSummary.setText(R.string.update_check_failed_summary);
-                binding.updateCard.getChildAt(0).setBackgroundResource(R.drawable.gradient_warning);
-            } else if (isUpToDate) {
-                binding.updateIcon.setImageResource(R.drawable.ic_round_check_circle_24);
-                binding.updateTitle.setText(R.string.up_to_date);
-                binding.updateSummary.setText(getString(R.string.current_version_s, BuildConfig.VERSION_NAME));
-                binding.updateCard.getChildAt(0).setBackgroundResource(R.drawable.gradient_success);
-            } else {
-                binding.updateIcon.setImageResource(R.drawable.ic_round_update_24);
-                binding.updateTitle.setText(R.string.update_available);
-                binding.updateSummary.setText(getString(R.string.update_available_summary, newVersion));
-                binding.updateCard.getChildAt(0).setBackgroundResource(R.drawable.gradient_update);
-            }
-        });
+        // Removed UI components
     }
 
     private void showDiagnosticsDialog() {

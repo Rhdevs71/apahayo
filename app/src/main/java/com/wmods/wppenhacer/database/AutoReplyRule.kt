@@ -20,5 +20,9 @@ data class AutoReplyRule(
     val forwardJid: String? = null,
     val isAi: Boolean = false,
     val ignoreCase: Boolean = true,
-    val targetContacts: String? = null
+    val targetContacts: String? = null,
+    val replyType: String = "TEXT", // "TEXT", "IMAGE", "MULTIPLE", "RANDOM"
+    val aiProvider: String? = null, // "gemini", "chatgpt", "groq"
+    val aiPrompt: String? = null,
+    val attachmentUri: String? = null
 ) : Serializable

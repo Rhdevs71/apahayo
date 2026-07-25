@@ -61,11 +61,13 @@ public class EditScheduledMessageActivity extends BaseActivity {
         binding.btnInfo.setOnClickListener(v -> Toast.makeText(this, "Message Scheduler Info", Toast.LENGTH_SHORT).show());
 
         // Setup Contact Picker Click
-        binding.btnSelectContact.setOnClickListener(v -> startWhatsAppContactPicker());
+        binding.btnSelectContact.setOnClickListener(v -> startContactPicker());
 
         // Setup Segmented App Selector
         binding.tabWhatsapp.setOnClickListener(v -> selectTargetApp("com.whatsapp"));
         binding.tabBusiness.setOnClickListener(v -> selectTargetApp("com.whatsapp.w4b"));
+        binding.tabTelegram.setOnClickListener(v -> selectTargetApp("org.telegram.messenger"));
+        binding.tabMessenger.setOnClickListener(v -> selectTargetApp("com.facebook.orca"));
 
         // Setup Media Attachment
         binding.btnAttachMedia.setOnClickListener(v -> selectMediaFile());
@@ -110,16 +112,29 @@ public class EditScheduledMessageActivity extends BaseActivity {
 
     private void selectTargetApp(String pkg) {
         targetAppPackage = pkg;
+        
+        // Reset all
+        binding.tabWhatsapp.setBackgroundResource(android.R.color.transparent);
+        binding.tabWhatsapp.setTextColor(0x8F8F9CAE);
+        binding.tabBusiness.setBackgroundResource(android.R.color.transparent);
+        binding.tabBusiness.setTextColor(0x8F8F9CAE);
+        binding.tabTelegram.setBackgroundResource(android.R.color.transparent);
+        binding.tabTelegram.setTextColor(0x8F8F9CAE);
+        binding.tabMessenger.setBackgroundResource(android.R.color.transparent);
+        binding.tabMessenger.setTextColor(0x8F8F9CAE);
+
         if ("com.whatsapp".equals(pkg)) {
             binding.tabWhatsapp.setBackgroundResource(R.drawable.bg_segmented_selected);
             binding.tabWhatsapp.setTextColor(0xFFFFFFFF);
-            binding.tabBusiness.setBackgroundResource(android.R.color.transparent);
-            binding.tabBusiness.setTextColor(0x8F8F9CAE);
-        } else {
+        } else if ("com.whatsapp.w4b".equals(pkg)) {
             binding.tabBusiness.setBackgroundResource(R.drawable.bg_segmented_selected);
             binding.tabBusiness.setTextColor(0xFFFFFFFF);
-            binding.tabWhatsapp.setBackgroundResource(android.R.color.transparent);
-            binding.tabWhatsapp.setTextColor(0x8F8F9CAE);
+        } else if ("org.telegram.messenger".equals(pkg)) {
+            binding.tabTelegram.setBackgroundResource(R.drawable.bg_segmented_selected);
+            binding.tabTelegram.setTextColor(0xFFFFFFFF);
+        } else if ("com.facebook.orca".equals(pkg)) {
+            binding.tabMessenger.setBackgroundResource(R.drawable.bg_segmented_selected);
+            binding.tabMessenger.setTextColor(0xFFFFFFFF);
         }
     }
 
@@ -224,20 +239,60 @@ public class EditScheduledMessageActivity extends BaseActivity {
         }, scheduledCalendar.get(Calendar.HOUR_OF_DAY), scheduledCalendar.get(Calendar.MINUTE), true).show();
     }
 
-    private void startWhatsAppContactPicker() {
-        var installedPackages = WhatsAppContactPickerLauncher.getInstalledWhatsAppPackages(this);
-        if (installedPackages.isEmpty()) {
-            Toast.makeText(this, "WhatsApp is not installed", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    private void startContactPicker() {
+        if ("com.whatsapp".equals(targetAppPackage) || "com.whatsapp.w4b".equals(targetAppPackage)) {
+            var installedPackages = WhatsAppContactPickerLauncher.getInstalledWhatsAppPackages(this);
+            if (installedPackages.isEmpty()) {
+                Toast.makeText(this, "WhatsApp is not installed", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        String targetPackage = installedPackages.contains(targetAppPackage) ? targetAppPackage : installedPackages.get(0);
-        try {
-            Intent intent = WhatsAppContactPickerLauncher.createPickerIntent(this, targetPackage, "message_scheduler_picker", null);
-            startActivityForResult(intent, ContactPickerPreference.REQUEST_CONTACT_PICKER);
-        } catch (Exception e) {
-            Toast.makeText(this, "Failed to launch contact picker: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            String targetPackage = installedPackages.contains(targetAppPackage) ? targetAppPackage : installedPackages.get(0);
+            try {
+                Intent intent = WhatsAppContactPickerLauncher.createPickerIntent(this, targetPackage, "message_scheduler_picker", null);
+                startActivityForResult(intent, ContactPickerPreference.REQUEST_CONTACT_PICKER);
+            } catch (Exception e) {
+                Toast.makeText(this, "Failed to launch contact picker: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        } else if ("org.telegram.messenger".equals(targetAppPackage) || "com.facebook.orca".equals(targetAppPackage)) {
+            // Dual Option for Telegram / Messenger
+            String title = "org.telegram.messenger".equals(targetAppPackage) ? "Telegram Contact" : "Messenger Contact";
+            new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle(title)
+                .setItems(new String[]{"Pilih dari Kontak", "Input Manual (Username/Nomor)"}, (dialog, which) -> {
+                    if (which == 0) {
+                        try {
+                            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI);
+                            startActivityForResult(intent, 1003); // Use 1003 for generic contact picker
+                        } catch (Exception e) {
+                            Toast.makeText(this, "Failed to launch contacts", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        showManualInputDialog();
+                    }
+                }).show();
         }
+    }
+
+    private void showManualInputDialog() {
+        android.widget.EditText input = new android.widget.EditText(this);
+        input.setHint("@username atau +62...");
+        input.setTextColor(0xFFFFFFFF);
+        input.setHintTextColor(0xFF8F9CAE);
+        
+        new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+            .setTitle("Input Manual")
+            .setView(input)
+            .setPositiveButton("Simpan", (dialog, which) -> {
+                String val = input.getText().toString().trim();
+                if (!val.isEmpty()) {
+                    selectedJid = val;
+                    selectedContactName = val;
+                    binding.textSelectedContact.setText(val);
+                }
+            })
+            .setNegativeButton("Batal", null)
+            .show();
     }
 
     private void selectMediaFile() {
@@ -279,6 +334,46 @@ public class EditScheduledMessageActivity extends BaseActivity {
                     selectedContactName = selectedJid.split("@")[0];
                 }
                 binding.textSelectedContact.setText(selectedContactName);
+            }
+        } else if (requestCode == 1003 && resultCode == RESULT_OK && data != null) {
+            Uri contactUri = data.getData();
+            if (contactUri != null) {
+                try {
+                    String[] projection = new String[]{
+                        android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER,
+                        android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+                    };
+                    android.database.Cursor cursor = getContentResolver().query(contactUri, projection, null, null, null);
+                    if (cursor != null && cursor.moveToFirst()) {
+                        int numberIndex = cursor.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER);
+                        int nameIndex = cursor.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+                        if (numberIndex >= 0) {
+                            String number = cursor.getString(numberIndex);
+                            selectedJid = number.replaceAll("[^0-9+]", "");
+                        }
+                        if (nameIndex >= 0) {
+                            selectedContactName = cursor.getString(nameIndex);
+                        } else if (selectedJid != null) {
+                            selectedContactName = selectedJid;
+                        }
+                        binding.textSelectedContact.setText(selectedContactName != null ? selectedContactName : selectedJid);
+                        cursor.close();
+                    } else {
+                        // Fallback if not a phone URI
+                        android.database.Cursor c = getContentResolver().query(contactUri, null, null, null, null);
+                        if (c != null && c.moveToFirst()) {
+                            int nameIndex = c.getColumnIndex(android.provider.ContactsContract.Contacts.DISPLAY_NAME);
+                            if (nameIndex >= 0) {
+                                selectedContactName = c.getString(nameIndex);
+                                selectedJid = selectedContactName;
+                                binding.textSelectedContact.setText(selectedContactName);
+                            }
+                            c.close();
+                        }
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(this, "Failed to read contact: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         } else if (requestCode == 1002 && resultCode == RESULT_OK && data != null) {
             Uri fileUri = data.getData();

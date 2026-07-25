@@ -137,6 +137,7 @@ class SchedulerService : Service() {
             Log.d(TAG, "processPendingMessages: found ${pendingMessages.size} pending messages at $now")
             for (message in pendingMessages) {
                 Log.d(TAG, "processPendingMessages: sending message id ${message.id} to WhatsApp JID: ${message.jid}")
+                db.scheduledMessageDao().update(message.copy(status = "PROCESSING"))
                 sendMessageToWhatsApp(context, message)
             }
         }

@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.activities.base.BaseActivity;
 import com.wmods.wppenhacer.database.AppDatabase;
@@ -76,6 +78,67 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
+        // Setup Matching Type Spinner
+        String[] matchingTypes = {"EXACT", "CONTAINS", "STARTS_WITH", "ENDS_WITH", "WILDCARD", "REGEX"};
+        ArrayAdapter<String> matchingAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, matchingTypes);
+        matchingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerMatchingType.setAdapter(matchingAdapter);
+
+        // Setup Reply Type Spinner
+        String[] replyTypes = {"TEXT", "RANDOM", "MULTIPLE", "AI"};
+        ArrayAdapter<String> replyAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, replyTypes);
+        replyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerReplyType.setAdapter(replyAdapter);
+
+        // Setup AI Providers
+        String[] aiProviders = {"groq", "openai", "gemini"};
+        ArrayAdapter<String> providerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, aiProviders);
+        providerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerAiProvider.setAdapter(providerAdapter);
+
+        // Setup AI Models
+        String[] aiModels = {"llama3-8b-8192", "gpt-4o", "gemini-1.5-pro", "Custom..."};
+        ArrayAdapter<String> modelAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, aiModels);
+        modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerAiModel.setAdapter(modelAdapter);
+
+        binding.spinnerAiModel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if ("Custom...".equals(aiModels[position])) {
+                    binding.editCustomModel.setVisibility(View.VISIBLE);
+                } else {
+                    binding.editCustomModel.setVisibility(View.GONE);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        binding.spinnerReplyType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if ("AI".equals(replyTypes[position])) {
+                    binding.layoutAiSettings.setVisibility(View.VISIBLE);
+                    binding.labelReplyText.setText("AI Prompt Instruction");
+                    binding.editReplyText.setHint("You are a helpful assistant...");
+                } else if ("MULTIPLE".equals(replyTypes[position]) || "RANDOM".equals(replyTypes[position])) {
+                    binding.layoutAiSettings.setVisibility(View.GONE);
+                    binding.labelReplyText.setText("Reply text (Use ||| to separate replies)");
+                    binding.editReplyText.setHint("Option A|||Option B");
+                } else {
+                    binding.layoutAiSettings.setVisibility(View.GONE);
+                    binding.labelReplyText.setText("Reply text");
+                    binding.editReplyText.setHint("Automatic response content");
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        SharedPreferences prefs = getSharedPreferences("com.wmods.wppenhacer_preferences", Context.MODE_PRIVATE);
+        binding.editApiKeys.setText(prefs.getString("ai_api_key", ""));
+
         // Setup Time Windows Switch (Apply only on schedule)
         binding.switchActiveHours.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -116,24 +179,37 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
                 binding.switchRuleEnabled.setChecked(ruleToEdit.isEnabled());
                 binding.editKeywords.setText(ruleToEdit.getKeywords());
 
-                // Set radio matching type
-                if ("REGEX".equals(ruleToEdit.getMatchingType())) {
-                    binding.radioRegex.setChecked(true);
-                } else {
-                    binding.radioWildcard.setChecked(true);
+                // Set matching type spinner
+                int matchIndex = 0;
+                switch(ruleToEdit.getMatchingType()) {
+                    case "CONTAINS": matchIndex = 1; break;
+                    case "STARTS_WITH": matchIndex = 2; break;
+                    case "ENDS_WITH": matchIndex = 3; break;
+                    case "WILDCARD": matchIndex = 4; break;
+                    case "REGEX": matchIndex = 5; break;
                 }
+                binding.spinnerMatchingType.setSelection(matchIndex);
 
                 binding.checkboxIgnoreCase.setChecked(ruleToEdit.getIgnoreCase());
                 binding.editReplyText.setText(ruleToEdit.getReplyText());
 
                 int targetSelection = 0;
                 switch (ruleToEdit.getTargetType()) {
-                    case "CONTACTS" -> targetSelection = 1;
-                    case "GROUPS" -> targetSelection = 2;
-                    case "NON_CONTACTS" -> targetSelection = 3;
-                    case "SPECIFIC_CONTACTS" -> targetSelection = 4;
+                    case "CONTACTS": targetSelection = 1; break;
+                    case "GROUPS": targetSelection = 2; break;
+                    case "NON_CONTACTS": targetSelection = 3; break;
+                    case "SPECIFIC_CONTACTS": targetSelection = 4; break;
                 }
                 binding.spinnerTargetType.setSelection(targetSelection);
+                
+                int replySelection = 0;
+                String rType = ruleToEdit.getReplyType() != null ? ruleToEdit.getReplyType() : (ruleToEdit.isAi() ? "AI" : "TEXT");
+                switch (rType) {
+                    case "RANDOM": replySelection = 1; break;
+                    case "MULTIPLE": replySelection = 2; break;
+                    case "AI": replySelection = 3; break;
+                }
+                binding.spinnerReplyType.setSelection(replySelection);
 
                 selectedJidsCsv = ruleToEdit.getTargetContacts() != null ? ruleToEdit.getTargetContacts() : "";
                 updateContactsFieldText();
@@ -241,12 +317,26 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
 
         String replyText = binding.editReplyText.getText().toString().trim();
         if (replyText.isEmpty()) {
-            Toast.makeText(this, "Reply text is required", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Reply text/prompt is required", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String matchingType = binding.radioRegex.isChecked() ? "REGEX" : "WILDCARD";
+        String matchingType = binding.spinnerMatchingType.getSelectedItem().toString();
         String targetType = binding.spinnerTargetType.getSelectedItem().toString();
+        String replyType = binding.spinnerReplyType.getSelectedItem().toString();
+        String aiProvider = binding.spinnerAiProvider.getSelectedItem().toString();
+        
+        String aiModelRaw = binding.spinnerAiModel.getSelectedItem().toString();
+        String aiModel = "Custom...".equals(aiModelRaw) ? binding.editCustomModel.getText().toString().trim() : aiModelRaw;
+        
+        if ("AI".equals(replyType)) {
+            SharedPreferences prefs = getSharedPreferences("com.wmods.wppenhacer_preferences", Context.MODE_PRIVATE);
+            prefs.edit()
+                 .putString("ai_api_key", binding.editApiKeys.getText().toString().trim())
+                 .putString("ai_provider", aiProvider)
+                 .putString("ai_model", aiModel)
+                 .apply();
+        }
 
         if ("SPECIFIC_CONTACTS".equals(targetType) && (selectedJidsCsv == null || selectedJidsCsv.isEmpty())) {
             Toast.makeText(this, "Please select at least one contact", Toast.LENGTH_SHORT).show();
@@ -285,9 +375,13 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
                     ruleEnabled,
                     binding.switchIsForward.isChecked(),
                     ruleToEdit.getForwardJid(),
-                    binding.switchIsAi.isChecked(),
+                    "AI".equals(replyType),
                     ignoreCase,
-                    selectedJidsCsv
+                    selectedJidsCsv,
+                    replyType,
+                    "AI".equals(replyType) ? aiProvider : null,
+                    "AI".equals(replyType) ? replyText : null,
+                    ruleToEdit.getAttachmentUri()
                 );
                 db.autoReplyRuleDao().update(rule);
                 runOnUiThread(() -> Toast.makeText(this, "Rule updated", Toast.LENGTH_SHORT).show());
@@ -305,9 +399,13 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
                     ruleEnabled,
                     binding.switchIsForward.isChecked(),
                     null,
-                    binding.switchIsAi.isChecked(),
+                    "AI".equals(replyType),
                     ignoreCase,
-                    selectedJidsCsv
+                    selectedJidsCsv,
+                    replyType,
+                    "AI".equals(replyType) ? aiProvider : null,
+                    "AI".equals(replyType) ? replyText : null,
+                    null
                 );
                 db.autoReplyRuleDao().insert(rule);
                 runOnUiThread(() -> Toast.makeText(this, "Rule created", Toast.LENGTH_SHORT).show());

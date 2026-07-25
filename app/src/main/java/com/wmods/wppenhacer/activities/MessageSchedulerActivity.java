@@ -36,7 +36,9 @@ public class MessageSchedulerActivity extends BaseActivity {
     private ActivityMessageSchedulerBinding binding;
     private ScheduledMessageAdapter adapter;
     private List<ScheduledMessage> messagesList = new ArrayList<>();
+    private List<ScheduledMessage> filteredList = new ArrayList<>();
     private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
+    private String currentFilter = "ALL";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,6 +66,19 @@ public class MessageSchedulerActivity extends BaseActivity {
         adapter = new ScheduledMessageAdapter();
         binding.recyclerView.setAdapter(adapter);
 
+        com.google.android.material.chip.ChipGroup chipGroup = findViewById(R.id.chip_group_filter);
+        if (chipGroup != null) {
+            chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
+                if (checkedIds.isEmpty()) return;
+                int id = checkedIds.get(0);
+                if (id == R.id.chip_all) currentFilter = "ALL";
+                else if (id == R.id.chip_pending) currentFilter = "PENDING";
+                else if (id == R.id.chip_success) currentFilter = "SENT";
+                else if (id == R.id.chip_failed) currentFilter = "FAILED";
+                loadScheduledMessages();
+            });
+        }
+
         binding.fabAdd.setOnClickListener(v -> {
             Intent intent = new Intent(this, EditScheduledMessageActivity.class);
             startActivity(intent);
@@ -82,7 +97,16 @@ public class MessageSchedulerActivity extends BaseActivity {
             final List<ScheduledMessage> list = db.scheduledMessageDao().getAll();
             runOnUiThread(() -> {
                 messagesList = list;
-                if (messagesList.isEmpty()) {
+                filteredList.clear();
+                for (ScheduledMessage msg : messagesList) {
+                    if (currentFilter.equals("ALL") || 
+                        (currentFilter.equals("PENDING") && ("PENDING".equals(msg.getStatus()) || "PROCESSING".equals(msg.getStatus()))) || 
+                        currentFilter.equals(msg.getStatus())) {
+                        filteredList.add(msg);
+                    }
+                }
+                
+                if (filteredList.isEmpty()) {
                     binding.emptyView.setVisibility(View.VISIBLE);
                     binding.recyclerView.setVisibility(View.GONE);
                 } else {
@@ -189,12 +213,12 @@ public class MessageSchedulerActivity extends BaseActivity {
 
         @Override
         public void onBindViewHolder(@NonNull ScheduledMessageHolder holder, int position) {
-            holder.bind(messagesList.get(position));
+            holder.bind(filteredList.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return messagesList.size();
+            return filteredList.size();
         }
     }
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="apahayo_bg">#09090B</color>
-    <color name="apahayo_surface">#18181B</color>
+    <color name="apahayo_bg">#0F172A</color>
+    <color name="apahayo_surface">#1E293B</color>
     <color name="apahayo_surface_elevated">#27272A</color>
     <color name="apahayo_accent">#8B5CF6</color>
     <color name="apahayo_accent_variant">#6D28D9</color>

@@ -18,7 +18,6 @@ public class CustomizationFragment extends BasePreferenceFragment {
     @Override
     public void onResume() {
         super.onResume();
-        setDisplayHomeAsUpEnabled(false);
     }
     
     @Override
