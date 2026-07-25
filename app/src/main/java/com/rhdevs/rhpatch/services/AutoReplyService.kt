@@ -54,7 +54,9 @@ class AutoReplyService : NotificationListenerService() {
             for (rule in activeRules) {
                 if (isMatch(text, rule)) {
                     Log.d(TAG, "Matched rule: ${rule.keywords}")
-                    sendReply(replyAction, rule.replyText)
+                    val senderId = "$packageName:$title"
+                    val replyMsg = processAiIfNeeded(rule.replyText, rule, text, senderId)
+                    sendReply(replyAction, replyMsg)
                     break // Only reply once per message
                 }
             }
@@ -101,18 +103,148 @@ class AutoReplyService : NotificationListenerService() {
 
     private fun sendReply(action: Notification.Action, replyText: String) {
         val remoteInputs = action.remoteInputs ?: return
-        val remoteInput = remoteInputs.firstOrNull { it.allowFreeFormInput } ?: return
+        var remoteInput: RemoteInput? = null
+        for (ri in remoteInputs) {
+            if (ri.allowFreeFormInput) {
+                remoteInput = ri
+                break
+            }
+        }
+        if (remoteInput == null) return
 
-        val intent = Intent()
         val bundle = Bundle()
         bundle.putCharSequence(remoteInput.resultKey, replyText)
-        RemoteInput.addResultsToIntent(arrayOf(remoteInput), intent, bundle)
 
+        val intent = Intent()
+        RemoteInput.addResultsToIntent(arrayOf(remoteInput), intent, bundle)
         try {
             action.actionIntent.send(this, 0, intent)
             Log.d(TAG, "Auto-reply sent successfully: $replyText")
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to send auto-reply", e)
+            Log.e(TAG, "Error sending auto-reply", e)
+        }
+    }
+
+    private fun processAiIfNeeded(originalReply: String, rule: AutoReplyRule, incomingText: String, senderId: String): String {
+        if (rule.replyType == "AI" || rule.isAi) {
+            val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(applicationContext)
+            val apiKeysRaw = prefs.getString("ai_api_key", "") ?: ""
+            val apiKeys = apiKeysRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+            val apiModel = prefs.getString("ai_model", "llama3-8b-8192") ?: "llama3-8b-8192"
+            val fallbackProvider = prefs.getString("ai_provider", "groq") ?: "groq"
+            val aiProvider = if (!rule.aiProvider.isNullOrEmpty()) rule.aiProvider else fallbackProvider
+            
+            var aiResponse: String? = null
+            for (key in apiKeys) {
+                aiResponse = queryAiChatbot(key, incomingText, apiModel, aiProvider, senderId, originalReply)
+                if (aiResponse != null) break
+            }
+            return aiResponse ?: "AI Responder failed to formulate reply."
+        } else if (rule.replyType == "RANDOM") {
+            val options = originalReply.split("|||")
+            return options.random()
+        }
+        return originalReply
+    }
+
+    private fun queryAiChatbot(apiKey: String, messageText: String, model: String, provider: String, jid: String, userInstruction: String?): String? {
+        var connection: java.net.HttpURLConnection? = null
+        return try {
+            val aiDb = com.wmods.wppenhacer.database.AiMemoryDatabase.getInstance(applicationContext)
+            val dao = aiDb.aiMemoryDao()
+            
+            val sysInstruction = if (!userInstruction.isNullOrEmpty()) userInstruction else "Anda adalah asisten AI pribadi yang ramah, sopan, dan menganggap diri Anda sebagai manusia nyata. Bahasa Anda tidak kaku, menggunakan gaya kata sehari-hari namun tetap sopan dan membantu. Jawablah pesan pengguna dengan natural."
+
+            dao.insertMemory(com.wmods.wppenhacer.database.AiMemoryEntity(jid = jid, role = "user", messageText = messageText, timestamp = System.currentTimeMillis()))
+            if (dao.getMemoryCount(jid) > 15) {
+                dao.deleteOldestMemory(jid)
+            }
+            
+            val memories = dao.getMemoriesByJid(jid)
+            
+            val urlStr = when (provider) {
+                "gemini" -> "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
+                "openai" -> "https://api.openai.com/v1/chat/completions"
+                else -> "https://api.groq.com/openai/v1/chat/completions"
+            }
+            val url = java.net.URL(urlStr)
+            connection = url.openConnection() as java.net.HttpURLConnection
+            connection.requestMethod = "POST"
+            connection.connectTimeout = 10000
+            connection.readTimeout = 10000
+            connection.doOutput = true
+            connection.setRequestProperty("Content-Type", "application/json")
+
+            if (provider != "gemini") {
+                connection.setRequestProperty("Authorization", "Bearer $apiKey")
+            }
+
+            val payload = if (provider == "gemini") {
+                val payloadObj = org.json.JSONObject()
+                payloadObj.put("system_instruction", org.json.JSONObject().apply {
+                    put("parts", org.json.JSONArray().apply { put(org.json.JSONObject().apply { put("text", sysInstruction) }) })
+                })
+                
+                val contentsArray = org.json.JSONArray()
+                for (mem in memories) {
+                    contentsArray.put(org.json.JSONObject().apply {
+                        put("role", if (mem.role == "user") "user" else "model")
+                        put("parts", org.json.JSONArray().apply { put(org.json.JSONObject().apply { put("text", mem.messageText) }) })
+                    })
+                }
+                payloadObj.put("contents", contentsArray)
+                payloadObj
+            } else {
+                org.json.JSONObject().apply {
+                    put("model", model)
+                    val messages = org.json.JSONArray()
+                    messages.put(org.json.JSONObject().apply {
+                        put("role", "system")
+                        put("content", sysInstruction)
+                    })
+                    for (mem in memories) {
+                        messages.put(org.json.JSONObject().apply {
+                            put("role", if (mem.role == "user") "user" else "assistant")
+                            put("content", mem.messageText)
+                        })
+                    }
+                    put("messages", messages)
+                }
+            }
+
+            connection.outputStream.bufferedWriter().use { it.write(payload.toString()) }
+
+            val responseCode = connection.responseCode
+            if (responseCode == java.net.HttpURLConnection.HTTP_OK) {
+                val response = connection.inputStream.bufferedReader().use { it.readText() }
+                val responseJson = org.json.JSONObject(response)
+                val reply = if (provider == "gemini") {
+                    val candidates = responseJson.getJSONArray("candidates")
+                    val candidate = candidates.getJSONObject(0)
+                    val content = candidate.getJSONObject("content")
+                    val parts = content.getJSONArray("parts")
+                    parts.getJSONObject(0).getString("text").trim()
+                } else {
+                    val choices = responseJson.getJSONArray("choices")
+                    val choice = choices.getJSONObject(0)
+                    val messageObj = choice.getJSONObject("message")
+                    messageObj.getString("content").trim()
+                }
+                
+                if (reply.isNotEmpty()) {
+                    dao.insertMemory(com.wmods.wppenhacer.database.AiMemoryEntity(jid = jid, role = "model", messageText = reply, timestamp = System.currentTimeMillis()))
+                    if (dao.getMemoryCount(jid) > 15) {
+                        dao.deleteOldestMemory(jid)
+                    }
+                }
+                reply
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        } finally {
+            connection?.disconnect()
         }
     }
 }
