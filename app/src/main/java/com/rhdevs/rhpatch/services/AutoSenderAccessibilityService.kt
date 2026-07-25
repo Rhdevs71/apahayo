@@ -358,7 +358,6 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             handler.postDelayed({
                 step = 3
                 val root = rootInActiveWindow ?: return@postDelayed
-                // Attempt to find chat box (often it's pre-filled by Intent, but sometimes needs click)
                 val inputFields = root.findAccessibilityNodeInfosByViewId("org.telegram.messenger:id/chat_message_edit")
                 if (inputFields.isNotEmpty()) {
                     val args = Bundle().apply { putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, currentTask!!.message) }
@@ -413,12 +412,11 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             handler.postDelayed({
                 step = 3
                 val root = rootInActiveWindow ?: return@postDelayed
-                // Attempt to find chat box for Messenger
-                findAndSetTextByContentDescOrText(root, currentTask!!.message, "Type a message", "Tulis pesan")
-                handler.postDelayed({ findAndClickSendButtonByDescOrText("send", "kirim") }, 500)
+                findAndSetTextByContentDescOrText(root, currentTask!!.message, "Type a message", "Tulis pesan", "message", "pesan")
+                handler.postDelayed({ findAndClickSendButtonByDescOrText("send", "kirim", "kirim pesan") }, 1000)
             }, 1500)
         } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-            findAndClickSendButtonByDescOrText("send", "kirim")
+            findAndClickSendButtonByDescOrText("send", "kirim", "kirim pesan")
         }
     }
 
@@ -428,8 +426,8 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             handler.postDelayed({
                 step = 3
                 val root = rootInActiveWindow ?: return@postDelayed
-                findAndSetTextByContentDescOrText(root, currentTask!!.message, "Message", "Pesan")
-                handler.postDelayed({ findAndClickSendButtonByDescOrText("send", "kirim") }, 500)
+                findAndSetTextByContentDescOrText(root, currentTask!!.message, "Message", "Pesan", "Send message", "Kirim pesan")
+                handler.postDelayed({ findAndClickSendButtonByDescOrText("send", "kirim") }, 1000)
             }, 1500)
         } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
             findAndClickSendButtonByDescOrText("send", "kirim")
@@ -442,8 +440,8 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             handler.postDelayed({
                 step = 3
                 val root = rootInActiveWindow ?: return@postDelayed
-                findAndSetTextByContentDescOrText(root, currentTask!!.message, "Message", "Pesan")
-                handler.postDelayed({ findAndClickSendButtonByDescOrText("send", "kirim") }, 500)
+                findAndSetTextByContentDescOrText(root, currentTask!!.message, "Message", "Pesan", "Send", "Kirim")
+                handler.postDelayed({ findAndClickSendButtonByDescOrText("send", "kirim") }, 1000)
             }, 1500)
         } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
             findAndClickSendButtonByDescOrText("send", "kirim")
@@ -458,6 +456,8 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             if (desc.contains(keyword.lowercase()) || text.contains(keyword.lowercase())) {
                 val args = Bundle().apply { putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, textToSet) }
                 node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+                // Force an accessibility focus to sometimes trigger UI update
+                node.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)
                 return true
             }
         }
@@ -491,38 +491,64 @@ class AutoSenderAccessibilityService : AccessibilityService() {
 
     private fun findAndClickSendButtonByDescOrText(vararg keywords: String) {
         if (step != 3) return
-        val rootNode = rootInActiveWindow ?: return
+        var retries = 0
+        val maxRetries = 5
         
-        fun searchNode(node: AccessibilityNodeInfo): Boolean {
-            val desc = node.contentDescription?.toString()?.lowercase() ?: ""
-            val text = node.text?.toString()?.lowercase() ?: ""
-            
-            for (keyword in keywords) {
-                if (desc.contains(keyword) || text.contains(keyword) || node.viewIdResourceName?.lowercase()?.contains(keyword) == true) {
-                    var clickableNode: AccessibilityNodeInfo? = node
-                    while (clickableNode != null && !clickableNode.isClickable) {
-                        clickableNode = clickableNode.parent
+        val searchRunnable = object : Runnable {
+            override fun run() {
+                if (step != 3) return
+                val rootNode = rootInActiveWindow
+                if (rootNode == null) {
+                    if (retries < maxRetries) {
+                        retries++
+                        handler.postDelayed(this, 1000)
                     }
-                    if (clickableNode != null) {
-                        step = 4 // Prevent looping
-                        clickableNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-                        handler.postDelayed({
-                            performGlobalAction(GLOBAL_ACTION_HOME)
-                            finishTask(true)
-                        }, 1000)
-                        return true
+                    return
+                }
+
+                fun searchNode(node: AccessibilityNodeInfo): Boolean {
+                    val desc = node.contentDescription?.toString()?.lowercase() ?: ""
+                    val text = node.text?.toString()?.lowercase() ?: ""
+                    
+                    for (keyword in keywords) {
+                        val key = keyword.lowercase()
+                        if (desc == key || text == key || node.viewIdResourceName?.lowercase()?.contains(key) == true || desc.contains(key) || text.contains(key)) {
+                            var clickableNode: AccessibilityNodeInfo? = node
+                            while (clickableNode != null && !clickableNode.isClickable) {
+                                clickableNode = clickableNode.parent
+                            }
+                            // Even if not technically "clickable", try to click the node itself if parent fails
+                            val targetNode = clickableNode ?: node
+                            step = 4 // Prevent looping
+                            targetNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            handler.postDelayed({
+                                performGlobalAction(GLOBAL_ACTION_HOME)
+                                finishTask(true)
+                            }, 1000)
+                            return true
+                        }
+                    }
+                    
+                    for (i in 0 until node.childCount) {
+                        val child = node.getChild(i)
+                        if (child != null && searchNode(child)) return true
+                    }
+                    return false
+                }
+                
+                if (!searchNode(rootNode)) {
+                    if (retries < maxRetries) {
+                        retries++
+                        handler.postDelayed(this, 1000) // retry every 1 second if not found
+                    } else {
+                        // Max retries reached, could not find send button
+                        finishTask(false)
                     }
                 }
             }
-            
-            for (i in 0 until node.childCount) {
-                val child = node.getChild(i)
-                if (child != null && searchNode(child)) return true
-            }
-            return false
         }
         
-        searchNode(rootNode)
+        handler.post(searchRunnable)
     }
 
     private fun finishTask(success: Boolean) {
@@ -590,7 +616,8 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             for (rule in activeRules) {
                 if (isMatch(text, rule)) {
                     Log.d(TAG, "Matched rule: ${rule.keywords}")
-                    val replyMsg = processAiIfNeeded(rule.replyText, rule, text)
+                    val senderId = "$packageName:$title"
+                    val replyMsg = processAiIfNeeded(rule.replyText, rule, text, senderId)
                     sendReply(replyAction, replyMsg)
                     break 
                 }
@@ -598,16 +625,127 @@ class AutoSenderAccessibilityService : AccessibilityService() {
         }
     }
 
-    private fun processAiIfNeeded(originalReply: String, rule: AutoReplyRule, incomingText: String): String {
+    private fun processAiIfNeeded(originalReply: String, rule: AutoReplyRule, incomingText: String, senderId: String): String {
         if (rule.replyType == "AI" || rule.isAi) {
-            // Placeholder for AI generation. 
-            // We would call Gemini/ChatGPT API here. For now return a dummy AI text or original
-            return "[AI] $originalReply" 
+            val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(applicationContext)
+            val apiKeysRaw = prefs.getString("ai_api_key", "") ?: ""
+            val apiKeys = apiKeysRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+            val apiModel = prefs.getString("ai_model", "llama3-8b-8192") ?: "llama3-8b-8192"
+            val fallbackProvider = prefs.getString("ai_provider", "groq") ?: "groq"
+            val aiProvider = if (!rule.aiProvider.isNullOrEmpty()) rule.aiProvider else fallbackProvider
+            
+            var aiResponse: String? = null
+            for (key in apiKeys) {
+                aiResponse = queryAiChatbot(key, incomingText, apiModel, aiProvider, senderId, originalReply)
+                if (aiResponse != null) break
+            }
+            return aiResponse ?: "AI Responder failed to formulate reply."
         } else if (rule.replyType == "RANDOM") {
             val options = originalReply.split("|||")
             return options.random()
         }
         return originalReply
+    }
+
+    private fun queryAiChatbot(apiKey: String, messageText: String, model: String, provider: String, jid: String, userInstruction: String?): String? {
+        var connection: java.net.HttpURLConnection? = null
+        return try {
+            val aiDb = com.wmods.wppenhacer.database.AiMemoryDatabase.getInstance(applicationContext)
+            val dao = aiDb.aiMemoryDao()
+            
+            val sysInstruction = if (!userInstruction.isNullOrEmpty()) userInstruction else "Anda adalah asisten AI pribadi yang ramah, sopan, dan menganggap diri Anda sebagai manusia nyata. Bahasa Anda tidak kaku, menggunakan gaya kata sehari-hari namun tetap sopan dan membantu. Jawablah pesan pengguna dengan natural."
+
+            dao.insertMemory(com.wmods.wppenhacer.database.AiMemoryEntity(jid = jid, role = "user", messageText = messageText, timestamp = System.currentTimeMillis()))
+            if (dao.getMemoryCount(jid) > 15) {
+                dao.deleteOldestMemory(jid)
+            }
+            
+            val memories = dao.getMemoriesByJid(jid)
+            
+            val urlStr = when (provider) {
+                "gemini" -> "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
+                "openai" -> "https://api.openai.com/v1/chat/completions"
+                else -> "https://api.groq.com/openai/v1/chat/completions"
+            }
+            val url = java.net.URL(urlStr)
+            connection = url.openConnection() as java.net.HttpURLConnection
+            connection.requestMethod = "POST"
+            connection.connectTimeout = 10000
+            connection.readTimeout = 10000
+            connection.doOutput = true
+            connection.setRequestProperty("Content-Type", "application/json")
+
+            if (provider != "gemini") {
+                connection.setRequestProperty("Authorization", "Bearer $apiKey")
+            }
+
+            val payload = if (provider == "gemini") {
+                val payloadObj = org.json.JSONObject()
+                payloadObj.put("system_instruction", org.json.JSONObject().apply {
+                    put("parts", org.json.JSONArray().apply { put(org.json.JSONObject().apply { put("text", sysInstruction) }) })
+                })
+                
+                val contentsArray = org.json.JSONArray()
+                for (mem in memories) {
+                    contentsArray.put(org.json.JSONObject().apply {
+                        put("role", if (mem.role == "user") "user" else "model")
+                        put("parts", org.json.JSONArray().apply { put(org.json.JSONObject().apply { put("text", mem.messageText) }) })
+                    })
+                }
+                payloadObj.put("contents", contentsArray)
+                payloadObj
+            } else {
+                org.json.JSONObject().apply {
+                    put("model", model)
+                    val messages = org.json.JSONArray()
+                    messages.put(org.json.JSONObject().apply {
+                        put("role", "system")
+                        put("content", sysInstruction)
+                    })
+                    for (mem in memories) {
+                        messages.put(org.json.JSONObject().apply {
+                            put("role", if (mem.role == "user") "user" else "assistant")
+                            put("content", mem.messageText)
+                        })
+                    }
+                    put("messages", messages)
+                }
+            }
+
+            connection.outputStream.bufferedWriter().use { it.write(payload.toString()) }
+
+            val responseCode = connection.responseCode
+            if (responseCode == java.net.HttpURLConnection.HTTP_OK) {
+                val response = connection.inputStream.bufferedReader().use { it.readText() }
+                val responseJson = org.json.JSONObject(response)
+                val reply = if (provider == "gemini") {
+                    val candidates = responseJson.getJSONArray("candidates")
+                    val candidate = candidates.getJSONObject(0)
+                    val content = candidate.getJSONObject("content")
+                    val parts = content.getJSONArray("parts")
+                    parts.getJSONObject(0).getString("text").trim()
+                } else {
+                    val choices = responseJson.getJSONArray("choices")
+                    val choice = choices.getJSONObject(0)
+                    val messageObj = choice.getJSONObject("message")
+                    messageObj.getString("content").trim()
+                }
+                
+                if (reply.isNotEmpty()) {
+                    dao.insertMemory(com.wmods.wppenhacer.database.AiMemoryEntity(jid = jid, role = "model", messageText = reply, timestamp = System.currentTimeMillis()))
+                    if (dao.getMemoryCount(jid) > 15) {
+                        dao.deleteOldestMemory(jid)
+                    }
+                }
+                reply
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        } finally {
+            connection?.disconnect()
+        }
     }
 
     private fun isMatch(incomingText: String, rule: AutoReplyRule): Boolean {

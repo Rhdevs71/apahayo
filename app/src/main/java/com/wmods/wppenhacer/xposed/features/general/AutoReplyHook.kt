@@ -126,6 +126,10 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
         val isGroup = rawJid.contains("@g.us")
         val isSavedContact = !WppCore.getSContactName(userJid, true).isNullOrEmpty()
 
+        if (prefs is de.robv.android.xposed.XSharedPreferences) {
+            (prefs as de.robv.android.xposed.XSharedPreferences).reload()
+        }
+
         val rulesJsonStr = prefs.getString("auto_reply_rules", "[]") ?: "[]"
         try {
             val rulesArray = JSONArray(rulesJsonStr)
@@ -177,11 +181,12 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                             val apiKeysRaw = prefs.getString("ai_api_key", "") ?: ""
                             val apiKeys = apiKeysRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                             val apiModel = prefs.getString("ai_model", "llama3-8b-8192") ?: "llama3-8b-8192"
-                            val aiProvider = prefs.getString("ai_provider", "groq") ?: "groq"
+                            val fallbackProvider = prefs.getString("ai_provider", "groq") ?: "groq"
+                            val aiProvider = ruleObj.optString("aiProvider", fallbackProvider).takeIf { it.isNotEmpty() } ?: fallbackProvider
                             
                             var aiResponse: String? = null
                             for (key in apiKeys) {
-                                aiResponse = queryAiChatbot(key, messageText, apiModel, aiProvider)
+                                aiResponse = queryAiChatbot(key, messageText, apiModel, aiProvider, rawJid, if (replyText.isEmpty()) null else replyText)
                                 if (aiResponse != null) break
                             }
                             listOf(aiResponse ?: "AI Responder failed to formulate reply.")
@@ -272,9 +277,22 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
         }
     }
 
-    private fun queryAiChatbot(apiKey: String, messageText: String, model: String, provider: String): String? {
+    private fun queryAiChatbot(apiKey: String, messageText: String, model: String, provider: String, jid: String, userInstruction: String?): String? {
         var connection: HttpURLConnection? = null
         return try {
+            val aiDb = com.wmods.wppenhacer.database.AiMemoryDatabase.getInstance(Utils.application)
+            val dao = aiDb.aiMemoryDao()
+            
+            val sysInstruction = if (!userInstruction.isNullOrEmpty()) userInstruction else "Anda adalah asisten AI pribadi yang ramah, sopan, dan menganggap diri Anda sebagai manusia nyata. Bahasa Anda tidak kaku, menggunakan gaya kata sehari-hari namun tetap sopan dan membantu. Jawablah pesan pengguna dengan natural."
+
+            // Save user message to memory
+            dao.insertMemory(com.wmods.wppenhacer.database.AiMemoryEntity(jid = jid, role = "user", messageText = messageText, timestamp = System.currentTimeMillis()))
+            if (dao.getMemoryCount(jid) > 15) {
+                dao.deleteOldestMemory(jid)
+            }
+            
+            val memories = dao.getMemoriesByJid(jid)
+            
             val urlStr = when (provider) {
                 "gemini" -> "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
                 "openai" -> "https://api.openai.com/v1/chat/completions"
@@ -293,30 +311,33 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
             }
 
             val payload = if (provider == "gemini") {
-                val partsObj = JSONObject().apply {
-                    put("text", "You are an automated WhatsApp chat responder. Formulate a short, friendly, and contextual reply for this incoming message: $messageText")
+                val payloadObj = JSONObject()
+                payloadObj.put("system_instruction", JSONObject().apply {
+                    put("parts", JSONArray().apply { put(JSONObject().apply { put("text", sysInstruction) }) })
+                })
+                
+                val contentsArray = JSONArray()
+                for (mem in memories) {
+                    contentsArray.put(JSONObject().apply {
+                        put("role", if (mem.role == "user") "user" else "model")
+                        put("parts", JSONArray().apply { put(JSONObject().apply { put("text", mem.messageText) }) })
+                    })
                 }
-                val partsArray = JSONArray().apply {
-                    put(partsObj)
-                }
-                val contentObj = JSONObject().apply {
-                    put("parts", partsArray)
-                }
-                val contentsArray = JSONArray().apply {
-                    put(contentObj)
-                }
-                JSONObject().apply {
-                    put("contents", contentsArray)
-                }
+                payloadObj.put("contents", contentsArray)
+                payloadObj
             } else {
                 JSONObject().apply {
                     put("model", model)
-                    val messages = JSONArray().apply {
-                        val msg = JSONObject().apply {
-                            put("role", "user")
-                            put("content", "You are an automated WhatsApp chat responder. Formulate a short, friendly, and contextual reply for this incoming message: $messageText")
-                        }
-                        put(msg)
+                    val messages = JSONArray()
+                    messages.put(JSONObject().apply {
+                        put("role", "system")
+                        put("content", sysInstruction)
+                    })
+                    for (mem in memories) {
+                        messages.put(JSONObject().apply {
+                            put("role", if (mem.role == "user") "user" else "assistant")
+                            put("content", mem.messageText)
+                        })
                     }
                     put("messages", messages)
                 }
@@ -328,7 +349,7 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 val response = connection.inputStream.bufferedReader().use { it.readText() }
                 val responseJson = JSONObject(response)
-                if (provider == "gemini") {
+                val reply = if (provider == "gemini") {
                     val candidates = responseJson.getJSONArray("candidates")
                     val candidate = candidates.getJSONObject(0)
                     val content = candidate.getJSONObject("content")
@@ -337,9 +358,17 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                 } else {
                     val choices = responseJson.getJSONArray("choices")
                     val choice = choices.getJSONObject(0)
-                    val message = choice.getJSONObject("message")
-                    message.getString("content").trim()
+                    val messageObj = choice.getJSONObject("message")
+                    messageObj.getString("content").trim()
                 }
+                
+                if (reply.isNotEmpty()) {
+                    dao.insertMemory(com.wmods.wppenhacer.database.AiMemoryEntity(jid = jid, role = "model", messageText = reply, timestamp = System.currentTimeMillis()))
+                    if (dao.getMemoryCount(jid) > 15) {
+                        dao.deleteOldestMemory(jid)
+                    }
+                }
+                reply
             } else {
                 val err = connection.errorStream.bufferedReader().use { it.readText() }
                 XposedBridge.log("AutoReply AI Error Response: $err")

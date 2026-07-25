@@ -62,6 +62,18 @@ public class EditScheduledMessageActivity extends BaseActivity {
 
         // Setup Contact Picker Click
         binding.btnSelectContact.setOnClickListener(v -> startContactPicker());
+        
+        binding.btnInfoCrossplatform.setOnClickListener(v -> {
+            new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle("Cross-Platform IDs")
+                .setMessage("Karena platform seperti Telegram, Instagram, atau Facebook mungkin tidak mendukung pemilihan kontak otomatis:\n\n" +
+                            "• Telegram: Masukkan Username (tanpa @) atau User ID\n" +
+                            "• Instagram: Masukkan Username\n" +
+                            "• Facebook: Masukkan Profile ID\n\n" +
+                            "Kakak bisa memisahkan beberapa target dengan tanda koma (,).")
+                .setPositiveButton("Mengerti", null)
+                .show();
+        });
 
         // Setup Segmented App Selector
         binding.tabWhatsapp.setOnClickListener(v -> selectTargetApp("com.whatsapp"));
@@ -255,44 +267,13 @@ public class EditScheduledMessageActivity extends BaseActivity {
                 Toast.makeText(this, "Failed to launch contact picker: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         } else if ("org.telegram.messenger".equals(targetAppPackage) || "com.facebook.orca".equals(targetAppPackage)) {
-            // Dual Option for Telegram / Messenger
-            String title = "org.telegram.messenger".equals(targetAppPackage) ? "Telegram Contact" : "Messenger Contact";
-            new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                .setTitle(title)
-                .setItems(new String[]{"Pilih dari Kontak", "Input Manual (Username/Nomor)"}, (dialog, which) -> {
-                    if (which == 0) {
-                        try {
-                            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI);
-                            startActivityForResult(intent, 1003); // Use 1003 for generic contact picker
-                        } catch (Exception e) {
-                            Toast.makeText(this, "Failed to launch contacts", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        showManualInputDialog();
-                    }
-                }).show();
+            try {
+                Intent intent = new Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI);
+                startActivityForResult(intent, 1003); // Use 1003 for generic contact picker
+            } catch (Exception e) {
+                Toast.makeText(this, "Failed to launch contacts picker", Toast.LENGTH_SHORT).show();
+            }
         }
-    }
-
-    private void showManualInputDialog() {
-        android.widget.EditText input = new android.widget.EditText(this);
-        input.setHint("@username atau +62...");
-        input.setTextColor(0xFFFFFFFF);
-        input.setHintTextColor(0xFF8F9CAE);
-        
-        new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-            .setTitle("Input Manual")
-            .setView(input)
-            .setPositiveButton("Simpan", (dialog, which) -> {
-                String val = input.getText().toString().trim();
-                if (!val.isEmpty()) {
-                    selectedJid = val;
-                    selectedContactName = val;
-                    binding.textSelectedContact.setText(val);
-                }
-            })
-            .setNegativeButton("Batal", null)
-            .show();
     }
 
     private void selectMediaFile() {
@@ -410,8 +391,14 @@ public class EditScheduledMessageActivity extends BaseActivity {
     }
 
     private void saveScheduledMessage() {
-        if (selectedJid == null) {
-            Toast.makeText(this, "Please select a contact or group", Toast.LENGTH_SHORT).show();
+        String manualInput = binding.textSelectedContact.getText().toString().trim();
+        if (selectedJid == null || !selectedJid.equals(manualInput)) {
+            selectedJid = manualInput;
+            selectedContactName = manualInput;
+        }
+
+        if (selectedJid.isEmpty()) {
+            Toast.makeText(this, "Please select a contact or type an ID", Toast.LENGTH_SHORT).show();
             return;
         }
 

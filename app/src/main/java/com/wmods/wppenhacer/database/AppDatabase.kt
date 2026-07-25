@@ -19,7 +19,7 @@ import com.rhdevs.rhpatch.scheduler.db.UniversalSchedulerDao
         UniversalTemplateEntity::class,
         UniversalRecipientEntity::class
     ], 
-    version = 6, 
+    version = 7, 
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

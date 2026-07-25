@@ -30,21 +30,11 @@
                 app:tint="#E3E6EB"
                 android:contentDescription="Back" />
 
-            <ImageView
-                android:id="@+id/app_logo"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/btn_back"
-                android:layout_marginStart="8dp"
-                android:src="@mipmap/launcher"
-                android:contentDescription="App Logo" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/app_logo"
+                android:layout_toEndOf="@id/btn_back"
                 android:layout_marginStart="12dp"
                 android:text="Schedule Message"
                 android:textColor="#E3E6EB"
@@ -119,15 +109,27 @@
                     android:src="@android:drawable/ic_menu_myplaces"
                     app:tint="#8F9CAE" />
 
-                <TextView
+                <EditText
                     android:id="@+id/text_selected_contact"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="12dp"
-                    android:text="Alt Account"
+                    android:background="@null"
+                    android:hint="JID, Username, or ID"
+                    android:textColorHint="#8E939D"
                     android:textColor="#E3E6EB"
                     android:textSize="16sp" />
+
+                <ImageButton
+                    android:id="@+id/btn_info_crossplatform"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_dialog_info"
+                    app:tint="#A2A5AA"
+                    android:contentDescription="Cross Platform Contacts Info" />
             </LinearLayout>
 
             <!-- Send to (WhatsApp vs Business) -->

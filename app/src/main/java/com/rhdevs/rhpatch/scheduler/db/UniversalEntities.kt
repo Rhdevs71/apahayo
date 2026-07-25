@@ -11,7 +11,8 @@ data class UniversalTaskEntity(
     val recipientPhoneOrEmail: String,
     val message: String,
     val triggerTimeMillis: Long,
-    val status: String // "PENDING", "COMPLETED", "FAILED"
+    val status: String, // "PENDING", "COMPLETED", "FAILED"
+    val attachmentUri: String? = null
 )
 
 @Entity(tableName = "universal_templates")

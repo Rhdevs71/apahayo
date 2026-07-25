@@ -126,6 +126,9 @@ public class AutoReplyActivity extends BaseActivity {
                     obj.put("isAi", rule.isAi());
                     obj.put("ignoreCase", rule.getIgnoreCase());
                     obj.put("targetContacts", rule.getTargetContacts());
+                    obj.put("replyType", rule.getReplyType());
+                    obj.put("aiProvider", rule.getAiProvider());
+                    obj.put("aiPrompt", rule.getAiPrompt());
                     array.put(obj);
                 } catch (Exception e) {
                     e.printStackTrace();

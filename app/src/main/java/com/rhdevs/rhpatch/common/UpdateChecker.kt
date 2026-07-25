@@ -107,14 +107,24 @@ class UpdateChecker() : CoroutineScope {
                     headers = mapOf("Accept" to "application/vnd.github.html+json")
                 )
                 if (response.statusCode != 200) {
-                    Logger.printException { "Failed to fetch latest release: HTTP ${response.statusCode}" }
+                    if (response.statusCode != 404) {
+                        Logger.printException { "Failed to fetch latest release: HTTP ${response.statusCode}" }
+                    }
                     if (!silent) {
                         Handler(Looper.getMainLooper()).post {
-                            if (response.statusCode == 404) {
-                                Toast.makeText(requireActivity(), "Tidak ada rilis yang ditemukan (404).", Toast.LENGTH_LONG).show()
-                            } else {
-                                Toast.makeText(requireActivity(), "Gagal memeriksa pembaruan (HTTP ${response.statusCode}).", Toast.LENGTH_LONG).show()
-                            }
+                            try {
+                                val message = if (response.statusCode == 404) {
+                                    "Belum ada rilis versi terbaru."
+                                } else {
+                                    "Gagal memeriksa pembaruan (HTTP ${response.statusCode})."
+                                }
+                                val theme = if (Utils.isDarkModeEnabled()) android.R.style.Theme_DeviceDefault_Dialog_Alert else android.R.style.Theme_DeviceDefault_Light_Dialog_Alert
+                                AlertDialog.Builder(requireActivity(), theme)
+                                    .setTitle("Pembaruan")
+                                    .setMessage(message)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show()
+                            } catch (e: Exception) {}
                         }
                     }
                     return@launch
@@ -132,7 +142,14 @@ class UpdateChecker() : CoroutineScope {
                     Logger.printInfo { "no update found for Rhpatch" }
                     if (!silent) {
                         Handler(Looper.getMainLooper()).post {
-                            Toast.makeText(requireActivity(), "Rhpatch is up to date.", Toast.LENGTH_LONG).show()
+                            try {
+                                val theme = if (Utils.isDarkModeEnabled()) android.R.style.Theme_DeviceDefault_Dialog_Alert else android.R.style.Theme_DeviceDefault_Light_Dialog_Alert
+                                AlertDialog.Builder(requireActivity(), theme)
+                                    .setTitle("Pembaruan")
+                                    .setMessage("Versi saat ini sudah yang terbaru.")
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show()
+                            } catch (e: Exception) {}
                         }
                     }
                 }
@@ -140,7 +157,14 @@ class UpdateChecker() : CoroutineScope {
                 Logger.printException({ "checkUpdate error" }, e)
                 if (!silent) {
                     Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(requireActivity(), "Failed to check for updates.", Toast.LENGTH_LONG).show()
+                        try {
+                            val theme = if (Utils.isDarkModeEnabled()) android.R.style.Theme_DeviceDefault_Dialog_Alert else android.R.style.Theme_DeviceDefault_Light_Dialog_Alert
+                            AlertDialog.Builder(requireActivity(), theme)
+                                .setTitle("Error")
+                                .setMessage("Gagal memeriksa pembaruan. Silakan periksa koneksi internet Anda.")
+                                .setPositiveButton(android.R.string.ok, null)
+                                .show()
+                        } catch (ex: Exception) {}
                     }
                 }
             }

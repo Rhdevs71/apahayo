@@ -102,6 +102,17 @@
                     android:src="@android:drawable/ic_menu_search"
                     app:tint="#FFFFFF"
                     android:contentDescription="Pilih Kontak" />
+                    
+                <ImageButton
+                    android:id="@+id/btn_info_crossplatform"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_dialog_info"
+                    app:tint="#A2A5AA"
+                    android:contentDescription="Info ID Kontak Lintas Platform" />
             </LinearLayout>
 
             <!-- Subject Input (Only for Email) -->
@@ -144,7 +155,7 @@
                 app:boxCornerRadiusBottomEnd="16dp"
                 app:boxStrokeWidth="0dp"
                 app:boxStrokeWidthFocused="0dp"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_message"
@@ -157,6 +168,34 @@
                     android:padding="16dp"
                     android:inputType="textMultiLine" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Media Attachment -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="24dp">
+                
+                <ImageButton
+                    android:id="@+id/btn_pick_media"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_glassmorphism"
+                    android:backgroundTint="#8B5CF6"
+                    android:src="@android:drawable/ic_menu_camera"
+                    app:tint="#FFFFFF"
+                    android:contentDescription="Lampirkan Media" />
+                    
+                <TextView
+                    android:id="@+id/tv_media_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Belum ada gambar/video"
+                    android:textColor="#94A3B8"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <!-- Time Picker Trigger -->
             <TextView

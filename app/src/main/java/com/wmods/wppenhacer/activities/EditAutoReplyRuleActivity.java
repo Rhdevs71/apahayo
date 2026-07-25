@@ -50,7 +50,6 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         // Custom Toolbar Action
         binding.btnBack.setOnClickListener(v -> onBackPressed());
         binding.btnSearch.setOnClickListener(v -> Toast.makeText(this, "Search", Toast.LENGTH_SHORT).show());
-        binding.btnInfo.setOnClickListener(v -> Toast.makeText(this, "Auto Reply Info", Toast.LENGTH_SHORT).show());
 
         // Setup Spinners
         String[] targetTypes = {"ALL", "CONTACTS", "GROUPS", "NON_CONTACTS", "SPECIFIC_CONTACTS"};
@@ -76,6 +75,19 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        binding.btnInfoMatchingType.setOnClickListener(v -> {
+            new android.app.AlertDialog.Builder(this)
+                .setTitle("Penjelasan Matching Type")
+                .setMessage("EXACT: Teks persis sama persis (Contoh: 'halo' -> harus 'halo').\n\n" +
+                            "CONTAINS: Teks mengandung kata (Contoh: 'alo' -> cocok dengan 'halo').\n\n" +
+                            "STARTS_WITH: Teks diawali kata kunci (Contoh: 'hal' -> cocok dengan 'halo bos').\n\n" +
+                            "ENDS_WITH: Teks diakhiri kata kunci (Contoh: 'bos' -> cocok dengan 'halo bos').\n\n" +
+                            "WILDCARD: Menggunakan tanda * sebagai kata ganti (Contoh: 'ha*lo').\n\n" +
+                            "REGEX: Menggunakan Regular Expression tingkat lanjut.")
+                .setPositiveButton("OK", null)
+                .show();
         });
 
         // Setup Matching Type Spinner
@@ -136,8 +148,31 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        SharedPreferences prefs = getSharedPreferences("com.wmods.wppenhacer_preferences", Context.MODE_PRIVATE);
+        SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
         binding.editApiKeys.setText(prefs.getString("ai_api_key", ""));
+        
+        String savedProvider = prefs.getString("ai_provider", "groq");
+        for (int i = 0; i < aiProviders.length; i++) {
+            if (aiProviders[i].equals(savedProvider)) {
+                binding.spinnerAiProvider.setSelection(i);
+                break;
+            }
+        }
+        
+        String savedModel = prefs.getString("ai_model", "llama3-8b-8192");
+        boolean modelFound = false;
+        for (int i = 0; i < aiModels.length; i++) {
+            if (aiModels[i].equals(savedModel)) {
+                binding.spinnerAiModel.setSelection(i);
+                modelFound = true;
+                break;
+            }
+        }
+        if (!modelFound) {
+            binding.spinnerAiModel.setSelection(aiModels.length - 1); // "Custom..."
+            binding.editCustomModel.setText(savedModel);
+            binding.editCustomModel.setVisibility(View.VISIBLE);
+        }
 
         // Setup Time Windows Switch (Apply only on schedule)
         binding.switchActiveHours.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -330,7 +365,7 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         String aiModel = "Custom...".equals(aiModelRaw) ? binding.editCustomModel.getText().toString().trim() : aiModelRaw;
         
         if ("AI".equals(replyType)) {
-            SharedPreferences prefs = getSharedPreferences("com.wmods.wppenhacer_preferences", Context.MODE_PRIVATE);
+            SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
             prefs.edit()
                  .putString("ai_api_key", binding.editApiKeys.getText().toString().trim())
                  .putString("ai_provider", aiProvider)

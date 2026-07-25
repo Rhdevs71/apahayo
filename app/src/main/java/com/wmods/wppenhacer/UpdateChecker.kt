@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-class UpdateChecker(private val mActivity: Activity) : Runnable {
+class UpdateChecker(private val mActivity: Activity, private val isManual: Boolean = false) : Runnable {
 
     companion object {
         private const val LATEST_RELEASE_API = "https://api.github.com/repos/Rhdevs71/apahayo/releases/latest"
@@ -38,7 +38,22 @@ class UpdateChecker(private val mActivity: Activity) : Runnable {
             val publishedAt: String
 
             httpClient.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return
+                if (!response.isSuccessful) {
+                    if (response.code == 404 && isManual) {
+                        mActivity.runOnUiThread {
+                            val dialog = AlertDialogWpp(mActivity)
+                            dialog.setTitle("Pembaruan")
+                            dialog.setMessage("Belum ada rilis versi terbaru.")
+                            dialog.setPositiveButton("OK") { d, _ -> d.dismiss() }
+                            dialog.show()
+                        }
+                    } else if (isManual) {
+                        mActivity.runOnUiThread {
+                            android.widget.Toast.makeText(mActivity, "Gagal memeriksa pembaruan: ${response.code}", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    return
+                }
 
                 val content = response.body.string()
                 val release = JSONObject(content)
@@ -70,6 +85,11 @@ class UpdateChecker(private val mActivity: Activity) : Runnable {
             }
         } catch (e: Exception) {
             XposedBridge.log(e)
+            if (isManual) {
+                mActivity.runOnUiThread {
+                    android.widget.Toast.makeText(mActivity, "Gagal memeriksa pembaruan: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 

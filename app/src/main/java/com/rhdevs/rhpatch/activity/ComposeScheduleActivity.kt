@@ -23,6 +23,7 @@ import java.util.Locale
 class ComposeScheduleActivity : AppCompatActivity() {
 
     private var selectedTimeMillis: Long = 0
+    private var selectedMediaUri: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +43,8 @@ class ComposeScheduleActivity : AppCompatActivity() {
         val tvSelectedTime = findViewById<TextView>(R.id.tv_selected_time)
         val btnSave = findViewById<Button>(R.id.btn_save_schedule)
         val btnPickContact = findViewById<android.widget.ImageButton>(R.id.btn_pick_contact)
+        val btnPickMedia = findViewById<android.widget.ImageButton>(R.id.btn_pick_media)
+        val tvMediaStatus = findViewById<TextView>(R.id.tv_media_status)
 
         val targetOptions = arrayOf(
             "WhatsApp", "Telegram", "Telegram Group", "SMS", "Phone Call", "Email", "Facebook Messenger", "Instagram", "Discord"
@@ -70,6 +73,7 @@ class ComposeScheduleActivity : AppCompatActivity() {
             val editRecipient = intent.getStringExtra("edit_recipient")
             val editMessage = intent.getStringExtra("edit_message")
             val editTime = intent.getLongExtra("edit_time", 0L)
+            val editAttachment = intent.getStringExtra("edit_attachment")
 
             etRecipient.setText(editRecipient)
             
@@ -91,18 +95,50 @@ class ComposeScheduleActivity : AppCompatActivity() {
                 val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
                 tvSelectedTime.text = sdf.format(editTime)
             }
+            if (!editAttachment.isNullOrEmpty()) {
+                selectedMediaUri = editAttachment
+                tvMediaStatus.text = "Media dipilih"
+            }
             btnSave.text = "Perbarui Jadwal"
         }
 
-        btnPickContact.setOnClickListener {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                if (checkSelfPermission(android.Manifest.permission.READ_CONTACTS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(arrayOf(android.Manifest.permission.READ_CONTACTS), 101)
-                    return@setOnClickListener
-                }
+        btnPickMedia.setOnClickListener {
+            val intent = android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(android.content.Intent.CATEGORY_OPENABLE)
+                type = "*/*"
+                putExtra(android.content.Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*", "audio/*", "application/pdf"))
             }
-            val pickIntent = android.content.Intent(android.content.Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI)
-            startActivityForResult(pickIntent, 102)
+            startActivityForResult(intent, 103)
+        }
+
+        btnPickContact.setOnClickListener {
+            val targetApp = targetValues[spinnerTargetApp.selectedItemPosition]
+            if (targetApp == "whatsapp" || targetApp == "sms" || targetApp == "call") {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(android.Manifest.permission.READ_CONTACTS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(arrayOf(android.Manifest.permission.READ_CONTACTS), 101)
+                        return@setOnClickListener
+                    }
+                }
+                val pickIntent = android.content.Intent(android.content.Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI)
+                startActivityForResult(pickIntent, 102)
+            } else {
+                Toast.makeText(this, "Gunakan ikon info (!) untuk mengetahui cara memasukkan ID secara manual.", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        findViewById<android.widget.ImageButton>(R.id.btn_info_crossplatform).setOnClickListener {
+            android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle("Cara Mendapatkan ID Lintas Platform")
+                .setMessage("Karena platform ini tidak mendukung pemilihan kontak otomatis, silakan ketik manual ID target:\n\n" +
+                            "• Telegram: Masukkan Username (tanpa @) atau User ID angka\n" +
+                            "• Instagram: Masukkan Username akun tujuan\n" +
+                            "• Facebook: Masukkan Profile ID atau username unik\n" +
+                            "• Discord: Masukkan Discord User ID angka (harus mengaktifkan Developer Mode)\n" +
+                            "• Email: Masukkan Alamat Email lengkap\n\n" +
+                            "Kakak bisa memisahkan beberapa target dengan tanda koma (,).")
+                .setPositiveButton("Mengerti", null)
+                .show()
         }
 
         btnPickTime.setOnClickListener {
@@ -179,6 +215,12 @@ class ComposeScheduleActivity : AppCompatActivity() {
                     }
                 }
             }
+        } else if (requestCode == 103 && resultCode == android.app.Activity.RESULT_OK) {
+            data?.data?.let { uri ->
+                contentResolver.takePersistableUriPermission(uri, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                selectedMediaUri = uri.toString()
+                findViewById<TextView>(R.id.tv_media_status).text = "Media: " + uri.lastPathSegment
+            }
         } else if (requestCode == 201 && resultCode == android.app.Activity.RESULT_OK) {
             // Permissions are granted, proceed to save task
             val spinnerTargetApp = findViewById<Spinner>(R.id.spinner_target_app)
@@ -212,7 +254,8 @@ class ComposeScheduleActivity : AppCompatActivity() {
                     recipientPhoneOrEmail = recipient,
                     message = message,
                     triggerTimeMillis = selectedTimeMillis,
-                    status = "PENDING"
+                    status = "PENDING",
+                    attachmentUri = selectedMediaUri
                 )
                 db.updateTask(task)
                 finalId = editTaskId
@@ -223,7 +266,8 @@ class ComposeScheduleActivity : AppCompatActivity() {
                     recipientPhoneOrEmail = recipient,
                     message = message,
                     triggerTimeMillis = selectedTimeMillis,
-                    status = "PENDING"
+                    status = "PENDING",
+                    attachmentUri = selectedMediaUri
                 )
                 val insertedId = db.insertTask(task)
                 finalId = insertedId.toInt()
