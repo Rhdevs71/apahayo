@@ -40,6 +40,17 @@
             android:textStyle="bold"
             android:theme="@style/Widget.AppCompat.CompoundButton.Switch" />
 
+        <Button
+            android:id="@+id/btn_set_adguard_dns"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#10B981"
+            android:text="Set DNS HP ke dns.adguard.com (Root)"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
         <EditText
             android:id="@+id/search_box"
             android:layout_width="match_parent"

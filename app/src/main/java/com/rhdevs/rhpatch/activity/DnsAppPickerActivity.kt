@@ -50,6 +50,7 @@ class DnsAppPickerActivity : Activity() {
 
         val switchGlobalDns = findViewById<Switch>(R.id.switch_global_dns)
         val searchBox = findViewById<EditText>(R.id.search_box)
+        val btnSetAdguardDns = findViewById<android.widget.Button>(R.id.btn_set_adguard_dns)
         appRecycler = findViewById(R.id.app_recycler)
         loadingSpinner = findViewById(R.id.loading_spinner)
 
@@ -63,6 +64,21 @@ class DnsAppPickerActivity : Activity() {
         switchGlobalDns.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit().putBoolean("dns_bypass_enabled", isChecked).apply()
             makePrefsReadable()
+        }
+
+        btnSetAdguardDns.setOnClickListener {
+            thread {
+                try {
+                    Runtime.getRuntime().exec(arrayOf("su", "-c", "settings put global private_dns_mode hostname && settings put global private_dns_specifier dns.adguard.com"))
+                    runOnUiThread {
+                        android.widget.Toast.makeText(this@DnsAppPickerActivity, "DNS berhasil diatur ke dns.adguard.com", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        android.widget.Toast.makeText(this@DnsAppPickerActivity, "Gagal mengatur DNS. Pastikan akses Root diberikan.", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
 
         adapter = AppListAdapter()
@@ -86,7 +102,7 @@ class DnsAppPickerActivity : Activity() {
 
         thread {
             val pm = packageManager
-            val packages = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+            val packages = pm.getInstalledApplications(0)
             val tempApps = mutableListOf<AppItem>()
 
             for (appInfo in packages) {
