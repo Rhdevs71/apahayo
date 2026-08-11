@@ -353,7 +353,7 @@ class SeenTick(
                 ): MenuItem? {
                     if (menu.findItem(R.string.send_blue_tick) != null) return null
                     if (statusData.currentItem.isFromMe) return null
-                    return menu.add(0, R.string.send_blue_tick, 0, R.string.send_blue_tick)
+                    return menu.add(0, R.string.send_blue_tick, 0, Utils.getString(R.string.send_blue_tick))
                 }
 
                 override fun onClick(
@@ -377,7 +377,7 @@ class SeenTick(
         XposedBridge.hookMethod(onCreateMenuConversationMethod, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val menu = param.args[0] as Menu
-                val menuItem = menu.add(0, 0, 0, R.string.send_blue_tick)
+                val menuItem = menu.add(0, 0, 0, Utils.getString(R.string.send_blue_tick))
                 if (ticktype == 1) menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 menuItem.setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
                 menuItem.setOnMenuItemClickListener {
@@ -398,12 +398,13 @@ class SeenTick(
                 statusData: MenuStatusListener.StatusData
             ): MenuItem? {
                 if (menu.findItem(R.string.read_all_mark_as_read) != null) return null
+
                 if (statusData.currentItem.isFromMe) return null
                 return menu.add(
                     0,
                     R.string.read_all_mark_as_read,
                     0,
-                    R.string.read_all_mark_as_read
+                    Utils.getString(R.string.read_all_mark_as_read)
                 )
             }
 
@@ -443,7 +444,7 @@ class SeenTick(
                     return
                 }
 
-                val item = menu.add(0, 0, 0, R.string.send_blue_tick)
+                val item = menu.add(0, 0, 0, Utils.getString(R.string.send_blue_tick))
                     .setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
                 if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
@@ -481,7 +482,7 @@ class SeenTick(
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val menu = param.args[0] as Menu
-                    val item = menu.add(0, 0, 0, R.string.send_blue_tick)
+                    val item = menu.add(0, 0, 0, Utils.getString(R.string.send_blue_tick))
                         .setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
                     if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
