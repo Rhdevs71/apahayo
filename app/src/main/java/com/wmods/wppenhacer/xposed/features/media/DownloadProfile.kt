@@ -55,7 +55,7 @@ class DownloadProfile(classLoader: ClassLoader, preferences:SharedPreferences) :
                         if (TextUtils.isEmpty(error)) {
                             Toast.makeText(
                                 Utils.application,
-                                Utils.application.getString(R.string.saved_to) + destPath,
+                                com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.saved_to) + destPath,
                                 Toast.LENGTH_LONG
                             ).show()
                         } else {

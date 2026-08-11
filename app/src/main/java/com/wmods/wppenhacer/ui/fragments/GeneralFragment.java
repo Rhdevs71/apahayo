@@ -62,14 +62,6 @@ public class GeneralFragment extends BaseFragment {
                 android.content.Intent intent = new android.content.Intent(getContext(), com.wmods.wppenhacer.activities.CustomFoldersActivity.class);
                 startActivity(intent);
                 return true;
-            } else if ("fake_display_settings".equals(key)) {
-                android.content.Intent intent = new android.content.Intent(getContext(), com.wmods.wppenhacer.activities.FakeDisplayActivity.class);
-                startActivity(intent);
-                return true;
-            } else if ("fake_call_settings".equals(key)) {
-                android.content.Intent intent = new android.content.Intent(getContext(), com.wmods.wppenhacer.activities.FakeCallActivity.class);
-                startActivity(intent);
-                return true;
             } else if ("use_accessibility_sender".equals(key)) {
                 if (preference instanceof rikka.material.preference.MaterialSwitchPreference) {
                     boolean isChecked = ((rikka.material.preference.MaterialSwitchPreference) preference).isChecked();

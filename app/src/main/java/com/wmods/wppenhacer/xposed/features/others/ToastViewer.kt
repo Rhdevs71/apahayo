@@ -69,7 +69,7 @@ class ToastViewer(classLoader: ClassLoader, preferences:SharedPreferences) :
                     ?: getContactName(userjid)
                 if (prefs.getBoolean("toast_viewed_status", false)) {
                     Utils.showToast(
-                        Utils.application.getString(R.string.viewed_your_status, contactName),
+                        com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.viewed_your_status, contactName),
                         Toast.LENGTH_LONG
                     )
                 }

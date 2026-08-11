@@ -38,17 +38,11 @@
         app:iconSpaceReserved="false"
         app:title="Extra Automation Tools">
 
-        <Preference
-            app:key="fake_display_settings"
-            app:iconSpaceReserved="false"
-            app:title="Fake Chat Display"
-            app:summary="Ubah tampilan obrolan menjadi percakapan palsu" />
-
-        <Preference
-            app:key="fake_call_settings"
-            app:iconSpaceReserved="false"
-            app:title="Fake Call/Simulated Call"
-            app:summary="Simulasikan panggilan masuk palsu" />
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="fake_chat_editor_enabled"
+            app:defaultValue="false"
+            app:summary="Edit teks dan waktu pesan dari daftar obrolan (tekan lama pesan)"
+            app:title="Fake Chat Editor" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="quick_translate_enabled"

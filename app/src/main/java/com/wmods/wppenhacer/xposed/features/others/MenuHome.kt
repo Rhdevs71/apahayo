@@ -73,7 +73,7 @@ class MenuHome(classLoader: ClassLoader, preferences:SharedPreferences) :
     private fun insertOpenWae(menu: Menu, activity: Activity) {
         val waeMenu = prefs.getBoolean("open_wae", true)
         if (!waeMenu) return
-        val itemMenu = menu.add(0, 0, 9999, " " + activity.getString(R.string.app_name))
+        val itemMenu = menu.add(0, 0, 9999, " " + com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.app_name))
         val iconDraw = DesignUtils.getDrawableByName("ic_settings")
         iconDraw!!.setTint(-0x796960)
         itemMenu.icon = iconDraw
@@ -100,10 +100,10 @@ class MenuHome(classLoader: ClassLoader, preferences:SharedPreferences) :
             }
             return
         }
-        val itemMenu = menu.add(0, 0, 0, R.string.ghost_mode)
+        val itemMenu = menu.add(0, 0, 0, com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.ghost_mode))
 
         val iconDraw =
-            activity.getDrawable(if (ghostmode) R.drawable.ghost_enabled else R.drawable.ghost_disabled)
+            com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getDrawable(if (ghostmode) R.drawable.ghost_enabled else R.drawable.ghost_disabled)
         if (iconDraw != null) {
             iconDraw.setTint(if (newSettings) DesignUtils.getPrimaryTextColor() else -0x796960)
             itemMenu.icon = iconDraw
@@ -113,16 +113,16 @@ class MenuHome(classLoader: ClassLoader, preferences:SharedPreferences) :
         }
         itemMenu.setOnMenuItemClickListener {
             AlertDialogWpp(activity).setTitle(
-                activity.getString(
+                com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(
                     R.string.ghost_mode_s,
                     (if (ghostmode) "ON" else "OFF")
                 )
-            ).setMessage(activity.getString(R.string.ghost_mode_message))
-                .setPositiveButton(activity.getString(R.string.disable)) { _, _ ->
+            ).setMessage(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.ghost_mode_message))
+                .setPositiveButton(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.disable)) { _, _ ->
                     setPrivBoolean("ghostmode", false)
                     Utils.doRestart(activity)
                 }
-                .setNegativeButton(activity.getString(R.string.enable)) { _, _ ->
+                .setNegativeButton(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.enable)) { _, _ ->
                     setPrivBoolean("ghostmode", true)
                     Utils.doRestart(activity)
                 }.show()
@@ -132,9 +132,9 @@ class MenuHome(classLoader: ClassLoader, preferences:SharedPreferences) :
 
     private fun insertRestartButton(menu: Menu, activity: Activity, newSettings: Boolean) {
         if (!prefs.getBoolean("restartbutton", true)) return
-        val iconDraw = activity.getDrawable(R.drawable.refresh)
+        val iconDraw = com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getDrawable(R.drawable.refresh)
         iconDraw!!.setTint(if (newSettings) DesignUtils.getPrimaryTextColor() else -0x796960)
-        val itemMenu = menu.add(0, 0, 0, R.string.restart_whatsapp).setIcon(iconDraw)
+        val itemMenu = menu.add(0, 0, 0, com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.restart_whatsapp)).setIcon(iconDraw)
         if (newSettings) {
             itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         }
@@ -154,8 +154,8 @@ class MenuHome(classLoader: ClassLoader, preferences:SharedPreferences) :
             }
             return
         }
-        val item = menu.add(0, 0, 0, activity.getString(R.string.dnd_mode_title))
-        val drawable = Utils.application
+        val item = menu.add(0, 0, 0, com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.dnd_mode_title))
+        val drawable = com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext
             .getDrawable(if (dndmode) R.drawable.airplane_enabled else R.drawable.airplane_disabled)
         if (drawable != null) {
             drawable.setTint(if (newSettings) DesignUtils.getPrimaryTextColor() else -0x796960)
@@ -167,13 +167,13 @@ class MenuHome(classLoader: ClassLoader, preferences:SharedPreferences) :
         item.setOnMenuItemClickListener {
             if (!dndmode) {
                 AlertDialogWpp(activity)
-                    .setTitle(activity.getString(R.string.dnd_mode_title))
-                    .setMessage(activity.getString(R.string.dnd_message))
-                    .setPositiveButton(activity.getString(R.string.activate)) { _, _ ->
+                    .setTitle(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.dnd_mode_title))
+                    .setMessage(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.dnd_message))
+                    .setPositiveButton(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.activate)) { _, _ ->
                         setPrivBoolean("dndmode", true)
                         Utils.doRestart(activity)
                     }
-                    .setNegativeButton(activity.getString(R.string.cancel)) { dialog, _ -> dialog?.dismiss() }
+                    .setNegativeButton(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.cancel)) { dialog, _ -> dialog?.dismiss() }
                     .create().show()
                 return@setOnMenuItemClickListener true
             }
@@ -193,8 +193,8 @@ class MenuHome(classLoader: ClassLoader, preferences:SharedPreferences) :
             return
         }
 
-        val item = menu.add(0, 0, 0, activity.getString(R.string.freezelastseen_title))
-        val drawable = Utils.application
+        val item = menu.add(0, 0, 0, com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.freezelastseen_title))
+        val drawable = com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext
             .getDrawable(if (freezelastseen) R.drawable.eye_disabled else R.drawable.eye_enabled)
         if (drawable != null) {
             drawable.setTint(if (newSettings) DesignUtils.getPrimaryTextColor() else -0x796960)
@@ -206,13 +206,13 @@ class MenuHome(classLoader: ClassLoader, preferences:SharedPreferences) :
         item.setOnMenuItemClickListener {
             if (!freezelastseen) {
                 AlertDialogWpp(activity)
-                    .setTitle(activity.getString(R.string.freezelastseen_title))
-                    .setMessage(activity.getString(R.string.freezelastseen_message))
-                    .setPositiveButton(activity.getString(R.string.activate)) { _, _ ->
+                    .setTitle(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.freezelastseen_title))
+                    .setMessage(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.freezelastseen_message))
+                    .setPositiveButton(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.activate)) { _, _ ->
                         setPrivBoolean("freezelastseen", true)
                         Utils.doRestart(activity)
                     }
-                    .setNegativeButton(activity.getString(R.string.cancel)) { dialog, _ -> dialog?.dismiss() }
+                    .setNegativeButton(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.cancel)) { dialog, _ -> dialog?.dismiss() }
                     .create().show()
                 return@setOnMenuItemClickListener true
             }

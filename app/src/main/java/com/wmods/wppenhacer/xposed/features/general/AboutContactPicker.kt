@@ -449,7 +449,7 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
                 }
                 background = bg
 
-                activity.getDrawable(R.drawable.ic_search)?.let { searchDrawable ->
+                com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getDrawable(R.drawable.ic_search)?.let { searchDrawable ->
                     searchDrawable.setTint(DesignUtils.getPrimaryTextColor())
                     setCompoundDrawablesRelativeWithIntrinsicBounds(
                         searchDrawable,
@@ -674,14 +674,14 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
         private fun updateActionBarTitle() {
             if (titleView == null || subtitleView == null) return
 
-            activity.title = activity.getString(R.string.select_contacts)
+            activity.title = com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.select_contacts)
             titleView?.setText(R.string.select_contacts)
 
             if (selectedJids.isEmpty()) {
                 subtitleView?.setText(R.string.no_contacts_selected)
             } else {
                 subtitleView?.text =
-                    activity.getString(R.string.contact_were_selected, selectedJids.size)
+                    com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.contact_were_selected, selectedJids.size)
             }
         }
 
@@ -820,9 +820,9 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
     ) {
         fun typeLabel(activity: Activity): String {
             return if (type == ContactType.GROUP) {
-                activity.getString(R.string.picker_group)
+                com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.picker_group)
             } else {
-                activity.getString(R.string.picker_contact)
+                com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.picker_contact)
             }
         }
     }
@@ -936,7 +936,7 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
 
         private fun createSelectionDrawable(activity: Activity, checked: Boolean): Drawable {
             if (checked) {
-                activity.getDrawable(R.drawable.ic_round_check_circle_24)?.let { drawable ->
+                com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getDrawable(R.drawable.ic_round_check_circle_24)?.let { drawable ->
                     drawable.setTint(DesignUtils.getUnSeenColor())
                     return drawable
                 }

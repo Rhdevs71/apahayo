@@ -113,7 +113,7 @@ class DownloadViewOnce(classLoader: ClassLoader, preferences:SharedPreferences) 
             val error = Utils.copyFile(file, dest, name)
             if (TextUtils.isEmpty(error)) {
                 Utils.showToast(
-                    Utils.application.getString(R.string.saved_to) + dest,
+                    com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.saved_to) + dest,
                     Toast.LENGTH_LONG
                 )
             } else {

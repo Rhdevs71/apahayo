@@ -99,11 +99,11 @@ class CustomPrivacy(
 
                         val id = Utils.getID("contact_info_security_card_layout", "id")
                         val infoLayout = activity.window.findViewById<ViewGroup>(id)
-                        val icon = activity.getDrawable(R.drawable.ic_privacy)!!
+                        val icon = com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getDrawable(R.drawable.ic_privacy)!!
                         val itemView = createItemView(
                             activity,
-                            activity.getString(R.string.custom_privacy),
-                            activity.getString(R.string.custom_privacy_sum),
+                            com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.custom_privacy),
+                            com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.custom_privacy_sum),
                             icon
                         )
 
@@ -266,7 +266,7 @@ class CustomPrivacy(
 
         if (list.isEmpty()) {
             Utils.showToast(
-                activity.getString(R.string.no_contact_with_custom_privacy),
+                com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.no_contact_with_custom_privacy),
                 Toast.LENGTH_SHORT
             )
             return
@@ -303,12 +303,12 @@ class CustomPrivacy(
         builder.setTitle(R.string.custom_privacy)
 
         val items = arrayOf(
-            activity.getString(R.string.hideread),
-            activity.getString(R.string.hidestatusview),
-            activity.getString(R.string.hidereceipt),
-            activity.getString(R.string.ghostmode),
-            activity.getString(R.string.ghostmode_r),
-            activity.getString(R.string.block_call)
+            com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.hideread),
+            com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.hidestatusview),
+            com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.hidereceipt),
+            com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.ghostmode),
+            com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.ghostmode_r),
+            com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.block_call)
         )
 
         val itemsKeys = arrayOf(
@@ -328,7 +328,7 @@ class CustomPrivacy(
         builder.setPositiveButton("OK") { _, _ ->
             savePreferences(number, itemsKeys, checkedItems)
         }
-        builder.setNegativeButton(activity.getString(R.string.cancel), null)
+        builder.setNegativeButton(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.cancel), null)
 
         return builder
     }

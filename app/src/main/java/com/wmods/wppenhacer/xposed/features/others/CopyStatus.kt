@@ -31,7 +31,7 @@ class CopyStatus(classLoader: ClassLoader, preferences:SharedPreferences) :
                 caption?.setOnLongClickListener {
                     Utils.setToClipboard(caption.text.toString())
                     Utils.showToast(
-                        Utils.application.getString(R.string.copied_to_clipboard),
+                        com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.copied_to_clipboard),
                         Toast.LENGTH_LONG
                     )
                     true
@@ -48,7 +48,7 @@ class CopyStatus(classLoader: ClassLoader, preferences:SharedPreferences) :
                 text?.setOnLongClickListener {
                     Utils.setToClipboard(text.text.toString())
                     Utils.showToast(
-                        Utils.application.getString(R.string.copied_to_clipboard),
+                        com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.copied_to_clipboard),
                         Toast.LENGTH_LONG
                     )
                     true

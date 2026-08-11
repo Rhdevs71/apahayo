@@ -47,9 +47,9 @@ class BackupRestore(loader: ClassLoader, preferences:SharedPreferences) :
                     menuItem.setOnMenuItemClickListener {
                         AlertDialogWpp(activity)
                             .setTitle(R.string.force_restore_backup)
-                            .setMessage(activity.getString(R.string.warning_restore))
+                            .setMessage(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.warning_restore))
                             .setPositiveButton(
-                                activity.getString(R.string.yes)
+                                com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.yes)
                             ) { _,_ ->
                                 try {
                                     val intent = Intent(activity, restoreFromBackupClass)
@@ -63,7 +63,7 @@ class BackupRestore(loader: ClassLoader, preferences:SharedPreferences) :
                                     )
                                 }
                             }
-                            .setNegativeButton(activity.getString(R.string.no), null)
+                            .setNegativeButton(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.no), null)
                             .show()
                         true
                     }

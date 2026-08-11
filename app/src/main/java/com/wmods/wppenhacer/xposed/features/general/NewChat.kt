@@ -38,7 +38,7 @@ class NewChat(loader: ClassLoader, preferences:SharedPreferences) : Feature(load
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val activity = param.thisObject as Activity
                     val menu = param.args[0] as Menu
-                    val item = menu.add(0, 0, 0, R.string.new_chat)
+                    val item = menu.add(0, 0, 0, com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.new_chat))
                     val drawable = DesignUtils.getDrawableByName("vec_ic_chat_add")
 
                     if (drawable != null) {
@@ -71,10 +71,10 @@ class NewChat(loader: ClassLoader, preferences:SharedPreferences) : Feature(load
 
 
                         AlertDialogWpp(activity)
-                            .setTitle(activity.getString(R.string.new_chat))
+                            .setTitle(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.new_chat))
                             .setView(view)
                             .setPositiveButton(
-                                activity.getString(R.string.message)
+                                com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.message)
                             ) { _, _ ->
                                 val number = edt.text.toString()
                                 val numberFomatted =
@@ -84,7 +84,7 @@ class NewChat(loader: ClassLoader, preferences:SharedPreferences) : Feature(load
                                 intent.setPackage(Utils.application.packageName)
                                 activity.startActivity(intent)
                             }
-                            .setNegativeButton(activity.getString(R.string.cancel), null)
+                            .setNegativeButton(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.cancel), null)
                             .show()
                         true
                     }

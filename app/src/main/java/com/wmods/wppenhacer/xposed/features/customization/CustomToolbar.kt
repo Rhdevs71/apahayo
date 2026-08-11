@@ -101,7 +101,7 @@ class CustomToolbar(loader: ClassLoader, preferences:SharedPreferences) : Featur
                     val version = viewRoot.findViewById<TextView>(Utils.getID("version", "id"))
 
                     if (version != null) {
-                        val expirationText = activity.getString(R.string.expiration, mDateExpiration)
+                        val expirationText = com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.expiration, mDateExpiration)
                         version.text = "${version.text} $expirationText"
                     }
                 }
