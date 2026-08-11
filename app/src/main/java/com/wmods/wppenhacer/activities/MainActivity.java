@@ -305,6 +305,34 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        backupConfiguration();
+    }
+
+    private void backupConfiguration() {
+        try {
+            var prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
+            java.util.Map<String, ?> allEntries = prefs.getAll();
+            org.json.JSONObject jsonObject = new org.json.JSONObject();
+            for (java.util.Map.Entry<String, ?> entry : allEntries.entrySet()) {
+                jsonObject.put(entry.getKey(), entry.getValue());
+            }
+            
+            java.io.File dir = new java.io.File(android.os.Environment.getExternalStorageDirectory(), "RHPatch");
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            java.io.File backupFile = new java.io.File(dir, "config_backup.json");
+            try (java.io.FileWriter fileWriter = new java.io.FileWriter(backupFile)) {
+                fileWriter.write(jsonObject.toString(4));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private static class DepthPageTransformer implements ViewPager2.PageTransformer {
         private static final float MIN_SCALE = 0.85f;
 

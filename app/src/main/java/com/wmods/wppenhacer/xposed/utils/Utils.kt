@@ -66,17 +66,32 @@ object Utils {
          Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
+    val databaseExecutor: ExecutorService by lazy {
+         Executors.newSingleThreadExecutor()
+    }
+
     @JvmStatic
     fun doRestart(context: Context): Boolean {
-        val packageManager = context.packageManager
-        val intent =
-            packageManager.getLaunchIntentForPackage(context.packageName) ?: return false
-        val componentName = intent.component
-        val mainIntent = Intent.makeRestartActivityTask(componentName)
-        mainIntent.setPackage(context.packageName)
-        context.startActivity(mainIntent)
-        Runtime.getRuntime().exit(0)
-        return true
+        try {
+            val packageManager = context.packageManager
+            val intent = packageManager.getLaunchIntentForPackage(context.packageName) ?: return false
+            val componentName = intent.component
+            val mainIntent = Intent.makeRestartActivityTask(componentName)
+            mainIntent.setPackage(context.packageName)
+            
+            try {
+                // Try to force stop and restart via root if available
+                Runtime.getRuntime().exec(arrayOf("su", "-c", "am force-stop ${context.packageName} && am start -n ${componentName?.flattenToString()}"))
+            } catch (e: Exception) {
+                // Ignore if no root
+            }
+            
+            context.startActivity(mainIntent)
+            Runtime.getRuntime().exit(0)
+            return true
+        } catch (e: Exception) {
+            return false
+        }
     }
 
     /**

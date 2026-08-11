@@ -3,6 +3,8 @@ package com.wmods.wppenhacer.xposed.features.media
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
@@ -20,6 +22,8 @@ import java.io.File
 
 class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
+    private val mainHandler = Handler(Looper.getMainLooper())
+
     override fun doHook() {
         if (!prefs.getBoolean("downloadstatus", false)) return
 
@@ -29,11 +33,7 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
                 val item = statusData.currentItem
                 if (item.isFromMe) return null
                 if (!item.isMediaFile) return null
-                val menuItem = menu.add(0, R.string.download, 0, R.string.download)
-                if (item.getMediaFile() == null) {
-                    menuItem.title = Utils.getString(R.string.download) + " ⏳"
-                }
-                return menuItem
+                return menu.add(0, R.string.download, 0, R.string.download)
             }
 
             override fun onClick(item: MenuItem, statusData: MenuStatusListener.StatusData) {
@@ -75,19 +75,32 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
                 return
             }
 
-            val file = statusItem.getMediaFile()
-            if (file == null) {
-                Utils.showToast(Utils.getString(R.string.download_not_available), Toast.LENGTH_SHORT)
-                return
-            }
+            val messageText = fMessage?.messageStr
+            Utils.executor.execute {
+                try {
+                    val file = statusItem.getMediaFile()
+                    if (file == null) {
+                        Utils.showToast(Utils.getString(R.string.download_not_available), Toast.LENGTH_SHORT)
+                        return@execute
+                    }
+                    val clazz = Unobfuscator.findFirstClassUsingName(
+                        classLoader,
+                        StringMatchType.EndsWith,
+                        "MediaComposerActivity"
+                    )
 
-            val intent = Intent()
-            val clazz = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "MediaComposerActivity")
-            intent.setClassName(Utils.application.packageName, clazz.name)
-            intent.putExtra("jids", arrayListOf("status@broadcast"))
-            intent.putExtra("android.intent.extra.STREAM", arrayListOf(Uri.fromFile(file)))
-            intent.putExtra("android.intent.extra.TEXT", fMessage?.messageStr)
-            WppCore.getCurrentActivity()?.startActivity(intent)
+                    mainHandler.post {
+                        val intent = Intent()
+                        intent.setClassName(Utils.application.packageName, clazz.name)
+                        intent.putExtra("jids", arrayListOf("status@broadcast"))
+                        intent.putExtra("android.intent.extra.STREAM", arrayListOf(Uri.fromFile(file)))
+                        intent.putExtra("android.intent.extra.TEXT", messageText)
+                        WppCore.getCurrentActivity()?.startActivity(intent)
+                    }
+                } catch (e: Throwable) {
+                    Utils.showToast(e.message, Toast.LENGTH_SHORT)
+                }
+            }
 
         } catch (e: Throwable) {
             Utils.showToast(e.message, Toast.LENGTH_SHORT)
@@ -95,25 +108,27 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
     }
 
     private fun downloadFile(statusItem: StatusItemWpp) {
-        try {
-            val file = statusItem.getMediaFile()
-            if (file == null) {
-                Utils.showToast(Utils.getString(R.string.download_not_available), Toast.LENGTH_LONG)
-                return
-            }
-            val userJid = statusItem.senderJid ?: return
-            val fileType = file.name.substring(file.name.lastIndexOf(".") + 1)
-            val destination = getStatusDestination(file)
-            val name = Utils.generateName(userJid, fileType)
-            val error = Utils.copyFile(file, destination, name)
+        Utils.executor.execute {
+            try {
+                val file = statusItem.getMediaFile()
+                if (file == null) {
+                    Utils.showToast(Utils.getString(R.string.download_not_available), Toast.LENGTH_LONG)
+                    return@execute
+                }
+                val userJid = statusItem.senderJid ?: return@execute
+                val fileType = file.name.substring(file.name.lastIndexOf(".") + 1)
+                val destination = getStatusDestination(file)
+                val name = Utils.generateName(userJid, fileType)
+                val error = Utils.copyFile(file, destination, name)
 
-            if (TextUtils.isEmpty(error)) {
-                Utils.showToast(Utils.getString(R.string.saved_to) + destination, Toast.LENGTH_SHORT)
-            } else {
-                Utils.showToast("${Utils.getString(R.string.error_when_saving_try_again)}: $error", Toast.LENGTH_SHORT)
+                if (TextUtils.isEmpty(error)) {
+                    Utils.showToast(Utils.getString(R.string.saved_to) + destination, Toast.LENGTH_SHORT)
+                } else {
+                    Utils.showToast("${Utils.getString(R.string.error_when_saving_try_again)}: $error", Toast.LENGTH_SHORT)
+                }
+            } catch (e: Throwable) {
+                Utils.showToast(e.message, Toast.LENGTH_SHORT)
             }
-        } catch (e: Throwable) {
-            Utils.showToast(e.message, Toast.LENGTH_SHORT)
         }
     }
 

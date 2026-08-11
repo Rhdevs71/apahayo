@@ -177,7 +177,8 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                     val isAi = ruleObj.optBoolean("isAi", false)
 
                     executor.execute {
-                        val replyContentList = if (isAi || ruleObj.optString("replyType", "TEXT") == "AI") {
+                        synchronized(this) {
+                            val replyContentList = if (isAi || ruleObj.optString("replyType", "TEXT") == "AI") {
                             val apiKeysRaw = prefs.getString("ai_api_key", "") ?: ""
                             val apiKeys = apiKeysRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                             val apiModel = prefs.getString("ai_model", "llama3-8b-8192") ?: "llama3-8b-8192"
@@ -213,6 +214,7 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                                 }
                             }, currentDelay)
                             currentDelay += 1000L
+                        }
                         }
                     }
                     break

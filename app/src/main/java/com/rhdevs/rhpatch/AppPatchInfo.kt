@@ -28,6 +28,8 @@ val appPatchConfigurations = listOf(
     AppPatchInfo("AllTrails", "com.alltrails.alltrails", AllTrailsPatches),
     AppPatchInfo("1.1.1.1", "com.cloudflare.onedotonedotonedotone", CloudflarePatches),
     AppPatchInfo("Discord", "com.discord", com.rhdevs.rhpatch.revanced.discord.DiscordPatches),
+    AppPatchInfo("Facebook", "com.facebook.katana", com.rhdevs.rhpatch.revanced.facebook.FacebookPatches),
+    AppPatchInfo("Facebook Lite", "com.facebook.lite", com.rhdevs.rhpatch.revanced.facebook.FacebookPatches),
 )
 
 val patchesByPackage = appPatchConfigurations.associate { it.packageName to it.patches }

@@ -83,11 +83,11 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
         try {
             com.rhdevs.rhpatch.MainHook().handleLoadPackage(lpparam)
-        } catch (e: Exception) {
-            XposedBridge.log("Rhpatch: Error loading multi-app module for $packageName")
+        } catch (e: Throwable) {
+            XposedBridge.log("Rhpatch: Error loading multi-app module for $packageName: ${e.message}")
         }
 
-        if (packageName == FeatureLoader.PACKAGE_WPP || packageName == FeatureLoader.PACKAGE_BUSINESS) {
+        if ((packageName == FeatureLoader.PACKAGE_WPP && com.wmods.wppenhacer.App.isOriginalPackage) || packageName == FeatureLoader.PACKAGE_BUSINESS) {
             if (lpparam.isFirstApplication) {
                 XposedBridge.log("[•] This package: ${lpparam.packageName}")
                 FeatureLoader.start(classLoader, lpparam.appInfo.sourceDir)
@@ -130,7 +130,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
                 if (field.type === Int::class.javaPrimitiveType) {
                     val resId = field.getInt(null)
-                    if (resId > 0) {
+                    if (resId > 0x7f000000) {
                         count++
                         val replacementId = resparam.res.addResource(modRes, resId)
                         field.set(null, replacementId)
@@ -139,7 +139,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
                     val resIds = field.get(null) as IntArray?
                     if (resIds != null) {
                         for (i in resIds.indices) {
-                            if (resIds[i] > 0) {
+                            if (resIds[i] > 0x7f000000) {
                                 count++
                                 resIds[i] = resparam.res.addResource(modRes, resIds[i])
                             }

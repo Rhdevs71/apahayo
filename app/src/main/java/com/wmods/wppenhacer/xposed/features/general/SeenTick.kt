@@ -448,24 +448,26 @@ class SeenTick(
                 if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
                 item.setOnMenuItemClickListener {
-                    val userJid = fMessage.key.remoteJid
-                    val messageID = fMessage.key.messageID
-                    MessageHistoryStore.getInstance().updateViewedMessage(
-                        userJid.phoneRawString,
-                        messageID,
-                        MessageHistoryStore.ReceiptType.PLAYED,
-                        true
-                    )
-                    MessageHistoryStore.getInstance().updateViewedMessage(
-                        userJid.phoneRawString,
-                        messageID,
-                        MessageHistoryStore.ReceiptType.READ,
-                        true
-                    )
-                    sendBlueTickMedia(fMessage)
-                    Utils.showToast(
-                        Utils.getString(R.string.sending_read_blue_tick),
-                        Toast.LENGTH_SHORT
+                    scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                        val userJid = fMessage.key.remoteJid
+                        val messageID = fMessage.key.messageID
+                        com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore.getInstance().updateViewedMessage(
+                            userJid.phoneRawString,
+                            messageID,
+                            com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore.ReceiptType.PLAYED,
+                            true
+                        )
+                        com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore.getInstance().updateViewedMessage(
+                            userJid.phoneRawString,
+                            messageID,
+                            com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore.ReceiptType.READ,
+                            true
+                        )
+                        sendBlueTickMedia(fMessage)
+                    }
+                    com.wmods.wppenhacer.xposed.utils.Utils.showToast(
+                        com.wmods.wppenhacer.xposed.utils.Utils.getString(com.wmods.wppenhacer.R.string.sending_read_blue_tick),
+                        android.widget.Toast.LENGTH_SHORT
                     )
                     true
                 }

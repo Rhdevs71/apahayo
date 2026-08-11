@@ -160,19 +160,20 @@ class FeatureLoader {
                         currentVersion = packageInfo.versionName
                         installCrashHandler(application, packageInfo.versionName.orEmpty())
 
-                        val resIdArray = if (application.packageName == PACKAGE_WPP)
-                            R.array.supported_versions_wpp
-                        else
-                            R.array.supported_versions_business
-
-                        supportedVersions =
-                            application.resources.getStringArray(resIdArray).toList()
-                            
-                        application.registerActivityLifecycleCallbacks(WaCallback())
-                        registerReceivers()
-
                         try {
                             initializeModuleContext()
+                            
+                            val resIdArray = if (application.packageName == PACKAGE_WPP)
+                                R.array.supported_versions_wpp
+                            else
+                                R.array.supported_versions_business
+
+                            supportedVersions =
+                                moduleContext.resources.getStringArray(resIdArray).toList()
+                                
+                            application.registerActivityLifecycleCallbacks(WaCallback())
+                            registerReceivers()
+
                             val timeMillis = System.currentTimeMillis()
                             UnobfuscatorCache.init(application)
                             SharedPreferencesWrapper.hookInit(application.classLoader)
@@ -297,6 +298,13 @@ class FeatureLoader {
             val previousHandler = Thread.getDefaultUncaughtExceptionHandler()
             Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
                 try {
+                    de.robv.android.xposed.XposedBridge.log(throwable)
+                    val isMainThread = android.os.Looper.getMainLooper().thread == thread
+                    val isFatalSystemError = throwable is Error
+                    if (!isMainThread && !isFatalSystemError) {
+                        previousHandler?.uncaughtException(thread, throwable)
+                        return@setDefaultUncaughtExceptionHandler
+                    }
                     val crashInfo = buildCrashInfo(application, whatsAppVersion)
                     val intent = Intent().apply {
                         component = ComponentName(

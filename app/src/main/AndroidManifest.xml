@@ -88,6 +88,11 @@
         </activity>
 
         <activity
+            android:name="com.rhdevs.rhpatch.activity.DnsAppPickerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar" />
+
+        <activity
             android:name="com.rhdevs.rhpatch.activity.AppPatchSettingsActivity"
             android:exported="false"
             android:theme="@style/AppTheme" />

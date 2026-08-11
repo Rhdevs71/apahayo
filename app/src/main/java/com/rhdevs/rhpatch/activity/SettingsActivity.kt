@@ -288,6 +288,17 @@ class SettingsActivity : Activity() {
             val containerLayout = view.findViewById<LinearLayout>(R.id.modules_container)
             
             val pm = context.packageManager
+            val dnsCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
+            dnsCard.findViewById<TextView>(R.id.app_name).text = "System DNS AdBlock Bypass"
+            dnsCard.findViewById<TextView>(R.id.app_package).text = "Ketuk untuk mengatur whitelist"
+            val dnsBadge = dnsCard.findViewById<TextView>(R.id.status_badge)
+            dnsBadge.text = "System"
+            dnsBadge.setTextColor(Color.parseColor("#3B82F6")) // Blue
+            dnsCard.setOnClickListener {
+                startActivity(Intent(context, com.rhdevs.rhpatch.activity.DnsAppPickerActivity::class.java))
+            }
+            containerLayout.addView(dnsCard)
+
             val waCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
             waCard.findViewById<TextView>(R.id.app_name).text = "WhatsApp/Business"
             waCard.findViewById<TextView>(R.id.app_package).text = "com.whatsapp / com.whatsapp.w4b"

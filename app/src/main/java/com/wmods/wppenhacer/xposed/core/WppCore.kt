@@ -512,13 +512,19 @@ object WppCore {
         return startupPrefs.getInt("night_mode", 0)
     }
 
+    private val contactNameCache = android.util.LruCache<String, String>(500)
+
     @JvmStatic
-    fun getContactName(userJid: FMessageWpp.UserJid): String {
+    fun getContactName(userJid: com.wmods.wppenhacer.xposed.core.components.FMessageWpp.UserJid): String {
         loadWADatabase()
         if (mWaDatabase == null || userJid.isNull) return "Whatsapp Contact"
+        val rawJid = userJid.phoneRawString ?: return "Whatsapp Contact"
+        contactNameCache.get(rawJid)?.let { return it }
+
         val name = getSContactName(userJid, false)
-        if (!TextUtils.isEmpty(name)) return name
-        return getWppContactName(userJid)
+        val result = if (!android.text.TextUtils.isEmpty(name)) name else getWppContactName(userJid)
+        contactNameCache.put(rawJid, result)
+        return result
     }
 
     @JvmStatic
