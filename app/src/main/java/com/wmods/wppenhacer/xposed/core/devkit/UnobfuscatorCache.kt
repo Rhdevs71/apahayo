@@ -56,7 +56,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
                 || savedCacheSchemaVersion != CACHE_SCHEMA_VERSION
             ) {
                 try {
-                    Utils.showToast(mApplication.getString(R.string.starting_cache), Toast.LENGTH_LONG)
+                    Utils.showToast(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.starting_cache), Toast.LENGTH_LONG)
                 } catch (e: Exception) {
                     XposedBridge.log("WaEnhancer: Cache started, but R.string.starting_cache not found.")
                 }

@@ -231,15 +231,15 @@ class FeatureLoader {
                             val msg = list.joinToString("\n") { "${it.pluginName} - ${it.message}" }
 
                             AlertDialogWpp(activity)
-                                .setTitle(activity.getString(R.string.error_detected))
+                                .setTitle(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.error_detected))
                                 .setMessage(
-                                    "${activity.getString(R.string.version_error)}$msg\n\nCurrent Version: $currentVersion\nSupported Versions:\n${
+                                    "${com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.version_error)}$msg\n\nCurrent Version: $currentVersion\nSupported Versions:\n${
                                         supportedVersions?.joinToString(
                                             "\n"
                                         )
                                     }"
                                 )
-                                .setPositiveButton(activity.getString(R.string.copy_to_clipboard)) { dialog, _ ->
+                                .setPositiveButton(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.copy_to_clipboard)) { dialog, _ ->
                                     val clipboard =
                                         mApp?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     val clip = ClipData.newPlainText(
@@ -397,8 +397,8 @@ class FeatureLoader {
                 WppCore.setPrivBoolean("need_restart", false)
                 try {
                     AlertDialogWpp(activity)
-                        .setMessage(activity.getString(R.string.restart_wpp))
-                        .setPositiveButton(activity.getString(R.string.yes)) { _, _ ->
+                        .setMessage(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.restart_wpp))
+                        .setPositiveButton(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.yes)) { _, _ ->
                             if (!Utils.doRestart(activity)) {
                                 Toast.makeText(
                                     activity,
@@ -407,7 +407,7 @@ class FeatureLoader {
                                 ).show()
                             }
                         }
-                        .setNegativeButton(activity.getString(R.string.no), null)
+                        .setNegativeButton(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.no), null)
                         .show()
                 } catch (_: Throwable) {
                 }
