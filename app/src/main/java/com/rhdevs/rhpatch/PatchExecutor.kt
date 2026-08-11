@@ -174,7 +174,11 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
     private var cache = SharedPrefCache(appContext)
     internal var dexkit = run {
         System.loadLibrary("dexkit")
-        DexKitCacheBridge.init(cache)
+        try {
+            DexKitCacheBridge.init(cache)
+        } catch (e: IllegalStateException) {
+            // Already initialized
+        }
         DexKitCacheBridge.create("", lpparam.appInfo.sourceDir)
     }
 

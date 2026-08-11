@@ -244,23 +244,7 @@ class SeenTick(
 
                     val iconSize = Utils.dipToPixels(32f)
 
-                    // 1. Create Eye Toggle Button for Stealth Mode
-                    val eyeImage = ImageView(replyView.context)
-                    var isStealth = WppCore.getPrivPrefs().getBoolean("hidestatusview_override", prefs.getBoolean("hidestatusview", false))
-                    eyeImage.setImageResource(Utils.getID(if (isStealth) "eye_disabled" else "eye_enabled", "drawable"))
-
-                    val eyeContainer = FrameLayout(replyView.context).apply {
-                        background = GradientDrawable().apply {
-                            shape = GradientDrawable.OVAL
-                            setColor(DesignUtils.getBackgroundColorFromMap("#ff20272b"))
-                        }
-                    }
-                    eyeContainer.addView(
-                        eyeImage,
-                        FrameLayout.LayoutParams(iconSize, iconSize).apply {
-                            gravity = Gravity.CENTER
-                        }
-                    )
+                    // Removed Eye Toggle Button for Stealth Mode as per user request
 
                     // 2. Create Mark Read Button
                     val buttonImage = ImageView(replyView.context)
@@ -271,8 +255,7 @@ class SeenTick(
                             shape = GradientDrawable.OVAL
                             setColor(DesignUtils.getBackgroundColorFromMap("#ff20272b"))
                         }
-                        // Only show checkmark if stealth mode is ON
-                        visibility = if (isStealth) View.VISIBLE else View.GONE
+                        visibility = View.VISIBLE
                     }
 
                     containerButton.addView(
@@ -285,13 +268,6 @@ class SeenTick(
                     replyBarBackground.post {
                         val containerSize = replyBarBackground.height
 
-                        eyeContainer.layoutParams = FrameLayout.LayoutParams(
-                            containerSize,
-                            containerSize,
-                        ).apply {
-                            setMargins(0, 0, Utils.dipToPixels(5f), 0)
-                        }
-
                         containerButton.layoutParams = FrameLayout.LayoutParams(
                             containerSize,
                             containerSize,
@@ -300,20 +276,11 @@ class SeenTick(
                         }
 
                         val position = contentView.indexOfChild(replyBarBackground)
-                        contentView.addView(eyeContainer, position + 1)
-                        contentView.addView(containerButton, position + 2)
+                        contentView.addView(containerButton, position + 1)
                     }
 
                     registerMessageView(fstatus.messageID, buttonImage)
 
-                    eyeContainer.setOnClickListener {
-                        val currentVal = WppCore.getPrivPrefs().getBoolean("hidestatusview_override", prefs.getBoolean("hidestatusview", false))
-                        val newVal = !currentVal
-                        WppCore.getPrivPrefs().edit().putBoolean("hidestatusview_override", newVal).commit()
-                        eyeImage.setImageResource(Utils.getID(if (newVal) "eye_disabled" else "eye_enabled", "drawable"))
-                        containerButton.visibility = if (newVal) View.VISIBLE else View.GONE
-                        Utils.showToast(if (newVal) "Stealth Mode Enabled" else "Stealth Mode Disabled", Toast.LENGTH_SHORT)
-                    }
 
                     buttonImage.setOnClickListener {
                         scope.launch {

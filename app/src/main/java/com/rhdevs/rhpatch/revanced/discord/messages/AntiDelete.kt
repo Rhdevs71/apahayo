@@ -12,17 +12,29 @@ val AntiDelete = patch(
     description = "Prevents messages from being deleted in Discord."
 ) {
     runCatching {
-        // Hook Android's built-in SQLiteDatabase delete method
-        XposedHelpers.findAndHookMethod(
-            SQLiteDatabase::class.java,
-            "delete",
-            String::class.java, // table
-            String::class.java, // whereClause
-            Array<String>::class.java, // whereArgs
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val table = param.args[0] as? String ?: return
-                    val whereClause = param.args[1] as? String
+        val sqliteClasses = listOf(
+            "android.database.sqlite.SQLiteDatabase",
+            "io.requery.android.database.sqlite.SQLiteDatabase",
+            "net.sqlcipher.database.SQLiteDatabase",
+            "com.balthazargargani.sqlite.Database"
+        )
+        
+        var hookedCount = 0
+        sqliteClasses.forEach { className ->
+            val sqliteClass = XposedHelpers.findClassIfExists(className, classLoader) ?: return@forEach
+            
+            runCatching {
+                // Hook delete method
+                XposedHelpers.findAndHookMethod(
+                    sqliteClass,
+                    "delete",
+                    String::class.java, // table
+                    String::class.java, // whereClause
+                    Array<String>::class.java, // whereArgs
+                    object : XC_MethodHook() {
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            val table = param.args[0] as? String ?: return
+                            val whereClause = param.args[1] as? String
                     val whereArgs = param.args[2] as? Array<String>
                     
                     if (table == "messages") {
@@ -35,15 +47,15 @@ val AntiDelete = patch(
                     }
                 }
             }
-        )
-        
-        // Also hook the raw execSQL for "DELETE FROM"
-        XposedHelpers.findAndHookMethod(
-            SQLiteDatabase::class.java,
-            "execSQL",
-            String::class.java,
-            Array<Any>::class.java,
-            object : XC_MethodHook() {
+                )
+
+                // Also hook the raw execSQL for "DELETE FROM"
+                XposedHelpers.findAndHookMethod(
+                    sqliteClass,
+                    "execSQL",
+                    String::class.java,
+                    Array<Any>::class.java,
+                    object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val sql = (param.args[0] as? String)?.uppercase() ?: return
                     if (sql.startsWith("DELETE FROM MESSAGES")) {
@@ -68,9 +80,17 @@ val AntiDelete = patch(
                     }
                 }
             }
-        )
+                )
+                
+                hookedCount++
+            }
+        }
         
-        XposedBridge.log("Rhpatch: [Discord] Anti-Delete (SQLite Hook) installed successfully")
+        if (hookedCount > 0) {
+            XposedBridge.log("Rhpatch: [Discord] Anti-Delete (SQLite Hook) installed successfully on $hookedCount engines")
+        } else {
+            XposedBridge.log("Rhpatch: [Discord] Anti-Delete initialization failed: No SQLite engine found.")
+        }
     }.onFailure {
         XposedBridge.log("Rhpatch: [Discord] Anti-Delete initialization failed: $it")
     }

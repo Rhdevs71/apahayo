@@ -27,13 +27,25 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
-        if (!lpparam.isFirstApplication) return
         
         try {
             val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, "prefs")
             com.rhdevs.rhpatch.system.DnsBypassHook.hook(lpparam.classLoader, lpparam.packageName, prefs)
+            
+            // System Anti-Spam Hooks (SMS runs in com.android.phone, Telecom runs in system_server/android or com.android.server.telecom)
+            if (lpparam.packageName == "com.android.phone") {
+                com.rhdevs.rhpatch.system.SystemAntiSpamHook.hookSms(lpparam.classLoader, prefs)
+            }
+            if (lpparam.packageName == "android" || lpparam.packageName == "com.android.server.telecom") {
+                com.rhdevs.rhpatch.system.SystemAntiSpamHook.hookCall(lpparam.classLoader, prefs, null) // Context will be provided if possible, or null for basic reject
+            }
+            
+            // TikTok Hooks
+            if (lpparam.packageName == "com.zhiliaoapp.musically" || lpparam.packageName == "com.ss.android.ugc.trill") {
+                com.rhdevs.rhpatch.revanced.tiktok.TikTokMainHook.handleLoadPackage(lpparam, prefs)
+            }
         } catch (e: Throwable) {
-            XposedBridge.log("Rhpatch: Failed to init DNS Bypass for ${lpparam.packageName}: ${e.message}")
+            XposedBridge.log("Rhpatch: Failed to init System Hooks for ${lpparam.packageName}: ${e.message}")
         }
 
         if (lpparam.packageName == "com.rhdevs.rhpatch" || lpparam.packageName == "com.wmods.wppenhacer" || lpparam.packageName == "com.rhdevs.rhpatch.pro" || lpparam.packageName == "io.github.chsbuffer.revancedxposed") {

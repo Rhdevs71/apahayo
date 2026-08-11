@@ -1,4 +1,4 @@
-﻿<resources>
+<resources>
     <string name="accessibility_service_description">Rhpatch Auto Sender Service: Digunakan untuk membangunkan layar dan mengirim pesan WhatsApp secara otomatis yang telah dijadwalkan.</string>
     <string name="device_admin_description">Digunakan untuk mematikan layar (mengunci perangkat) kembali setelah pesan WhatsApp otomatis selesai dikirimkan agar menghemat baterai dan menjaga keamanan.</string>
     <string name="force_restore_backup">Force Restore Backup</string>
@@ -496,9 +496,9 @@
     <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
     <string name="copy_selection_message_title">Copy Message Selection</string>
     <string name="copy_selection_message_sum">Add a button to select and copy a specific part of a message</string>
-    <string name="copy_selection_action">Ã¢Å“â€š Copy Selection</string>
+    <string name="copy_selection_action">Copy Selection</string>
     <string name="copy_selection_dialog_title">Copy Text</string>
-    <string name="picker_loading_contacts">Loading contactsÃ¢â‚¬Â¦</string>
+    <string name="picker_loading_contacts">Loading contacts...</string>
     <string name="mode_all">All</string>
     <string name="picker_contacts">Contacts</string>
     <string name="groups">Groups</string>

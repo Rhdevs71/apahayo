@@ -58,7 +58,11 @@ class GroupAdmin(classLoader: ClassLoader, preferences:SharedPreferences) : Feat
                     val size = Utils.dipToPixels(16)
                     iconAdmin = ImageView(context).apply {
                         layoutParams = LinearLayout.LayoutParams(size, size)
-                        setImageResource(R.drawable.admin)
+                        try {
+                            setImageDrawable(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getDrawable(R.drawable.admin))
+                        } catch (e: Exception) {
+                            setImageResource(R.drawable.admin)
+                        }
                         tag = "admin_icon"
                     }
                     nameGroup.removeView(nametv)

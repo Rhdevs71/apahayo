@@ -64,23 +64,8 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
             XposedBridge.hookMethod(videoTranscoderStart, object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val videoProcessor = param.args[0]
-                    val booleanParams = ReflectionUtils.getFieldsByType(
-                        videoProcessor.javaClass,
-                        java.lang.Boolean.TYPE
-                    )
-                    if (booleanParams.size > 2) {
-                        val field: Field = booleanParams[2]
-                        field.setBoolean(videoProcessor, false)
-                    }
-                    val fieldMediaDataVideoConfiguration = ReflectionUtils.getFieldByType(
-                        videoProcessor.javaClass,
-                        mediaDataVideoConfiguration
-                    )
-                    val mediaDataVideoConfigObj =
-                        fieldMediaDataVideoConfiguration!!.get(videoProcessor)
-                    val fieldforceSingleTranscoding =
-                        fieldsMediaDataVideoConfiguration["forceSingleTranscoding"]
-                    fieldforceSingleTranscoding?.setBoolean(mediaDataVideoConfigObj, true)
+                    // Removed booleanParams[2] override because it breaks video trimming
+                    // Removed forceSingleTranscoding override because it causes trimmed videos to play incorrect segments
                 }
             })
 

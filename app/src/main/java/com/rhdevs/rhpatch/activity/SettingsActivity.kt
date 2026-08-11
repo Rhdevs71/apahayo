@@ -299,6 +299,17 @@ class SettingsActivity : Activity() {
             }
             containerLayout.addView(dnsCard)
 
+            val antiSpamCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
+            antiSpamCard.findViewById<TextView>(R.id.app_name).text = "System Anti-Spam (Call & SMS)"
+            antiSpamCard.findViewById<TextView>(R.id.app_package).text = "Blokir penipuan & nomor asing"
+            val antiSpamBadge = antiSpamCard.findViewById<TextView>(R.id.status_badge)
+            antiSpamBadge.text = "System"
+            antiSpamBadge.setTextColor(Color.parseColor("#3B82F6")) // Blue
+            antiSpamCard.setOnClickListener {
+                startActivity(Intent(context, com.rhdevs.rhpatch.activity.AntiSpamActivity::class.java))
+            }
+            containerLayout.addView(antiSpamCard)
+
             val waCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
             waCard.findViewById<TextView>(R.id.app_name).text = "WhatsApp/Business"
             waCard.findViewById<TextView>(R.id.app_package).text = "com.whatsapp / com.whatsapp.w4b"

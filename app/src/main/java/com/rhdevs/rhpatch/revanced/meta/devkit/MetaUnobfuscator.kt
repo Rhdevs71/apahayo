@@ -43,6 +43,19 @@ object MetaUnobfuscator {
             }
         }
         val loader = Thread.currentThread().contextClassLoader ?: return emptyList()
-        return result.map { it.getMethodInstance(loader) }
+        return result.mapNotNull { methodData ->
+            try {
+                val method = methodData.getMethodInstance(loader)
+                // Filter out abstract methods to prevent Xposed hook crashes
+                if (java.lang.reflect.Modifier.isAbstract(method.modifiers)) {
+                    null
+                } else {
+                    method
+                }
+            } catch (e: Exception) {
+                // Ignore <clinit> or other methods that fail to resolve
+                null
+            }
+        }
     }
 }

@@ -58,7 +58,11 @@ object Utils {
         get() = FeatureLoader.mApp ?: App.instance!!
 
     fun getString(id: Int): String {
-        return application.getString(id)
+        return try {
+            FeatureLoader.moduleContext.getString(id)
+        } catch (e: Exception) {
+            application.getString(id)
+        }
     }
 
 

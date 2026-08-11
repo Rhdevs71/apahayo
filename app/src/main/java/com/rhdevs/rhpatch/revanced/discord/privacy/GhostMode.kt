@@ -10,83 +10,78 @@ val GhostMode = patch(
     description = "Prevents Discord from sending typing indicators to channels and DMs."
 ) {
     runCatching {
-        // Discord (React Native) uses OkHttp for network requests.
-        // We will hook the Builder.build() method to inject an Interceptor.
-        val builderClass = XposedHelpers.findClassIfExists("okhttp3.OkHttpClient\$Builder", classLoader)
-        if (builderClass != null) {
-            // Since "build" might be obfuscated or have different signatures across versions,
-            // we find the method dynamically by checking its return type (OkHttpClient) and parameter count (0).
-            val buildMethod = builderClass.declaredMethods.firstOrNull { 
-                it.returnType.name == "okhttp3.OkHttpClient" && it.parameterTypes.isEmpty() 
-            } ?: builderClass.declaredMethods.firstOrNull { 
-                it.name == "build" && it.parameterTypes.isEmpty()
-            }
-            
-            if (buildMethod != null) {
-                XposedBridge.hookMethod(
-                    buildMethod,
-                    object : XC_MethodHook() {
-                        override fun beforeHookedMethod(param: MethodHookParam) {
-                            try {
-                                val interceptors = XposedHelpers.getObjectField(param.thisObject, "interceptors") as? MutableList<Any>
-                                
-                                val interceptorInterface = XposedHelpers.findClass("okhttp3.Interceptor", classLoader)
-                                
-                                // Create a dynamic proxy for the Interceptor interface
-                                val proxyInterceptor = java.lang.reflect.Proxy.newProxyInstance(
-                                    classLoader,
-                                    arrayOf(interceptorInterface)
-                                ) { _, method, args ->
-                                    if (method.name == "intercept") {
-                                        val chain = args[0]
-                                        val request = XposedHelpers.callMethod(chain, "request")
-                                        val urlObj = XposedHelpers.callMethod(request, "url")
-                                        val urlString = urlObj.toString()
-    
-                                        // If this is a typing indicator request, we intercept it!
-                                        if (urlString.contains("/typing")) {
-                                            XposedBridge.log("Rhpatch: [Discord] Blocked typing indicator to $urlString")
-                                            
-                                            // We need to return an empty successful okhttp3.Response to avoid crashing the JS thread.
-                                            // Creating a mock response using reflection:
-                                            val protocolClass = XposedHelpers.findClass("okhttp3.Protocol", classLoader)
-                                            val protocolHttp11 = XposedHelpers.getStaticObjectField(protocolClass, "HTTP_1_1")
-                                            
-                                            val responseBuilderClass = XposedHelpers.findClass("okhttp3.Response\$Builder", classLoader)
-                                            val responseBuilder = XposedHelpers.newInstance(responseBuilderClass)
-                                            
-                                            XposedHelpers.callMethod(responseBuilder, "request", request)
-                                            XposedHelpers.callMethod(responseBuilder, "protocol", protocolHttp11)
-                                            XposedHelpers.callMethod(responseBuilder, "code", 204)
-                                            XposedHelpers.callMethod(responseBuilder, "message", "No Content")
-                                            
-                                            return@newProxyInstance XposedHelpers.callMethod(responseBuilder, "build")
-                                        }
-                                        
-                                        // Otherwise, let the request continue
-                                        return@newProxyInstance XposedHelpers.callMethod(chain, "proceed", request)
-                                    }
-                                    null
-                                }
-                                
-                                // Add our proxy interceptor to the start of the list
-                                if (interceptors != null && !interceptors.contains(proxyInterceptor)) {
-                                    interceptors.add(0, proxyInterceptor)
-                                }
-                            } catch (e: Throwable) {
-                                XposedBridge.log("Rhpatch: [Discord] Failed to inject GhostMode Interceptor: ${e.message}")
+        // Discord uses OkHttp which might be obfuscated.
+        // The most resilient way to block a specific URL in an Xposed module without relying on OkHttp class names
+        // is to hook java.net.URL constructor or java.net.SocketOutputStream.write if it's HTTPS.
+        // However, we can try to hook okhttp3.Request$Builder.url(String) or okhttp3.OkHttpClient.newCall(Request)
+        // Since Discord RN might package OkHttp without obfuscating the main classes.
+        
+        val okHttpClientClass = XposedHelpers.findClassIfExists("okhttp3.OkHttpClient", classLoader)
+        if (okHttpClientClass != null) {
+            // Hook newCall(Request)
+            XposedBridge.hookAllMethods(okHttpClientClass, "newCall", object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    try {
+                        val request = param.args[0] ?: return
+                        val urlObj = XposedHelpers.callMethod(request, "url")
+                        val urlStr = urlObj.toString()
+                        
+                        if (urlStr.contains("/typing")) {
+                            XposedBridge.log("Rhpatch: [Discord] Blocked typing indicator request to $urlStr (OkHttp)")
+                            
+                            val newBuilder = XposedHelpers.callMethod(request, "newBuilder")
+                            XposedHelpers.callMethod(newBuilder, "url", "http://localhost/blocked_typing")
+                            val newRequest = XposedHelpers.callMethod(newBuilder, "build")
+                            param.args[0] = newRequest
+                        }
+                    } catch (e: Throwable) {
+                        // ignore
+                    }
+                }
+            })
+            XposedBridge.log("Rhpatch: [Discord] Ghost Mode (newCall hook) installed successfully")
+        } else {
+            XposedBridge.log("Rhpatch: [Discord] okhttp3.OkHttpClient not found, relying on React Native hooks.")
+        }
+        
+        // Hook React Native NetworkingModule (used by newer Discord RN)
+        val networkingModuleClass = XposedHelpers.findClassIfExists("com.facebook.react.modules.network.NetworkingModule", classLoader)
+        if (networkingModuleClass != null) {
+            XposedBridge.hookAllMethods(networkingModuleClass, "sendRequest", object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    try {
+                        // sendRequest(String method, String url, int requestId, ...)
+                        if (param.args.size >= 2) {
+                            val urlStr = param.args[1] as? String ?: return
+                            if (urlStr.contains("/typing")) {
+                                XposedBridge.log("Rhpatch: [Discord] Blocked typing indicator request to $urlStr (React Native)")
+                                param.args[1] = "http://localhost/blocked_typing"
                             }
                         }
+                    } catch (e: Throwable) {
+                        // ignore
                     }
-                )
-                XposedBridge.log("Rhpatch: [Discord] Ghost Mode (OkHttp Hook) installed successfully")
-            } else {
-                XposedBridge.log("Rhpatch: [Discord] Ghost Mode initialization failed: build method not found in OkHttpClient.Builder")
-            }
-        } else {
-            XposedBridge.log("Rhpatch: [Discord] okhttp3.OkHttpClient\$Builder not found!")
+                }
+            })
+            XposedBridge.log("Rhpatch: [Discord] Ghost Mode (NetworkingModule hook) installed successfully")
         }
+
+        // Hook HttpURLConnection as a final fallback
+        XposedBridge.hookAllConstructors(java.net.URL::class.java, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                try {
+                    val urlStr = param.args[0] as? String ?: return
+                    if (urlStr.contains("/typing") && urlStr.contains("discord")) {
+                        XposedBridge.log("Rhpatch: [Discord] Blocked typing indicator request to $urlStr (java.net.URL)")
+                        param.args[0] = "http://localhost/blocked_typing"
+                    }
+                } catch (e: Throwable) {
+                    // ignore
+                }
+            }
+        })
+
     }.onFailure {
-        XposedBridge.log("Rhpatch: [Discord] Ghost Mode initialization failed: $it")
+        XposedBridge.log("Rhpatch: [Discord] Ghost Mode initialization failed: \${it.message}")
     }
 }

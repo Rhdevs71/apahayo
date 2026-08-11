@@ -198,7 +198,7 @@ class MediaPreview(
     }
 
     private fun createPreviewButton(context: Context, topMargin: Int = 0): ImageView {
-        val drawable = context.getDrawable(R.drawable.preview_eye)
+        val drawable = com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getDrawable(R.drawable.preview_eye)
         drawable?.setTint(Color.WHITE)
 
         val padding = Utils.dipToPixels(4f)

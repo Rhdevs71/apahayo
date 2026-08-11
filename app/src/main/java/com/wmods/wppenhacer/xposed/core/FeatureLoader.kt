@@ -248,7 +248,7 @@ class FeatureLoader {
                                     clipboard.setPrimaryClip(clip)
                                     Toast.makeText(
                                         mApp,
-                                        R.string.copied_to_clipboard,
+                                        com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.copied_to_clipboard),
                                         Toast.LENGTH_SHORT
                                     ).show()
                                     dialog.dismiss()
@@ -426,7 +426,7 @@ class FeatureLoader {
                             context.packageManager.getApplicationLabel(context.applicationInfo)
                         Toast.makeText(
                             context,
-                            "${context.getString(R.string.rebooting)} $appName...",
+                            "${moduleContext.getString(R.string.rebooting)} $appName...",
                             Toast.LENGTH_SHORT
                         ).show()
                         if (!Utils.doRestart(context)) {

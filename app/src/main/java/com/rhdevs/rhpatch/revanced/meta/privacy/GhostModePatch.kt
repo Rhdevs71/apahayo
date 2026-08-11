@@ -13,7 +13,7 @@ import com.rhdevs.rhpatch.morphe.fingerprintList
 val DMSeenFingerprint = findMethodDirect(
     fingerprint {
         returns("V")
-        strings("mark_thread_seen-")
+        strings("mark_thread_seen-", "thread_id", "action")
         accessFlags(AccessFlags.PUBLIC, AccessFlags.STATIC, AccessFlags.FINAL)
     }
 )
@@ -44,9 +44,14 @@ val GhostModePatch = patch(
             // Piko only patches the last method returning Z in that class!
             val dexMethod = methods.last()
             val targetMethod = dexMethod.toMethod()
-            if (targetMethod != null && !java.lang.reflect.Modifier.isAbstract(targetMethod.modifiers)) {
-                XposedBridge.hookMethod(targetMethod, XC_MethodReplacement.returnConstant(false))
-                XposedBridge.log("Rhpatch: [GhostMode] Story Seen disabled")
+            if (targetMethod != null) {
+                // MetaUnobfuscator filters out abstract methods now, but doing an extra check is safe
+                if (!java.lang.reflect.Modifier.isAbstract(targetMethod.modifiers)) {
+                    XposedBridge.hookMethod(targetMethod, XC_MethodReplacement.returnConstant(false))
+                    XposedBridge.log("Rhpatch: [GhostMode] Story Seen disabled")
+                }
+            } else {
+                XposedBridge.log("Rhpatch: [GhostMode] Story Seen method failed to resolve")
             }
         } else {
             XposedBridge.log("Rhpatch: [GhostMode] Story Seen method not found")

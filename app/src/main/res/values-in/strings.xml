@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="force_restore_backup">Paksa Pulihkan Cadangan</string>
     <string name="force_restore_backup_summary">Luncurkan layar pemulihan cadangan secara manual. Gunakan ini jika Anda melewatkan pemulihan selama pencadangan</string>
@@ -497,9 +497,9 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="jump_first_message_sum">Tambahkan tombol untuk pergi ke pesan pertama di layar percakapan</string>
     <string name="copy_selection_message_title">Salin Pilihan Pesan</string>
     <string name="copy_selection_message_sum">Tambahkan tombol untuk memilih dan menyalin bagian tertentu dari pesan</string>
-    <string name="copy_selection_action">Ã¢Å“â€š Salin Pilihan</string>
+    <string name="copy_selection_action">Salin Pilihan</string>
     <string name="copy_selection_dialog_title">Salin Teks</string>
-    <string name="picker_loading_contacts">Memuat kontakÃ¢â‚¬Â¦</string>
+    <string name="picker_loading_contacts">Memuat kontak...</string>
     <string name="mode_all">Semua</string>
     <string name="picker_contacts">Kontak</string>
     <string name="groups">Grup</string>

@@ -94,6 +94,16 @@
             android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar" />
 
         <activity
+            android:name="com.rhdevs.rhpatch.activity.AntiSpamActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar" />
+            
+        <activity
+            android:name="com.rhdevs.rhpatch.activity.TikTokSettingsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar" />
+
+        <activity
             android:name="com.rhdevs.rhpatch.activity.AppPatchSettingsActivity"
             android:exported="false"
             android:theme="@style/AppTheme" />

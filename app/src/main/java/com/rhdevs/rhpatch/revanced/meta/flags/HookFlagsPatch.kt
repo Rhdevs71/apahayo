@@ -17,21 +17,35 @@ val HookFlagsPatch = patch(
         }
 
         // Piko Fingerprint for String Flag Check: "__fbt_null__"
-        val flagMethods = MetaUnobfuscator.findMethodUsingStrings("__fbt_null__", returnType = "java.lang.String")
-
-        if (flagMethods.isEmpty()) {
+        val stringMethods = MetaUnobfuscator.findMethodUsingStrings("__fbt_null__", returnType = "java.lang.String")
+        if (stringMethods.isEmpty()) {
             XposedBridge.log("Rhpatch: [Flags] Could not find flag check method")
         } else {
-            flagMethods.forEach { method ->
+            val targetClass = stringMethods.first().declaringClass
+            val booleanMethods = targetClass.declaredMethods.filter { 
+                it.returnType == Boolean::class.javaPrimitiveType && 
+                it.parameterTypes.contains(Long::class.javaPrimitiveType) &&
+                !java.lang.reflect.Modifier.isAbstract(it.modifiers)
+            }
+            booleanMethods.forEach { method ->
                 XposedBridge.hookMethod(method, object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
-                        // Example logic:
-                        // val flagId = param.args[x] 
-                        // if (flagId == something) param.result = "overridden_value"
+                        val specifierIndex = param.args.indexOfFirst { it is Long }
+                        if (specifierIndex != -1) {
+                            val specifier = param.args[specifierIndex] as Long
+                            
+                            // Piko unconditionally enables dev options if the feature is activated.
+                            // We will hardcode the flag specifiers for Dev Options (e.g. 36873966567194635L)
+                            // and unlock them.
+                            if (specifier == 36873966567194635L || specifier == 36873966567260172L || specifier == 36874838445588523L) {
+                                param.result = true
+                                return
+                            }
+                        }
                     }
                 })
             }
-            XposedBridge.log("Rhpatch: [Flags] Hooks installed successfully on ${flagMethods.size} flag check methods")
+            XposedBridge.log("Rhpatch: [Flags] Hooks installed successfully on ${booleanMethods.size} boolean flag check methods")
         }
     }.onFailure {
         XposedBridge.log("Rhpatch: [Flags] Hook failed: $it")

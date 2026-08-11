@@ -40,13 +40,14 @@ import java.util.Date
 import java.util.Objects
 import java.util.Timer
 import java.util.TimerTask
+import java.util.concurrent.ConcurrentHashMap
 import java.util.stream.Collectors
 
 object Unobfuscator {
 
     private lateinit var bridge: DexKitBridge
 
-    val cacheClasses = HashMap<String, Class<*>>()
+    val cacheClasses = ConcurrentHashMap<String, Class<*>>()
 
     init {
         System.loadLibrary("dexkit")
@@ -1958,20 +1959,25 @@ object Unobfuscator {
     @JvmStatic
     fun loadPlaybackSpeed(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val method = findFirstMethodUsingStrings(
-                classLoader,
-                StringMatchType.Contains,
-                "heroaudioplayer/setPlaybackSpeed"
-            )
-            if (method != null) return@getMethod method
-
-            val methodData = bridge.findMethod {
+            bridge.findMethod {
                 matcher {
-                    addUsingString("setPlaybackSpeed", StringMatchType.Equals)
-                    addUsingString("newSpeed")
+                    anyOf {
+                        match {
+                            paramTypes(null, Float::class.javaPrimitiveType)
+                            usingStrings("FbHeroAudioPlayer/setPlaybackSpeed")
+                        }
+                        match {
+                            paramTypes(Float::class.javaPrimitiveType)
+                            usingStrings("setPlaybackSpeed")
+                            callerMethods {
+                                add {
+                                    usingStrings("FbHeroAudioPlayer/setPlaybackSpeed")
+                                }
+                            }
+                        }
+                    }
                 }
-            }.singleOrNull() ?: throw RuntimeException("PlaybackSpeed method not found")
-            methodData.getMethodInstance(classLoader)
+            }.first().getMethodInstance(classLoader)
         }
     }
 

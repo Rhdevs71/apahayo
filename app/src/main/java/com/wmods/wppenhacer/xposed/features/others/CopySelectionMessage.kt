@@ -102,7 +102,7 @@ class CopySelectionMessage(classLoader: ClassLoader, prefs: SharedPreferences) :
                 }
 
                 if (fakeEditEnabled) {
-                    val editButton = buildActionPill(activity, "✏ Edit Text (Fake)")
+                    val editButton = buildActionPill(activity, "Edit Text (Fake)")
                     editButton.setOnClickListener {
                         try {
                             mainPopupWindow.dismiss()
