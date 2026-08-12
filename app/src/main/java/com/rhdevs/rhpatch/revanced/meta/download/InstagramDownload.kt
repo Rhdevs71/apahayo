@@ -3,7 +3,7 @@ package com.rhdevs.rhpatch.revanced.meta.download
 import android.app.DownloadManager
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Environment
 import android.os.Handler
@@ -12,28 +12,27 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewParent
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.RecyclerView
 import com.rhdevs.rhpatch.patch
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import de.robv.android.xposed.callbacks.XC_LoadPackage
 
-/** Last known Instagram CDN media URL captured from network/player/UI hooks. */
 var lastKnownMediaUrl: String? = null
 var lastKnownIsVideo: Boolean = false
-var shareClickedTime: Long = 0
 
 val playerUrls = java.util.WeakHashMap<Any, String>()
 val imageUrls = java.util.WeakHashMap<View, String>()
 
 val InstagramDownload = patch(
     name = "Instagram Media Downloader",
-    description = "Add download button to Instagram share sheet"
+    description = "Add native-looking download button to Instagram share sheet (Piko Parity)"
 ) {
 
     // ── Capture video URL via ExoPlayer hook ───────────────────────────────────
@@ -59,7 +58,6 @@ val InstagramDownload = patch(
                     }
                 }
                 
-                // Track when video actually starts playing
                 cls.declaredMethods.filter { m ->
                     m.name == "setPlayWhenReady" && m.parameterCount == 1
                 }.forEach { method ->
@@ -79,7 +77,6 @@ val InstagramDownload = patch(
                 }
             }
         }
-        XposedBridge.log("Rhpatch: [Download] ExoPlayer tracking hooks installed")
     }.onFailure { XposedBridge.log("Rhpatch: [Download] ExoPlayer tracking failed: $it") }
 
     // ── Capture image URL via IgImageView ─────────────────────────────────────
@@ -96,58 +93,19 @@ val InstagramDownload = patch(
                         val url = XposedHelpers.callMethod(imageUrl, "getUrl") as? String ?: return
                         if (isInstagramCdnUrl(url) && !url.contains("profile_pic")) {
                             imageUrls[param.thisObject as View] = url
+                            lastKnownMediaUrl = url
+                            lastKnownIsVideo = false
                         }
                     }
                 })
             }
         }
-        
-        // Track when image is actually drawn
-        XposedHelpers.findAndHookMethod(igImageViewClass, "onDraw", android.graphics.Canvas::class.java, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                imageUrls[param.thisObject as View]?.let { url ->
-                    lastKnownMediaUrl = url
-                    lastKnownIsVideo = false
-                }
-            }
-        })
-        XposedBridge.log("Rhpatch: [Download] IgImageView tracking hooks installed successfully")
     }.onFailure { XposedBridge.log("Rhpatch: [Download] IgImageView tracking hook failed: $it") }
 
-    // ── Enable DM Media Saver (Piko) ──────────────────────────────────────────
-    runCatching {
-        if (com.rhdevs.rhpatch.revanced.meta.devkit.MetaUnobfuscator.init(appContext)) {
-            val saverMethods = com.rhdevs.rhpatch.revanced.meta.devkit.MetaUnobfuscator.findMethodUsingStrings("DirectThreadMediaSaver")
-            if (saverMethods.isNotEmpty()) {
-                val cls = saverMethods.first().declaringClass
-                cls.declaredMethods.filter { it.returnType == Void.TYPE && it.name != "<init>" }.forEach { method ->
-                    XposedBridge.hookMethod(method, object : XC_MethodHook() {
-                        override fun beforeHookedMethod(param: MethodHookParam) {
-                            // Piko bypasses the messageDownloadCheck. We will just hook this to allow saving.
-                            // If it checks permission, we can force it. But the easiest way without complex logic
-                            // is just logging or finding the boolean methods in this class and forcing true.
-                        }
-                    })
-                }
-                
-                // Hook boolean checks in the saver class to return true
-                cls.declaredMethods.filter { it.returnType == Boolean::class.javaPrimitiveType }.forEach { method ->
-                    XposedBridge.hookMethod(method, object : XC_MethodHook() {
-                        override fun beforeHookedMethod(param: MethodHookParam) {
-                            param.result = true
-                        }
-                    })
-                }
-                XposedBridge.log("Rhpatch: [Download] DM Media Saver hooks installed")
-            }
-        }
-    }.onFailure { XposedBridge.log("Rhpatch: [Download] DM Media Saver hook failed: $it") }
-
-    // ── Inject Download Button into Dialogs (Share Sheet) ─────────────────────
+    // ── Inject Native-Looking Download Row into Dialogs/BottomSheet ───────────
     runCatching {
         val dialogClass = android.app.Dialog::class.java
-        val showMethods = dialogClass.declaredMethods.filter { it.name == "show" }
-        showMethods.forEach { method ->
+        dialogClass.declaredMethods.filter { it.name == "show" }.forEach { method ->
             XposedBridge.hookMethod(
                 method,
                 object : XC_MethodHook() {
@@ -159,20 +117,16 @@ val InstagramDownload = patch(
                         val window = dialog.window ?: return
                         val decorView = window.decorView as? ViewGroup ?: return
                         
-                        // Avoid double injection
-                        if (decorView.findViewWithTag<View>("rhp_dl_btn") != null) return
+                        if (decorView.findViewWithTag<View>("rhp_dl_native_btn") != null) return
 
-                        // Check if lastKnownMediaUrl is populated, if not, try to scan the Activity
                         if (lastKnownMediaUrl.isNullOrEmpty()) {
                             val activity = dialog.ownerActivity ?: (context as? android.app.Activity)
-                            if (activity != null) {
-                                val activityDecor = activity.window?.decorView as? ViewGroup
-                                if (activityDecor != null) {
+                            activity?.window?.decorView?.let { activityDecor ->
+                                if (activityDecor is ViewGroup) {
                                     val url = searchUrlInTree(activityDecor)
                                     if (url != null) {
                                         lastKnownMediaUrl = url
                                         lastKnownIsVideo = url.contains(".mp4") || url.contains("video")
-                                        XposedBridge.log("Rhpatch: [Download] Fallback scan found URL: $url")
                                     }
                                 }
                             }
@@ -180,23 +134,19 @@ val InstagramDownload = patch(
 
                         if (lastKnownMediaUrl.isNullOrEmpty()) return
 
-                        // Add delay to ensure views are laid out
                         Handler(Looper.getMainLooper()).postDelayed({
                             runCatching {
-                                injectFloatingDownloadButton(decorView, context)
+                                injectNativeDownloadRow(decorView, context)
                             }
-                        }, 200)
+                        }, 300)
                     }
                 }
             )
         }
-        XposedBridge.log("Rhpatch: [Download] Dialog.show hook installed")
 
-        // Also hook BottomSheetFragment which is common in modern Instagram
         val bottomSheetClass = XposedHelpers.findClassIfExists("com.instagram.igds.components.bottomsheet.BottomSheetFragment", classLoader)
         if (bottomSheetClass != null) {
-            val onViewCreated = bottomSheetClass.declaredMethods.find { it.name == "onViewCreated" }
-            if (onViewCreated != null) {
+            bottomSheetClass.declaredMethods.find { it.name == "onViewCreated" }?.let { onViewCreated ->
                 XposedBridge.hookMethod(onViewCreated, object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val view = param.args[0] as? View ?: return
@@ -206,24 +156,20 @@ val InstagramDownload = patch(
                         Handler(Looper.getMainLooper()).postDelayed({
                             runCatching {
                                 if (view is ViewGroup) {
-                                    // Option 2: Fallback to Floating Action Button inside BottomSheet
-                                    injectFloatingDownloadButton(view, context)
+                                    injectNativeDownloadRow(view, context)
                                 }
                             }
-                        }, 500) // Increase delay to ensure layout is complete
+                        }, 500)
                     }
                 })
-                XposedBridge.log("Rhpatch: [Download] BottomSheetFragment hook installed")
             }
         }
-
+        XposedBridge.log("Rhpatch: [Download] Native row injection hooks installed")
     }.onFailure { XposedBridge.log("Rhpatch: [Download] Dialog/BottomSheet hook failed: $it") }
 }
 
 fun searchUrlInTree(view: View): String? {
-    if (imageUrls.containsKey(view)) {
-        return imageUrls[view]
-    }
+    if (imageUrls.containsKey(view)) return imageUrls[view]
     if (view is ViewGroup) {
         for (i in 0 until view.childCount) {
             val child = view.getChildAt(i) ?: continue
@@ -242,21 +188,14 @@ fun extractUrlFromArgs(args: Array<Any?>): String? {
                 arg is Uri -> arg.toString()
                 arg is String -> arg
                 else -> {
-                    val localCfg = runCatching {
-                        XposedHelpers.getObjectField(arg, "localConfiguration")
-                    }.getOrNull()
-                    val uri = runCatching {
-                        XposedHelpers.getObjectField(localCfg ?: return@runCatching null, "uri")
-                    }.getOrNull()
+                    val localCfg = runCatching { XposedHelpers.getObjectField(arg, "localConfiguration") }.getOrNull()
+                    val uri = runCatching { XposedHelpers.getObjectField(localCfg ?: return@runCatching null, "uri") }.getOrNull()
                     uri?.toString()
                 }
             }
-            if (!u.isNullOrEmpty() && isInstagramCdnUrl(u)) {
-                return@runCatching u
-            }
+            if (!u.isNullOrEmpty() && isInstagramCdnUrl(u)) return@runCatching u
             null
         }.getOrNull()
-        
         if (url != null) return url
     }
     return null
@@ -264,62 +203,115 @@ fun extractUrlFromArgs(args: Array<Any?>): String? {
 
 fun isInstagramCdnUrl(url: String): Boolean =
     (url.contains("fbcdn.net") || url.contains("cdninstagram.com")) &&
-    (url.contains(".jpg") || url.contains(".jpeg") || url.contains(".mp4") ||
-        url.contains("video") || url.contains("scontent"))
+    (url.contains(".jpg") || url.contains(".jpeg") || url.contains(".mp4") || url.contains("video") || url.contains("scontent"))
 
-// Removed injectPikoStyleDownloadRow because injecting into a RecyclerView dynamically causes layout issues.
-// Using injectFloatingDownloadButton instead as a reliable fallback.
-
-fun injectFloatingDownloadButton(decorView: ViewGroup, context: Context) {
-    if (decorView.findViewWithTag<View>("rhp_dl_btn") != null) return
+fun injectNativeDownloadRow(rootView: ViewGroup, context: Context) {
+    if (rootView.findViewWithTag<View>("rhp_dl_native_btn") != null) return
 
     val dp = context.resources.displayMetrics.density
 
-    // Create a floating action button style container
-    val btn = FrameLayout(context).apply {
-        tag = "rhp_dl_btn"
-        background = GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
-            setColor(Color.parseColor("#E1306C")) // Instagram Pink-ish
-            setStroke((1.5f * dp).toInt(), Color.WHITE)
-        }
+    // Create a native-looking Instagram menu row
+    val rowLayout = LinearLayout(context).apply {
+        tag = "rhp_dl_native_btn"
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
         isClickable = true
         isFocusable = true
-        elevation = 8 * dp
+        val outValue = TypedValue()
+        context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
+        setBackgroundResource(outValue.resourceId)
+        setPadding((16 * dp).toInt(), (14 * dp).toInt(), (16 * dp).toInt(), (14 * dp).toInt())
     }
 
-    val iconSize = (56 * dp).toInt()
     val icon = ImageView(context).apply {
         setImageResource(android.R.drawable.stat_sys_download)
-        setColorFilter(Color.WHITE)
-        scaleType = ImageView.ScaleType.CENTER_INSIDE
-        setPadding((12 * dp).toInt(), (12 * dp).toInt(), (12 * dp).toInt(), (12 * dp).toInt())
+        val isDarkMode = (context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+        setColorFilter(if (isDarkMode) Color.WHITE else Color.BLACK)
+        layoutParams = LinearLayout.LayoutParams((24 * dp).toInt(), (24 * dp).toInt()).apply {
+            marginEnd = (16 * dp).toInt()
+        }
     }
-    btn.addView(icon, FrameLayout.LayoutParams(iconSize, iconSize))
 
-    btn.setOnClickListener {
+    val text = TextView(context).apply {
+        text = "Download (Rhpatch)"
+        textSize = 16f
+        val isDarkMode = (context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+        setTextColor(if (isDarkMode) Color.WHITE else Color.BLACK)
+        typeface = Typeface.DEFAULT_BOLD
+    }
+
+    rowLayout.addView(icon)
+    rowLayout.addView(text)
+
+    rowLayout.setOnClickListener {
         val url = lastKnownMediaUrl
         val isVideo = lastKnownIsVideo
         if (!url.isNullOrEmpty()) {
             downloadInstagramMedia(context, url, isVideo)
         } else {
-            Toast.makeText(context, "URL tidak ditemukan. Ulangi setelah memutar media.", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "URL tidak ditemukan. Putar media sebentar lalu coba lagi.", Toast.LENGTH_LONG).show()
         }
     }
 
-    // Add to bottom-right of the view
-    val params = FrameLayout.LayoutParams(iconSize, iconSize).apply {
-        gravity = Gravity.BOTTOM or Gravity.END
-        bottomMargin = (72 * dp).toInt()
-        marginEnd = (24 * dp).toInt()
+    // Find the best place to insert it (usually inside a RecyclerView or a specific LinearLayout)
+    val targetContainer = findVerticalContainer(rootView)
+    if (targetContainer != null) {
+        // If it's a RecyclerView, we can't add directly. We must add it below/above the RecyclerView inside its parent.
+        if (targetContainer is RecyclerView) {
+            val parent = targetContainer.parent as? ViewGroup
+            if (parent != null) {
+                // Determine insertion index based on whether we want it at top or bottom of the list
+                val rvIndex = parent.indexOfChild(targetContainer)
+                parent.addView(rowLayout, rvIndex + 1, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                XposedBridge.log("Rhpatch: [Download] Injected native download row below RecyclerView")
+                return
+            }
+        } else {
+            targetContainer.addView(rowLayout, 0, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            XposedBridge.log("Rhpatch: [Download] Injected native download row into LinearLayout")
+            return
+        }
     }
 
-    runCatching {
-        decorView.addView(btn, params)
-        XposedBridge.log("Rhpatch: [Download] Injected floating download button")
-    }.onFailure {
-        XposedBridge.log("Rhpatch: [Download] Failed to add floating button: $it")
+    // Fallback: Add to Bottom of Root View
+    val fallbackContainer = FrameLayout(context).apply {
+        tag = "rhp_dl_native_btn" // Tag here too so we don't double inject
+        layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+            gravity = Gravity.BOTTOM
+            bottomMargin = (16 * dp).toInt()
+        }
+        setBackgroundColor(if ((context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES) Color.parseColor("#262626") else Color.WHITE)
+        elevation = 10 * dp
     }
+    fallbackContainer.addView(rowLayout)
+    
+    runCatching {
+        rootView.addView(fallbackContainer)
+        XposedBridge.log("Rhpatch: [Download] Injected native download row as fallback overlay")
+    }.onFailure {
+        XposedBridge.log("Rhpatch: [Download] Failed to add fallback row: $it")
+    }
+}
+
+fun findVerticalContainer(view: View): ViewGroup? {
+    if (view is RecyclerView && view.layoutManager?.canScrollVertically() == true) {
+        return view
+    }
+    if (view is LinearLayout && view.orientation == LinearLayout.VERTICAL && view.childCount > 1) {
+        // Check if children look like list items (clickable, specific height)
+        val firstChild = view.getChildAt(0)
+        if (firstChild != null && firstChild.isClickable) {
+            return view
+        }
+    }
+    if (view is ViewGroup) {
+        for (i in 0 until view.childCount) {
+            val child = view.getChildAt(i) ?: continue
+            val found = findVerticalContainer(child)
+            if (found != null) return found
+        }
+    }
+    return null
 }
 
 fun downloadInstagramMedia(context: Context, url: String, isVideo: Boolean) {
