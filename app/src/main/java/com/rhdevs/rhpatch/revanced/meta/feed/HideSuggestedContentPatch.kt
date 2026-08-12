@@ -79,28 +79,32 @@ private fun isSuggestedLabel(text: String): Boolean {
 
 private fun hideRecyclerItemContaining(view: View) {
     var current: View? = view
-    var highestContainer: ViewGroup? = null
+    var highestContainer: View? = null
     
-    // Find the item container inside RecyclerView
-    repeat(10) {
+    // Find the direct child of the RecyclerView
+    repeat(15) {
         val parent = current?.parent as? ViewGroup
         if (parent != null) {
             val parentName = parent.javaClass.name
-            if (parentName.contains("RecyclerView")) {
+            if (parentName.contains("RecyclerView") || parentName.contains("LithoView")) {
                 highestContainer?.let { container ->
-                    if (container.layoutParams.height != 0) {
-                        container.layoutParams = container.layoutParams.apply {
-                            height = 0
-                            width = 0
+                    // Make it invisible and take up no space
+                    val params = container.layoutParams
+                    if (params != null) {
+                        params.height = 0
+                        params.width = 0
+                        if (params is ViewGroup.MarginLayoutParams) {
+                            params.setMargins(0, 0, 0, 0)
                         }
-                        container.visibility = View.GONE
-                        container.setPadding(0, 0, 0, 0)
-                        XposedBridge.log("Rhpatch: [Suggested] Hid suggested item")
+                        container.layoutParams = params
                     }
+                    container.visibility = View.GONE
+                    container.setPadding(0, 0, 0, 0)
+                    XposedBridge.log("Rhpatch: [Suggested] Hid suggested item via UI Hook")
                 }
                 return
             }
-            highestContainer = parent
+            highestContainer = current
             current = parent
         }
     }

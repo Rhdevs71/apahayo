@@ -13,7 +13,7 @@ import com.rhdevs.rhpatch.morphe.fingerprintList
 val DMSeenFingerprint = findMethodDirect(
     fingerprint {
         returns("V")
-        strings("mark_thread_seen-", "thread_id", "action")
+        strings("mark_thread_seen-")
         accessFlags(AccessFlags.PUBLIC, AccessFlags.STATIC, AccessFlags.FINAL)
     }
 )
@@ -33,8 +33,14 @@ val GhostModePatch = patch(
 ) {
     // DM Seen Hook
     runCatching {
-        ::DMSeenFingerprint.hookMethod(XC_MethodReplacement.returnConstant(null))
-        XposedBridge.log("Rhpatch: [GhostMode] DM Seen (mark_thread_seen) disabled")
+        ::DMSeenFingerprint.hookMethod(object : de.robv.android.xposed.XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                // Block read receipts for standard DMs unconditionally, matching Piko's return-void behavior
+                XposedBridge.log("Rhpatch: [GhostMode] Blocked mark_thread_seen")
+                param.result = null
+            }
+        })
+        XposedBridge.log("Rhpatch: [GhostMode] DM Seen (mark_thread_seen) advanced hook installed")
     }.onFailure { XposedBridge.log("Rhpatch: [GhostMode] DMSeen hook failed: $it") }
 
     // Story Seen Hook
@@ -47,7 +53,7 @@ val GhostModePatch = patch(
             if (targetMethod != null) {
                 // MetaUnobfuscator filters out abstract methods now, but doing an extra check is safe
                 if (!java.lang.reflect.Modifier.isAbstract(targetMethod.modifiers)) {
-                    XposedBridge.hookMethod(targetMethod, XC_MethodReplacement.returnConstant(false))
+                    XposedBridge.hookMethod(targetMethod, XC_MethodReplacement.returnConstant(true))
                     XposedBridge.log("Rhpatch: [GhostMode] Story Seen disabled")
                 }
             } else {

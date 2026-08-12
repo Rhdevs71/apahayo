@@ -30,7 +30,7 @@ val GhostMode = patch(
                             XposedBridge.log("Rhpatch: [Discord] Blocked typing indicator request to $urlStr (OkHttp)")
                             
                             val newBuilder = XposedHelpers.callMethod(request, "newBuilder")
-                            XposedHelpers.callMethod(newBuilder, "url", "http://localhost/blocked_typing")
+                            XposedHelpers.callMethod(newBuilder, "url", "http://0.0.0.0/blocked_typing") // Fails instantly to prevent lag
                             val newRequest = XposedHelpers.callMethod(newBuilder, "build")
                             param.args[0] = newRequest
                         }
@@ -55,7 +55,7 @@ val GhostMode = patch(
                             val urlStr = param.args[1] as? String ?: return
                             if (urlStr.contains("/typing")) {
                                 XposedBridge.log("Rhpatch: [Discord] Blocked typing indicator request to $urlStr (React Native)")
-                                param.args[1] = "http://localhost/blocked_typing"
+                                param.result = null // Instantly cancel execution to prevent lag
                             }
                         }
                     } catch (e: Throwable) {
@@ -73,7 +73,7 @@ val GhostMode = patch(
                     val urlStr = param.args[0] as? String ?: return
                     if (urlStr.contains("/typing") && urlStr.contains("discord")) {
                         XposedBridge.log("Rhpatch: [Discord] Blocked typing indicator request to $urlStr (java.net.URL)")
-                        param.args[0] = "http://localhost/blocked_typing"
+                        param.args[0] = "http://0.0.0.0/blocked_typing" // Fails instantly to prevent lag
                     }
                 } catch (e: Throwable) {
                     // ignore

@@ -49,14 +49,20 @@ object SystemAntiSpamHook {
                                         val messageLower = fullMessage.lowercase()
                                         
                                         for (keyword in keywords) {
-                                            if (messageLower.contains(keyword)) {
-                                                XposedBridge.log("Rhpatch Anti-Spam: Blocked SMS containing keyword '\$keyword'.")
-                                                // Cancel the intent delivery by returning EARLY
+                                            // Escape the keyword to treat it as literal string, then compile case-insensitive regex
+                                            val regex = Regex("(?i)" + java.util.regex.Pattern.quote(keyword))
+                                            if (regex.containsMatchIn(fullMessage)) {
+                                                XposedBridge.log("Rhpatch Anti-Spam: Blocked SMS containing keyword '$keyword'.")
+                                                // Cancel the intent delivery reliably by modifying the intent and returning
+                                                intent.action = "" 
+                                                intent.removeExtra("pdus")
+                                                param.args[0] = intent
+                                                
                                                 val returnType = (param.method as? java.lang.reflect.Method)?.returnType
                                                 if (returnType == Boolean::class.javaPrimitiveType) {
-                                                    param.result = true
+                                                    param.result = false // False usually means abort
                                                 } else if (returnType == Int::class.javaPrimitiveType) {
-                                                    param.result = 1 // Activity.RESULT_OK
+                                                    param.result = 0 // Activity.RESULT_CANCELED
                                                 } else {
                                                     param.result = null
                                                 }

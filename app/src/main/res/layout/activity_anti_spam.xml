@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0F172A">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Anti-Spam Sistem"
+            android:textColor="#FFFFFF"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Blokir SMS penipuan dan panggilan tak dikenal langsung dari level sistem."
+            android:textColor="#94A3B8"
+            android:textSize="14sp"
+            android:layout_marginBottom="32dp" />
+
+        <!-- SMS Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🛡️ Filter SMS Anti-Spam"
+            android:textColor="#3B82F6"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/dialog_holo_dark_frame"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="32dp">
+
+            <Switch
+                android:id="@+id/switch_sms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Aktifkan Pemblokiran SMS"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kata Kunci Terlarang (Pemisah Koma)"
+                android:textColor="#CBD5E1"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/input_keywords"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#64748B"
+                android:hint="Contoh: pinjol, undian, gacor"
+                android:backgroundTint="#3B82F6"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/btn_save_sms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SIMPAN KATA KUNCI"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#3B82F6"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Call Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📞 Filter Panggilan Anti-Spam"
+            android:textColor="#3B82F6"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/dialog_holo_dark_frame"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="32dp">
+
+            <Switch
+                android:id="@+id/switch_call_hidden"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Blokir Nomor Pribadi (Unknown)"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp" />
+
+            <Switch
+                android:id="@+id/switch_call_non_contacts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Blokir Nomor Non-Kontak"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="LIHAT RIWAYAT SPAM"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#10B981"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</ScrollView>

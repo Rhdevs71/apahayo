@@ -23,132 +23,51 @@ class AntiSpamActivity : Activity() {
         
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         
-        // Dynamic UI without XML
-        val scrollView = ScrollView(this)
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(40, 40, 40, 40)
-            setBackgroundColor(Color.parseColor("#0F172A"))
+        setContentView(com.wmods.wppenhacer.R.layout.activity_anti_spam)
+        
+        val switchSms = findViewById<Switch>(com.wmods.wppenhacer.R.id.switch_sms)
+        val inputKeywords = findViewById<EditText>(com.wmods.wppenhacer.R.id.input_keywords)
+        val btnSaveSms = findViewById<Button>(com.wmods.wppenhacer.R.id.btn_save_sms)
+        val switchCallHidden = findViewById<Switch>(com.wmods.wppenhacer.R.id.switch_call_hidden)
+        val switchCallNonContacts = findViewById<Switch>(com.wmods.wppenhacer.R.id.switch_call_non_contacts)
+        val btnLog = findViewById<Button>(com.wmods.wppenhacer.R.id.btn_log)
+        
+        // Initialize values
+        switchSms.isChecked = prefs.getBoolean("antispam_sms_enabled", false)
+        inputKeywords.setText(prefs.getString("antispam_sms_keywords", "pinjol,menang undian,gacor,slot,dana kaget"))
+        switchCallHidden.isChecked = prefs.getBoolean("antispam_call_hidden", false)
+        switchCallNonContacts.isChecked = prefs.getBoolean("antispam_call_non_contacts", false)
+        
+        // Listeners
+        switchSms.setOnCheckedChangeListener { _, isChecked ->
+            prefs.edit().putBoolean("antispam_sms_enabled", isChecked).apply()
+            makeFileReadable()
         }
         
-        // --- HEADER ---
-        container.addView(TextView(this).apply {
-            text = "Pengaturan Anti-Spam Sistem"
-            textSize = 24f
-            setTextColor(Color.WHITE)
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setPadding(0, 0, 0, 10)
-        })
-        container.addView(TextView(this).apply {
-            text = "Blokir SMS penipuan dan panggilan tak dikenal langsung dari inti sistem."
-            textSize = 14f
-            setTextColor(Color.parseColor("#94A3B8"))
-            setPadding(0, 0, 0, 40)
-        })
+        btnSaveSms.setOnClickListener {
+            prefs.edit().putString("antispam_sms_keywords", inputKeywords.text.toString()).apply()
+            makeFileReadable()
+            Toast.makeText(this, "Kata Kunci SMS Disimpan!", Toast.LENGTH_SHORT).show()
+        }
         
-        // --- SMS ANTI SPAM ---
-        container.addView(createSectionTitle("🛡️ Filter SMS Anti-Spam"))
+        switchCallHidden.setOnCheckedChangeListener { _, isChecked ->
+            prefs.edit().putBoolean("antispam_call_hidden", isChecked).apply()
+            makeFileReadable()
+        }
         
-        val switchSms = Switch(this).apply {
-            text = "Aktifkan Pemblokiran SMS Berdasarkan Kata"
-            setTextColor(Color.WHITE)
-            isChecked = prefs.getBoolean("antispam_sms_enabled", false)
-            setOnCheckedChangeListener { _, isChecked ->
-                prefs.edit().putBoolean("antispam_sms_enabled", isChecked).apply()
+        switchCallNonContacts.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), 101)
+                switchCallNonContacts.isChecked = false // Revert until permission granted
+            } else {
+                prefs.edit().putBoolean("antispam_call_non_contacts", isChecked).apply()
                 makeFileReadable()
             }
         }
-        container.addView(switchSms)
         
-        container.addView(TextView(this).apply {
-            text = "Masukkan kata kunci terlarang (pisahkan dengan koma). Contoh: pinjol,menang undian,gacor"
-            textSize = 12f
-            setTextColor(Color.parseColor("#94A3B8"))
-            setPadding(0, 10, 0, 10)
-        })
-        
-        val inputKeywords = EditText(this).apply {
-            setTextColor(Color.WHITE)
-            setHintTextColor(Color.GRAY)
-            hint = "pinjol,gacor,undian..."
-            setText(prefs.getString("antispam_sms_keywords", "pinjol,menang undian,gacor,slot,dana kaget"))
+        btnLog.setOnClickListener {
+            Toast.makeText(this, "Riwayat spam masih kosong.", Toast.LENGTH_SHORT).show()
         }
-        container.addView(inputKeywords)
-        
-        val btnSaveSms = Button(this).apply {
-            text = "Simpan Kata Kunci SMS"
-            setBackgroundColor(Color.parseColor("#3B82F6"))
-            setTextColor(Color.WHITE)
-            setOnClickListener {
-                prefs.edit().putString("antispam_sms_keywords", inputKeywords.text.toString()).apply()
-                makeFileReadable()
-                Toast.makeText(this@AntiSpamActivity, "Kata Kunci SMS Disimpan!", Toast.LENGTH_SHORT).show()
-            }
-        }
-        container.addView(btnSaveSms)
-        
-        // --- SPACING ---
-        container.addView(View(this).apply { layoutParams = LinearLayout.LayoutParams(1, 60) })
-        
-        // --- CALL ANTI SPAM ---
-        container.addView(createSectionTitle("📞 Filter Panggilan Anti-Spam"))
-        
-        val switchCallHidden = Switch(this).apply {
-            text = "Blokir Nomor Pribadi (Hidden / Unknown)"
-            setTextColor(Color.WHITE)
-            isChecked = prefs.getBoolean("antispam_call_hidden", false)
-            setOnCheckedChangeListener { _, isChecked ->
-                prefs.edit().putBoolean("antispam_call_hidden", isChecked).apply()
-                makeFileReadable()
-            }
-        }
-        container.addView(switchCallHidden)
-        
-        container.addView(TextView(this).apply {
-            text = "Panggilan tanpa Caller ID akan otomatis ditolak."
-            textSize = 12f
-            setTextColor(Color.parseColor("#94A3B8"))
-            setPadding(0, 5, 0, 30)
-        })
-        
-        val switchCallNonContacts = Switch(this).apply {
-            text = "Blokir Semua Nomor Asing (Non-Kontak)"
-            setTextColor(Color.WHITE)
-            isChecked = prefs.getBoolean("antispam_call_non_contacts", false)
-            setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), 101)
-                    this.isChecked = false // Revert until permission granted
-                } else {
-                    prefs.edit().putBoolean("antispam_call_non_contacts", isChecked).apply()
-                    makeFileReadable()
-                }
-            }
-        }
-        container.addView(switchCallNonContacts)
-        
-        container.addView(TextView(this).apply {
-            text = "Hanya nomor yang tersimpan di kontak Anda yang bisa menelpon."
-            textSize = 12f
-            setTextColor(Color.parseColor("#94A3B8"))
-            setPadding(0, 5, 0, 40)
-        })
-        
-        // --- SPACING ---
-        container.addView(View(this).apply { layoutParams = LinearLayout.LayoutParams(1, 40) })
-        
-        val btnLog = Button(this).apply {
-            text = "Lihat Riwayat Pemblokiran (Spam Log)"
-            setBackgroundColor(Color.parseColor("#10B981"))
-            setTextColor(Color.WHITE)
-            setOnClickListener {
-                Toast.makeText(this@AntiSpamActivity, "Riwayat spam masih kosong.", Toast.LENGTH_SHORT).show()
-            }
-        }
-        container.addView(btnLog)
-        
-        scrollView.addView(container)
-        setContentView(scrollView)
     }
     
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -158,16 +77,6 @@ class AntiSpamActivity : Activity() {
             } else {
                 Toast.makeText(this, "Izin kontak diperlukan untuk fitur ini.", Toast.LENGTH_SHORT).show()
             }
-        }
-    }
-    
-    private fun createSectionTitle(title: String): TextView {
-        return TextView(this).apply {
-            text = title
-            textSize = 18f
-            setTextColor(Color.parseColor("#3B82F6"))
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setPadding(0, 0, 0, 20)
         }
     }
     

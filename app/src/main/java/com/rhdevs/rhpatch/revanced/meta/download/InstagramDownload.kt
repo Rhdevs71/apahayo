@@ -206,11 +206,11 @@ val InstagramDownload = patch(
                         Handler(Looper.getMainLooper()).postDelayed({
                             runCatching {
                                 if (view is ViewGroup) {
-                                    // Piko Parity: Instead of a floating button, inject a row that mimics Instagram's menu
-                                    injectPikoStyleDownloadRow(view, context)
+                                    // Option 2: Fallback to Floating Action Button inside BottomSheet
+                                    injectFloatingDownloadButton(view, context)
                                 }
                             }
-                        }, 200)
+                        }, 500) // Increase delay to ensure layout is complete
                     }
                 })
                 XposedBridge.log("Rhpatch: [Download] BottomSheetFragment hook installed")
@@ -267,90 +267,8 @@ fun isInstagramCdnUrl(url: String): Boolean =
     (url.contains(".jpg") || url.contains(".jpeg") || url.contains(".mp4") ||
         url.contains("video") || url.contains("scontent"))
 
-fun injectPikoStyleDownloadRow(decorView: ViewGroup, context: Context) {
-    if (decorView.findViewWithTag<View>("rhp_dl_row") != null) return
-
-    val dp = context.resources.displayMetrics.density
-
-    // Find the RecyclerView inside the BottomSheet
-    var recyclerView: androidx.recyclerview.widget.RecyclerView? = null
-    fun findRV(v: View) {
-        if (v is androidx.recyclerview.widget.RecyclerView) {
-            recyclerView = v
-            return
-        }
-        if (v is ViewGroup) {
-            for (i in 0 until v.childCount) {
-                findRV(v.getChildAt(i))
-                if (recyclerView != null) return
-            }
-        }
-    }
-    findRV(decorView)
-
-    val targetContainer = (recyclerView?.parent as? ViewGroup) ?: decorView
-
-    // Create a row that mimics IgdsListCell
-    val row = LinearLayout(context).apply {
-        tag = "rhp_dl_row"
-        orientation = LinearLayout.HORIZONTAL
-        layoutParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        setPadding((16 * dp).toInt(), (14 * dp).toInt(), (16 * dp).toInt(), (14 * dp).toInt())
-        gravity = Gravity.CENTER_VERTICAL
-        isClickable = true
-        isFocusable = true
-        
-        // Ripple effect
-        val outValue = TypedValue()
-        context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
-        setBackgroundResource(outValue.resourceId)
-    }
-
-    val icon = ImageView(context).apply {
-        setImageResource(android.R.drawable.stat_sys_download)
-        setColorFilter(Color.parseColor("#F5F5F5")) // Instagram Dark mode icon color
-        layoutParams = LinearLayout.LayoutParams((24 * dp).toInt(), (24 * dp).toInt()).apply {
-            marginEnd = (16 * dp).toInt()
-        }
-    }
-
-    val text = TextView(context).apply {
-        text = "Download Media"
-        setTextColor(Color.parseColor("#F5F5F5"))
-        textSize = 16f
-        layoutParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-    }
-
-    row.addView(icon)
-    row.addView(text)
-
-    row.setOnClickListener {
-        val url = lastKnownMediaUrl
-        val isVideo = lastKnownIsVideo
-        if (!url.isNullOrEmpty()) {
-            downloadInstagramMedia(context, url, isVideo)
-        } else {
-            Toast.makeText(context, "URL tidak ditemukan. Putar ulang media.", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    runCatching {
-        if (targetContainer is LinearLayout) {
-            targetContainer.addView(row, 0) // Add to top
-        } else {
-            targetContainer.addView(row)
-        }
-        XposedBridge.log("Rhpatch: [Download] Injected Piko-style download row")
-    }.onFailure {
-        XposedBridge.log("Rhpatch: [Download] Failed to add row: $it")
-    }
-}
+// Removed injectPikoStyleDownloadRow because injecting into a RecyclerView dynamically causes layout issues.
+// Using injectFloatingDownloadButton instead as a reliable fallback.
 
 fun injectFloatingDownloadButton(decorView: ViewGroup, context: Context) {
     if (decorView.findViewWithTag<View>("rhp_dl_btn") != null) return
@@ -389,10 +307,10 @@ fun injectFloatingDownloadButton(decorView: ViewGroup, context: Context) {
         }
     }
 
-    // Add to top-right of the dialog
+    // Add to bottom-right of the view
     val params = FrameLayout.LayoutParams(iconSize, iconSize).apply {
-        gravity = Gravity.TOP or Gravity.END
-        topMargin = (24 * dp).toInt()
+        gravity = Gravity.BOTTOM or Gravity.END
+        bottomMargin = (72 * dp).toInt()
         marginEnd = (24 * dp).toInt()
     }
 
