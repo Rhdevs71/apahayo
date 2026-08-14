@@ -197,6 +197,7 @@
                 <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_enable_long_press_speed_lock" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Enable long press speed lock\n\nLock the playback speed when long pressing." android:padding="16dp" app:thumbTint="#FE2C55" />
                 <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_disable_long_press_quick_share" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Disable long press quick share\n\nDisable quick share popup." android:padding="16dp" app:thumbTint="#FE2C55" />
                 <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_enable_non_personalized_search" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Enable non personalized search\n\nDisable personalized search results." android:padding="16dp" app:thumbTint="#FE2C55" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_tiktok_experimental" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Experimental Hook Mode\n\nForce hooking even if the TikTok version is unsupported." android:padding="16dp" app:thumbTint="#FE2C55" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

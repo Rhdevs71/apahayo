@@ -110,6 +110,7 @@ class TikTokSettingsActivity : AppCompatActivity() {
         setupSwitch(R.id.switch_enable_long_press_speed_lock, "tiktok_enable_long_press_speed_lock")
         setupSwitch(R.id.switch_disable_long_press_quick_share, "tiktok_disable_long_press_quick_share")
         setupSwitch(R.id.switch_enable_non_personalized_search, "tiktok_enable_non_personalized_search")
+        setupSwitch(R.id.switch_tiktok_experimental, "pref_tiktok_experimental")
     }
     
     private fun setupMenuRow(rowId: Int, targetLayoutId: Int, title: String) {

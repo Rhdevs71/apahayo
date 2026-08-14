@@ -30,18 +30,23 @@ object TikTokMainHook {
                         
                         XposedBridge.log("Rhpatch TikTok: Detected version $versionName")
                         
-                        // Limit to version 46.2.3 maximum
-                        if (isVersionHigherThan(versionName ?: "", "46.2.3")) {
-                            XposedBridge.log("Rhpatch TikTok: Version $versionName is higher than supported 46.2.3. Aborting hooks.")
-                            return
-                        }
-                        
                         // Fallback to RemotePreferences because XSharedPreferences often fails due to SELinux
                         val xprefs = prefs as? XSharedPreferences
                         val actualPrefs = if (xprefs != null && xprefs.file.canRead()) {
                             xprefs
                         } else {
                             RemotePreferences(app, BuildConfig.APPLICATION_ID + ".preferences", "prefs")
+                        }
+                        
+                        // Limit to version 46.2.3 maximum
+                        if (isVersionHigherThan(versionName ?: "", "46.2.3")) {
+                            val isExperimental = actualPrefs.getBoolean("pref_tiktok_experimental", false)
+                            if (isExperimental) {
+                                XposedBridge.log("Rhpatch TikTok: Version $versionName is higher than supported 46.2.3, BUT Experimental Mode is ON. Proceeding with hooks!")
+                            } else {
+                                XposedBridge.log("Rhpatch TikTok: Version $versionName is higher than supported 46.2.3. Aborting hooks.")
+                                return
+                            }
                         }
                         
                         // Use app.classLoader because it contains the multidex classes

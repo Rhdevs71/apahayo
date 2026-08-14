@@ -19,6 +19,7 @@ import de.robv.android.xposed.XposedHelpers
 
 // Cache untuk menyimpan objek pembantu overflow terakhir yang dibuka
 var currentOverflowHelper: Any? = null
+var currentStoryHelper: Any? = null
 
 val MediaDownloaderPatch = patch(
     name = "Instagram Media Downloader (Piko Native Style)",
@@ -38,6 +39,21 @@ val MediaDownloaderPatch = patch(
             })
         } else {
             XposedBridge.log("Rhpatch: Gagal menemukan MediaOptionsOverflowHelper. Fallback ke scan UI.")
+        }
+    }
+
+    // 1.5 Hook Story Options Helper (menggunakan string unik dari Piko)
+    runCatching {
+        val storyMethods = MetaUnobfuscator.findMethodUsingStrings("friendships/mute_friend_reel/%s/")
+        val storyClass = storyMethods.firstOrNull()?.declaringClass
+        if (storyClass != null) {
+            XposedBridge.log("Rhpatch: Berhasil menemukan StoryOptionsHelper -> ${storyClass.name}")
+            XposedBridge.hookAllConstructors(storyClass, object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    currentStoryHelper = param.thisObject
+                    XposedBridge.log("Rhpatch: Berhasil menyadap instance StoryOptionsHelper!")
+                }
+            })
         }
     }
 
@@ -114,6 +130,13 @@ val MediaDownloaderPatch = patch(
                     } catch (e: Exception) {}
                 }
             })
+            
+            XposedBridge.hookAllMethods(igdsBottomSheetClass, "onDestroyView", object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    currentOverflowHelper = null
+                    currentStoryHelper = null
+                }
+            })
         }
     }
 }
@@ -136,7 +159,7 @@ fun showPikoStyleDownloadMenu(context: Context, activity: android.app.Activity) 
                                 
     Thread {
         val extractedUrls = mutableSetOf<String>()
-        val startObj = currentOverflowHelper ?: findMostVisibleMediaView(activity.window.decorView.rootView as ViewGroup, context)
+        val startObj = currentOverflowHelper ?: currentStoryHelper ?: findMostVisibleMediaView(activity.window.decorView.rootView as ViewGroup, context)
         
         if (startObj != null) {
             DeepMediaExtractor.extractAllUrls(startObj, extractedUrls, 0, mutableSetOf())
@@ -157,8 +180,33 @@ fun showPikoStyleDownloadMenu(context: Context, activity: android.app.Activity) 
             if (bestVideo != null || bestImage != null) {
                 options.add("Unduh media saat ini")
                 actions.add(Runnable {
-                    if (bestVideo != null) downloadInstagramMedia(context, bestVideo, true)
-                    else if (bestImage != null) downloadInstagramMedia(context, bestImage, false)
+                    // Jika ada banyak gambar (Carousel) dan 1 video (biasanya lagu), utamakan gambar untuk 'media saat ini'
+                    if (imageUrls.size > 1 && bestImage != null) {
+                        downloadInstagramMedia(context, bestImage, false)
+                    } else if (bestVideo != null) {
+                        downloadInstagramMedia(context, bestVideo, true)
+                    } else if (bestImage != null) {
+                        downloadInstagramMedia(context, bestImage, false)
+                    }
+                })
+            }
+            
+            // Opsi tambahan untuk mengunduh seluruh isi Carousel
+            if (imageUrls.size > 1 || unifiedMp4Urls.size > 1) {
+                val totalMedia = imageUrls.size + unifiedMp4Urls.size
+                options.add("Unduh semua media ($totalMedia item)")
+                actions.add(Runnable {
+                    val handler = android.os.Handler(android.os.Looper.getMainLooper())
+                    var delayMs = 0L
+                    for (url in imageUrls) {
+                        handler.postDelayed({ downloadInstagramMedia(context, url, false) }, delayMs)
+                        delayMs += 500
+                    }
+                    for (url in unifiedMp4Urls) {
+                        handler.postDelayed({ downloadInstagramMedia(context, url, true) }, delayMs)
+                        delayMs += 500
+                    }
+                    Toast.makeText(context, "Rhpatch: Memulai pengunduhan $totalMedia item secara berurutan...", Toast.LENGTH_LONG).show()
                 })
             }
             
@@ -171,7 +219,6 @@ fun showPikoStyleDownloadMenu(context: Context, activity: android.app.Activity) 
                 options.add("Unduh audio")
                 actions.add(Runnable { downloadInstagramMedia(context, bestAudio, true, isAudioOnly = true) })
             } else if (bestVideo != null) {
-                // Jika tidak ada audio stream terpisah, izinkan ekstrak dari mp4 (secara label UI saja)
                 options.add("Unduh audio (dari Video)")
                 actions.add(Runnable { downloadInstagramMedia(context, bestVideo, true, isAudioOnly = true) })
             }
@@ -199,7 +246,7 @@ fun showPikoStyleDownloadMenu(context: Context, activity: android.app.Activity) 
             }
             
             if (bestImage != null) {
-                options.add("Buka gambar secara eksternal")
+                options.add("Buka di browser")
                 actions.add(Runnable {
                     val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(bestImage))
                     context.startActivity(intent)
@@ -225,7 +272,7 @@ fun showPikoStyleMoreMenu(context: Context, activity: android.app.Activity) {
     Toast.makeText(context, "Mengekstrak data teks...", Toast.LENGTH_SHORT).show()
     Thread {
         val extractedTexts = mutableSetOf<String>()
-        val startObj = currentOverflowHelper ?: findMostVisibleMediaView(activity.window.decorView.rootView as ViewGroup, context)
+        val startObj = currentOverflowHelper ?: currentStoryHelper ?: findMostVisibleMediaView(activity.window.decorView.rootView as ViewGroup, context)
         
         if (startObj != null) {
             DeepTextExtractor.extractAllTexts(startObj, extractedTexts, 0, mutableSetOf())
