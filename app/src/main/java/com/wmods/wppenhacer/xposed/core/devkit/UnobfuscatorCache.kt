@@ -59,7 +59,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
                 try {
                     Utils.showToast(com.wmods.wppenhacer.xposed.core.FeatureLoader.moduleContext.getString(R.string.starting_cache), Toast.LENGTH_LONG)
                 } catch (e: Exception) {
-                    XposedBridge.log("WaEnhancer: Cache started, but R.string.starting_cache not found.")
+                    XposedBridge.log("Rhpatch: Cache started, but R.string.starting_cache not found.")
                 }
                 sPrefsCacheHooks.edit(commit = true) { clear() }
                 sPrefsCacheHooks.edit(commit = true) { putLong("version", currentVersion) }
@@ -75,7 +75,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
             }
             initCacheStrings()
         } catch (e: Exception) {
-            XposedBridge.log("WaEnhancer Error: Can't initialize UnobfuscatorCache: ${e.message}")
+            XposedBridge.log("Rhpatch Error: Can't initialize UnobfuscatorCache: ${e.message}")
         }
     }
 

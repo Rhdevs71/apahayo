@@ -145,13 +145,13 @@ class App : Application() {
         }
 
         @JvmStatic
-        val waEnhancerFolder: File
+        val RhpatchFolder: File
             get() {
                 val download =
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                val waEnhancerFolder = File(download, "WaEnhancer")
-                if (!waEnhancerFolder.exists()) waEnhancerFolder.mkdirs()
-                return waEnhancerFolder
+                val RhpatchFolder = File(download, "Rhpatch")
+                if (!RhpatchFolder.exists()) RhpatchFolder.mkdirs()
+                return RhpatchFolder
             }
 
         @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")

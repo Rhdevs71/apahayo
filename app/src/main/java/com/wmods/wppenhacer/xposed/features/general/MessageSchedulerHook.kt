@@ -29,7 +29,7 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
     }
 
     override fun doHook() {
-        XposedBridge.log("WaEnhancer MessageSchedulerHook: Hooking scheduler receiver in WhatsApp")
+        XposedBridge.log("Rhpatch MessageSchedulerHook: Hooking scheduler receiver in WhatsApp")
         registerSchedulerReceiver()
         hookWhatsAppSync()
     }
@@ -46,9 +46,9 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
                     Utils.application.sendBroadcast(intent)
                 }
             })
-            XposedBridge.log("WaEnhancer MessageSchedulerHook: Hooked WaJobManager for periodic background triggers")
+            XposedBridge.log("Rhpatch MessageSchedulerHook: Hooked WaJobManager for periodic background triggers")
         } catch (e: Exception) {
-            XposedBridge.log("WaEnhancer MessageSchedulerHook Error: Failed to hook WaJobManager: ${e.message}")
+            XposedBridge.log("Rhpatch MessageSchedulerHook Error: Failed to hook WaJobManager: ${e.message}")
         }
     }
 
@@ -68,25 +68,25 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
                     if (id != -1) {
                         val lastProcessed = processedTimes[id] ?: 0L
                         if (System.currentTimeMillis() - lastProcessed < 60_000L) {
-                            XposedBridge.log("WaEnhancer MessageSchedulerHook onReceive: Message $id was processed recently. Ignoring duplicate trigger.")
+                            XposedBridge.log("Rhpatch MessageSchedulerHook onReceive: Message $id was processed recently. Ignoring duplicate trigger.")
                             return
                         }
                         processedTimes[id] = System.currentTimeMillis()
                     }
 
-                    XposedBridge.log("WaEnhancer MessageSchedulerHook onReceive: Message trigger received for id $id, JID: $jid")
+                    XposedBridge.log("Rhpatch MessageSchedulerHook onReceive: Message trigger received for id $id, JID: $jid")
 
                     Handler(Looper.getMainLooper()).post {
                         try {
                             if (mediaPath != null && mediaPath.isNotEmpty()) {
-                                XposedBridge.log("WaEnhancer MessageSchedulerHook onReceive: Processing media message for id $id")
+                                XposedBridge.log("Rhpatch MessageSchedulerHook onReceive: Processing media message for id $id")
                                 sendMediaMessage(jid, messageText, mediaPath, mediaType, id)
                             } else {
-                                XposedBridge.log("WaEnhancer MessageSchedulerHook onReceive: Processing text message for id $id")
+                                XposedBridge.log("Rhpatch MessageSchedulerHook onReceive: Processing text message for id $id")
                                 sendTextMessage(jid, messageText, id)
                             }
                         } catch (e: Exception) {
-                            XposedBridge.log("WaEnhancer MessageSchedulerHook Error: Failed to process message $id: ${e.message}")
+                            XposedBridge.log("Rhpatch MessageSchedulerHook Error: Failed to process message $id: ${e.message}")
                             e.printStackTrace()
                             sendStatusBroadcast(id, false)
                         }
@@ -98,23 +98,23 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
             null,
             if (android.os.Build.VERSION.SDK_INT >= 33) 2 else 0 // 2 is Context.RECEIVER_EXPORTED
         )
-        XposedBridge.log("WaEnhancer MessageSchedulerHook: Receiver registered successfully")
+        XposedBridge.log("Rhpatch MessageSchedulerHook: Receiver registered successfully")
     }
 
     private fun sendTextMessage(jid: String, text: String, id: Int) {
         try {
             val userJid = WppCore.createUserJid(jid)
             if (userJid == null) {
-                XposedBridge.log("WaEnhancer MessageSchedulerHook: UserJid is null for $jid")
+                XposedBridge.log("Rhpatch MessageSchedulerHook: UserJid is null for $jid")
                 sendStatusBroadcast(id, false)
                 return
             }
 
-            XposedBridge.log("WaEnhancer MessageSchedulerHook: Calling WppCore.sendMessageToJid")
+            XposedBridge.log("Rhpatch MessageSchedulerHook: Calling WppCore.sendMessageToJid")
             WppCore.sendMessageToJid(userJid, text)
             sendStatusBroadcast(id, true)
         } catch (e: Exception) {
-            XposedBridge.log("WaEnhancer MessageSchedulerHook Error: sending text failed: ${e.message}")
+            XposedBridge.log("Rhpatch MessageSchedulerHook Error: sending text failed: ${e.message}")
             e.printStackTrace()
             sendStatusBroadcast(id, false)
         }
@@ -124,14 +124,14 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
         try {
             val file = File(mediaPath)
             if (!file.exists()) {
-                XposedBridge.log("WaEnhancer MessageSchedulerHook: Media file does not exist on disk: $mediaPath")
+                XposedBridge.log("Rhpatch MessageSchedulerHook: Media file does not exist on disk: $mediaPath")
                 sendStatusBroadcast(id, false)
                 return
             }
 
             val userJid = WppCore.createUserJid(jid)
             if (userJid == null) {
-                XposedBridge.log("WaEnhancer MessageSchedulerHook: UserJid is null for $jid")
+                XposedBridge.log("Rhpatch MessageSchedulerHook: UserJid is null for $jid")
                 sendStatusBroadcast(id, false)
                 return
             }
@@ -139,7 +139,7 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
             val actionUser = WppCore.getActionUser()
             val actionUserClass = WppCore.getActionUserClass()
             if (actionUser == null || actionUserClass == null) {
-                XposedBridge.log("WaEnhancer MessageSchedulerHook: ActionUser instance or class is null")
+                XposedBridge.log("Rhpatch MessageSchedulerHook: ActionUser instance or class is null")
                 sendStatusBroadcast(id, false)
                 return
             }
@@ -158,7 +158,7 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
             }
 
             if (mediaMethod == null) {
-                XposedBridge.log("WaEnhancer MessageSchedulerHook: Media sending method not found in ActionUser")
+                XposedBridge.log("Rhpatch MessageSchedulerHook: Media sending method not found in ActionUser")
                 sendStatusBroadcast(id, false)
                 return
             }
@@ -204,10 +204,10 @@ class MessageSchedulerHook(loader: ClassLoader, preferences: SharedPreferences) 
             }
 
             mediaMethod.invoke(actionUser, *args)
-            XposedBridge.log("WaEnhancer MessageSchedulerHook: Media message id $id sent to $jid successfully")
+            XposedBridge.log("Rhpatch MessageSchedulerHook: Media message id $id sent to $jid successfully")
             sendStatusBroadcast(id, true)
         } catch (e: Exception) {
-            XposedBridge.log("WaEnhancer MessageSchedulerHook Error: sending media failed: ${e.message}")
+            XposedBridge.log("Rhpatch MessageSchedulerHook Error: sending media failed: ${e.message}")
             e.printStackTrace()
             sendStatusBroadcast(id, false)
         }

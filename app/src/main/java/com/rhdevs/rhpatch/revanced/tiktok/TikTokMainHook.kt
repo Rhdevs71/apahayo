@@ -12,7 +12,7 @@ import com.crossbowffs.remotepreferences.RemotePreferences
 
 object TikTokMainHook {
     fun handleLoadPackage(lpparam: LoadPackageParam, prefs: android.content.SharedPreferences) {
-        if (lpparam.packageName != "com.zhiliaoapp.musically" && lpparam.packageName != "com.ss.android.ugc.trill") return
+        if (lpparam.packageName != "com.zhiliaoapp.musically" && lpparam.packageName != "com.ss.android.ugc.trill" && lpparam.packageName != "com.ss.android.ugc.aweme") return
         
         // TikTok requires the Application Context for most patches and version checking
         XposedHelpers.findAndHookMethod(

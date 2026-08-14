@@ -53,7 +53,7 @@ class CallRecording(
 
     private val delayedStartScheduler: ScheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor { runnable ->
-            Thread(runnable, "WaEnhancer-CallDelayedStart").apply {
+            Thread(runnable, "Rhpatch-CallDelayedStart").apply {
                 isDaemon = true
             }
         }
@@ -61,11 +61,11 @@ class CallRecording(
     @Throws(Throwable::class)
     override fun doHook() {
         if (!prefs.getBoolean("call_recording_enable", false)) {
-            logDebug("WaEnhancer: Call Recording is disabled")
+            logDebug("Rhpatch: Call Recording is disabled")
             return
         }
 
-        logDebug("WaEnhancer: Call Recording feature initializing...")
+        logDebug("Rhpatch: Call Recording feature initializing...")
         hookCallStateChanges()
     }
 
@@ -79,7 +79,7 @@ class CallRecording(
                 "VoiceServiceEventCallback"
             )
 
-            logDebug("WaEnhancer: Found VoiceServiceEventCallback: ${clsCallEventCallback.name}")
+            logDebug("Rhpatch: Found VoiceServiceEventCallback: ${clsCallEventCallback.name}")
 
             try {
                 XposedBridge.hookAllMethods(
@@ -93,7 +93,7 @@ class CallRecording(
                 )
                 hooksInstalled++
             } catch (e: Throwable) {
-                logDebug("WaEnhancer: Could not hook fieldstatsReady: ${e.message}")
+                logDebug("Rhpatch: Could not hook fieldstatsReady: ${e.message}")
             }
 
             try {
@@ -102,7 +102,7 @@ class CallRecording(
                     "soundPortCreated",
                     object : XC_MethodHook() {
                         override fun afterHookedMethod(param: MethodHookParam) {
-                            logDebug("WaEnhancer: soundPortCreated - will record after 3s")
+                            logDebug("Rhpatch: soundPortCreated - will record after 3s")
                             extractUserJid(param.thisObject)
                             isCallConnected.set(true)
                             scheduleDelayedStart()
@@ -111,10 +111,10 @@ class CallRecording(
                 )
                 hooksInstalled++
             } catch (e: Throwable) {
-                logDebug("WaEnhancer: Could not hook soundPortCreated: ${e.message}")
+                logDebug("Rhpatch: Could not hook soundPortCreated: ${e.message}")
             }
         } catch (e: Throwable) {
-            logDebug("WaEnhancer: Could not hook VoiceServiceEventCallback: ${e.message}")
+            logDebug("Rhpatch: Could not hook VoiceServiceEventCallback: ${e.message}")
         }
 
         try {
@@ -125,7 +125,7 @@ class CallRecording(
             )
 
             if (Activity::class.java.isAssignableFrom(voipActivityClass)) {
-                logDebug("WaEnhancer: Found VoipActivity: ${voipActivityClass.name}")
+                logDebug("Rhpatch: Found VoipActivity: ${voipActivityClass.name}")
 
                 XposedBridge.hookAllMethods(
                     voipActivityClass,
@@ -139,14 +139,14 @@ class CallRecording(
                 hooksInstalled++
             }
         } catch (e: Throwable) {
-            logDebug("WaEnhancer: Could not hook VoipActivity: ${e.message}")
+            logDebug("Rhpatch: Could not hook VoipActivity: ${e.message}")
         }
 
-        logDebug("WaEnhancer: Call Recording initialized with $hooksInstalled hooks")
+        logDebug("Rhpatch: Call Recording initialized with $hooksInstalled hooks")
     }
 
     private fun handleCallEnded(reason: String) {
-        logDebug("WaEnhancer: Call ended by $reason")
+        logDebug("Rhpatch: Call ended by $reason")
         isCallConnected.set(false)
         cancelDelayedStart()
         stopRecording()
@@ -158,12 +158,12 @@ class CallRecording(
         try {
             val task = Runnable {
                 if (!isCallConnected.get()) {
-                    logDebug("WaEnhancer: Delayed start cancelled, call not connected")
+                    logDebug("Rhpatch: Delayed start cancelled, call not connected")
                     return@Runnable
                 }
 
                 if (isRecording.get()) {
-                    logDebug("WaEnhancer: Delayed start ignored, already recording")
+                    logDebug("Rhpatch: Delayed start ignored, already recording")
                     return@Runnable
                 }
 
@@ -174,7 +174,7 @@ class CallRecording(
 
             delayedStartFuture.set(future)
         } catch (e: Throwable) {
-            logDebug("WaEnhancer: Could not schedule delayed recording start: ${e.message}")
+            logDebug("Rhpatch: Could not schedule delayed recording start: ${e.message}")
         }
     }
 
@@ -208,7 +208,7 @@ class CallRecording(
                 }
             }
         } catch (e: Throwable) {
-            logDebug("WaEnhancer: extractUserJid error: ${e.message}")
+            logDebug("Rhpatch: extractUserJid error: ${e.message}")
         }
     }
 
@@ -217,7 +217,7 @@ class CallRecording(
         if (userJid.isNull) return false
 
         currentUserJid.set(userJid)
-        logDebug("WaEnhancer: Found phone from $source: ${userJid.phoneNumber}")
+        logDebug("Rhpatch: Found phone from $source: ${userJid.phoneNumber}")
         return true
     }
 
@@ -226,11 +226,11 @@ class CallRecording(
 
         try {
             val app = FeatureLoader.mApp ?: run {
-                logDebug("WaEnhancer: Could not grant permissions, app context is null")
+                logDebug("Rhpatch: Could not grant permissions, app context is null")
                 return
             }
             val packageName = app.packageName
-            logDebug("WaEnhancer: Granting CAPTURE_AUDIO_OUTPUT via root")
+            logDebug("Rhpatch: Granting CAPTURE_AUDIO_OUTPUT via root")
 
             val commands = arrayOf(
                 "pm grant $packageName android.permission.CAPTURE_AUDIO_OUTPUT",
@@ -241,51 +241,51 @@ class CallRecording(
                 try {
                     val process = Runtime.getRuntime().exec(arrayOf("su", "-c", cmd))
                     val exitCode = process.waitFor()
-                    logDebug("WaEnhancer: $cmd exit: $exitCode")
+                    logDebug("Rhpatch: $cmd exit: $exitCode")
                 } catch (e: Exception) {
-                    logDebug("WaEnhancer: Root failed: ${e.message}")
+                    logDebug("Rhpatch: Root failed: ${e.message}")
                 }
             }
 
             permissionGranted.set(true)
         } catch (e: Throwable) {
-            logDebug("WaEnhancer: grantVoiceCallPermission error: ${e.message}")
+            logDebug("Rhpatch: grantVoiceCallPermission error: ${e.message}")
         }
     }
 
     @Synchronized
     private fun startRecording() {
         if (isRecording.get()) {
-            logDebug("WaEnhancer: Already recording")
+            logDebug("Rhpatch: Already recording")
             return
         }
 
         val cUserJid = currentUserJid.get()
         if (cUserJid != null && !shouldRecord(cUserJid.phoneNumber)) {
-            logDebug("WaEnhancer: Skipping recording due to privacy settings for: ${cUserJid.phoneNumber}")
+            logDebug("Rhpatch: Skipping recording due to privacy settings for: ${cUserJid.phoneNumber}")
             return
         }
 
         if (!isCallConnected.get()) {
-            logDebug("WaEnhancer: Skipping recording, call is not connected")
+            logDebug("Rhpatch: Skipping recording, call is not connected")
             return
         }
 
         try {
             val app = FeatureLoader.mApp ?: run {
-                logDebug("WaEnhancer: Skipping recording, app context is null")
+                logDebug("Rhpatch: Skipping recording, app context is null")
                 return
             }
 
             if (ContextCompat.checkSelfPermission(app, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                logDebug("WaEnhancer: No RECORD_AUDIO permission")
+                logDebug("Rhpatch: No RECORD_AUDIO permission")
                 return
             }
 
             val bridge = runCatching {
                 WppCore.getClientBridge()
             }.onFailure {
-                logDebug("WaEnhancer: Could not get client bridge: ${it.message}")
+                logDebug("Rhpatch: Could not get client bridge: ${it.message}")
             }.getOrNull()
 
             val packageName = app.packageName
@@ -330,7 +330,7 @@ class CallRecording(
 
             val recorderSelection = createStartedRecorder(audioSources, sourceNames, outputTarget.fd)
             if (recorderSelection == null) {
-                logDebug("WaEnhancer: All audio sources failed")
+                logDebug("Rhpatch: All audio sources failed")
                 closeOutputResources(deleteOutputFile = false)
                 return
             }
@@ -343,13 +343,13 @@ class CallRecording(
                 return
             }
 
-            logDebug("WaEnhancer: Recording started (${recorderSelection.sourceName}): ${outputTarget.file.absolutePath}")
+            logDebug("Rhpatch: Recording started (${recorderSelection.sourceName}): ${outputTarget.file.absolutePath}")
 
             if (prefs.getBoolean("call_recording_toast", false)) {
                 Utils.showToast("Recording started", Toast.LENGTH_SHORT)
             }
         } catch (e: Exception) {
-            logDebug("WaEnhancer: startRecording error: ${e.message}")
+            logDebug("Rhpatch: startRecording error: ${e.message}")
             isRecording.set(false)
             mediaRecorderRef.getAndSet(null)?.let {
                 releaseRecorder(it, stopBeforeRelease = false)
@@ -371,7 +371,7 @@ class CallRecording(
             if (dirCreated || appDir.exists()) return
         }
 
-        logDebug("WaEnhancer: Could not create preferred output directory, fallback may be used: ${appDir.absolutePath}")
+        logDebug("Rhpatch: Could not create preferred output directory, fallback may be used: ${appDir.absolutePath}")
     }
 
     private fun buildFileName(userJid: FMessageWpp.UserJid?, timestamp: String): String {
@@ -413,7 +413,7 @@ class CallRecording(
             }
 
             try {
-                logDebug("WaEnhancer: Trying ${sourceNames[i]}")
+                logDebug("Rhpatch: Trying ${sourceNames[i]}")
                 testRecorder.setAudioSource(audioSources[i])
                 testRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 testRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
@@ -423,10 +423,10 @@ class CallRecording(
                 testRecorder.prepare()
                 testRecorder.start()
 
-                logDebug("WaEnhancer: SUCCESS ${sourceNames[i]}")
+                logDebug("Rhpatch: SUCCESS ${sourceNames[i]}")
                 return RecorderSelection(testRecorder, sourceNames[i])
             } catch (e: Exception) {
-                logDebug("WaEnhancer: FAILED ${sourceNames[i]}: ${e.message}")
+                logDebug("Rhpatch: FAILED ${sourceNames[i]}: ${e.message}")
                 releaseRecorder(testRecorder, stopBeforeRelease = false)
             }
         }
@@ -448,7 +448,7 @@ class CallRecording(
                     recorder.stop()
                     saved = true
                 } catch (e: RuntimeException) {
-                    logDebug("WaEnhancer: MediaRecorder stop exception (no valid audio data received): $e")
+                    logDebug("Rhpatch: MediaRecorder stop exception (no valid audio data received): $e")
                 } finally {
                     releaseRecorder(recorder, stopBeforeRelease = false)
                 }
@@ -457,7 +457,7 @@ class CallRecording(
             outputFile = outputFileRef.get()
             closeOutputResources(deleteOutputFile = !saved)
 
-            logDebug("WaEnhancer: Recording stopped, file=${outputFile?.absolutePath ?: "unknown"}")
+            logDebug("Rhpatch: Recording stopped, file=${outputFile?.absolutePath ?: "unknown"}")
 
             if (saved && outputFile != null) {
                 Utils.scanFile(outputFile)
@@ -469,7 +469,7 @@ class CallRecording(
 
             currentUserJid.set(null)
         } catch (e: Exception) {
-            logDebug("WaEnhancer: stopRecording error: ${e.message}")
+            logDebug("Rhpatch: stopRecording error: ${e.message}")
             closeOutputResources(deleteOutputFile = false)
             outputFileRef.set(null)
         }
@@ -506,7 +506,7 @@ class CallRecording(
         }
 
         if (deleteOutputFile && outputFile != null && outputFile.exists() && !outputFile.delete()) {
-            logDebug("WaEnhancer: Could not delete incomplete recording: ${outputFile.absolutePath}")
+            logDebug("Rhpatch: Could not delete incomplete recording: ${outputFile.absolutePath}")
         }
     }
 
@@ -528,9 +528,9 @@ class CallRecording(
                         parcelFileDescriptor.fileDescriptor
                     )
                 }
-                logDebug("WaEnhancer: Bridge openFile returned null, fallback to Android/data path")
+                logDebug("Rhpatch: Bridge openFile returned null, fallback to Android/data path")
             } catch (t: Throwable) {
-                logDebug("WaEnhancer: Bridge openFile failed, fallback to Android/data path: ${t.message}")
+                logDebug("Rhpatch: Bridge openFile failed, fallback to Android/data path: ${t.message}")
             }
         }
 
@@ -545,7 +545,7 @@ class CallRecording(
 
         val fallbackFile = File(fallbackDir, fileName)
         val fallbackStream = FileOutputStream(fallbackFile)
-        logDebug("WaEnhancer: Recording fallback path in Android/data: ${fallbackFile.absolutePath}")
+        logDebug("Rhpatch: Recording fallback path in Android/data: ${fallbackFile.absolutePath}")
 
         return OutputTarget(fallbackFile, null, fallbackStream, fallbackStream.fd)
     }
@@ -590,7 +590,7 @@ class CallRecording(
                 else -> true
             }
         } catch (e: Exception) {
-            logDebug("WaEnhancer: shouldRecord check error: ${e.message}")
+            logDebug("Rhpatch: shouldRecord check error: ${e.message}")
         }
 
         return true
@@ -606,7 +606,7 @@ class CallRecording(
                 if (num == phone) return true
             }
         } catch (e: Exception) {
-            logDebug("WaEnhancer: Error parsing list: ${e.message}")
+            logDebug("Rhpatch: Error parsing list: ${e.message}")
         }
 
         return false

@@ -34,7 +34,7 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
         @JvmStatic
         fun stopCustomRingtone() {
             if (isCustomRingtonePlaying) {
-                XposedBridge.log("WaEnhancer CallPrivacy: Stopping custom ringtone")
+                XposedBridge.log("Rhpatch CallPrivacy: Stopping custom ringtone")
                 try {
                     customPlayer?.stop()
                     customPlayer?.release()
@@ -116,7 +116,7 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
                 if (!customRingtonePath.isNullOrEmpty()) {
                     val file = File(customRingtonePath)
                     if (file.exists()) {
-                        XposedBridge.log("WaEnhancer CallPrivacy: Playing custom ringtone for $phoneNum from $customRingtonePath")
+                        XposedBridge.log("Rhpatch CallPrivacy: Playing custom ringtone for $phoneNum from $customRingtonePath")
                         playCustomRingtone(customRingtonePath)
                     }
                 }
@@ -153,7 +153,7 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         if (isCustomRingtonePlaying) {
-                            XposedBridge.log("WaEnhancer CallPrivacy: Silenced default WhatsApp ringtone")
+                            XposedBridge.log("Rhpatch CallPrivacy: Silenced default WhatsApp ringtone")
                             param.result = null // Bypass default play
                         }
                     }
@@ -208,7 +208,7 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
             }
             isCustomRingtonePlaying = true
         } catch (e: Exception) {
-            XposedBridge.log("WaEnhancer CallPrivacy: Failed to play custom ringtone: ${e.message}")
+            XposedBridge.log("Rhpatch CallPrivacy: Failed to play custom ringtone: ${e.message}")
             e.printStackTrace()
         }
     }

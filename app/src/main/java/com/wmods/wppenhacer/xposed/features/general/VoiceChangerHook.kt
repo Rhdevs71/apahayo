@@ -20,7 +20,7 @@ class VoiceChangerHook(loader: ClassLoader, preferences: SharedPreferences) : Fe
         val enabled = prefs.getBoolean("voice_changer_enabled", false)
         if (!enabled) return
 
-        XposedBridge.log("WaEnhancer VoiceChangerHook: Initializing hooks")
+        XposedBridge.log("Rhpatch VoiceChangerHook: Initializing hooks")
 
         // 1. Hook standard MediaRecorder for newer WhatsApp versions
         try {
@@ -54,16 +54,16 @@ class VoiceChangerHook(loader: ClassLoader, preferences: SharedPreferences) : Fe
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val path = XposedHelpers.getAdditionalInstanceField(param.thisObject, "voice_file_path") as? String
-                        XposedBridge.log("WaEnhancer VoiceChangerHook: MediaRecorder stop triggered for path: $path")
+                        XposedBridge.log("Rhpatch VoiceChangerHook: MediaRecorder stop triggered for path: $path")
                         if (path != null) {
                             applyVoiceChanger(path)
                         }
                     }
                 }
             )
-            XposedBridge.log("WaEnhancer VoiceChangerHook: Hooked android.media.MediaRecorder successfully")
+            XposedBridge.log("Rhpatch VoiceChangerHook: Hooked android.media.MediaRecorder successfully")
         } catch (e: Throwable) {
-            XposedBridge.log("WaEnhancer VoiceChangerHook: Failed to hook MediaRecorder: ${e.message}")
+            XposedBridge.log("Rhpatch VoiceChangerHook: Failed to hook MediaRecorder: ${e.message}")
         }
 
         // 2. Hook com.whatsapp.util.OpusRecorder (wrapped in Throwable catch to prevent ClassNotFound warning popup)
@@ -80,15 +80,15 @@ class VoiceChangerHook(loader: ClassLoader, preferences: SharedPreferences) : Fe
             XposedHelpers.findAndHookMethod(opusRecorderClass, "stop", object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val path = XposedHelpers.getAdditionalInstanceField(param.thisObject, "voice_file_path") as? String
-                    XposedBridge.log("WaEnhancer VoiceChangerHook: OpusRecorder stop triggered for path: $path")
+                    XposedBridge.log("Rhpatch VoiceChangerHook: OpusRecorder stop triggered for path: $path")
                     if (path != null) {
                         applyVoiceChanger(path)
                     }
                 }
             })
-            XposedBridge.log("WaEnhancer VoiceChangerHook: Hooked com.whatsapp.util.OpusRecorder successfully")
+            XposedBridge.log("Rhpatch VoiceChangerHook: Hooked com.whatsapp.util.OpusRecorder successfully")
         } catch (e: Throwable) {
-            XposedBridge.log("WaEnhancer VoiceChangerHook: OpusRecorder not found in this WhatsApp build (silent skip): ${e.message}")
+            XposedBridge.log("Rhpatch VoiceChangerHook: OpusRecorder not found in this WhatsApp build (silent skip): ${e.message}")
         }
     }
 
@@ -107,18 +107,18 @@ class VoiceChangerHook(loader: ClassLoader, preferences: SharedPreferences) : Fe
 
             val originalFile = File(path)
             if (originalFile.exists()) {
-                XposedBridge.log("WaEnhancer VoiceChangerHook: Modifying audio pitch factor $pitchFactor for $path")
+                XposedBridge.log("Rhpatch VoiceChangerHook: Modifying audio pitch factor $pitchFactor for $path")
                 val tempOut = AudioOpusConverter.convert(path, pitchFactor)
                 if (tempOut != null && tempOut.exists()) {
                     originalFile.delete()
                     tempOut.renameTo(originalFile)
-                    XposedBridge.log("WaEnhancer VoiceChangerHook: Pitch modification successful")
+                    XposedBridge.log("Rhpatch VoiceChangerHook: Pitch modification successful")
                 } else {
-                    XposedBridge.log("WaEnhancer VoiceChangerHook: Temp output file was not created")
+                    XposedBridge.log("Rhpatch VoiceChangerHook: Temp output file was not created")
                 }
             }
         } catch (e: Exception) {
-            XposedBridge.log("WaEnhancer VoiceChangerHook Error: ${e.message}")
+            XposedBridge.log("Rhpatch VoiceChangerHook Error: ${e.message}")
             e.printStackTrace()
         }
     }

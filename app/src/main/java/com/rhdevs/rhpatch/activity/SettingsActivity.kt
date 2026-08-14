@@ -339,10 +339,14 @@ class SettingsActivity : Activity() {
                 }
 
                 card.setOnClickListener {
-                    val intent = Intent(context, AppPatchSettingsActivity::class.java).apply {
-                        putExtra(AppPatchSettingsActivity.ARGUMENT_APP_NAME, appPatchInfo.appName)
+                    if (appPatchInfo.appName.startsWith("TikTok")) {
+                        startActivity(Intent(context, com.rhdevs.rhpatch.activity.TikTokSettingsActivity::class.java))
+                    } else {
+                        val intent = Intent(context, AppPatchSettingsActivity::class.java).apply {
+                            putExtra(AppPatchSettingsActivity.ARGUMENT_APP_NAME, appPatchInfo.appName)
+                        }
+                        startActivity(intent)
                     }
-                    startActivity(intent)
                 }
 
                 containerLayout.addView(card)

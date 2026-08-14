@@ -147,7 +147,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void createMainDir() {
-        var nomedia = new File(App.getWaEnhancerFolder(), ".nomedia");
+        var nomedia = new File(App.getRhpatchFolder(), ".nomedia");
         if (nomedia.exists()) {
             nomedia.delete();
         }

@@ -48,7 +48,7 @@ public class ScopeHook {
                 try {
                     String method = (String) param.args[0];
                     String arg = (String) param.args[1];
-                    if ("WaEnhancer".equals(method)) {
+                    if ("Rhpatch".equals(method)) {
                         if ("getHookBinder".equals(arg)) {
                             Method mGetContext = param.thisObject.getClass().getMethod("getContext");
                             Context context = (Context) mGetContext.invoke(param.thisObject);

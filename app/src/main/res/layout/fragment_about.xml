@@ -12,17 +12,13 @@
         android:gravity="center_horizontal">
 
         <!-- Logo Placeholder -->
-        <TextView
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="12dp"
-            android:background="@drawable/badge_background"
-            android:gravity="center"
-            android:text="RH"
-            android:textColor="#3B82F6"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:src="@drawable/ic_launcher_new"
+            android:contentDescription="App Logo" />
 
         <TextView
             android:layout_width="wrap_content"

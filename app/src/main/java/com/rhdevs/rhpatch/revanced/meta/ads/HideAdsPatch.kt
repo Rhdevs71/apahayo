@@ -11,7 +11,7 @@ import de.robv.android.xposed.XposedHelpers
 
 val HideAds = patch(
     name = "Hide Ads (Instagram)",
-    description = "Block sponsored posts and stories using Piko-style DexKit fingerprint"
+    description = "Block sponsored posts and stories using Rhpatch-style DexKit fingerprint"
 ) {
 
     runCatching {
@@ -21,7 +21,7 @@ val HideAds = patch(
             return@runCatching
         }
 
-        // Piko Fingerprint for Disable Ads: "Is ad pod"
+        // Rhpatch Fingerprint for Disable Ads: "Is ad pod"
         val adMethods = MetaUnobfuscator.findMethodUsingStrings("Is ad pod")
         
         if (adMethods.isEmpty()) {

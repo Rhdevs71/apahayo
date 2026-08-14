@@ -83,13 +83,13 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                         return
                     }
                     
-                    XposedBridge.log("WaEnhancer AutoReply notification received: tag=$tag, title=$title, text=$text")
+                    XposedBridge.log("Rhpatch AutoReply notification received: tag=$tag, title=$title, text=$text")
                     processAutoReply(tag, text)
                 }
             })
-            XposedBridge.log("WaEnhancer AutoReply: Notification hook registered successfully")
+            XposedBridge.log("Rhpatch AutoReply: Notification hook registered successfully")
         } catch (e: Exception) {
-            XposedBridge.log("WaEnhancer AutoReply Error: Notification hook failed: ${e.message}")
+            XposedBridge.log("Rhpatch AutoReply Error: Notification hook failed: ${e.message}")
         }
     }
 
@@ -116,7 +116,7 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
                 }
             })
         } catch (e: Exception) {
-            XposedBridge.log("WaEnhancer AutoReply Error: hookReceiveMessage failed: ${e.message}")
+            XposedBridge.log("Rhpatch AutoReply Error: hookReceiveMessage failed: ${e.message}")
         }
     }
 
@@ -390,7 +390,7 @@ class AutoReplyHook(loader: ClassLoader, preferences: SharedPreferences) : Featu
             if (userJid == null) return
 
             if (quoteMessage == null) {
-                XposedBridge.log("WaEnhancer AutoReplyHook: Calling WppCore.sendMessageToJid")
+                XposedBridge.log("Rhpatch AutoReplyHook: Calling WppCore.sendMessageToJid")
                 WppCore.sendMessageToJid(userJid, replyText)
                 return
             }

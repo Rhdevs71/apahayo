@@ -411,7 +411,7 @@
         errorLine1="distributionUrl=https\://services.gradle.org/distributions/gradle-8.13-bin.zip"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/wrapper/gradle-wrapper.properties"
+            file="$HOME/StudioProjects/Rhpatch/gradle/wrapper/gradle-wrapper.properties"
             line="4"
             column="17"/>
     </issue>
@@ -422,7 +422,7 @@
         errorLine1="agp = &quot;8.13.2&quot;"
         errorLine2="      ~~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="12"
             column="7"/>
     </issue>
@@ -433,7 +433,7 @@
         errorLine1="nav = &quot;2.9.6&quot;"
         errorLine2="      ~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="15"
             column="7"/>
     </issue>
@@ -444,7 +444,7 @@
         errorLine1="nav = &quot;2.9.6&quot;"
         errorLine2="      ~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="15"
             column="7"/>
     </issue>
@@ -455,7 +455,7 @@
         errorLine1="androidx-activity = { module = &quot;androidx.activity:activity&quot;, version = &quot;1.12.0&quot; }"
         errorLine2="                                                                       ~~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="32"
             column="72"/>
     </issue>
@@ -466,7 +466,7 @@
         errorLine1="material = { module = &quot;com.google.android.material:material&quot;, version = &quot;1.13.0&quot; }"
         errorLine2="                                                                        ~~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="45"
             column="73"/>
     </issue>
@@ -477,7 +477,7 @@
         errorLine1="kspPlugin = { id = &quot;com.google.devtools.ksp&quot;, version = &quot;2.3.0&quot; }"
         errorLine2="                                                        ~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="52"
             column="57"/>
     </issue>
@@ -488,7 +488,7 @@
         errorLine1="bcpkix-jdk18on = &quot;1.83&quot;"
         errorLine2="                 ~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="3"
             column="18"/>
     </issue>
@@ -499,7 +499,7 @@
         errorLine1="filepicker = &quot;9.2.5&quot;"
         errorLine2="             ~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="6"
             column="14"/>
     </issue>
@@ -510,7 +510,7 @@
         errorLine1="flatbuffers = &quot;23.5.26&quot;"
         errorLine2="              ~~~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="7"
             column="15"/>
     </issue>
@@ -521,7 +521,7 @@
         errorLine1="lombok = &quot;1.18.42&quot;"
         errorLine2="         ~~~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="9"
             column="10"/>
     </issue>
@@ -532,7 +532,7 @@
         errorLine1="okhttp = &quot;5.3.2&quot;"
         errorLine2="         ~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="10"
             column="10"/>
     </issue>
@@ -543,7 +543,7 @@
         errorLine1="kotlin = &quot;2.2.21&quot;"
         errorLine2="         ~~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="16"
             column="10"/>
     </issue>
@@ -554,7 +554,7 @@
         errorLine1="rikkax-material = { module = &quot;dev.rikka.rikkax.material:material&quot;, version = &quot;2.7.0&quot; }"
         errorLine2="                                                                             ~~~~~~~">
         <location
-            file="$HOME/StudioProjects/WaEnhancer/gradle/libs.versions.toml"
+            file="$HOME/StudioProjects/Rhpatch/gradle/libs.versions.toml"
             line="42"
             column="78"/>
     </issue>
@@ -2934,7 +2934,7 @@
     <issue
         id="UnusedResources"
         message="The resource `R.string.invalid_folder` appears to be unused"
-        errorLine1="    &lt;string name=&quot;invalid_folder&quot;>The invalid folder has been selected. Please choose the WaEnhancer folder&lt;/string>"
+        errorLine1="    &lt;string name=&quot;invalid_folder&quot;>The invalid folder has been selected. Please choose the Rhpatch folder&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
@@ -2945,7 +2945,7 @@
     <issue
         id="UnusedResources"
         message="The resource `R.string.uri_permission` appears to be unused"
-        errorLine1="    &lt;string name=&quot;uri_permission&quot;>To use custom themes you need to select the \&quot;WaEnhancer\&quot; folder in \&quot;Download\&quot;&lt;/string>"
+        errorLine1="    &lt;string name=&quot;uri_permission&quot;>To use custom themes you need to select the \&quot;Rhpatch\&quot; folder in \&quot;Download\&quot;&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"

@@ -8,11 +8,11 @@ import android.widget.Toast
 class WaDeviceAdminReceiver : DeviceAdminReceiver() {
     override fun onEnabled(context: Context, intent: Intent) {
         super.onEnabled(context, intent)
-        Toast.makeText(context, "Device Admin Enabled for WaEnhancer", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Device Admin Enabled for Rhpatch", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDisabled(context: Context, intent: Intent) {
         super.onDisabled(context, intent)
-        Toast.makeText(context, "Device Admin Disabled for WaEnhancer", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Device Admin Disabled for Rhpatch", Toast.LENGTH_SHORT).show()
     }
 }

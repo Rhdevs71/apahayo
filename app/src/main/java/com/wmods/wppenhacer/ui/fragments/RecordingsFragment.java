@@ -131,7 +131,7 @@ public class RecordingsFragment extends Fragment implements RecordingsAdapter.On
         addBaseDir(addedPaths, new File("/sdcard/Android/data/com.whatsapp.w4b/files/Recordings"));
 
         // 5. Legacy fallback
-        addBaseDir(addedPaths, new File(Environment.getExternalStorageDirectory(), "Music/WaEnhancer/Recordings"));
+        addBaseDir(addedPaths, new File(Environment.getExternalStorageDirectory(), "Music/Rhpatch/Recordings"));
     }
 
     private void addBaseDir(@NonNull Set<String> addedPaths, @NonNull File dir) {

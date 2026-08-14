@@ -380,9 +380,9 @@ object WppCore {
                 }
                 
                 senderMethod.invoke(getActionUser(), *newObject)
-                XposedBridge.log("WaEnhancer WppCore: Message sent successfully to JID")
+                XposedBridge.log("Rhpatch WppCore: Message sent successfully to JID")
             } else {
-                XposedBridge.log("WaEnhancer WppCore: sendMessage method not found. Available methods in ActionUser:")
+                XposedBridge.log("Rhpatch WppCore: sendMessage method not found. Available methods in ActionUser:")
                 actionUserClass?.declaredMethods?.forEach { method ->
                     if (method.parameterTypes.any { it == String::class.java }) {
                         XposedBridge.log(" - ${method.name}(${method.parameterTypes.joinToString { it.simpleName }})")
@@ -391,7 +391,7 @@ object WppCore {
                 throw Exception("sendMessage method not found in ActionUser for JID")
             }
         } catch (e: Exception) {
-            XposedBridge.log("WaEnhancer WppCore Error in sending message to JID: ${e.message}")
+            XposedBridge.log("Rhpatch WppCore Error in sending message to JID: ${e.message}")
             XposedBridge.log(e)
             throw e
         }
@@ -426,18 +426,18 @@ object WppCore {
                         val instanceField = clazz.getDeclaredField("INSTANCE")
                         instanceField.isAccessible = true
                         mActionUser = instanceField.get(null)
-                        XposedBridge.log("WaEnhancer WppCore: Obtained ActionUser from INSTANCE field")
+                        XposedBridge.log("Rhpatch WppCore: Obtained ActionUser from INSTANCE field")
                     } catch (ignored: NoSuchFieldException) {
                         val constructors = clazz.constructors
                         if (constructors.isNotEmpty()) {
                             mActionUser = constructors[0].newInstance()
-                            XposedBridge.log("WaEnhancer WppCore: Obtained ActionUser from constructor")
+                            XposedBridge.log("Rhpatch WppCore: Obtained ActionUser from constructor")
                         }
                     }
                 }
             }
         } catch (e: Exception) {
-            XposedBridge.log("WaEnhancer WppCore getActionUser Error: ${e.message}")
+            XposedBridge.log("Rhpatch WppCore getActionUser Error: ${e.message}")
             XposedBridge.log(e)
         }
         return mActionUser

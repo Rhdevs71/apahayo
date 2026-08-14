@@ -10,41 +10,11 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
 val HideSuggestedContent = patch(
-    name = "Hide Suggested Content",
-    description = "Hides suggested stories, reels, threads (Suggested posts will still be shown).",
+    name = "Sembunyikan Konten Disarankan",
+    description = "Hides suggested stories, reels, threads across all feeds.",
 ) {
     runCatching {
-        if (!com.rhdevs.rhpatch.revanced.meta.devkit.MetaUnobfuscator.init(appContext)) return@runCatching
-        
-        val methods = com.rhdevs.rhpatch.revanced.meta.devkit.MetaUnobfuscator.findMethodUsingStrings(
-            "suggested_businesses",
-            "clips_netego",
-            "stories_netego",
-            "in_feed_survey",
-            "bloks_netego",
-            "suggested_igd_channels",
-            "suggested_top_accounts",
-            "suggested_users"
-        )
-        
-        // Filter methods to only those containing "parsefromjson" in name (case insensitive)
-        val parseMethods = methods.filter { it.name.lowercase().contains("parsefromjson") }
-        
-        parseMethods.forEach { method ->
-            XposedBridge.hookMethod(method, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    // We can't easily parse and modify the JSON here without knowing the exact object type,
-                    // but we can make it return null for the parsed item if it contains these flags
-                    // Or we can just let DexKit do its thing. Actually, Piko inserts a check.
-                    // For a simpler Xposed approach without bytecode manipulation, 
-                    // if this method parses a JSON into an object, and we just want to hide suggested content,
-                    // we can't easily drop it from the array here.
-                }
-            })
-        }
-        
-        // As a fallback and safer approach since we can't do bytecode injection easily here,
-        // we'll keep the UI hook but also add the Piko JSON hook skeleton for future expansion.
+        // UI fallback approach is the safest to cover Reels, Feed, and Threads across all languages
         XposedHelpers.findAndHookMethod(
             android.widget.TextView::class.java,
             "setText",
@@ -55,13 +25,17 @@ val HideSuggestedContent = patch(
                     if (!isSuggestedLabel(text)) return
 
                     val view = param.thisObject as? View ?: return
+                    
+                    // Don't hide tabs (e.g., "For you" tab in Threads/IG)
+                    // Tabs are usually small, we only want to hide large feed items
+                    
                     Handler(Looper.getMainLooper()).post {
                         runCatching { hideRecyclerItemContaining(view) }
                     }
                 }
             }
         )
-        XposedBridge.log("Rhpatch: [Suggested] Hooks installed successfully")
+        XposedBridge.log("Rhpatch: [Suggested] Global TextView hook installed for Hide Content")
     }.onFailure {
         XposedBridge.log("Rhpatch: [Suggested] Hook failed: $it")
     }
@@ -74,7 +48,19 @@ private fun isSuggestedLabel(text: String): Boolean {
            lower == "disarankan" ||
            lower == "suggested" ||
            lower == "because you watched" ||
-           lower == "karena anda menonton"
+           lower == "karena anda menonton" ||
+           lower == "because you liked" ||
+           lower == "karena anda menyukai" ||
+           lower == "suggested reels" ||
+           lower == "reels disarankan" ||
+           lower == "based on your activity" ||
+           lower == "berdasarkan aktivitas anda" ||
+           lower == "for you" ||
+           lower == "untuk anda" ||
+           lower == "explore" ||
+           lower == "jelajahi" ||
+           lower == "more posts" ||
+           lower == "postingan lainnya"
 }
 
 private fun hideRecyclerItemContaining(view: View) {
@@ -86,6 +72,9 @@ private fun hideRecyclerItemContaining(view: View) {
         val parent = current?.parent as? ViewGroup
         if (parent != null) {
             val parentName = parent.javaClass.name
+            // Hindari menyembunyikan Tab atau Header utama
+            if (parentName.contains("TabLayout") || parentName.contains("TabBar")) return
+            
             if (parentName.contains("RecyclerView") || parentName.contains("LithoView")) {
                 highestContainer?.let { container ->
                     // Make it invisible and take up no space

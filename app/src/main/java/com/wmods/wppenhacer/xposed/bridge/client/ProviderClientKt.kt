@@ -51,7 +51,7 @@ class ProviderClientKt : BaseClient() {
             withTimeout(3000L.milliseconds) {
                 val resolver = Utils.application.contentResolver
                 val bundle =
-                    resolver.call(Settings.System.CONTENT_URI, "WaEnhancer", "getHookBinder", null)
+                    resolver.call(Settings.System.CONTENT_URI, "Rhpatch", "getHookBinder", null)
                 val binder = bundle?.getBinder("binder")
                 if (binder != null) {
                     val potentialService = WaeIIFace.Stub.asInterface(binder)

@@ -224,7 +224,11 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
             /**
              * @see com.rhdevs.rhpatch.activity.AppPatchSettingsActivity.AppPatchSettingsFragment.onCreate
              * */
-            val isEnabled = patchPreferences?.getBoolean(hook.name, hook.use) ?: hook.use
+            val isEnabled = if (hook.name.isNotEmpty()) {
+                patchPreferences?.getBoolean(hook.name, hook.use) ?: hook.use
+            } else {
+                hook.use
+            }
             if (!isEnabled) return@forEach // Pref Key
             runCatching { hook.run(this) }.onFailure { err ->
                 XposedBridge.log(err)

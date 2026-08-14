@@ -1,97 +1,141 @@
 package com.rhdevs.rhpatch.revanced.meta.privacy
 
-import com.rhdevs.rhpatch.morphe.AccessFlags
-import com.rhdevs.rhpatch.morphe.findMethodDirect
-import com.rhdevs.rhpatch.morphe.fingerprint
 import com.rhdevs.rhpatch.patch
-import com.rhdevs.rhpatch.hookMethod
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import java.net.URI
-
-val DMSeenFingerprint = findMethodDirect(
-    fingerprint {
-        returns("V")
-        strings("mark_thread_seen-")
-        accessFlags(AccessFlags.PUBLIC, AccessFlags.STATIC, AccessFlags.FINAL)
-    }
-)
 
 val GhostModePatch = patch(
     name = "Instagram Ghost Mode",
-    description = "Sembunyikan status dilihat pada DM dan Story (Fitur Piko)"
+    description = "Sembunyikan status dilihat pada DM dan Story (Metode Rhpatch)"
 ) {
-    // 1. DM Seen Hook (mark_thread_seen-) dengan Filter Saluran (Channel)
     runCatching {
-        ::DMSeenFingerprint.hookMethod(object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                // Ambil semua argumen sebagai String untuk mendeteksi apakah ini Saluran (Broadcast Channel)
-                val argStr = param.args?.joinToString(",") { it?.toString() ?: "null" } ?: ""
-                
-                // Broadcast channels biasanya memiliki metadata spesifik, atau thread_id yang berbeda.
-                // Jika argumen mengandung kata kunci saluran, kita izinkan (return / tidak diblokir).
-                if (argStr.contains("broadcast", ignoreCase = true) || argStr.contains("channel", ignoreCase = true)) {
-                    XposedBridge.log("Rhpatch: [GhostMode] DM Seen diizinkan untuk Saluran (Bypass Bug): $argStr")
-                    return
-                }
+        if (!com.rhdevs.rhpatch.revanced.meta.devkit.MetaUnobfuscator.init(appContext)) return@runCatching
 
-                // Block read receipts for standard DMs
-                XposedBridge.log("Rhpatch: [GhostMode] Blocked mark_thread_seen")
-                param.result = null
+        // Cari metode DMSeenFingerprint milik Rhpatch:
+        // Metode public static final void yang memiliki string "mark_thread_seen-"
+        val markThreadSeenMethods = com.rhdevs.rhpatch.revanced.meta.devkit.MetaUnobfuscator.findMethodUsingStrings("mark_thread_seen-")
+
+        if (markThreadSeenMethods.isNotEmpty()) {
+            for (method in markThreadSeenMethods) {
+                val isStatic = java.lang.reflect.Modifier.isStatic(method.modifiers)
+                val isFinal = java.lang.reflect.Modifier.isFinal(method.modifiers)
+                val isPublic = java.lang.reflect.Modifier.isPublic(method.modifiers)
+                // Filter out methods without arguments to avoid breaking internal channel initialization
+                if (method.returnType == Void.TYPE && isStatic && isFinal && isPublic && method.parameterTypes.isNotEmpty()) {
+                    XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            try {
+                                val context = android.app.AndroidAppHelper.currentApplication() ?: return
+                                val prefs = context.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
+                                if (prefs.getBoolean("pref_ghost_mode", true)) {
+                                    val isChannelOff = prefs.getBoolean("pref_ghost_mode_channels_off", true)
+                                    
+                                    // Detect if it's a broadcast channel based on arguments
+                                    var isChannel = false
+                                    for (arg in param.args) {
+                                        if (arg != null) {
+                                            val argStr = arg.toString()
+                                            if (argStr.contains("broadcast", ignoreCase = true) || argStr.contains("channel", ignoreCase = true)) {
+                                                isChannel = true
+                                                break
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (isChannelOff && isChannel) {
+                                        return // Allow mark seen for channels (Prevents breaking Broadcast channels)
+                                    }
+
+                                    // Only block execution if we are sure it's not a channel or if the user wants channels blocked too
+                                    param.result = null
+                                    
+                                    if (prefs.getBoolean("pref_hook_tracker", false)) {
+                                        android.widget.Toast.makeText(context, "Rhpatch: Ghost Mode DM Aktif!", android.widget.Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                // Fallback: Do not break execution if our checks fail
+                            }
+                        }
+                    })
+                }
             }
-        })
-        XposedBridge.log("Rhpatch: [GhostMode] DM Seen (mark_thread_seen) hook installed")
+        }
     }.onFailure { XposedBridge.log("Rhpatch: [GhostMode] DMSeen hook failed: $it") }
 
-    // 2. Story Seen (Network Interception seperti Piko)
+    // Story Seen Hook (Layer 1: Tigon Network Intercept - Piko Style)
+    // Memblokir langsung di layer jaringan agar UI tidak macet
     runCatching {
         val tigonClass = XposedHelpers.findClassIfExists("com.instagram.api.tigon.TigonServiceLayer", classLoader)
         if (tigonClass != null) {
-            tigonClass.declaredMethods.filter { it.name == "startRequest" }.forEach { method ->
+            val startRequestMethods = tigonClass.declaredMethods.filter { it.name == "startRequest" }
+            for (method in startRequestMethods) {
                 XposedBridge.hookMethod(method, object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         try {
-                            // Cari objek URI atau String URL di dalam argumen
-                            var uriString: String? = null
-                            for (arg in param.args) {
-                                if (arg == null) continue
-                                
-                                // Coba cari field bertipe java.net.URI atau String yang berisi URL
-                                for (field in arg.javaClass.declaredFields) {
+                            val context = android.app.AndroidAppHelper.currentApplication()
+                            val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
+                            if (prefs?.getBoolean("pref_ghost_mode", true) == true) {
+                                // Ekstrak URL dari argumen (TigonRequest)
+                                val urlStr = extractUrlFromTigon(param.args)
+                                if (urlStr != null && (urlStr.contains("/api/v2/media/seen/") || urlStr.contains("/api/v1/media/seen/"))) {
+                                    param.throwable = java.io.IOException("Rhpatch: Blocked Story Seen request")
+                                    XposedBridge.log("Rhpatch: [GhostMode] Intercepted and blocked Story Seen on Tigon Layer")
+                                }
+                            }
+                        } catch (e: Exception) {}
+                    }
+                    
+                    private fun extractUrlFromTigon(args: Array<Any?>): String? {
+                        for (arg in args) {
+                            if (arg == null) continue
+                            val str = arg.toString()
+                            if (str.contains("api/v2/media/seen") || str.contains("api/v1/media/seen")) return str
+                            try {
+                                val fields = arg.javaClass.declaredFields
+                                for (field in fields) {
                                     field.isAccessible = true
                                     val value = field.get(arg)
-                                    if (value is URI) {
-                                        uriString = value.toString()
-                                        break
-                                    } else if (value is String && value.startsWith("http")) {
-                                        uriString = value
-                                        break
+                                    if (value != null && value is java.net.URI) {
+                                        return value.toString()
+                                    }
+                                    if (value != null && value is String && value.contains("media/seen")) {
+                                        return value
                                     }
                                 }
-                                if (uriString != null) break
-                            }
-
-                            if (uriString != null) {
-                                if (uriString.contains("media/seen/?reel=")) {
-                                    // Piko menggagalkan jaringan dengan IOException, 
-                                    // di Xposed kita bisa langsung me-return null (jika fungsi V) atau exception
-                                    XposedBridge.log("Rhpatch: [GhostMode] Network Intercepted Story Seen: $uriString")
-                                    param.result = null // Batalkan request
-                                } else if (uriString.contains("/heartbeat_and_get_viewer_count/")) {
-                                    XposedBridge.log("Rhpatch: [GhostMode] Network Intercepted Live Seen: $uriString")
-                                    param.result = null
-                                }
-                            }
-                        } catch (e: Throwable) {
-                            // Abaikan error refleksi
+                            } catch (e: Exception) {}
                         }
+                        return null
                     }
                 })
             }
-            XposedBridge.log("Rhpatch: [GhostMode] Tigon Network Interceptor for Story Seen installed")
-        } else {
-            XposedBridge.log("Rhpatch: [GhostMode] TigonServiceLayer not found")
         }
-    }.onFailure { XposedBridge.log("Rhpatch: [GhostMode] Story Seen Network hook failed: $it") }
+    }.onFailure { XposedBridge.log("Rhpatch: [GhostMode] Tigon hook failed: $it") }
+
+    // Story Seen Hook (Layer 2: Fallback Rhpatch Method)
+    runCatching {
+        val methods = com.rhdevs.rhpatch.revanced.meta.devkit.MetaUnobfuscator.findMethodUsingStrings("media/seen/?reel=%s&live_vod=0")
+        val validMethods = methods.filter { it.returnType == Boolean::class.javaPrimitiveType || it.returnType == java.lang.Boolean::class.java }
+        
+        if (validMethods.isNotEmpty()) {
+            val targetMethod = validMethods.last() // Menggunakan metode terakhir (Paling akurat)
+            if (!java.lang.reflect.Modifier.isAbstract(targetMethod.modifiers)) {
+                XposedBridge.hookMethod(targetMethod, object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        try {
+                            val context = android.app.AndroidAppHelper.currentApplication()
+                            val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
+                            if (prefs?.getBoolean("pref_ghost_mode", true) == true) {
+                                // Piko mereturn true, sedangkan Rhpatch mereturn false.
+                                // Keduanya bisa membatalkan request, tapi jika terjadi bug UI, Layer 1 (Tigon) akan menangani.
+                                param.result = false 
+                            }
+                        } catch (e: Exception) {}
+                    }
+                })
+            }
+        }
+    }.onFailure { XposedBridge.log("Rhpatch: [GhostMode] Story Seen hook failed: $it") }
+
 }

@@ -24,7 +24,7 @@ class SchedulerReceiver : BroadcastReceiver() {
             val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
             val wakeLock = powerManager.newWakeLock(
                 PowerManager.PARTIAL_WAKE_LOCK,
-                "WaEnhancer:SchedulerWakeLock"
+                "Rhpatch:SchedulerWakeLock"
             )
             wakeLock.acquire(15 * 1000L) // 15 seconds timeout
 

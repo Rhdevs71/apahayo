@@ -166,7 +166,7 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
         ContentResolver contentResolver = getContext().getContentResolver();
         var type = Objects.requireNonNull(contentResolver.getType(uri));
         var extension = type.split("/")[1];
-        var folder = new File(App.getWaEnhancerFolder(), "files");
+        var folder = new File(App.getRhpatchFolder(), "files");
         if (!folder.exists()) {
             folder.mkdirs();
         }

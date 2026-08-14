@@ -46,7 +46,7 @@ import kotlin.io.FilesKt;
 public class ThemePreference extends Preference implements FilePicker.OnUriPickedListener {
 
 
-    public static File rootDirectory = new File(App.getWaEnhancerFolder(), "themes");
+    public static File rootDirectory = new File(App.getRhpatchFolder(), "themes");
     private androidx.appcompat.app.AlertDialog mainDialog;
 
     public ThemePreference(Context context, AttributeSet attrs) {
@@ -163,7 +163,7 @@ public class ThemePreference extends Preference implements FilePicker.OnUriPicke
     }
 
     private void createNewFolder(String folderName) {
-        File rootDirectory = new File(Environment.getExternalStorageDirectory(), "Download/WaEnhancer/themes");
+        File rootDirectory = new File(Environment.getExternalStorageDirectory(), "Download/Rhpatch/themes");
         File newFolder = new File(rootDirectory, folderName);
         if (!newFolder.exists()) {
             if (newFolder.mkdirs()) {
@@ -188,7 +188,7 @@ public class ThemePreference extends Preference implements FilePicker.OnUriPicke
                 
                 while ((zipEntry = zipInputStream.getNextEntry()) != null) {
                     var entryName = zipEntry.getName();
-                    var rootDirectory = new File(Environment.getExternalStorageDirectory(), "Download/WaEnhancer/themes");
+                    var rootDirectory = new File(Environment.getExternalStorageDirectory(), "Download/Rhpatch/themes");
 
                     String folderName;
                     String targetPath;

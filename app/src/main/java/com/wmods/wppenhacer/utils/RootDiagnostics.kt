@@ -24,7 +24,7 @@ object RootDiagnostics {
         "com.whatsapp.w4b"
     )
 
-    private val WAENHANCER_PACKAGES = listOf(
+    private val Rhpatch_PACKAGES = listOf(
         "com.wmods.wppenhacer",
         "com.wmods.wppenhacer.w4b"
     )
@@ -136,7 +136,7 @@ object RootDiagnostics {
 
         val blockedTargets = WHATSAPP_PACKAGES.mapNotNull { pkg ->
             val scopeObj = scope.optJSONObject(pkg) ?: return@mapNotNull null
-            if (isHmaBlockingWaEnhancer(scopeObj, templates)) pkg else null
+            if (isHmaBlockingRhpatch(scopeObj, templates)) pkg else null
         }
 
         if (blockedTargets.isEmpty()) {
@@ -220,7 +220,7 @@ object RootDiagnostics {
         }
     }
 
-    private fun isHmaBlockingWaEnhancer(scopeObj: JSONObject, templates: JSONObject): Boolean {
+    private fun isHmaBlockingRhpatch(scopeObj: JSONObject, templates: JSONObject): Boolean {
         val useWhitelist = scopeObj.optBoolean("useWhitelist", false)
 
         val extraAppList = scopeObj.optJSONArray("extraAppList")?.toStringList() ?: emptyList()
@@ -228,9 +228,9 @@ object RootDiagnostics {
             scopeObj.optJSONArray("extraOppositeAppList")?.toStringList() ?: emptyList()
 
         if (useWhitelist) {
-            if (extraOppositeAppList.any { it in WAENHANCER_PACKAGES }) return true
+            if (extraOppositeAppList.any { it in Rhpatch_PACKAGES }) return true
         } else {
-            if (extraAppList.any { it in WAENHANCER_PACKAGES }) return true
+            if (extraAppList.any { it in Rhpatch_PACKAGES }) return true
         }
 
         val appliedTemplates =
@@ -240,7 +240,7 @@ object RootDiagnostics {
             val templateIsWhitelist = template.optBoolean("isWhitelist", false)
             val appList = template.optJSONArray("appList")?.toStringList() ?: emptyList()
 
-            if (!templateIsWhitelist && appList.any { it in WAENHANCER_PACKAGES }) {
+            if (!templateIsWhitelist && appList.any { it in Rhpatch_PACKAGES }) {
                 return true
             }
         }

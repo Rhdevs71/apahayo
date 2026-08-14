@@ -19,7 +19,7 @@ object AntiUpdater {
                     val session = param.args[0] as PackageInstaller.SessionParams?
                     val packageName = XposedHelpers.getObjectField(session, "mPackageName")
                     if (packageName == FeatureLoader.PACKAGE_WPP || packageName == FeatureLoader.PACKAGE_BUSINESS) {
-                        param.setThrowable(IOException("UPDATE LOCKED BY WAENHANCER"))
+                        param.setThrowable(IOException("UPDATE LOCKED BY Rhpatch"))
                     }
                 }
             })

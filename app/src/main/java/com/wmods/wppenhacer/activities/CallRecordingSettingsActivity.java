@@ -20,7 +20,7 @@ import java.io.InputStreamReader;
 
 public class CallRecordingSettingsActivity extends AppCompatActivity {
 
-    private static final String TAG = "WaEnhancer";
+    private static final String TAG = "Rhpatch";
     private SharedPreferences prefs;
     private RadioGroup radioGroupMode;
     private RadioButton radioRoot;

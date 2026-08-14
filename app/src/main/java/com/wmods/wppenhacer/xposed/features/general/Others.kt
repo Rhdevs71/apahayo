@@ -242,7 +242,7 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         try {
             customPlayBackSpeed()
         } catch (e: Exception) {
-            logDebug("WaEnhancer: customPlayBackSpeed failed - ${e.message}")
+            logDebug("Rhpatch: customPlayBackSpeed failed - ${e.message}")
         }
 
         showOnline(showOnline)

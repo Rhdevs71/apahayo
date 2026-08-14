@@ -20,7 +20,7 @@ class ScreenSecurityHook(loader: ClassLoader, preferences: SharedPreferences) : 
         val appSwitcherBlur = prefs.getBoolean("app_switcher_blur_enabled", false)
 
         if (antiScreenshot) {
-            XposedBridge.log("WaEnhancer: Anti-Screenshot is enabled, hooking Window flags")
+            XposedBridge.log("Rhpatch: Anti-Screenshot is enabled, hooking Window flags")
             try {
                 // Hook setFlags
                 XposedHelpers.findAndHookMethod(
@@ -56,12 +56,12 @@ class ScreenSecurityHook(loader: ClassLoader, preferences: SharedPreferences) : 
                     }
                 )
             } catch (e: Throwable) {
-                XposedBridge.log("WaEnhancer ScreenSecurityHook Error: ${e.message}")
+                XposedBridge.log("Rhpatch ScreenSecurityHook Error: ${e.message}")
             }
         }
 
         if (appSwitcherBlur) {
-            XposedBridge.log("WaEnhancer: App Switcher Blur is enabled, hooking Activity lifecycle")
+            XposedBridge.log("Rhpatch: App Switcher Blur is enabled, hooking Activity lifecycle")
             try {
                 XposedHelpers.findAndHookMethod(
                     Activity::class.java,
@@ -87,7 +87,7 @@ class ScreenSecurityHook(loader: ClassLoader, preferences: SharedPreferences) : 
                     }
                 )
             } catch (e: Throwable) {
-                XposedBridge.log("WaEnhancer AppSwitcherBlur Error: ${e.message}")
+                XposedBridge.log("Rhpatch AppSwitcherBlur Error: ${e.message}")
             }
         }
     }

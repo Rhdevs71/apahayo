@@ -209,7 +209,7 @@ class SchedulerService : Service() {
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle("Message Scheduler Active")
             .setContentText(content)
-            .setSmallIcon(com.wmods.wppenhacer.R.mipmap.launcher)
+            .setSmallIcon(com.wmods.wppenhacer.R.drawable.ic_launcher_new)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }
