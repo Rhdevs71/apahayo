@@ -160,54 +160,72 @@ fun showPikoStyleDownloadMenu(context: Context, activity: android.app.Activity) 
     Thread {
         val extractedUrls = mutableSetOf<String>()
         val startObj = currentOverflowHelper ?: currentStoryHelper ?: findMostVisibleMediaView(activity.window.decorView.rootView as ViewGroup, context)
-        
         if (startObj != null) {
             DeepMediaExtractor.extractAllUrls(startObj, extractedUrls, 0, mutableSetOf())
         }
         
-        val unifiedMp4Urls = extractedUrls.filter { isUnifiedMp4(it) }
-        val imageUrls = extractedUrls.filter { isHighResImage(it) }
-        val audioUrls = extractedUrls.filter { isAudio(it) }
+        val visibleExtractedUrls = mutableSetOf<String>()
+        val visibleView = findMostVisibleMediaView(activity.window.decorView.rootView as ViewGroup, context)
+        if (visibleView != null) {
+            DeepMediaExtractor.extractAllUrls(visibleView, visibleExtractedUrls, 0, mutableSetOf())
+        }
+        
+        // 1. Ekstrak dari seluruh objek (berguna untuk fitur 'Unduh Semua')
+        val allUnifiedMp4Urls = deduplicateResolutions(extractedUrls.filter { isUnifiedMp4(it) })
+        val allImageUrls = deduplicateResolutions(extractedUrls.filter { isHighResImage(it) })
+        val allAudioUrls = deduplicateResolutions(extractedUrls.filter { isAudio(it) })
+        
+        // 2. Ekstrak HANYA dari view yang sedang tampil (menjamin presisi Carousel/Story)
+        val visMp4 = deduplicateResolutions(visibleExtractedUrls.filter { isUnifiedMp4(it) })
+        val visImg = deduplicateResolutions(visibleExtractedUrls.filter { isHighResImage(it) })
+        val visAud = deduplicateResolutions(visibleExtractedUrls.filter { isAudio(it) })
         
         activity.runOnUiThread {
-            val bestVideo = unifiedMp4Urls.maxByOrNull { it.length } ?: unifiedMp4Urls.firstOrNull()
-            val bestImage = imageUrls.maxByOrNull { it.length } ?: imageUrls.firstOrNull()
-            val bestAudio = audioUrls.maxByOrNull { it.length } ?: audioUrls.firstOrNull()
+            // Prioritaskan media yang sedang tampil di layar, jika gagal baru fallback ke seluruh objek
+            val bestVideo = visMp4.maxByOrNull { it.length } ?: visMp4.firstOrNull() ?: allUnifiedMp4Urls.maxByOrNull { it.length } ?: allUnifiedMp4Urls.firstOrNull()
+            val bestImage = visImg.maxByOrNull { it.length } ?: visImg.firstOrNull() ?: allImageUrls.maxByOrNull { it.length } ?: allImageUrls.firstOrNull()
+            val bestAudio = visAud.maxByOrNull { it.length } ?: visAud.firstOrNull() ?: allAudioUrls.maxByOrNull { it.length } ?: allAudioUrls.firstOrNull()
             
             val options = mutableListOf<String>()
             val actions = mutableListOf<Runnable>()
             
+            // Cek apakah view yang aktif di layar adalah Video atau Gambar
+            val isVisibleVideo = visibleView?.javaClass?.name?.contains("TextureView") == true || visibleView?.javaClass?.name?.contains("SurfaceView") == true || visibleView?.javaClass?.name?.contains("MediaFrameLayout") == true
+            
             if (bestVideo != null || bestImage != null) {
                 options.add("Unduh media saat ini")
                 actions.add(Runnable {
-                    // Jika ada banyak gambar (Carousel) dan 1 video (biasanya lagu), utamakan gambar untuk 'media saat ini'
-                    if (imageUrls.size > 1 && bestImage != null) {
-                        downloadInstagramMedia(context, bestImage, false)
-                    } else if (bestVideo != null) {
-                        downloadInstagramMedia(context, bestVideo, true)
-                    } else if (bestImage != null) {
-                        downloadInstagramMedia(context, bestImage, false)
+                    if (isVisibleVideo) {
+                        if (bestVideo != null) downloadInstagramMedia(context, bestVideo, true)
+                        else if (bestImage != null) downloadInstagramMedia(context, bestImage, false)
+                    } else {
+                        if (bestImage != null) downloadInstagramMedia(context, bestImage, false)
+                        else if (bestVideo != null) downloadInstagramMedia(context, bestVideo, true)
                     }
                 })
             }
             
             // Opsi tambahan untuk mengunduh seluruh isi Carousel
-            if (imageUrls.size > 1 || unifiedMp4Urls.size > 1) {
-                val totalMedia = imageUrls.size + unifiedMp4Urls.size
-                options.add("Unduh semua media ($totalMedia item)")
-                actions.add(Runnable {
-                    val handler = android.os.Handler(android.os.Looper.getMainLooper())
-                    var delayMs = 0L
-                    for (url in imageUrls) {
-                        handler.postDelayed({ downloadInstagramMedia(context, url, false) }, delayMs)
-                        delayMs += 500
-                    }
-                    for (url in unifiedMp4Urls) {
-                        handler.postDelayed({ downloadInstagramMedia(context, url, true) }, delayMs)
-                        delayMs += 500
-                    }
-                    Toast.makeText(context, "Rhpatch: Memulai pengunduhan $totalMedia item secara berurutan...", Toast.LENGTH_LONG).show()
-                })
+            // Sembunyikan opsi ini jika ini adalah Story (Story hanya 1 per 1)
+            if (currentStoryHelper == null && (allImageUrls.size > 1 || allUnifiedMp4Urls.size > 1)) {
+                val totalMedia = allImageUrls.size + allUnifiedMp4Urls.size
+                // Tampilkan opsi ini hanya jika media memang banyak, bukan sekadar varian resolusi.
+                if (totalMedia > 1) {
+                    options.add("Unduh semua media ($totalMedia item)")
+                    actions.add(Runnable {
+                        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+                        var delayMs = 0L
+                        for (url in allImageUrls) {
+                            handler.postDelayed({ downloadInstagramMedia(context, url, false) }, delayMs)
+                            delayMs += 500
+                        }
+                        for (url in allUnifiedMp4Urls) {
+                            handler.postDelayed({ downloadInstagramMedia(context, url, true) }, delayMs)
+                            delayMs += 500
+                        }
+                        Toast.makeText(context, "Rhpatch: Memulai pengunduhan $totalMedia item secara berurutan...", Toast.LENGTH_LONG).show()
+                    })
+                }
             }
             
             if (bestImage != null) {
@@ -233,10 +251,10 @@ fun showPikoStyleDownloadMenu(context: Context, activity: android.app.Activity) 
                 })
             }
             
-            if (imageUrls.size > 1) {
+            if (allImageUrls.size > 1) {
                 options.add("Varian gambar")
                 actions.add(Runnable {
-                    val variants = imageUrls.toList()
+                    val variants = allImageUrls.toList()
                     AlertDialog.Builder(context)
                         .setTitle("Varian gambar")
                         .setItems(variants.map { "Gambar [Resolusi/Varian]" }.toTypedArray()) { _, vWhich ->
@@ -459,6 +477,23 @@ fun isUnifiedMp4(url: String): Boolean {
     if (!lower.contains(".mp4") && !lower.contains("video")) return false
     if (lower.contains("dash") || lower.contains("audio") || lower.contains("init") || lower.contains("m4s") || lower.contains("bytestart")) return false
     return true
+}
+
+fun deduplicateResolutions(urls: List<String>): List<String> {
+    val result = mutableMapOf<String, String>()
+    for (url in urls) {
+        val beforeQuery = url.substringBefore("?")
+        val name = beforeQuery.substringAfterLast("/")
+        // Remove resolution tags like p1080x1080/ from the name if any, 
+        // wait, resolution tags are in the folder path, not the file name!
+        // The file name itself usually stays the same across resolutions (e.g. 12345_n.jpg)
+        val existing = result[name]
+        // Keep the one with the longest URL (usually contains more quality flags) or longest path
+        if (existing == null || url.length > existing.length) {
+            result[name] = url
+        }
+    }
+    return result.values.toList()
 }
 
 fun isAudio(url: String): Boolean {

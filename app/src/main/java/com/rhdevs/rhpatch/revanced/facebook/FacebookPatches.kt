@@ -10,23 +10,9 @@ import android.view.ViewGroup
 
 val HideFacebookAdsPatch = patch("Hide Facebook Ads") {
     try {
-        val viewGroupClass = XposedHelpers.findClass("android.view.ViewGroup", lpparam.classLoader)
-        XposedBridge.hookAllMethods(viewGroupClass, "addView", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val child = param.args[0] as? View ?: return
-                val contentDescription = child.contentDescription?.toString()?.lowercase() ?: ""
-                if (contentDescription.contains("sponsored") || contentDescription.contains("bersponsor") || contentDescription.contains("ad")) {
-                    child.visibility = View.GONE
-                    val layoutParams = child.layoutParams
-                    if (layoutParams != null) {
-                        layoutParams.height = 0
-                        layoutParams.width = 0
-                        child.layoutParams = layoutParams
-                    }
-                }
-            }
-        })
-        XposedBridge.log("Rhpatch: Successfully hooked Facebook Ads")
+        // PERBAIKAN: Hooking ViewGroup.addView menyebabkan crash pada Facebook (Litho UI).
+        // Untuk sementara, patch ini dinonaktifkan hingga metode hook RecyclerView/Litho yang aman ditemukan.
+        XposedBridge.log("Rhpatch: Facebook Ad blocking is temporarily disabled due to stability issues with Litho engine.")
     } catch (e: Throwable) {
         XposedBridge.log("Rhpatch: Failed to hook Facebook Ads: ${e.message}")
     }

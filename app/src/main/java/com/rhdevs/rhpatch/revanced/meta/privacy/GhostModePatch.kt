@@ -29,36 +29,16 @@ val GhostModePatch = patch(
                                 val context = android.app.AndroidAppHelper.currentApplication() ?: return
                                 val prefs = context.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
                                 if (prefs.getBoolean("pref_ghost_mode", true)) {
-                                    val isChannelOff = prefs.getBoolean("pref_ghost_mode_channels_off", true)
-                                    
-                                    // Detect if it's a broadcast channel based on arguments
-                                    var isChannel = false
-                                    for (arg in param.args) {
-                                        if (arg != null) {
-                                            val argStr = arg.toString()
-                                            if (argStr.contains("broadcast", ignoreCase = true) || argStr.contains("channel", ignoreCase = true)) {
-                                                isChannel = true
-                                                break
-                                            }
-                                        }
-                                    }
-                                    
-                                    if (isChannelOff && isChannel) {
-                                        return // Allow mark seen for channels (Prevents breaking Broadcast channels)
-                                    }
-
-                                    // Only block execution if we are sure it's not a channel or if the user wants channels blocked too
                                     param.result = null
                                     
                                     if (prefs.getBoolean("pref_hook_tracker", false)) {
                                         android.widget.Toast.makeText(context, "Rhpatch: Ghost Mode DM Aktif!", android.widget.Toast.LENGTH_SHORT).show()
                                     }
                                 }
-                            } catch (e: Exception) {
-                                // Fallback: Do not break execution if our checks fail
-                            }
+                            } catch (e: Exception) {}
                         }
                     })
+                    break // HANYA hook metode pertama yang cocok (seperti perilaku Piko) untuk mencegah bug Saluran!
                 }
             }
         }
