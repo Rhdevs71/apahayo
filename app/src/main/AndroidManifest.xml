@@ -5,6 +5,9 @@
     <queries>
         <package android:name="com.whatsapp" />
         <package android:name="com.whatsapp.w4b" />
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.facebook.orca" />
+        <package android:name="com.facebook.lite" />
     <package android:name="com.google.android.youtube" /><package android:name="com.google.android.apps.youtube.music" /><package android:name="com.reddit.frontpage" /><package android:name="com.google.android.apps.photos" /><package android:name="com.microblink.photomath" /><package android:name="com.instagram.android" /><package android:name="com.instagram.lite" /><package android:name="com.instagram.barcelona" /><package android:name="com.zhiliaoapp.musically" /><package android:name="com.ss.android.ugc.trill" /><package android:name="com.strava" /><package android:name="com.alltrails.alltrails" /><package android:name="com.cloudflare.onedotonedotonedotone" /></queries>
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -92,6 +95,21 @@
             android:name="com.rhdevs.rhpatch.activity.DnsAppPickerActivity"
             android:exported="false"
             android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar" />
+
+        <receiver
+            android:name=".activity.LogReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.rhdevs.rhpatch.LOG_SPAM" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ContentProvider for SELinux IPC Bypass (Settings Reader) -->
+        <provider
+            android:name="com.rhdevs.rhpatch.system.SpamConfigProvider"
+            android:authorities="com.rhdevs.rhpatch.provider"
+            android:exported="true"
+            android:grantUriPermissions="true" />
 
         <activity
             android:name="com.rhdevs.rhpatch.activity.AntiSpamActivity"

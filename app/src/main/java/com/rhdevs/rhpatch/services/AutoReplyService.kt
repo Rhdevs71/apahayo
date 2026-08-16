@@ -26,6 +26,8 @@ class AutoReplyService : NotificationListenerService() {
             "com.instagram.android",
             "com.discord"
         )
+        // Cache to prevent duplicate replies for the same message
+        private val lastProcessedMessages = java.util.concurrent.ConcurrentHashMap<String, Long>()
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -42,6 +44,16 @@ class AutoReplyService : NotificationListenerService() {
 
         if (text.isEmpty() || title.isEmpty()) return
 
+        val senderId = "$packageName:$title"
+        val messageHash = "$senderId:$text"
+        val now = System.currentTimeMillis()
+        
+        // Debounce: prevent same exact message from triggering AI multiple times within 10 seconds
+        val lastTime = lastProcessedMessages[messageHash] ?: 0L
+        if (now - lastTime < 10000) {
+            return
+        }
+
         Log.d(TAG, "Received message from $title on $packageName: $text")
 
         // Find reply action
@@ -53,10 +65,14 @@ class AutoReplyService : NotificationListenerService() {
             
             for (rule in activeRules) {
                 if (isMatch(text, rule)) {
+                    // Mark as processed only if it matches a rule to avoid filling memory with ignored messages
+                    lastProcessedMessages[messageHash] = System.currentTimeMillis()
+                    
                     Log.d(TAG, "Matched rule: ${rule.keywords}")
-                    val senderId = "$packageName:$title"
                     val replyMsg = processAiIfNeeded(rule.replyText, rule, text, senderId)
-                    sendReply(replyAction, replyMsg)
+                    if (replyMsg != null) {
+                        sendReply(replyAction, replyMsg)
+                    }
                     break // Only reply once per message
                 }
             }
@@ -125,7 +141,7 @@ class AutoReplyService : NotificationListenerService() {
         }
     }
 
-    private fun processAiIfNeeded(originalReply: String, rule: AutoReplyRule, incomingText: String, senderId: String): String {
+    private fun processAiIfNeeded(originalReply: String, rule: AutoReplyRule, incomingText: String, senderId: String): String? {
         if (rule.replyType == "AI" || rule.isAi) {
             val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(applicationContext)
             val apiKeysRaw = prefs.getString("ai_api_key", "") ?: ""
@@ -139,7 +155,7 @@ class AutoReplyService : NotificationListenerService() {
                 aiResponse = queryAiChatbot(key, incomingText, apiModel, aiProvider, senderId, originalReply)
                 if (aiResponse != null) break
             }
-            return aiResponse ?: "AI Responder failed to formulate reply."
+            return aiResponse
         } else if (rule.replyType == "RANDOM") {
             val options = originalReply.split("|||")
             return options.random()

@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Switch
+import com.google.android.material.switchmaterial.SwitchMaterial
 import android.widget.Toast
 import android.widget.LinearLayout
 import android.graphics.Color
@@ -25,18 +25,24 @@ class AntiSpamActivity : Activity() {
         
         setContentView(com.wmods.wppenhacer.R.layout.activity_anti_spam)
         
-        val switchSms = findViewById<Switch>(com.wmods.wppenhacer.R.id.switch_sms)
+        val switchSms = findViewById<SwitchMaterial>(com.wmods.wppenhacer.R.id.switch_sms)
         val inputKeywords = findViewById<EditText>(com.wmods.wppenhacer.R.id.input_keywords)
         val btnSaveSms = findViewById<Button>(com.wmods.wppenhacer.R.id.btn_save_sms)
-        val switchCallHidden = findViewById<Switch>(com.wmods.wppenhacer.R.id.switch_call_hidden)
-        val switchCallNonContacts = findViewById<Switch>(com.wmods.wppenhacer.R.id.switch_call_non_contacts)
+        val switchCallHidden = findViewById<SwitchMaterial>(com.wmods.wppenhacer.R.id.switch_call_hidden)
+        val switchCallNonContacts = findViewById<SwitchMaterial>(com.wmods.wppenhacer.R.id.switch_call_non_contacts)
         val btnLog = findViewById<Button>(com.wmods.wppenhacer.R.id.btn_log)
+        val switchWa = findViewById<SwitchMaterial>(com.wmods.wppenhacer.R.id.switch_wa)
+        val inputWaKeywords = findViewById<EditText>(com.wmods.wppenhacer.R.id.input_wa_keywords)
+        val btnSaveWa = findViewById<Button>(com.wmods.wppenhacer.R.id.btn_save_wa)
         
         // Initialize values
         switchSms.isChecked = prefs.getBoolean("antispam_sms_enabled", false)
         inputKeywords.setText(prefs.getString("antispam_sms_keywords", "pinjol,menang undian,gacor,slot,dana kaget"))
         switchCallHidden.isChecked = prefs.getBoolean("antispam_call_hidden", false)
         switchCallNonContacts.isChecked = prefs.getBoolean("antispam_call_non_contacts", false)
+        
+        switchWa.isChecked = prefs.getBoolean("message_blocker_enabled", false)
+        inputWaKeywords.setText(prefs.getString("message_block_keywords", ""))
         
         // Listeners
         switchSms.setOnCheckedChangeListener { _, isChecked ->
@@ -48,6 +54,17 @@ class AntiSpamActivity : Activity() {
             prefs.edit().putString("antispam_sms_keywords", inputKeywords.text.toString()).apply()
             makeFileReadable()
             Toast.makeText(this, "Kata Kunci SMS Disimpan!", Toast.LENGTH_SHORT).show()
+        }
+        
+        switchWa.setOnCheckedChangeListener { _, isChecked ->
+            prefs.edit().putBoolean("message_blocker_enabled", isChecked).apply()
+            makeFileReadable()
+        }
+        
+        btnSaveWa.setOnClickListener {
+            prefs.edit().putString("message_block_keywords", inputWaKeywords.text.toString()).apply()
+            makeFileReadable()
+            Toast.makeText(this, "Kata Kunci WhatsApp Disimpan!", Toast.LENGTH_SHORT).show()
         }
         
         switchCallHidden.setOnCheckedChangeListener { _, isChecked ->
@@ -66,7 +83,79 @@ class AntiSpamActivity : Activity() {
         }
         
         btnLog.setOnClickListener {
-            Toast.makeText(this, "Riwayat spam masih kosong.", Toast.LENGTH_SHORT).show()
+            loadSpamHistory()
+        }
+    }
+    
+    private fun loadSpamHistory() {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val logsSms = prefs.getString("antispam_logs", "[]") ?: "[]"
+        val logsWa = prefs.getString("wa_antispam_logs", "[]") ?: "[]"
+        val container = findViewById<LinearLayout>(com.wmods.wppenhacer.R.id.container_spam_history)
+        
+        container.removeAllViews()
+        container.visibility = View.VISIBLE
+        
+        try {
+            val jsonArraySms = org.json.JSONArray(logsSms)
+            val jsonArrayWa = org.json.JSONArray(logsWa)
+            
+            val allLogs = mutableListOf<org.json.JSONObject>()
+            for (i in 0 until jsonArraySms.length()) allLogs.add(jsonArraySms.getJSONObject(i))
+            for (i in 0 until jsonArrayWa.length()) allLogs.add(jsonArrayWa.getJSONObject(i))
+            
+            if (allLogs.isEmpty()) {
+                Toast.makeText(this, "Riwayat spam masih kosong.", Toast.LENGTH_SHORT).show()
+                container.visibility = View.GONE
+                return
+            }
+            
+            // Sort by time descending
+            allLogs.sortByDescending { it.optLong("time", 0) }
+            
+            for (logObj in allLogs) {
+                val type = logObj.optString("type", "Unknown")
+                val message = logObj.optString("message", "")
+                val time = logObj.optLong("time", 0)
+                
+                val dateString = java.text.SimpleDateFormat("dd MMM yyyy, HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(time))
+                
+                val card = android.widget.FrameLayout(this)
+                val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                params.setMargins(0, 0, 0, 24)
+                card.layoutParams = params
+                
+                val bg = android.graphics.drawable.GradientDrawable()
+                bg.setColor(android.graphics.Color.parseColor("#1A2235"))
+                bg.cornerRadius = 24f
+                val strokeColor = if (type.contains("WhatsApp", true)) Color.parseColor("#25D366") else Color.parseColor("#3B82F6")
+                bg.setStroke(2, strokeColor)
+                card.background = bg
+                card.setPadding(32, 32, 32, 32)
+                
+                val textLayout = LinearLayout(this)
+                textLayout.orientation = LinearLayout.VERTICAL
+                
+                val headerText = TextView(this)
+                val typeLabel = if (type.contains("WhatsApp", true)) "💬 $type" else "📱 $type"
+                headerText.text = "$typeLabel • $dateString"
+                headerText.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+                headerText.textSize = 12f
+                
+                val msgText = TextView(this)
+                msgText.text = message
+                msgText.setTextColor(android.graphics.Color.parseColor("#FFFFFF"))
+                msgText.textSize = 14f
+                msgText.setPadding(0, 8, 0, 0)
+                
+                textLayout.addView(headerText)
+                textLayout.addView(msgText)
+                card.addView(textLayout)
+                
+                container.addView(card)
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "Gagal memuat riwayat", Toast.LENGTH_SHORT).show()
         }
     }
     
@@ -83,7 +172,13 @@ class AntiSpamActivity : Activity() {
     private fun makeFileReadable() {
         runCatching {
             val file = java.io.File(filesDir.parentFile, "shared_prefs/${PREFS_NAME}.xml")
-            if (file.exists()) file.setReadable(true, false)
+            if (file.exists()) {
+                file.setReadable(true, false)
+                file.parentFile?.setExecutable(true, false)
+                file.parentFile?.setReadable(true, false)
+                filesDir.parentFile?.setExecutable(true, false)
+                filesDir.parentFile?.setReadable(true, false)
+            }
         }
     }
 }

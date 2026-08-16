@@ -60,7 +60,12 @@ private fun isSuggestedLabel(text: String): Boolean {
            lower == "explore" ||
            lower == "jelajahi" ||
            lower == "more posts" ||
-           lower == "postingan lainnya"
+           lower == "postingan lainnya" ||
+           lower == "people you may know" ||
+           lower == "mungkin anda kenal" ||
+           lower == "discover people" ||
+           lower == "temukan orang" ||
+           lower == "suggested users"
 }
 
 private fun hideRecyclerItemContaining(view: View) {

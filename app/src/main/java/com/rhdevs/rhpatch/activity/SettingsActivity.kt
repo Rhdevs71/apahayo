@@ -320,6 +320,9 @@ class SettingsActivity : Activity() {
                 startActivity(Intent(context, com.wmods.wppenhacer.activities.MainActivity::class.java))
             }
             containerLayout.addView(waCard)
+            
+
+
             for (appPatchInfo in appPatchConfigurations) {
                 val isInstalled = runCatching {
                     pm.getPackageInfo(appPatchInfo.packageName, 0)

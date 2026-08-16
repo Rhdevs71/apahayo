@@ -37,12 +37,8 @@ val AntiDelete = patch(
                             val whereClause = param.args[1] as? String
                     val whereArgs = param.args[2] as? Array<String>
                     
-                    if (table == "messages") {
-                        // Instead of deleting, we can update the message to mark it as deleted but keep it in UI
-                        // Discord messages table usually has 'content' or 'author' columns.
+                    if (table == "messages" || table == "message_records") {
                         XposedBridge.log("Rhpatch: [Discord] Intercepted message deletion: where=$whereClause args=${whereArgs?.joinToString()}")
-                        
-                        // Prevent the actual DELETE query
                         param.result = 1 
                     }
                 }
@@ -58,7 +54,7 @@ val AntiDelete = patch(
                     object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val sql = (param.args[0] as? String)?.uppercase() ?: return
-                    if (sql.startsWith("DELETE FROM MESSAGES")) {
+                    if (sql.startsWith("DELETE FROM MESSAGES") || sql.startsWith("DELETE FROM MESSAGE_RECORDS")) {
                         XposedBridge.log("Rhpatch: [Discord] Intercepted execSQL message deletion: $sql")
                         param.result = null // Skip execution
                     }
@@ -68,13 +64,13 @@ val AntiDelete = patch(
 
         // Single arg execSQL
         XposedHelpers.findAndHookMethod(
-            SQLiteDatabase::class.java,
+            sqliteClass, // Fixed: use sqliteClass instead of hardcoded SQLiteDatabase to support other engines
             "execSQL",
             String::class.java,
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val sql = (param.args[0] as? String)?.uppercase() ?: return
-                    if (sql.startsWith("DELETE FROM MESSAGES")) {
+                    if (sql.startsWith("DELETE FROM MESSAGES") || sql.startsWith("DELETE FROM MESSAGE_RECORDS")) {
                         XposedBridge.log("Rhpatch: [Discord] Intercepted execSQL message deletion: $sql")
                         param.result = null // Skip execution
                     }

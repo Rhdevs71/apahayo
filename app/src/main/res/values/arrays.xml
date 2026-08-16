@@ -20,7 +20,18 @@
         <item>com.whatsapp</item>
         <item>com.whatsapp.w4b</item>
         <item>com.discord</item>
+        <item>com.facebook.katana</item>
+        <item>com.facebook.orca</item>
+        <item>com.facebook.lite</item>
         <item>android</item>
+        <item>com.android.providers.telephony</item>
+        <item>com.google.android.apps.messaging</item>
+        <item>com.samsung.android.messaging</item>
+        <item>com.android.mms</item>
+        <item>com.miui.smsextra</item>
+        <item>com.transsion.smartmessage</item>
+        <item>com.android.phone</item>
+        <item>com.android.server.telecom</item>
     </string-array>
 
     <string-array name="supported_versions_wpp">

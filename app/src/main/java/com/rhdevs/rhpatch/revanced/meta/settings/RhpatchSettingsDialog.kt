@@ -93,7 +93,6 @@ object RhpatchSettingsDialog {
         layout.addView(createSwitch("Disable Video Autoplay", "Mematikan putar otomatis video di Feed", "pref_disable_video_autoplay"))
         layout.addView(createSwitch("Disable Stories Audio Autoplay", "Mematikan audio otomatis di Story", "pref_disable_stories_audio"))
         layout.addView(createSwitch("Unlock IG Plus", "Membuka kunci fitur berlangganan Creator Plus", "pref_ig_plus"))
-        layout.addView(createSwitch("Developer Options", "Buka pengaturan eksperimen (Developer)", "pref_dev_options"))
         layout.addView(createSwitch("Disable Double Tap Like", "Matikan fungsi 2 kali ketuk untuk like", "pref_disable_double_tap_like"))
 
         // --- SECTION: DEBUG & FALLBACKS ---
@@ -185,7 +184,7 @@ object RhpatchSettingsDialog {
         layout.addView(createSwitch("Hook Tracker (Toast)", "Munculkan peringatan Toast saat fungsi disadap. Berguna untuk mencari tahu hook mana yang jalan.", "pref_hook_tracker", false))
         layout.addView(createSwitch("Ghost Mode: Saluran OFF", "Matikan Ghost Mode pada Broadcast Channels untuk menghindari bug joining", "pref_ghost_mode_channels_off", true))
         
-        layout.addView(createOptionSelector("Metode Developer Mode", "Pilih metode bypass jika Dev Mode tidak bisa dibuka", "pref_dev_method", arrayOf("Metode A (Default Rhpatch - is_employee)", "Metode B (Alternatif Config Store)", "Metode C (Force Launch Fragment)"), 0))
+        layout.addView(createSwitch("Hide Suggested Users", "Sembunyikan deretan akun/profil yang disarankan (Mungkin Anda Kenal) di feed", "pref_hide_suggested_users", true))
         
         scrollView.addView(layout)
 

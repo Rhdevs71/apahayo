@@ -109,7 +109,16 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         binding.spinnerAiProvider.setAdapter(providerAdapter);
 
         // Setup AI Models
-        String[] aiModels = {"llama3-8b-8192", "gpt-4o", "gemini-1.5-pro", "Custom..."};
+        String[] aiModels = {
+            "llama3-8b-8192", 
+            "gpt-4o", 
+            "gemini-1.5-pro",
+            "gemini-2.5-flash",
+            "gemini-3-flash-preview",
+            "gemini-3.1-flash-lite-preview",
+            "gemini-2.5-flash-lite",
+            "Custom..."
+        };
         ArrayAdapter<String> modelAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, aiModels);
         modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerAiModel.setAdapter(modelAdapter);
@@ -149,7 +158,6 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         });
 
         SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
-        binding.editApiKeys.setText(prefs.getString("ai_api_key", ""));
         
         String savedProvider = prefs.getString("ai_provider", "groq");
         for (int i = 0; i < aiProviders.length; i++) {
@@ -367,7 +375,6 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
         if ("AI".equals(replyType)) {
             SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
             prefs.edit()
-                 .putString("ai_api_key", binding.editApiKeys.getText().toString().trim())
                  .putString("ai_provider", aiProvider)
                  .putString("ai_model", aiModel)
                  .apply();

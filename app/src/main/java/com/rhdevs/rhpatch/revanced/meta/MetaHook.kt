@@ -10,8 +10,7 @@ import com.rhdevs.rhpatch.revanced.meta.settings.ProfileSettingsPatch
 import com.rhdevs.rhpatch.revanced.meta.privacy.EphemeralMediaPatch
 import com.rhdevs.rhpatch.revanced.meta.misc.UnlockPlusBenefitsPatch
 import com.rhdevs.rhpatch.revanced.meta.stories.StoriesReelsPatches
-import com.rhdevs.rhpatch.revanced.meta.misc.DeveloperOptionsPatch
 import com.rhdevs.rhpatch.revanced.meta.misc.MiscPatches
 
-val MetaPatches = arrayOf(HideAds, MediaDownloaderPatch, HookFlagsPatch, HideSuggestedContent, GhostModePatch, ProfileSettingsPatch, EphemeralMediaPatch, UnlockPlusBenefitsPatch, DeveloperOptionsPatch, *DistractionFreePatches, *StoriesReelsPatches, *MiscPatches)
+val MetaPatches = arrayOf(HideAds, MediaDownloaderPatch, HookFlagsPatch, HideSuggestedContent, GhostModePatch, ProfileSettingsPatch, EphemeralMediaPatch, UnlockPlusBenefitsPatch, *DistractionFreePatches, *StoriesReelsPatches, *MiscPatches)
 val ThreadsPatches = arrayOf(HideAds)

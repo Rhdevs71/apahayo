@@ -149,11 +149,7 @@ val DisableDoubleTapLikePatch = patch(
                 XposedBridge.hookMethod(doubleTapMethod, object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         try {
-                            val context = android.app.AndroidAppHelper.currentApplication()
-                            val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
-                            if (prefs?.getBoolean("pref_disable_double_tap_like", true) == true) {
-                                param.result = true // Consume the event
-                            }
+                            param.result = true // Consume the event
                         } catch (e: Exception) {}
                     }
                 })
@@ -162,4 +158,54 @@ val DisableDoubleTapLikePatch = patch(
     }.onFailure { XposedBridge.log("Rhpatch: [DoubleTapLike] Patch failed: $it") }
 }
 
-val DistractionFreePatches = arrayOf(HideNotesTray, DisableScreenshotDetection, DisableSwipeToCreate, DisableVideoAutoplayPatch, DisableStoriesAudioAutoplayPatch, DisableDoubleTapLikePatch)
+val HideSuggestedUsersPatch = patch(
+    name = "Hide Suggested Users",
+    description = "Menyembunyikan saran pengguna / profil orang di Feed."
+) {
+    runCatching {
+        XposedHelpers.findAndHookMethod(
+            android.widget.TextView::class.java,
+            "setText",
+            CharSequence::class.java,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val text = (param.args[0] as? CharSequence)?.toString()?.trim() ?: return
+                    
+                    // Deteksi teks "Suggested for you" atau "Saran untuk Anda"
+                    if (text.equals("Suggested for you", ignoreCase = true) || 
+                        text.equals("Saran untuk Anda", ignoreCase = true) ||
+                        text.equals("Suggested users", ignoreCase = true)) {
+                        
+                        val view = param.thisObject as? android.view.View ?: return
+                        val prefs = view.context.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
+                        if (!prefs.getBoolean("pref_hide_suggested_users", true)) return
+
+                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                            runCatching { 
+                                var current: android.view.View? = view
+                                var candidate: android.view.View? = null
+                                repeat(20) {
+                                    val parent = current?.parent ?: return@repeat
+                                    if (parent.javaClass.name.contains("RecyclerView", ignoreCase = true)) {
+                                        candidate?.let { item ->
+                                            item.visibility = android.view.View.GONE
+                                            item.layoutParams?.let { lp ->
+                                                lp.height = 0
+                                                item.layoutParams = lp
+                                            }
+                                        }
+                                        return@post
+                                    }
+                                    candidate = current
+                                    current = parent as? android.view.View
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        )
+    }.onFailure { XposedBridge.log("Rhpatch: [HideSuggestedUsers] Patch failed: $it") }
+}
+
+val DistractionFreePatches = arrayOf(HideNotesTray, DisableScreenshotDetection, DisableSwipeToCreate, DisableVideoAutoplayPatch, DisableStoriesAudioAutoplayPatch, DisableDoubleTapLikePatch, HideSuggestedUsersPatch)

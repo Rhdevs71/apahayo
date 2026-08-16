@@ -27,17 +27,34 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
-        
+        XposedBridge.log("Rhpatch: handleLoadPackage for ${lpparam.packageName}")
         try {
             val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, "prefs")
             com.rhdevs.rhpatch.system.DnsBypassHook.hook(lpparam.classLoader, lpparam.packageName, prefs)
             
-            // System Anti-Spam Hooks (SMS runs in com.android.phone, Telecom runs in system_server/android or com.android.server.telecom)
-            if (lpparam.packageName == "com.android.phone") {
+            // System Anti-Spam Hooks
+            val smsPackages = listOf(
+                "com.android.phone",
+                "com.android.providers.telephony", // Lapis 0 (SmsProvider)
+                "com.google.android.apps.messaging", // Google Messages (Lapis 2)
+                "com.samsung.android.messaging", // Samsung Messages (Lapis 2)
+                "com.android.mms", // Xiaomi/AOSP Messages (Lapis 2)
+                "com.miui.smsextra", // MIUI Messages (Lapis 2)
+                "com.transsion.smartmessage", // Transsion Messages (Lapis 2)
+                "android" // Lapis 3 (NotificationManager di system_server)
+            )
+            
+            if (smsPackages.contains(lpparam.packageName)) {
                 com.rhdevs.rhpatch.system.SystemAntiSpamHook.hookSms(lpparam.classLoader, prefs)
             }
+            
             if (lpparam.packageName == "android" || lpparam.packageName == "com.android.server.telecom") {
-                com.rhdevs.rhpatch.system.SystemAntiSpamHook.hookCall(lpparam.classLoader, prefs, null) // Context will be provided if possible, or null for basic reject
+                com.rhdevs.rhpatch.system.SystemAntiSpamHook.hookCall(lpparam.classLoader, prefs, null)
+            }
+            
+            // WhatsApp Hooks
+            if (lpparam.packageName == "com.whatsapp" || lpparam.packageName == "com.whatsapp.w4b") {
+                com.rhdevs.rhpatch.system.WaMessageBlockerHook.hook(lpparam.classLoader, prefs)
             }
             
             // TikTok Hooks

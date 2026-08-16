@@ -494,37 +494,6 @@
                         android:textColorHint="#5A687C"
                         android:visibility="gone" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="API Keys (Comma separated for failover)"
-                        android:textColor="#8F9CAE"
-                        android:textSize="12sp"
-                        android:layout_marginStart="12dp"
-                        android:layout_marginBottom="-8dp"
-                        android:elevation="2dp"
-                        android:background="#141A26"
-                        android:paddingHorizontal="4dp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:background="@drawable/bg_bordered_box_nested"
-                        android:padding="12dp"
-                        android:layout_marginBottom="16dp">
-                        <EditText
-                            android:id="@+id/edit_api_keys"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:minLines="3"
-                            android:gravity="top"
-                            android:background="@null"
-                            android:hint="key1,key2,key3..."
-                            android:textColor="#E3E6EB"
-                            android:textColorHint="#5A687C"
-                            android:textSize="16sp" />
-                    </LinearLayout>
                 </LinearLayout>
 
                 <!-- Reply Text Input -->

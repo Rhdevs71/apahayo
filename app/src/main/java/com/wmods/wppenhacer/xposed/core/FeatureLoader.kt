@@ -499,6 +499,7 @@ class FeatureLoader {
                 SeenTick::class.java,
                 BubbleColors::class.java,
                 CallPrivacy::class.java,
+                com.wmods.wppenhacer.xposed.features.privacy.MessageBlocker::class.java,
                 ActivityController::class.java,
                 CustomThemeV2::class.java,
                 FloatingBottomBar::class.java,

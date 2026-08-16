@@ -180,6 +180,17 @@ fun showPikoStyleDownloadMenu(context: Context, activity: android.app.Activity) 
         val visImg = deduplicateResolutions(visibleExtractedUrls.filter { isHighResImage(it) })
         val visAud = deduplicateResolutions(visibleExtractedUrls.filter { isAudio(it) })
         
+        XposedBridge.log("=== RHPATCH MEDIA DEBUG START ===")
+        XposedBridge.log("All Images (${allImageUrls.size}):")
+        allImageUrls.forEach { XposedBridge.log("IMG: $it") }
+        XposedBridge.log("All MP4s (${allUnifiedMp4Urls.size}):")
+        allUnifiedMp4Urls.forEach { XposedBridge.log("MP4: $it") }
+        XposedBridge.log("Vis Images (${visImg.size}):")
+        visImg.forEach { XposedBridge.log("V_IMG: $it") }
+        XposedBridge.log("Vis MP4s (${visMp4.size}):")
+        visMp4.forEach { XposedBridge.log("V_MP4: $it") }
+        XposedBridge.log("=== RHPATCH MEDIA DEBUG END ===")
+        
         activity.runOnUiThread {
             // Prioritaskan media yang sedang tampil di layar, jika gagal baru fallback ke seluruh objek
             val bestVideo = visMp4.maxByOrNull { it.length } ?: visMp4.firstOrNull() ?: allUnifiedMp4Urls.maxByOrNull { it.length } ?: allUnifiedMp4Urls.firstOrNull()
@@ -189,27 +200,49 @@ fun showPikoStyleDownloadMenu(context: Context, activity: android.app.Activity) 
             val options = mutableListOf<String>()
             val actions = mutableListOf<Runnable>()
             
-            // Cek apakah view yang aktif di layar adalah Video atau Gambar
-            val isVisibleVideo = visibleView?.javaClass?.name?.contains("TextureView") == true || visibleView?.javaClass?.name?.contains("SurfaceView") == true || visibleView?.javaClass?.name?.contains("MediaFrameLayout") == true
+            // Cek apakah view yang aktif di layar adalah Video atau Gambar berdasarkan tag
+            val isVisibleVideo = visibleView != null && visibleView.getTag(visibleView.id) == "rhp_is_video"
             
             if (bestVideo != null || bestImage != null) {
                 options.add("Unduh media saat ini")
                 actions.add(Runnable {
-                    if (isVisibleVideo) {
-                        if (bestVideo != null) downloadInstagramMedia(context, bestVideo, true)
-                        else if (bestImage != null) downloadInstagramMedia(context, bestImage, false)
-                    } else {
-                        if (bestImage != null) downloadInstagramMedia(context, bestImage, false)
-                        else if (bestVideo != null) downloadInstagramMedia(context, bestVideo, true)
+                    if (isVisibleVideo && bestVideo != null) {
+                        downloadInstagramMedia(context, bestVideo, true)
+                    } else if (bestImage != null) {
+                        downloadInstagramMedia(context, bestImage, false)
+                    } else if (bestVideo != null) {
+                        downloadInstagramMedia(context, bestVideo, true)
                     }
                 })
             }
             
+            // Cek apakah ini Story
+            var isStory = currentStoryHelper != null
+            var v = visibleView
+            while (v != null) {
+                val name = v.javaClass.name.lowercase()
+                if (name.contains("story") || name.contains("reelviewer") || name.contains("reel")) {
+                    isStory = true
+                    break
+                }
+                v = v.parent as? View
+            }
+            
+            try {
+                val fragmentActivity = activity as? androidx.fragment.app.FragmentActivity
+                val fragments = fragmentActivity?.supportFragmentManager?.fragments
+                fragments?.forEach { f ->
+                    val fName = f.javaClass.name.lowercase()
+                    if (fName.contains("story") || fName.contains("reel")) {
+                        isStory = true
+                    }
+                }
+            } catch (e: Exception) {}
+            
             // Opsi tambahan untuk mengunduh seluruh isi Carousel
             // Sembunyikan opsi ini jika ini adalah Story (Story hanya 1 per 1)
-            if (currentStoryHelper == null && (allImageUrls.size > 1 || allUnifiedMp4Urls.size > 1)) {
+            if (!isStory && (allImageUrls.size > 1 || allUnifiedMp4Urls.size > 1)) {
                 val totalMedia = allImageUrls.size + allUnifiedMp4Urls.size
-                // Tampilkan opsi ini hanya jika media memang banyak, bukan sekadar varian resolusi.
                 if (totalMedia > 1) {
                     options.add("Unduh semua media ($totalMedia item)")
                     actions.add(Runnable {
@@ -342,8 +375,10 @@ fun showPikoStyleMoreMenu(context: Context, activity: android.app.Activity) {
 }
 
 fun findMostVisibleMediaView(root: ViewGroup, context: Context): View? {
-    var bestView: View? = null
-    var minDistanceToCenter = Float.MAX_VALUE
+    var bestVideoView: View? = null
+    var bestImageView: View? = null
+    var minVideoDist = Float.MAX_VALUE
+    var minImageDist = Float.MAX_VALUE
     
     val screenWidth = context.resources.displayMetrics.widthPixels
     val screenHeight = context.resources.displayMetrics.heightPixels
@@ -354,17 +389,20 @@ fun findMostVisibleMediaView(root: ViewGroup, context: Context): View? {
         if (view.visibility != View.VISIBLE) return
         
         val viewName = view.javaClass.name
-        if (viewName.contains("IgProgressImageView") || viewName.contains("TextureView") || viewName.contains("SurfaceView") || viewName.contains("MediaFrameLayout")) {
+        val isVideo = viewName.contains("TextureView") || viewName.contains("SurfaceView") || viewName.contains("MediaFrameLayout") || viewName.contains("IgVideoView")
+        val isImage = viewName.contains("IgProgressImageView") || viewName.contains("IgImageView")
+        
+        if (isVideo || isImage) {
             val rect = Rect()
             if (view.getGlobalVisibleRect(rect)) {
                 if (rect.width() > 200 && rect.height() > 200) {
-                    val viewCenterX = rect.exactCenterX()
-                    val viewCenterY = rect.exactCenterY()
-                    val distance = Math.hypot((viewCenterX - centerX).toDouble(), (viewCenterY - centerY).toDouble()).toFloat()
-                    
-                    if (distance < minDistanceToCenter) {
-                        minDistanceToCenter = distance
-                        bestView = view
+                    val distance = Math.hypot((rect.exactCenterX() - centerX).toDouble(), (rect.exactCenterY() - centerY).toDouble()).toFloat()
+                    if (isVideo && distance < minVideoDist) {
+                        minVideoDist = distance
+                        bestVideoView = view
+                    } else if (isImage && distance < minImageDist) {
+                        minImageDist = distance
+                        bestImageView = view
                     }
                 }
             }
@@ -378,11 +416,36 @@ fun findMostVisibleMediaView(root: ViewGroup, context: Context): View? {
     }
     traverse(root)
     
+    val bestView = if (bestVideoView != null && minVideoDist < 500f) bestVideoView else bestImageView ?: bestVideoView
+    
+    var current = bestView
+    var itemView = bestView
+    while (current?.parent is View) {
+        val p = current.parent as View
+        val pName = p.javaClass.name.lowercase()
+        if (pName.contains("recyclerview") || pName.contains("viewpager") || pName.contains("listview")) {
+            itemView = current
+            break
+        }
+        current = p
+    }
+    
+    if (itemView != bestView && itemView != null) {
+        // Tandai bahwa ini berasal dari video jika bestView adalah video
+        if (bestView == bestVideoView) {
+            itemView.setTag(itemView.id, "rhp_is_video")
+        }
+        return itemView
+    }
+    
     var parent = bestView?.parent as? View
     for (i in 0 until 3) {
         if (parent?.parent is View) {
             parent = parent.parent as View
         }
+    }
+    if (bestView == bestVideoView) {
+        parent?.setTag(parent.id, "rhp_is_video")
     }
     return parent ?: bestView
 }
@@ -421,6 +484,10 @@ object DeepMediaExtractor {
             while (currentCls != null && currentCls != Any::class.java) {
                 for (field in currentCls.declaredFields) {
                     if (field.type.isPrimitive) continue
+                    val fieldName = field.name.lowercase()
+                    // Abaikan field yang kemungkinan berisi foto profil, avatar, atau track audio latar belakang
+                    if (fieldName.contains("profile") || fieldName.contains("avatar") || fieldName.contains("audio") || fieldName.contains("music") || fieldName.contains("sound")) continue
+                    
                     field.isAccessible = true
                     val value = field.get(obj) ?: continue
                     extractAllUrls(value, urls, depth + 1, visited)
@@ -468,6 +535,12 @@ object DeepTextExtractor {
 
 fun isInstagramCdnUrl(url: String): Boolean {
     val lower = url.lowercase()
+    if (!lower.startsWith("http://") && !lower.startsWith("https://")) {
+        if (lower.startsWith("<?xml") && lower.contains("fbcdn.net")) {
+            XposedBridge.log("RHPATCH XML MANIFEST:\n$url")
+        }
+        return false
+    }
     return (lower.contains("fbcdn.net") || lower.contains("cdninstagram.com")) &&
            (lower.contains(".jpg") || lower.contains(".jpeg") || lower.contains(".mp4") || lower.contains("video") || lower.contains("scontent") || lower.contains("audio"))
 }
@@ -475,7 +548,26 @@ fun isInstagramCdnUrl(url: String): Boolean {
 fun isUnifiedMp4(url: String): Boolean {
     val lower = url.lowercase()
     if (!lower.contains(".mp4") && !lower.contains("video")) return false
-    if (lower.contains("dash") || lower.contains("audio") || lower.contains("init") || lower.contains("m4s") || lower.contains("bytestart")) return false
+    
+    // Blokir jika URL mentah secara eksplisit menyebut dash/audio track
+    if (lower.contains("mime=audio") || lower.contains("/audio/") || lower.contains("bytestart")) return false
+    
+    // Dekode parameter base64 efg dan _nc_vs untuk mendeteksi track audio tersembunyi
+    try {
+        val uri = android.net.Uri.parse(url)
+        val efg = uri.getQueryParameter("efg")
+        if (efg != null) {
+            val decoded = String(android.util.Base64.decode(efg, android.util.Base64.DEFAULT)).lowercase()
+            // Hanya blokir jika secara spesifik adalah track audio murni (bukan video ber-audio)
+            if (decoded.contains("mpx_audio") || decoded.contains("dash_ln_heaac")) return false
+        }
+        val ncVs = uri.getQueryParameter("_nc_vs")
+        if (ncVs != null) {
+            val decoded = String(android.util.Base64.decode(ncVs, android.util.Base64.DEFAULT)).lowercase()
+            if (decoded.contains("mpx_audio") || decoded.contains("dash_ln_heaac")) return false
+        }
+    } catch (e: Exception) {}
+    
     return true
 }
 
@@ -484,11 +576,7 @@ fun deduplicateResolutions(urls: List<String>): List<String> {
     for (url in urls) {
         val beforeQuery = url.substringBefore("?")
         val name = beforeQuery.substringAfterLast("/")
-        // Remove resolution tags like p1080x1080/ from the name if any, 
-        // wait, resolution tags are in the folder path, not the file name!
-        // The file name itself usually stays the same across resolutions (e.g. 12345_n.jpg)
         val existing = result[name]
-        // Keep the one with the longest URL (usually contains more quality flags) or longest path
         if (existing == null || url.length > existing.length) {
             result[name] = url
         }
@@ -503,8 +591,12 @@ fun isAudio(url: String): Boolean {
 
 fun isHighResImage(url: String): Boolean {
     val lower = url.lowercase()
-    if (!lower.contains(".jpg") && !lower.contains(".jpeg")) return false
-    if (lower.contains("profile_pic")) return false
+    if (!lower.contains(".jpg") && !lower.contains(".jpeg") && !lower.contains(".png")) return false
+    if (lower.contains("profile_pic") || lower.contains("/s150x150/") || lower.contains("/s320x320/")) return false
+    // Filter ID avatar default abu-abu Instagram
+    if (lower.contains("43985629_311105916145351_58064759811405776") || lower.contains("44884218_345707102882519_2446069589734326272")) return false
+    // Filter path khusus foto profil
+    if (lower.contains("t51.12442-15") || lower.contains("t51.2885-19")) return false
     return true
 }
 
