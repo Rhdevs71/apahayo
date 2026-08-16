@@ -550,7 +550,7 @@ fun isUnifiedMp4(url: String): Boolean {
     if (!lower.contains(".mp4") && !lower.contains("video")) return false
     
     // Blokir jika URL mentah secara eksplisit menyebut dash/audio track
-    if (lower.contains("mime=audio") || lower.contains("/audio/") || lower.contains("bytestart")) return false
+    if (lower.contains("mime=audio") || lower.contains("/audio/") || lower.contains("bytestart") || lower.contains("audio_aac")) return false
     
     // Dekode parameter base64 efg dan _nc_vs untuk mendeteksi track audio tersembunyi
     try {
@@ -558,13 +558,13 @@ fun isUnifiedMp4(url: String): Boolean {
         val efg = uri.getQueryParameter("efg")
         if (efg != null) {
             val decoded = String(android.util.Base64.decode(efg, android.util.Base64.DEFAULT)).lowercase()
-            // Hanya blokir jika secara spesifik adalah track audio murni (bukan video ber-audio)
-            if (decoded.contains("mpx_audio") || decoded.contains("dash_ln_heaac")) return false
+            // Blokir track audio murni (bukan video ber-audio)
+            if (decoded.contains("mpx_audio") || decoded.contains("dash_ln_heaac") || decoded.contains("progressive_audio") || decoded.contains("audio")) return false
         }
         val ncVs = uri.getQueryParameter("_nc_vs")
         if (ncVs != null) {
             val decoded = String(android.util.Base64.decode(ncVs, android.util.Base64.DEFAULT)).lowercase()
-            if (decoded.contains("mpx_audio") || decoded.contains("dash_ln_heaac")) return false
+            if (decoded.contains("mpx_audio") || decoded.contains("dash_ln_heaac") || decoded.contains("progressive_audio") || decoded.contains("audio")) return false
         }
     } catch (e: Exception) {}
     
@@ -597,6 +597,22 @@ fun isHighResImage(url: String): Boolean {
     if (lower.contains("43985629_311105916145351_58064759811405776") || lower.contains("44884218_345707102882519_2446069589734326272")) return false
     // Filter path khusus foto profil
     if (lower.contains("t51.12442-15") || lower.contains("t51.2885-19")) return false
+    
+    // Filter cover/thumbnail dari video (agar tidak muncul di 'unduh semua' feed post video)
+    try {
+        val uri = android.net.Uri.parse(url)
+        val efg = uri.getQueryParameter("efg")
+        if (efg != null) {
+            val decoded = String(android.util.Base64.decode(efg, android.util.Base64.DEFAULT)).lowercase()
+            if (decoded.contains("cover_frame") || decoded.contains("scrubber")) return false
+        }
+        val ncVs = uri.getQueryParameter("_nc_vs")
+        if (ncVs != null) {
+            val decoded = String(android.util.Base64.decode(ncVs, android.util.Base64.DEFAULT)).lowercase()
+            if (decoded.contains("cover_frame") || decoded.contains("scrubber")) return false
+        }
+    } catch (e: Exception) {}
+    
     return true
 }
 
