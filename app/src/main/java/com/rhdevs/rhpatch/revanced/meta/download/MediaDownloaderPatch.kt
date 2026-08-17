@@ -458,7 +458,17 @@ object DeepMediaExtractor {
         if (!visited.add(hash)) return
 
         if (obj is String) {
-            if (isInstagramCdnUrl(obj)) urls.add(obj)
+            if (isInstagramCdnUrl(obj)) {
+                urls.add(obj)
+            } else if (obj.startsWith("<?xml") && obj.contains("<BaseURL>")) {
+                try {
+                    val regex = Regex("<BaseURL>(.*?)</BaseURL>")
+                    for (match in regex.findAll(obj)) {
+                        val url = match.groupValues[1].replace("&amp;", "&")
+                        if (isInstagramCdnUrl(url)) urls.add(url)
+                    }
+                } catch (e: Exception) {}
+            }
             return
         }
 
@@ -541,9 +551,6 @@ object DeepTextExtractor {
 fun isInstagramCdnUrl(url: String): Boolean {
     val lower = url.lowercase()
     if (!lower.startsWith("http://") && !lower.startsWith("https://")) {
-        if (lower.startsWith("<?xml") && lower.contains("fbcdn.net")) {
-            XposedBridge.log("RHPATCH XML MANIFEST:\n$url")
-        }
         return false
     }
     return (lower.contains("fbcdn.net") || lower.contains("cdninstagram.com")) &&

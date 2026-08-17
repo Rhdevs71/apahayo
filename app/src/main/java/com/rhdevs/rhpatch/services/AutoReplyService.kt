@@ -52,8 +52,9 @@ class AutoReplyService : NotificationListenerService() {
         val now = System.currentTimeMillis()
         recentSentReplies.entries.removeIf { now - it.value > 60000 }
 
-        // Cek apakah pesan ini sebenarnya adalah pesan yang baru kita kirim (AI membalas dirinya sendiri)
-        if (recentSentReplies.keys.any { text.contains(it) }) {
+        // Cek apakah pesan ini sebenarnya adalah pesan yang baru kita kirim (AI membalas dirinya sendiri).
+        // Kita menggunakan endsWith karena notifikasi WA bisa berisi riwayat pesan. Jika diakhiri pesan kita, berarti itu pantulan (echo).
+        if (recentSentReplies.keys.any { it.isNotBlank() && text.trim().endsWith(it.trim()) }) {
             return
         }
 
@@ -90,7 +91,9 @@ class AutoReplyService : NotificationListenerService() {
                     Log.d(TAG, "Matched rule: ${rule.keywords}")
                     val replyMsg = processAiIfNeeded(rule.replyText, rule, text, senderId)
                     if (replyMsg != null) {
-                        recentSentReplies[replyMsg] = System.currentTimeMillis()
+                        if (replyMsg.isNotBlank()) {
+                            recentSentReplies[replyMsg] = System.currentTimeMillis()
+                        }
                         sendReply(replyAction, replyMsg)
                     }
                     break // Only reply once per message
