@@ -20,6 +20,7 @@ import de.robv.android.xposed.XposedHelpers
 // Cache untuk menyimpan objek pembantu overflow terakhir yang dibuka
 var currentOverflowHelper: Any? = null
 var currentStoryHelper: Any? = null
+val videoViewCache = java.util.WeakHashMap<View, Boolean>()
 
 val MediaDownloaderPatch = patch(
     name = "Instagram Media Downloader (Piko Native Style)",
@@ -201,7 +202,7 @@ fun showPikoStyleDownloadMenu(context: Context, activity: android.app.Activity) 
             val actions = mutableListOf<Runnable>()
             
             // Cek apakah view yang aktif di layar adalah Video atau Gambar berdasarkan tag
-            val isVisibleVideo = visibleView != null && visibleView.getTag(visibleView.id) == "rhp_is_video"
+            val isVisibleVideo = visibleView != null && videoViewCache[visibleView] == true
             
             if (bestVideo != null || bestImage != null) {
                 options.add("Unduh media saat ini")
@@ -433,7 +434,7 @@ fun findMostVisibleMediaView(root: ViewGroup, context: Context): View? {
     if (itemView != bestView && itemView != null) {
         // Tandai bahwa ini berasal dari video jika bestView adalah video
         if (bestView == bestVideoView) {
-            itemView.setTag(itemView.id, "rhp_is_video")
+            videoViewCache[itemView] = true
         }
         return itemView
     }
@@ -444,8 +445,8 @@ fun findMostVisibleMediaView(root: ViewGroup, context: Context): View? {
             parent = parent.parent as View
         }
     }
-    if (bestView == bestVideoView) {
-        parent?.setTag(parent.id, "rhp_is_video")
+    if (bestView == bestVideoView && parent != null) {
+        videoViewCache[parent] = true
     }
     return parent ?: bestView
 }
