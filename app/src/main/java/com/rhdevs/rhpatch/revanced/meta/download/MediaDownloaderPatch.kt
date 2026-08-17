@@ -453,22 +453,12 @@ fun findMostVisibleMediaView(root: ViewGroup, context: Context): View? {
 
 object DeepMediaExtractor {
     fun extractAllUrls(obj: Any?, urls: MutableSet<String>, depth: Int, visited: MutableSet<Int>) {
-        if (obj == null || depth > 8) return
+        if (obj == null || depth > 10) return
         val hash = System.identityHashCode(obj)
         if (!visited.add(hash)) return
 
         if (obj is String) {
-            if (isInstagramCdnUrl(obj)) {
-                urls.add(obj)
-            } else if (obj.startsWith("<?xml") && obj.contains("<BaseURL>")) {
-                try {
-                    val regex = Regex("<BaseURL>(.*?)</BaseURL>")
-                    for (match in regex.findAll(obj)) {
-                        val url = match.groupValues[1].replace("&amp;", "&")
-                        if (isInstagramCdnUrl(url)) urls.add(url)
-                    }
-                } catch (e: Exception) {}
-            }
+            if (isInstagramCdnUrl(obj)) urls.add(obj)
             return
         }
 
@@ -562,7 +552,7 @@ fun isUnifiedMp4(url: String): Boolean {
     if (!lower.contains(".mp4") && !lower.contains("video")) return false
     
     // Blokir jika URL mentah secara eksplisit menyebut dash/audio track
-    if (lower.contains("mime=audio") || lower.contains("/audio/") || lower.contains("bytestart") || lower.contains("audio_aac")) return false
+    if (lower.contains("mime=audio") || lower.contains("/audio/") || lower.contains("audio_aac")) return false
     
     // Dekode parameter base64 efg dan _nc_vs untuk mendeteksi track audio tersembunyi
     try {

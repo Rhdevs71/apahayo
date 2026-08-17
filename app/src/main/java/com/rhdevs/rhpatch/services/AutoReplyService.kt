@@ -278,9 +278,16 @@ class AutoReplyService : NotificationListenerService() {
                 }
                 reply
             } else {
+                val errorStream = connection.errorStream?.bufferedReader()?.use { it.readText() }
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    android.widget.Toast.makeText(applicationContext, "Rhpatch AI Error: HTTP $responseCode\n$errorStream", android.widget.Toast.LENGTH_LONG).show()
+                }
                 null
             }
         } catch (e: Exception) {
+            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                android.widget.Toast.makeText(applicationContext, "Rhpatch AI Exception: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+            }
             null
         } finally {
             connection?.disconnect()
