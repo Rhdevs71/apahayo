@@ -559,12 +559,12 @@ fun isUnifiedMp4(url: String): Boolean {
         if (efg != null) {
             val decoded = String(android.util.Base64.decode(efg, android.util.Base64.DEFAULT)).lowercase()
             // Blokir track audio murni (bukan video ber-audio)
-            if (decoded.contains("mpx_audio") || decoded.contains("dash_ln_heaac") || decoded.contains("progressive_audio") || decoded.contains("audio")) return false
+            if (decoded.contains("mpx_audio") || decoded.contains("dash_ln_heaac") || decoded.contains("progressive_audio")) return false
         }
         val ncVs = uri.getQueryParameter("_nc_vs")
         if (ncVs != null) {
             val decoded = String(android.util.Base64.decode(ncVs, android.util.Base64.DEFAULT)).lowercase()
-            if (decoded.contains("mpx_audio") || decoded.contains("dash_ln_heaac") || decoded.contains("progressive_audio") || decoded.contains("audio")) return false
+            if (decoded.contains("mpx_audio") || decoded.contains("dash_ln_heaac") || decoded.contains("progressive_audio")) return false
         }
     } catch (e: Exception) {}
     
@@ -595,8 +595,8 @@ fun isHighResImage(url: String): Boolean {
     if (lower.contains("profile_pic") || lower.contains("/s150x150/") || lower.contains("/s320x320/")) return false
     // Filter ID avatar default abu-abu Instagram
     if (lower.contains("43985629_311105916145351_58064759811405776") || lower.contains("44884218_345707102882519_2446069589734326272")) return false
-    // Filter path khusus foto profil
-    if (lower.contains("t51.12442-15") || lower.contains("t51.2885-19")) return false
+    // Filter path khusus foto profil dan sprite sheet scrubber
+    if (lower.contains("t51.12442-15") || lower.contains("t51.2885-19") || lower.contains("t51.71878-15")) return false
     
     // Filter cover/thumbnail dari video (agar tidak muncul di 'unduh semua' feed post video)
     try {
