@@ -28,6 +28,10 @@ class AutoReplyService : NotificationListenerService() {
         )
         // Cache to prevent duplicate replies for the same message
         private val lastProcessedMessages = java.util.concurrent.ConcurrentHashMap<String, Long>()
+        // Per-sender cooldown to prevent rapid looping
+        private val lastSenderProcessTime = java.util.concurrent.ConcurrentHashMap<String, Long>()
+        // Cache to store recent sent replies to avoid replying to our own messages
+        private val recentSentReplies = java.util.concurrent.ConcurrentHashMap<String, Long>()
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -44,10 +48,24 @@ class AutoReplyService : NotificationListenerService() {
 
         if (text.isEmpty() || title.isEmpty()) return
 
+        // Clean up old sent replies to avoid memory leaks
+        val now = System.currentTimeMillis()
+        recentSentReplies.entries.removeIf { now - it.value > 60000 }
+
+        // Cek apakah pesan ini sebenarnya adalah pesan yang baru kita kirim (AI membalas dirinya sendiri)
+        if (recentSentReplies.keys.any { text.contains(it) }) {
+            return
+        }
+
         val senderId = "$packageName:$title"
         val messageHash = "$senderId:$text"
-        val now = System.currentTimeMillis()
         
+        // Cooldown per pengirim (3 detik) untuk menghindari AI spam beruntun
+        val lastSenderTime = lastSenderProcessTime[senderId] ?: 0L
+        if (now - lastSenderTime < 3000) {
+            return
+        }
+
         // Debounce: prevent same exact message from triggering AI multiple times within 10 seconds
         val lastTime = lastProcessedMessages[messageHash] ?: 0L
         if (now - lastTime < 10000) {
@@ -67,10 +85,12 @@ class AutoReplyService : NotificationListenerService() {
                 if (isMatch(text, rule)) {
                     // Mark as processed only if it matches a rule to avoid filling memory with ignored messages
                     lastProcessedMessages[messageHash] = System.currentTimeMillis()
+                    lastSenderProcessTime[senderId] = System.currentTimeMillis()
                     
                     Log.d(TAG, "Matched rule: ${rule.keywords}")
                     val replyMsg = processAiIfNeeded(rule.replyText, rule, text, senderId)
                     if (replyMsg != null) {
+                        recentSentReplies[replyMsg] = System.currentTimeMillis()
                         sendReply(replyAction, replyMsg)
                     }
                     break // Only reply once per message

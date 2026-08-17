@@ -389,7 +389,7 @@ fun findMostVisibleMediaView(root: ViewGroup, context: Context): View? {
         if (view.visibility != View.VISIBLE) return
         
         val viewName = view.javaClass.name
-        val isVideo = viewName.contains("TextureView") || viewName.contains("SurfaceView") || viewName.contains("MediaFrameLayout") || viewName.contains("IgVideoView")
+        val isVideo = viewName.contains("TextureView") || viewName.contains("SurfaceView") || viewName.contains("MediaFrameLayout") || viewName.contains("IgVideoView") || viewName.contains("Video")
         val isImage = viewName.contains("IgProgressImageView") || viewName.contains("IgImageView")
         
         if (isVideo || isImage) {
@@ -466,6 +466,10 @@ object DeepMediaExtractor {
             if (cls.name.startsWith("android.") || cls.name.startsWith("java.") || cls.name.startsWith("androidx.")) {
                 if (obj is Collection<*>) {
                     for (item in obj) extractAllUrls(item, urls, depth + 1, visited)
+                } else if (obj is Array<*>) {
+                    for (item in obj) extractAllUrls(item, urls, depth + 1, visited)
+                } else if (obj is Map<*, *>) {
+                    for (value in obj.values) extractAllUrls(value, urls, depth + 1, visited)
                 }
                 return
             }
@@ -485,8 +489,8 @@ object DeepMediaExtractor {
                 for (field in currentCls.declaredFields) {
                     if (field.type.isPrimitive) continue
                     val fieldName = field.name.lowercase()
-                    // Abaikan field yang kemungkinan berisi foto profil, avatar, atau track audio latar belakang
-                    if (fieldName.contains("profile") || fieldName.contains("avatar") || fieldName.contains("audio") || fieldName.contains("music") || fieldName.contains("sound")) continue
+                    // Abaikan field yang kemungkinan berisi foto profil atau avatar
+                    if (fieldName.contains("profile") || fieldName.contains("avatar")) continue
                     
                     field.isAccessible = true
                     val value = field.get(obj) ?: continue
