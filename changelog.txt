@@ -1,4 +1,4 @@
-﻿# ⚡ RHpatch v1.5.6 Release
+# ⚡ RHpatch v1.5.7 Release
 
 ### 🎵 Modul TikTok
 - **Perbaikan Tako AI Controller**: Mencegat kelas TakoAssem agar tombol Tako AI hilang 100% tanpa lag.

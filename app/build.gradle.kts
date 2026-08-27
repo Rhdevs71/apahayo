@@ -53,8 +53,8 @@ android {
         minSdk = 28
         //noinspection OldTargetApi
         targetSdk = 34
-        versionCode = 155
-        versionName = "1.5.6 ($gitHash)"
+        versionCode = 157
+        versionName = "1.5.7 ($gitHash)"
         multiDexEnabled = true
 
         val patchVersion = "1.39.1"
