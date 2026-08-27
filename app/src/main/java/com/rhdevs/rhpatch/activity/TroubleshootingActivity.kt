@@ -2,48 +2,64 @@ package com.rhdevs.rhpatch.activity
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
-import com.wmods.wppenhacer.R
+import androidx.appcompat.widget.Toolbar
+import com.rhdevs.rhpatch.activities.base.BaseActivity
+import com.rhdevs.rhpatch.R
 
-class TroubleshootingActivity : AppCompatActivity() {
+class TroubleshootingActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_troubleshooting)
 
-        val btnBattery = findViewById<Button>(R.id.btn_trouble_battery)
-        val btnAutostart = findViewById<Button>(R.id.btn_trouble_autostart)
-        val btnAccessibility = findViewById<Button>(R.id.btn_trouble_accessibility)
-        val btnNotification = findViewById<Button>(R.id.btn_trouble_notification)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        toolbar?.setNavigationOnClickListener { onBackPressed() }
 
-        btnBattery.setOnClickListener {
+        val btnBattery = findViewById<Button>(R.id.btn_open_battery)
+        val btnAutostart = findViewById<Button>(R.id.btn_open_autostart)
+        val btnExactAlarm = findViewById<Button>(R.id.btn_open_exact_alarm)
+
+        btnBattery?.setOnClickListener {
             val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
             try {
                 startActivity(intent)
             } catch (e: Exception) {
-                // Fallback
                 startActivity(Intent(Settings.ACTION_SETTINGS))
             }
         }
 
-        btnAutostart.setOnClickListener {
-            // Autostart intents are highly OEM specific. We attempt to open App Info as fallback.
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            intent.data = Uri.parse("package:$packageName")
+        btnAutostart?.setOnClickListener {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.parse("package:$packageName")
+            }
             startActivity(intent)
         }
 
-        btnAccessibility.setOnClickListener {
-            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-            startActivity(intent)
-        }
-
-        btnNotification.setOnClickListener {
-            val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-            startActivity(intent)
+        btnExactAlarm?.setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                try {
+                    val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                        data = Uri.parse("package:$packageName")
+                    }
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.parse("package:$packageName")
+                    }
+                    startActivity(intent)
+                }
+            } else {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.parse("package:$packageName")
+                }
+                startActivity(intent)
+            }
         }
     }
 }

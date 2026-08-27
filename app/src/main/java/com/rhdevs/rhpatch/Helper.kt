@@ -6,8 +6,8 @@ import android.content.res.loader.ResourcesProvider
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.annotation.RequiresApi
-import app.morphe.extension.shared.Logger
-import app.morphe.extension.shared.Utils
+import com.rhdevs.rhpatch.youtube.extension.shared.Logger
+import com.rhdevs.rhpatch.youtube.extension.shared.Utils
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -143,10 +143,10 @@ fun Context.addModuleAssets() {
 }
 
 // Module layouts (e.g. morphe_sb_inline_sponsor_overlay.xml) reference module classes
-// (app.morphe.*) via class attributes. When the host app inflates these layouts, its
+// (com.rhdevs.rhpatch.youtube.*) via class attributes. When the host app inflates these layouts, its
 // ClassLoader cannot find those classes.
 // This method injects the module's ClassLoader into the host's classloader chain by
-// replacing host.parent with a proxy ClassLoader that delegates app.morphe.* lookups
+// replacing host.parent with a proxy ClassLoader that delegates com.rhdevs.rhpatch.youtube.* lookups
 // to the module's own ClassLoader before falling back to the original parent.
 fun injectSelfClassLoaderToHost(self: ClassLoader, host: ClassLoader) {
     val findClassMethod =
@@ -154,7 +154,7 @@ fun injectSelfClassLoaderToHost(self: ClassLoader, host: ClassLoader) {
     host.setObjectField("parent", object : ClassLoader(host.parent) {
         override fun findClass(name: String): Class<*> {
             try {
-                if (name.startsWith("app.morphe")) {
+                if (name.startsWith("com.rhdevs.rhpatch") || name.startsWith("app.morphe")) {
                     return findClassMethod(self, name) as Class<*>
                 }
             } catch (_: ClassNotFoundException) {

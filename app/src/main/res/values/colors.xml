@@ -1,47 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="apahayo_bg">#0F172A</color>
-    <color name="apahayo_surface">#1E293B</color>
-    <color name="apahayo_surface_elevated">#27272A</color>
-    <color name="apahayo_accent">#8B5CF6</color>
-    <color name="apahayo_accent_variant">#6D28D9</color>
-    <color name="apahayo_text_primary">#FAFAFA</color>
-    <color name="apahayo_text_secondary">#A1A1AA</color>
-    <color name="apahayo_nav_indicator">#3F3F46</color>
-    <color name="apahayo_success">#10B981</color>
-    
-    <!-- Fallbacks -->
-    <color name="colorPrimary">@color/apahayo_bg</color>
-    <color name="colorPrimaryDark">@color/apahayo_bg</color>
-    <color name="colorAccent">@color/apahayo_accent</color>
-    
-    <color name="gradient_start_primary">#8B5CF6</color>
-    <color name="gradient_end_primary">#6D28D9</color>
-    <color name="gradient_start_success">#10B981</color>
-    <color name="gradient_end_success">#047857</color>
-    <color name="gradient_start_error">#EF4444</color>
-    <color name="gradient_end_error">#B91C1C</color>
-    
-    <color name="nav_indicator">@color/apahayo_nav_indicator</color>
-    <color name="nav_background">@color/apahayo_surface</color>
-    <color name="ripple_color">#1FFFFFFF</color>
-    <color name="card_shadow">#20000000</color>
+    <!-- Brand Primary (Sage Teal Glow / Emerald Mint) -->
+    <color name="primary">#0D9488</color>
+    <color name="primary_variant">#0F766E</color>
+    <color name="primary_dark">#0F766E</color>
+    <color name="primary_light">#14B8A6</color>
+    <color name="primary_container">#E6FFFA</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="on_primary_container">#0D9488</color>
 
-    <color name="text_primary">@color/apahayo_text_primary</color>
-    <color name="text_secondary">@color/apahayo_text_secondary</color>
-    <color name="background_color">@color/apahayo_bg</color>
-    <color name="surface_color">@color/apahayo_surface</color>
-    <!-- Restored missing colors for compatibility -->
+    <!-- Accent Gold (Royal Gold) -->
+    <color name="secondary">#D97706</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="accent_gold">#D97706</color>
+    <color name="accent_gold_light">#F59E0B</color>
+    <color name="accent_gold_dark">#B45309</color>
+    <color name="accent_gold_container">#FEF3C7</color>
+
+    <!-- Light Mode Backgrounds & Surfaces (Crisp, Clean Slate) -->
+    <color name="bg_app">#F8FAFC</color>
+    <color name="bg_surface">#FFFFFF</color>
+    <color name="bg_card">#FFFFFF</color>
+    <color name="bg_card_elevated">#F1F5F9</color>
+    <color name="border_stroke">#E2E8F0</color>
+
+    <!-- Typography Light (High Contrast Slate) -->
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#475569</color>
+    <color name="text_muted">#94A3B8</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Status & Functional -->
+    <color name="error">#EF4444</color>
+    <color name="success">#10B981</color>
+    <color name="warning">#F59E0B</color>
+    <color name="overlay_black_40">#66000000</color>
+
+    <!-- Bottom Navigation Light -->
+    <color name="bottom_nav_bg">#FFFFFF</color>
+    <color name="bottom_nav_item">#64748B</color>
+    <color name="bottom_nav_selected">#0D9488</color>
+
+    <!-- Feature Grid Light Mode Palette -->
+    <color name="feat_wa_bg">#ECFDF5</color>
+    <color name="feat_wa_icon">#059669</color>
+    <color name="feat_yt_bg">#FEF2F2</color>
+    <color name="feat_yt_icon">#EF4444</color>
+    <color name="feat_tiktok_bg">#FDF4FF</color>
+    <color name="feat_tiktok_icon">#C026D3</color>
+    <color name="feat_spam_bg">#FFFBEB</color>
+    <color name="feat_spam_icon">#D97706</color>
+    <color name="feat_sched_bg">#EFF6FF</color>
+    <color name="feat_sched_icon">#2563EB</color>
+    <color name="feat_dns_bg">#FAF5FF</color>
+    <color name="feat_dns_icon">#7C3AED</color>
+
+    <!-- Compatibility Aliases for Rhpatch UI -->
+    <color name="surface_elevated">#F1F5F9</color>
+    <color name="surface_container">#F8FAFC</color>
+    <color name="surface_container_high">#E2E8F0</color>
+    <color name="whatsapp_green">#25D366</color>
+    <color name="whatsapp_dark_green">#128C7E</color>
+    <color name="whatsapp_teal">#075E54</color>
+
+    <color name="apahayo_bg">@color/bg_app</color>
+    <color name="apahayo_surface">@color/bg_surface</color>
+    <color name="apahayo_surface_elevated">@color/bg_card_elevated</color>
+    <color name="apahayo_border">@color/border_stroke</color>
+    <color name="apahayo_accent">@color/primary</color>
+    <color name="apahayo_accent_variant">@color/primary_variant</color>
+    <color name="apahayo_primary">@color/primary</color>
+    <color name="apahayo_text_primary">@color/text_primary</color>
+    <color name="apahayo_text_secondary">@color/text_secondary</color>
+    <color name="apahayo_nav_indicator">@color/primary_container</color>
+    <color name="apahayo_success">@color/success</color>
+    <color name="apahayo_card_stroke">@color/border_stroke</color>
+
+    <color name="colorPrimary">@color/bg_app</color>
+    <color name="colorPrimaryDark">@color/bg_app</color>
+    <color name="colorAccent">@color/primary</color>
+    <color name="nav_indicator">@color/primary_container</color>
+    <color name="nav_background">@color/bg_surface</color>
+    <color name="ripple_color">#140D9488</color>
+    <color name="card_shadow">#08000000</color>
+
+    <color name="background_color">@color/bg_app</color>
+    <color name="surface_color">@color/bg_surface</color>
     <color name="text_on_gradient">#FFFFFF</color>
-    <color name="primary_background">#121212</color>
-    <!-- Additional missing colors -->
-    <color name="primary_color">@color/apahayo_accent</color>
+    <color name="primary_background">#FFFFFF</color>
+    <color name="primary_color">@color/primary</color>
     <color name="yt_white1">#FFFFFF</color>
     <color name="yt_black0">#000000</color>
-    <color name="log_info">#4CAF50</color>
+    <color name="log_info">#10B981</color>
+    <color name="log_success">#10B981</color>
+    <color name="log_warning">#F59E0B</color>
+    <color name="log_error">#EF4444</color>
     <color name="skip_ad_button_foreground_color">#FFFFFF</color>
-    <!-- Missing log colors -->
-    <color name="log_success">#4CAF50</color>
-    <color name="log_warning">#FF9800</color>
-    <color name="log_error">#F44336</color>
+    <color name="gradient_start_primary">#0D9488</color>
+    <color name="gradient_end_primary">#14B8A6</color>
 </resources>

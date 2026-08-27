@@ -59,7 +59,7 @@ jobs:
       - name: Find APK
         id: find_apk
         run: |
-          APK_PATH=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
+          APK_PATH=$(find app/build/outputs/apk -name "*.apk" | head -n 1)
           echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload to GitHub release

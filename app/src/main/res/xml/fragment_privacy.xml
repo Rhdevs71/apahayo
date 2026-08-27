@@ -2,15 +2,18 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="@string/home_screen">
+    <!-- GLOBAL PRIVACY -->
+    <PreferenceCategory app:title="Keamanan &amp; Mode Hantu">
 
-        <ListPreference
-            android:defaultValue="0"
-            android:entries="@array/archive_entries"
-            android:entryValues="@array/archive_values"
-            app:key="typearchive"
-            app:summary="@string/hide_archived_chat_sum"
-            app:title="@string/hide_archived_chat" />
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="ghostmode"
+            app:summary="@string/ghost_mode_sum"
+            app:title="@string/ghost_mode_title" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="freezelastseen"
+            app:summary="@string/freezelastseen_sum"
+            app:title="@string/freezelastseen" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:defaultValue="true"
@@ -19,28 +22,15 @@
             app:title="@string/show_freezeLastSeen_button" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:defaultValue="true"
-            app:key="ghostmode"
-            app:summary="@string/ghost_mode_sum"
-            app:title="@string/ghost_mode_title" />
-
-        <rikka.material.preference.MaterialSwitchPreference
             app:key="always_online"
             app:summary="@string/always_online_sum"
             app:title="@string/always_online" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="lockedchats_enhancer"
-            app:summary="@string/lockedchats_enhancer_sum"
-            app:title="@string/lockedchats_enhancer" />
-
     </PreferenceCategory>
 
-
-    <PreferenceCategory
-        app:iconSpaceReserved="false"
-        app:title="@string/conversation">
-
+    <!-- CHAT PRIVACY -->
+    <PreferenceCategory app:title="Privasi Obrolan">
+        
         <ListPreference
             app:defaultValue="0"
             app:entries="@array/custom_privacy_entries"
@@ -48,12 +38,6 @@
             app:key="custom_privacy_type"
             app:summary="@string/custom_privacy_per_contact_sum"
             app:title="@string/custom_privacy_per_contact" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="freezelastseen"
-            app:summary="@string/freezelastseen_sum"
-            app:title="@string/freezelastseen" />
-
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="hideread"
@@ -91,6 +75,16 @@
             app:summary="@string/ghostmode_sum_r"
             app:title="@string/ghostmode_r" />
 
+    </PreferenceCategory>
+
+    <!-- MEDIA PRIVACY -->
+    <PreferenceCategory app:title="Anti-Hapus &amp; Sekali Lihat">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="viewonce"
+            app:summary="@string/viewonce_sum"
+            app:title="@string/viewonce" />
+            
         <rikka.material.preference.MaterialSwitchPreference
             app:key="hideonceseen"
             app:summary="@string/hide_once_view_seen_sum"
@@ -101,11 +95,6 @@
             app:summary="@string/hide_audio_seen_sum"
             app:title="@string/hide_audio_seen" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="viewonce"
-            app:summary="@string/viewonce_sum"
-            app:title="@string/viewonce" />
-
         <ListPreference
             app:entries="@array/seentick_buttons"
             app:entryValues="@array/seentick_values"
@@ -115,18 +104,13 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        app:iconSpaceReserved="false"
-        app:title="@string/status">
+    <!-- STATUS & CALLS -->
+    <PreferenceCategory app:title="Status &amp; Panggilan">
+
         <rikka.material.preference.MaterialSwitchPreference
             app:key="hidestatusview"
             app:summary="@string/hidestatusview_sum"
             app:title="@string/hidestatusview" />
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        app:iconSpaceReserved="false"
-        app:title="@string/calls">
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="call_info"
@@ -147,13 +131,13 @@
             app:summary="@string/call_blocking_type_sum"
             app:title="@string/call_blocking_type" />
 
-        <com.wmods.wppenhacer.preference.ContactPickerPreference
+        <com.rhdevs.rhpatch.preference.ContactPickerPreference
             android:key="call_block_contacts"
             android:title="@string/contact_block_list"
             app:summaryOff="@string/no_contacts_selected"
             app:summaryOn="@string/contact_were_selected" />
 
-        <com.wmods.wppenhacer.preference.ContactPickerPreference
+        <com.rhdevs.rhpatch.preference.ContactPickerPreference
             android:key="call_white_contacts"
             android:title="@string/contact_white_list"
             app:summaryOff="@string/no_contacts_selected"
@@ -161,5 +145,20 @@
 
     </PreferenceCategory>
 
+    <!-- MISC -->
+    <PreferenceCategory app:title="Tata Letak &amp; Lainnya">
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/archive_entries"
+            android:entryValues="@array/archive_values"
+            app:key="typearchive"
+            app:summary="@string/hide_archived_chat_sum"
+            app:title="@string/hide_archived_chat" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="lockedchats_enhancer"
+            app:summary="@string/lockedchats_enhancer_sum"
+            app:title="@string/lockedchats_enhancer" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

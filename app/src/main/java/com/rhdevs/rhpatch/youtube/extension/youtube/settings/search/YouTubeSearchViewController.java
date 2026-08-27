@@ -1,0 +1,60 @@
+package com.rhdevs.rhpatch.youtube.extension.youtube.settings.search;
+
+import android.app.Activity;
+import android.preference.Preference;
+import android.preference.PreferenceScreen;
+import android.view.View;
+import android.widget.Toolbar;
+
+import com.rhdevs.rhpatch.youtube.extension.shared.settings.search.BaseSearchResultItem;
+import com.rhdevs.rhpatch.youtube.extension.shared.settings.search.BaseSearchResultsAdapter;
+import com.rhdevs.rhpatch.youtube.extension.shared.settings.search.BaseSearchViewController;
+import com.rhdevs.rhpatch.youtube.extension.youtube.settings.preference.YouTubePreferenceFragment;
+
+/**
+ * YouTube-specific search view controller implementation.
+ */
+@SuppressWarnings("deprecation")
+public class YouTubeSearchViewController extends BaseSearchViewController {
+
+    public static YouTubeSearchViewController addSearchViewComponents(Activity activity, Toolbar toolbar,
+                                                                      YouTubePreferenceFragment fragment) {
+        return new YouTubeSearchViewController(activity, toolbar, fragment);
+    }
+
+    private YouTubeSearchViewController(Activity activity, Toolbar toolbar, YouTubePreferenceFragment fragment) {
+        super(activity, toolbar, new PreferenceFragmentAdapter(fragment));
+    }
+
+    @Override
+    protected BaseSearchResultsAdapter createSearchResultsAdapter() {
+        return new YouTubeSearchResultsAdapter(activity, filteredSearchItems, fragment, this);
+    }
+
+    @Override
+    protected boolean isSpecialPreferenceGroup(Preference preference) {
+        return false;
+    }
+
+    @Override
+    protected void setupSpecialPreferenceListeners(BaseSearchResultItem item) {
+    }
+
+    // Adapter to wrap YouTubePreferenceFragment to BasePreferenceFragment interface.
+    private record PreferenceFragmentAdapter(YouTubePreferenceFragment fragment) implements BasePreferenceFragment {
+        @Override
+        public PreferenceScreen getPreferenceScreenForSearch() {
+            return fragment.getPreferenceScreenForSearch();
+        }
+
+        @Override
+        public View getView() {
+            return fragment.getView();
+        }
+
+        @Override
+        public Activity getActivity() {
+            return fragment.getActivity();
+        }
+    }
+}

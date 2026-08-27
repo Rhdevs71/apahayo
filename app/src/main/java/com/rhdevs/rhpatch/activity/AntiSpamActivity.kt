@@ -14,8 +14,9 @@ import android.widget.TextView
 import android.widget.ScrollView
 import android.content.pm.PackageManager
 import android.Manifest
+import com.rhdevs.rhpatch.activities.base.BaseActivity
 
-class AntiSpamActivity : Activity() {
+class AntiSpamActivity : BaseActivity() {
     private val PREFS_NAME = "prefs"
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,17 +24,21 @@ class AntiSpamActivity : Activity() {
         
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         
-        setContentView(com.wmods.wppenhacer.R.layout.activity_anti_spam)
+        setContentView(com.rhdevs.rhpatch.R.layout.activity_anti_spam)
         
-        val switchSms = findViewById<SwitchMaterial>(com.wmods.wppenhacer.R.id.switch_sms)
-        val inputKeywords = findViewById<EditText>(com.wmods.wppenhacer.R.id.input_keywords)
-        val btnSaveSms = findViewById<Button>(com.wmods.wppenhacer.R.id.btn_save_sms)
-        val switchCallHidden = findViewById<SwitchMaterial>(com.wmods.wppenhacer.R.id.switch_call_hidden)
-        val switchCallNonContacts = findViewById<SwitchMaterial>(com.wmods.wppenhacer.R.id.switch_call_non_contacts)
-        val btnLog = findViewById<Button>(com.wmods.wppenhacer.R.id.btn_log)
-        val switchWa = findViewById<SwitchMaterial>(com.wmods.wppenhacer.R.id.switch_wa)
-        val inputWaKeywords = findViewById<EditText>(com.wmods.wppenhacer.R.id.input_wa_keywords)
-        val btnSaveWa = findViewById<Button>(com.wmods.wppenhacer.R.id.btn_save_wa)
+        findViewById<com.google.android.material.appbar.MaterialToolbar>(com.rhdevs.rhpatch.R.id.toolbar)?.setNavigationOnClickListener {
+            finish()
+        }
+        
+        val switchSms = findViewById<SwitchMaterial>(com.rhdevs.rhpatch.R.id.switch_sms)
+        val inputKeywords = findViewById<EditText>(com.rhdevs.rhpatch.R.id.input_keywords)
+        val btnSaveSms = findViewById<Button>(com.rhdevs.rhpatch.R.id.btn_save_sms)
+        val switchCallHidden = findViewById<SwitchMaterial>(com.rhdevs.rhpatch.R.id.switch_call_hidden)
+        val switchCallNonContacts = findViewById<SwitchMaterial>(com.rhdevs.rhpatch.R.id.switch_call_non_contacts)
+        val btnLog = findViewById<Button>(com.rhdevs.rhpatch.R.id.btn_log)
+        val switchWa = findViewById<SwitchMaterial>(com.rhdevs.rhpatch.R.id.switch_wa)
+        val inputWaKeywords = findViewById<EditText>(com.rhdevs.rhpatch.R.id.input_wa_keywords)
+        val btnSaveWa = findViewById<Button>(com.rhdevs.rhpatch.R.id.btn_save_wa)
         
         // Initialize values
         switchSms.isChecked = prefs.getBoolean("antispam_sms_enabled", false)
@@ -91,7 +96,7 @@ class AntiSpamActivity : Activity() {
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val logsSms = prefs.getString("antispam_logs", "[]") ?: "[]"
         val logsWa = prefs.getString("wa_antispam_logs", "[]") ?: "[]"
-        val container = findViewById<LinearLayout>(com.wmods.wppenhacer.R.id.container_spam_history)
+        val container = findViewById<LinearLayout>(com.rhdevs.rhpatch.R.id.container_spam_history)
         
         container.removeAllViews()
         container.visibility = View.VISIBLE

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#0F172A">
+    android:background="@color/bg_app">
 
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -68,7 +68,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:text="Belum ada tugas terjadwal."
-        android:textColor="#94A3B8"
+        android:textColor="#8F9CAE"
         android:textSize="16sp"
         android:visibility="gone" />
 

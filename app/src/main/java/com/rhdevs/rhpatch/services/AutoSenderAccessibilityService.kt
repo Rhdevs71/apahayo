@@ -18,14 +18,14 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Toast
 import com.rhdevs.rhpatch.scheduler.db.UniversalTaskEntity
-import com.wmods.wppenhacer.database.AppDatabase
+import com.rhdevs.rhpatch.database.AppDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentLinkedQueue
 import android.app.Notification
 import android.app.RemoteInput
-import com.wmods.wppenhacer.database.AutoReplyRule
+import com.rhdevs.rhpatch.database.AutoReplyRule
 
 class AutoSenderAccessibilityService : AccessibilityService() {
 
@@ -33,10 +33,12 @@ class AutoSenderAccessibilityService : AccessibilityService() {
 
     companion object {
         private const val TAG = "RhpatchAutoSender"
-        private var instance: AutoSenderAccessibilityService? = null
+        var instance: AutoSenderAccessibilityService? = null
         private val taskQueue = ConcurrentLinkedQueue<Task>()
         private var isProcessing = false
         private var wakeLock: PowerManager.WakeLock? = null
+
+        fun isServiceRunning(): Boolean = instance != null
 
         fun enqueueTask(phone: String, message: String) {
             Log.d(TAG, "Legacy Task enqueued for $phone")
@@ -69,7 +71,7 @@ class AutoSenderAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
-        Toast.makeText(this, "Rhpatch Universal Auto Sender Connected", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Layanan Aksesibilitas Rhpatch Terhubung", Toast.LENGTH_SHORT).show()
         processNextTask()
     }
 
@@ -162,7 +164,7 @@ class AutoSenderAccessibilityService : AccessibilityService() {
         
         for (i in pin.indices) {
             val digit = pin[i]
-            val delay = (i * 300).toLong()
+            val delay = (i * 350).toLong()
             handler.postDelayed({
                 val rootNode = rootInActiveWindow
                 if (rootNode != null) {
@@ -171,26 +173,95 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             }, delay)
         }
 
-        // Wait for all digits to be clicked, then press Enter if needed, or wait for auto-unlock
-        val totalDelay = (pin.length * 300 + 1000).toLong()
+        // Wait for all digits to be clicked, then press Enter / OK if needed
+        val totalDelay = (pin.length * 350 + 800).toLong()
         handler.postDelayed({
-            // Try to click enter button (sometimes 'OK' or an arrow icon, but let's hope it auto-submits or user doesn't require enter)
-            // Just wait and launch
-            step = 2
-            launchTargetApp(currentTask!!)
+            val rootNode = rootInActiveWindow
+            if (rootNode != null) {
+                clickNodeByKeywords(rootNode, "ok", "enter", "done", "selesai", "confirm", "check")
+            }
+            handler.postDelayed({
+                step = 2
+                launchTargetApp(currentTask!!)
+            }, 800)
         }, totalDelay)
     }
 
-    private fun clickNodeByText(node: AccessibilityNodeInfo?, text: String) {
-        if (node == null) return
-        val nodeText = node.text?.toString() ?: ""
-        val nodeDesc = node.contentDescription?.toString() ?: ""
-        if (nodeText == text || nodeDesc == text) {
+    private fun clickNodeByText(node: AccessibilityNodeInfo?, text: String): Boolean {
+        if (node == null) return false
+        val nodeText = node.text?.toString()?.trim() ?: ""
+        val nodeDesc = node.contentDescription?.toString()?.trim() ?: ""
+        val viewId = node.viewIdResourceName?.lowercase() ?: ""
+        
+        val isDigitMatch = nodeText == text || nodeDesc == text || 
+                           viewId.endsWith("key_$text") || viewId.endsWith("key$text") || 
+                           viewId.endsWith("digit_$text") || viewId.endsWith("digit$text")
+
+        if (isDigitMatch) {
+            var target: AccessibilityNodeInfo? = node
+            while (target != null && !target.isClickable) {
+                target = target.parent
+            }
+            if (target != null && target.isClickable) {
+                target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                return true
+            }
+            
+            // If neither is clickable directly, click bounds via gesture
+            val rect = android.graphics.Rect()
+            node.getBoundsInScreen(rect)
+            if (rect.width() > 0 && rect.height() > 0) {
+                val cx = rect.centerX().toFloat()
+                val cy = rect.centerY().toFloat()
+                clickAtCoordinates(cx, cy)
+                return true
+            }
             node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-            return
+            return true
         }
+
         for (i in 0 until node.childCount) {
-            clickNodeByText(node.getChild(i), text)
+            if (clickNodeByText(node.getChild(i), text)) return true
+        }
+        return false
+    }
+
+    private fun clickNodeByKeywords(node: AccessibilityNodeInfo?, vararg keywords: String): Boolean {
+        if (node == null) return false
+        val desc = node.contentDescription?.toString()?.lowercase() ?: ""
+        val text = node.text?.toString()?.lowercase() ?: ""
+        val viewId = node.viewIdResourceName?.lowercase() ?: ""
+
+        for (kw in keywords) {
+            val key = kw.lowercase()
+            if (desc == key || text == key || viewId.contains(key)) {
+                var target: AccessibilityNodeInfo? = node
+                while (target != null && !target.isClickable) {
+                    target = target.parent
+                }
+                if (target != null && target.isClickable) {
+                    target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                    return true
+                }
+                node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                return true
+            }
+        }
+
+        for (i in 0 until node.childCount) {
+            if (clickNodeByKeywords(node.getChild(i), *keywords)) return true
+        }
+        return false
+    }
+
+    private fun clickAtCoordinates(x: Float, y: Float) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val path = Path()
+            path.moveTo(x, y)
+            val gesture = GestureDescription.Builder()
+                .addStroke(GestureDescription.StrokeDescription(path, 0, 100))
+                .build()
+            dispatchGesture(gesture, null, null)
         }
     }
 
@@ -650,12 +721,12 @@ class AutoSenderAccessibilityService : AccessibilityService() {
     private fun queryAiChatbot(apiKey: String, messageText: String, model: String, provider: String, jid: String, userInstruction: String?): String? {
         var connection: java.net.HttpURLConnection? = null
         return try {
-            val aiDb = com.wmods.wppenhacer.database.AiMemoryDatabase.getInstance(applicationContext)
+            val aiDb = com.rhdevs.rhpatch.database.AiMemoryDatabase.getInstance(applicationContext)
             val dao = aiDb.aiMemoryDao()
             
             val sysInstruction = if (!userInstruction.isNullOrEmpty()) userInstruction else "Anda adalah asisten AI pribadi yang ramah, sopan, dan menganggap diri Anda sebagai manusia nyata. Bahasa Anda tidak kaku, menggunakan gaya kata sehari-hari namun tetap sopan dan membantu. Jawablah pesan pengguna dengan natural."
 
-            dao.insertMemory(com.wmods.wppenhacer.database.AiMemoryEntity(jid = jid, role = "user", messageText = messageText, timestamp = System.currentTimeMillis()))
+            dao.insertMemory(com.rhdevs.rhpatch.database.AiMemoryEntity(jid = jid, role = "user", messageText = messageText, timestamp = System.currentTimeMillis()))
             if (dao.getMemoryCount(jid) > 15) {
                 dao.deleteOldestMemory(jid)
             }
@@ -732,7 +803,7 @@ class AutoSenderAccessibilityService : AccessibilityService() {
                 }
                 
                 if (reply.isNotEmpty()) {
-                    dao.insertMemory(com.wmods.wppenhacer.database.AiMemoryEntity(jid = jid, role = "model", messageText = reply, timestamp = System.currentTimeMillis()))
+                    dao.insertMemory(com.rhdevs.rhpatch.database.AiMemoryEntity(jid = jid, role = "model", messageText = reply, timestamp = System.currentTimeMillis()))
                     if (dao.getMemoryCount(jid) > 15) {
                         dao.deleteOldestMemory(jid)
                     }

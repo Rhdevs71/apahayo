@@ -9,17 +9,17 @@ import android.content.Context.MODE_PRIVATE
 import android.os.Build
 import android.os.Bundle
 import android.webkit.WebView
-import app.morphe.extension.shared.Logger
-import app.morphe.extension.shared.ResourceUtils
-import app.morphe.extension.shared.Utils
+import com.rhdevs.rhpatch.youtube.extension.shared.Logger
+import com.rhdevs.rhpatch.youtube.extension.shared.ResourceUtils
+import com.rhdevs.rhpatch.youtube.extension.shared.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
-import com.wmods.wppenhacer.BuildConfig
-import com.wmods.wppenhacer.BuildConfig.DEBUG
-import com.rhdevs.rhpatch.morphe.Fingerprint
+import com.rhdevs.rhpatch.BuildConfig
+import com.rhdevs.rhpatch.BuildConfig.DEBUG
+import com.rhdevs.rhpatch.youtube.Fingerprint
 import org.luckypray.dexkit.DexKitBridge
 import org.luckypray.dexkit.DexKitCacheBridge
 import org.luckypray.dexkit.annotations.DexKitExperimentalApi
@@ -214,7 +214,7 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
         if (!isCached) {
             cache.clearAll()
             cache.putString("id", id)
-            Utils.showToastLong("Rhpatch is initializing, please wait...")
+            Logger.printInfo { "Rhpatch is initializing cache for ${lpparam.packageName}..." }
         }
     }
 
@@ -250,11 +250,11 @@ class PatchExecutor(val appContext: Application, val lpparam: LoadPackageParam) 
 
     private fun logDebugInfo() {
         val success = failedPatches.isEmpty()
-        if (DEBUG) {
-            XposedBridge.log("${lpparam.appInfo.packageName} version: ${getAppVersion()}")
-        }
-        if (success && appliedPatches.isNotEmpty()) {
-            Utils.showToastLong("Rhpatch: ${appliedPatches.size} patches applied")
+        val appVer = getAppVersion()
+        if (success) {
+            XposedBridge.log("Rhpatch: Successfully applied ${appliedPatches.size} patches for ${lpparam.packageName} (version $appVer)")
+        } else {
+            XposedBridge.log("Rhpatch: Finished patching for ${lpparam.packageName} (version $appVer). Applied: ${appliedPatches.size}, Failed: ${failedPatches.size} (${failedPatches.joinToString { it.name }})")
         }
     }
 

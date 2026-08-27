@@ -8,11 +8,11 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import com.wmods.wppenhacer.R
+import com.rhdevs.rhpatch.activities.base.BaseActivity
+import com.rhdevs.rhpatch.R
 import com.rhdevs.rhpatch.services.AutoSenderAccessibilityService
 
-class PermissionCheckActivity : AppCompatActivity() {
+class PermissionCheckActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

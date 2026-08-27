@@ -19,275 +19,180 @@ object SystemAntiSpamHook {
         }
     }
 
-    private fun getConfigBoolean(prefs: XSharedPreferences?, context: Context?, key: String, fallback: Boolean = false): Boolean {
-        try {
-            prefs?.reload()
-            if (prefs != null && prefs.contains(key)) return prefs.getBoolean(key, fallback)
-        } catch (e: Throwable) {}
-
-        val ctx = context ?: getAppContext() ?: return fallback
-        try {
-            val remotePrefs = com.crossbowffs.remotepreferences.RemotePreferences(
-                ctx, "com.wmods.wppenhacer.preferences", "prefs"
-            )
-            return remotePrefs.getBoolean(key, fallback)
-        } catch (e: Throwable) {}
-        return fallback
-    }
-
     private fun getConfigString(prefs: XSharedPreferences?, context: Context?, key: String, fallback: String = ""): String {
         try {
             prefs?.reload()
             if (prefs != null && prefs.contains(key)) return prefs.getString(key, fallback) ?: fallback
         } catch (e: Throwable) {}
-
         val ctx = context ?: getAppContext() ?: return fallback
         try {
             val remotePrefs = com.crossbowffs.remotepreferences.RemotePreferences(
-                ctx, "com.wmods.wppenhacer.preferences", "prefs"
+                ctx, "com.rhdevs.rhpatch.preferences", "prefs"
             )
             return remotePrefs.getString(key, fallback) ?: fallback
         } catch (e: Throwable) {}
         return fallback
     }
 
-    private fun saveSpamLog(message: String, type: String, context: Context?) {
+    private fun getConfigBoolean(prefs: XSharedPreferences?, context: Context?, key: String, fallback: Boolean = false): Boolean {
         try {
-            val appCtx = context ?: getAppContext() ?: return
-            val intent = android.content.Intent("com.rhdevs.rhpatch.LOG_SPAM")
-            intent.putExtra("message", message)
-            intent.putExtra("type", type)
-            intent.setPackage("com.rhdevs.rhpatch")
-            appCtx.sendBroadcast(intent)
-        } catch (e: Exception) {}
+            prefs?.reload()
+            if (prefs != null && prefs.contains(key)) return prefs.getBoolean(key, fallback)
+        } catch (e: Throwable) {}
+        val ctx = context ?: getAppContext() ?: return fallback
+        try {
+            val remotePrefs = com.crossbowffs.remotepreferences.RemotePreferences(
+                ctx, "com.rhdevs.rhpatch.preferences", "prefs"
+            )
+            return remotePrefs.getBoolean(key, fallback)
+        } catch (e: Throwable) {}
+        return fallback
     }
 
-    private fun isSpam(prefs: XSharedPreferences?, message: String, context: Context?): Boolean {
-        if (message.isEmpty()) return false
-        val keywordsRaw = getConfigString(prefs, context, "antispam_sms_keywords", "")
-        if (keywordsRaw.isEmpty()) return false
-        
-        val keywords = keywordsRaw.split(Regex("[,\\n]+")).map { it.trim().lowercase() }.filter { it.isNotEmpty() }
-        for (keyword in keywords) {
-            val regex = Regex("(?i)" + java.util.regex.Pattern.quote(keyword))
-            if (regex.containsMatchIn(message)) {
-                saveSpamLog("SMS Spam Terdeteksi: Kata kunci '$keyword' -> $message", "SMS", context)
-                return true
-            }
-        }
-        return false
+    private fun checkSpamKeyword(message: String, context: Context?, prefs: XSharedPreferences?): Boolean {
+        if (!getConfigBoolean(prefs, context, "antispam_sms_enabled", false)) return false
+        val keywordsStr = getConfigString(prefs, context, "antispam_sms_keywords", "")
+        if (keywordsStr.isEmpty()) return false
+        val keywords = keywordsStr.split(Regex("[,\\n]+")).map { it.trim().lowercase() }.filter { it.isNotEmpty() }
+        val lowerMsg = message.lowercase()
+        return keywords.any { lowerMsg.contains(it) }
     }
 
     fun hookSms(classLoader: ClassLoader, prefs: XSharedPreferences, context: Context? = null) {
-        var isSmsProviderHooked = false
-        var isInboundSmsHooked = false
-        var isIntentSmsHooked = false
-
-        // DOKTRIN 1 - Lapis 0: Pintu Gerbang Database (The Absolute Blocker) - UNIVERSAL
         try {
-            val contentProviderClass = XposedHelpers.findClassIfExists("android.content.ContentProvider", classLoader)
-            if (contentProviderClass != null) {
-                XposedBridge.hookAllMethods(contentProviderClass, "insert", object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        try {
-                            val uri = param.args[0] as? Uri ?: return
-                            if (uri.toString().startsWith("content://sms")) {
-                                XposedBridge.log("Rhpatch Anti-Spam: Hooked ContentProvider.insert for SMS")
-                                val provider = param.thisObject as? android.content.ContentProvider
-                                val ctx = provider?.context ?: getAppContext()
-                                
-                                val isEnabled = getConfigBoolean(prefs, ctx, "antispam_sms_enabled", false)
-                                if (!isEnabled) return
-                                
+            // LAYER 1: Telephony SmsProvider SQLite Database Interception
+            val smsProviderClass = XposedHelpers.findClassIfExists("com.android.providers.telephony.SmsProvider", classLoader)
+            if (smsProviderClass != null) {
+                for (m in smsProviderClass.declaredMethods) {
+                    if (m.name == "insert" && m.parameterTypes.size == 2) {
+                        XposedBridge.hookMethod(m, object : XC_MethodHook() {
+                            override fun beforeHookedMethod(param: MethodHookParam) {
                                 val values = param.args[1] as? android.content.ContentValues ?: return
-                                val body = values.getAsString("body") ?: return
+                                val body = values.getAsString("body") ?: ""
+                                val address = values.getAsString("address") ?: ""
                                 
-                                val spam = isSpam(prefs, body, ctx)
-                                if (spam) {
-                                    XposedBridge.log("Rhpatch Anti-Spam: [Lapis 0 Universal] Memblokir SMS di hulu provider: $body")
-                                    param.result = null // Blokir total dari database
+                                if (checkSpamKeyword(body, getAppContext(), prefs) || checkSpamKeyword(address, getAppContext(), prefs)) {
+                                    XposedBridge.log("Rhpatch Anti-Spam: Dropped SMS Provider write: $address -> $body")
+                                    param.result = Uri.parse("content://sms/blocked/0")
                                 }
                             }
-                        } catch (e: Throwable) {
-                            XposedBridge.log("Rhpatch Anti-Spam: Error in Universal ContentProvider hook: ${e.message}")
-                        }
+                        })
                     }
-                })
-                isSmsProviderHooked = true
-                XposedBridge.log("Rhpatch Anti-Spam: Universal SMS Hook (Lapis 0) berhasil terpasang.")
+                }
             }
-        } catch (e: Throwable) {}
 
-        // DOKTRIN 1 - Lapis 1: Mesin Pemroses PDU (The Network Interceptor)
-        if (!isSmsProviderHooked) {
-            try {
-                val inboundSmsHandlerClass = XposedHelpers.findClassIfExists("com.android.internal.telephony.InboundSmsHandler", classLoader)
-                if (inboundSmsHandlerClass != null) {
-                    XposedBridge.hookAllMethods(inboundSmsHandlerClass, "dispatchIntent", object : XC_MethodHook() {
+            // LAYER 2: InboundSmsHandler & Message Tracker
+            val inboundSmsHandlerClass = XposedHelpers.findClassIfExists("com.android.internal.telephony.InboundSmsHandler", classLoader)
+            if (inboundSmsHandlerClass != null) {
+                val dispatchMethods = inboundSmsHandlerClass.declaredMethods.filter { 
+                    it.name == "dispatchIntent" || it.name == "dispatchSmsDeliveryIntent" || it.name == "processMessagePart" 
+                }
+                for (method in dispatchMethods) {
+                    XposedBridge.hookMethod(method, object : XC_MethodHook() {
                         override fun beforeHookedMethod(param: MethodHookParam) {
-                            try {
-                                val ctx = getAppContext()
-                                if (!getConfigBoolean(prefs, ctx, "antispam_sms_enabled", false)) return
-                                // PDU extraction logic would go here if needed.
-                            } catch (e: Throwable) {}
+                            val intent = param.args.firstOrNull { it is android.content.Intent } as? android.content.Intent
+                            if (intent != null) {
+                                try {
+                                    val pdus = intent.extras?.get("pdus") as? Array<*>
+                                    val format = intent.extras?.getString("format")
+                                    if (pdus != null) {
+                                        val smsMessageClass = XposedHelpers.findClass("android.telephony.SmsMessage", classLoader)
+                                        val fullMessage = java.lang.StringBuilder()
+                                        for (pdu in pdus) {
+                                            val sms = XposedHelpers.callStaticMethod(smsMessageClass, "createFromPdu", pdu, format)
+                                            val body = XposedHelpers.callMethod(sms, "getDisplayMessageBody") as? String
+                                            if (body != null) fullMessage.append(body)
+                                        }
+                                        
+                                        if (checkSpamKeyword(fullMessage.toString(), getAppContext(), prefs)) {
+                                            if (method.returnType == Boolean::class.javaPrimitiveType) {
+                                                param.result = true
+                                            } else if (method.returnType == Int::class.javaPrimitiveType) {
+                                                param.result = 1
+                                            } else {
+                                                param.result = null
+                                            }
+                                            XposedBridge.log("Rhpatch Anti-Spam: Blocked InboundSmsHandler: $fullMessage")
+                                            return
+                                        }
+                                    }
+                                } catch (e: Throwable) {}
+                            }
+
+                            // Check tracker object if present
+                            val tracker = param.args.firstOrNull { it != null && it.javaClass.simpleName.contains("InboundSmsTracker") }
+                            if (tracker != null) {
+                                val messageBody = XposedHelpers.callMethod(tracker, "getMessageBody") as? String ?: ""
+                                if (checkSpamKeyword(messageBody, getAppContext(), prefs)) {
+                                    if (method.returnType == Boolean::class.javaPrimitiveType) {
+                                        param.result = true
+                                    } else if (method.returnType == Int::class.javaPrimitiveType) {
+                                        param.result = 1
+                                    } else {
+                                        param.result = null
+                                    }
+                                    XposedBridge.log("Rhpatch Anti-Spam: Blocked SMS Tracker: $messageBody")
+                                }
+                            }
                         }
                     })
-                    isInboundSmsHooked = true
-                    XposedBridge.log("Rhpatch Anti-Spam: SMS Hook (Lapis 1: InboundSmsHandler) fallback terpasang.")
                 }
-            } catch (e: Throwable) {}
-        }
+            }
 
-        // DOKTRIN 1 - Lapis 2: Kurir Broadcast (The App Interceptor)
-        try {
-            val intentsClass = XposedHelpers.findClassIfExists("android.provider.Telephony.Sms.Intents", classLoader)
-            if (intentsClass != null) {
-                XposedBridge.hookAllMethods(intentsClass, "getMessagesFromIntent", object : XC_MethodHook() {
+            // LAYER 3: Intents & Messaging Apps
+            XposedHelpers.findAndHookMethod(
+                "android.provider.Telephony.Sms.Intents", classLoader, "getMessagesFromIntent",
+                android.content.Intent::class.java,
+                object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        try {
-                            val ctx = getAppContext()
-                            if (!getConfigBoolean(prefs, ctx, "antispam_sms_enabled", false)) return
-                            
-                            val messages = param.result as? Array<*> ?: return
-                            if (messages.isEmpty()) return
-                            
-                            var fullMessage = ""
-                            for (msg in messages) {
-                                if (msg == null) continue
-                                val getMessageBodyMethod = msg.javaClass.getMethod("getMessageBody")
-                                val body = getMessageBodyMethod.invoke(msg) as? String
-                                if (body != null) fullMessage += body
-                            }
-                            
-                            if (isSpam(prefs, fullMessage, ctx)) {
-                                XposedBridge.log("Rhpatch Anti-Spam: [Lapis 2] Memanipulasi Intent Broadcast untuk SMS: $fullMessage")
-                                val smsMessageClass = XposedHelpers.findClass("android.telephony.SmsMessage", classLoader)
-                                param.result = java.lang.reflect.Array.newInstance(smsMessageClass, 0) // Hide message from apps
-                            }
-                        } catch (e: Throwable) {}
+                        val messages = param.result as? Array<*> ?: return
+                        if (messages.isEmpty()) return
+                        
+                        val fullMessage = java.lang.StringBuilder()
+                        for (msg in messages) {
+                            val body = XposedHelpers.callMethod(msg, "getDisplayMessageBody") as? String
+                            if (body != null) fullMessage.append(body)
+                        }
+                        
+                        if (checkSpamKeyword(fullMessage.toString(), getAppContext(), prefs)) {
+                            val emptyArray = java.lang.reflect.Array.newInstance(messages.javaClass.componentType, 0)
+                            param.result = emptyArray
+                            XposedBridge.log("Rhpatch Anti-Spam: Hiding SMS via Intents: $fullMessage")
+                        }
                     }
-                })
-                isIntentSmsHooked = true
-                XposedBridge.log("Rhpatch Anti-Spam: SMS Hook (Lapis 2: Intents) berhasil terpasang.")
-            }
-        } catch (e: Throwable) {}
-
-        // DOKTRIN 1 - Lapis 3: Pembersih Jejak Kosmetik (The Sweeper)
-        try {
-            val notificationManagerClass = XposedHelpers.findClassIfExists("android.app.NotificationManager", classLoader)
-            if (notificationManagerClass != null) {
-                XposedBridge.hookAllMethods(notificationManagerClass, "notify", object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        try {
-                            val ctx = getAppContext()
-                            if (!getConfigBoolean(prefs, ctx, "antispam_sms_enabled", false)) return
-                            
-                            val notification = param.args.firstOrNull { it is android.app.Notification } as? android.app.Notification ?: return
-                            val title = notification.extras.getCharSequence("android.title")?.toString() ?: ""
-                            val text = notification.extras.getCharSequence("android.text")?.toString() ?: ""
-                            val fullText = "$title $text"
-                            
-                            if (isSpam(prefs, fullText, ctx)) {
-                                XposedBridge.log("Rhpatch Anti-Spam: [Lapis 3] Menghapus notifikasi SMS Spam: $fullText")
-                                param.result = null // Batalkan notifikasi
-                                
-                                // Silent Sweeper (Hapus dari DB)
-                                if (ctx != null) {
-                                    Thread {
-                                        try {
-                                            Thread.sleep(2000)
-                                            val uri = Uri.parse("content://sms/inbox")
-                                            val deletedRows = ctx.contentResolver.delete(uri, "body LIKE ?", arrayOf("%${text.take(15)}%"))
-                                            if (deletedRows > 0) XposedBridge.log("Rhpatch Anti-Spam: [Lapis 3] Sweeper berhasil menghapus jejak SMS.")
-                                        } catch (e: Exception) {}
-                                    }.start()
-                                }
-                            }
-                        } catch (e: Throwable) {}
-                    }
-                })
-                XposedBridge.log("Rhpatch Anti-Spam: SMS Hook (Lapis 3: NotificationManager) berhasil terpasang.")
-            }
-        } catch (e: Throwable) {}
+                }
+            )
+        } catch (e: Throwable) {
+            XposedBridge.log("Rhpatch Anti-Spam: Failed to hook SMS - ${e.message}")
+        }
     }
 
-    fun hookCall(classLoader: ClassLoader, prefs: XSharedPreferences, context: Context?) {
-        var isCallsManagerHooked = false
-        
-        // Cek secara dinamis kapan ada panggilan masuk
-        fun checkShouldBlockCall(phoneNumber: String?, ctx: Context?): Boolean {
-            if (phoneNumber.isNullOrEmpty()) return false
-            val blockHidden = getConfigBoolean(prefs, ctx, "antispam_call_hidden", false)
-            val blockNonContacts = getConfigBoolean(prefs, ctx, "antispam_call_non_contacts", false)
-            
-            if (!blockHidden && !blockNonContacts) return false
-            
-            if (blockHidden && (phoneNumber.contains("unknown", ignoreCase = true) || phoneNumber.contains("private", ignoreCase = true) || phoneNumber.length <= 4)) {
-                saveSpamLog("Panggilan Privat/Tersembunyi ditolak", "Call", ctx)
-                return true
-            }
-            if (blockNonContacts && ctx != null) {
-                try {
-                    val uri = Uri.withAppendedPath(android.provider.ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber))
-                    ctx.contentResolver.query(uri, arrayOf(android.provider.ContactsContract.PhoneLookup.DISPLAY_NAME), null, null, null)?.use {
-                        if (it.count == 0) {
-                            saveSpamLog("Panggilan dari nomor tak dikenal ditolak: $phoneNumber", "Call", ctx)
-                            return true
-                        }
-                    }
-                } catch (e: Exception) {
-                    return true // Jika gagal cek kontak, anggap non-kontak
-                }
-            }
-            return false
-        }
-
-        // DOKTRIN 2 - Lapis 2: Jantung Server (CallsManager) - Paling kuat!
+    fun hookCall(classLoader: ClassLoader, prefs: XSharedPreferences, context: Context? = null) {
         try {
-            val callsManagerClass = XposedHelpers.findClassIfExists("com.android.server.telecom.CallsManager", classLoader)
-            if (callsManagerClass != null) {
-                XposedBridge.hookAllMethods(callsManagerClass, "onSuccessfulIncomingCall", object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
+            val callClass = XposedHelpers.findClassIfExists("com.android.server.telecom.Call", classLoader)
+            if (callClass != null) {
+                XposedBridge.hookAllConstructors(callClass, object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
                         try {
-                            val callObj = param.args[0] ?: return
-                            val handleUri = XposedHelpers.callMethod(callObj, "getHandle") as? Uri ?: return
-                            val phoneNumber = handleUri.schemeSpecificPart
+                            if (!getConfigBoolean(prefs, getAppContext(), "antispam_call_enabled", false)) return
                             
-                            if (checkShouldBlockCall(phoneNumber, getAppContext())) {
-                                XposedBridge.log("Rhpatch Anti-Spam: [Lapis 2 Call] Memblokir panggilan: $phoneNumber")
-                                XposedHelpers.callMethod(callObj, "reject", false, null)
-                                param.result = null
+                            val handle = XposedHelpers.callMethod(param.thisObject, "getHandle") as? Uri ?: return
+                            val phoneNumber = handle.schemeSpecificPart
+                            
+                            val keywordsStr = getConfigString(prefs, getAppContext(), "antispam_call_numbers", "")
+                            if (keywordsStr.isEmpty()) return
+                            val blockedNumbers = keywordsStr.split(Regex("[,\\n]+")).map { it.trim() }.filter { it.isNotEmpty() }
+                            
+                            if (blockedNumbers.any { phoneNumber.contains(it) }) {
+                                XposedHelpers.callMethod(param.thisObject, "reject", false, null)
+                                XposedBridge.log("Rhpatch Anti-Spam: Blocked Call: $phoneNumber")
                             }
                         } catch (e: Throwable) {}
                     }
                 })
-                isCallsManagerHooked = true
-                XposedBridge.log("Rhpatch Anti-Spam: Call Hook (Lapis 2: CallsManager) berhasil terpasang.")
             }
-        } catch (e: Throwable) {}
-
-        // DOKTRIN 2 - Lapis 3: Layanan Koneksi (ConnectionService)
-        if (!isCallsManagerHooked) {
-            try {
-                val connectionServiceClass = XposedHelpers.findClassIfExists("android.telecom.ConnectionService", classLoader)
-                if (connectionServiceClass != null) {
-                    XposedBridge.hookAllMethods(connectionServiceClass, "createIncomingConnection", object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            try {
-                                val request = param.args[1] as? android.telecom.ConnectionRequest ?: return
-                                val phoneNumber = request.address?.schemeSpecificPart
-                                
-                                if (checkShouldBlockCall(phoneNumber, getAppContext())) {
-                                    XposedBridge.log("Rhpatch Anti-Spam: [Lapis 3 Call] Memutus koneksi: $phoneNumber")
-                                    val connection = param.result as? android.telecom.Connection ?: return
-                                    connection.setDisconnected(android.telecom.DisconnectCause(android.telecom.DisconnectCause.REJECTED))
-                                }
-                            } catch (e: Throwable) {}
-                        }
-                    })
-                    XposedBridge.log("Rhpatch Anti-Spam: Call Hook (Lapis 3: ConnectionService) fallback terpasang.")
-                }
-            } catch (e: Throwable) {}
+        } catch (e: Throwable) {
+            XposedBridge.log("Rhpatch Anti-Spam: Failed to hook Call - ${e.message}")
         }
     }
 }

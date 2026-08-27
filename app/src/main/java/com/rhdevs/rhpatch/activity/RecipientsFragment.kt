@@ -8,9 +8,9 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wmods.wppenhacer.R
+import com.rhdevs.rhpatch.R
 import com.rhdevs.rhpatch.scheduler.db.UniversalRecipientEntity
-import com.wmods.wppenhacer.database.AppDatabase
+import com.rhdevs.rhpatch.database.AppDatabase
 
 class RecipientsFragment : Fragment() {
     private lateinit var rvList: RecyclerView

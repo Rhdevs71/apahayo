@@ -1,5 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="accessibility_service_description">Layanan Otomatisasi Rhpatch: Digunakan untuk membuka kunci layar secara otomatis dan mengeksekusi pengiriman pesan terjadwal tepat waktu.</string>
+    <string name="device_admin_description">Izin Admin Perangkat Rhpatch: Digunakan untuk membangunkan layar dan mengelola penguncian perangkat setelah otomatisasi selesai.</string>
+    <string name="search_modules_hint">Cari modul atau aplikasi...</string>
     <string name="force_restore_backup">Paksa Pulihkan Cadangan</string>
     <string name="force_restore_backup_summary">Luncurkan layar pemulihan cadangan secara manual. Gunakan ini jika Anda melewatkan pemulihan selama pengaturan.</string>
     <string name="app_desc">Modul LSPosed untuk menyesuaikan WhatsApp Anda</string>
@@ -539,4 +542,42 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="custom_folders_summary">Pisahkan obrolan Anda ke dalam tab kustom</string>
     <string name="media_cleaner_title">Pembersih Media Otomatis</string>
     <string name="media_cleaner_summary">Hapus otomatis berkas media yang lebih tua dari X hari</string>
+
+    <string name="navigation_drawer_open">Buka Navigasi Laci</string>
+    <string name="navigation_drawer_close">Tutup Navigasi Laci</string>
+
+    <!-- Dashboard & Settings UI -->
+    <string name="dashboard_title">Dashboard</string>
+    <string name="dashboard_subtitle">Sesuaikan aplikasi Anda dengan RHPatch</string>
+    <string name="module_status_header">STATUS MODUL</string>
+    <string name="module_status_active">Aktif</string>
+    <string name="module_status_inactive">Tidak Aktif</string>
+    <string name="module_status_active_desc">RHPatch berhasil dimuat dan berfungsi normal.</string>
+    <string name="module_status_inactive_desc">Modul belum aktif di LSPosed. Silakan aktifkan dan muat ulang perangkat.</string>
+    <string name="help_faq_header">BANTUAN &amp; FAQ</string>
+    <string name="help_faq_title">Pertanyaan yang Sering Diajukan</string>
+    <string name="help_faq_desc">Ketuk untuk membuka panduan daring dan solusi masalah.</string>
+    <string name="update_center_header">PUSAT PEMBARUAN</string>
+    <string name="update_center_title">Periksa Pembaruan</string>
+    <string name="update_center_desc">Periksa rilis GitHub untuk versi dan fitur terbaru.</string>
+    <string name="diagnostics_header">DIAGNOSTIK</string>
+    <string name="diagnostics_title">Log Root &amp; Sistem</string>
+    <string name="diagnostics_desc">Periksa akses root dan lihat log LSPosed untuk diagnosa.</string>
+    <string name="app_settings_header">PENGATURAN APLIKASI</string>
+    <string name="app_settings_title">Tema &amp; Bahasa</string>
+    <string name="app_settings_desc">Sesuaikan tema tampilan (Terang / Gelap AMOLED) dan bahasa aplikasi.</string>
+    <string name="btn_change_theme">Tema Tampilan</string>
+    <string name="btn_change_language">Pilih Bahasa</string>
+    <string name="backup_global_header">CADANGAN &amp; PEMULIHAN GLOBAL</string>
+    <string name="backup_global_title">Cadangkan &amp; Pulihkan Semua Pengaturan</string>
+    <string name="backup_global_desc">Ekspor atau impor seluruh konfigurasi modul dalam satu berkas JSON.</string>
+    <string name="btn_export_global">Ekspor Semua</string>
+    <string name="btn_import_global">Impor Cadangan</string>
+    <string name="btn_reset_global">Reset Semua Pengaturan</string>
+    <string name="modules_title">Daftar Modul</string>
+    <string name="modules_subtitle">Aktifkan atau konfigurasikan patch untuk aplikasi yang didukung</string>
+    <string name="nav_overview">Ikhtisar</string>
+    <string name="nav_modules">Modul</string>
+    <string name="disable_swipe_up_in_group">Nonaktifkan Geser ke Atas di Obrolan Grup</string>
+    <string name="disable_swipe_up_in_group_sum">Menonaktifkan gestur geser ke atas untuk navigasi ke obrolan grup saat merekam pesan suara.</string>
 </resources>

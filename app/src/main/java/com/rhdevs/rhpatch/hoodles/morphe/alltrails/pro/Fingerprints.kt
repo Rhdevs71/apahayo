@@ -1,6 +1,6 @@
 package com.rhdevs.rhpatch.hoodles.morphe.alltrails.pro
 
-import com.rhdevs.rhpatch.morphe.Fingerprint
+import com.rhdevs.rhpatch.youtube.Fingerprint
 
 object IsProFingerprint : Fingerprint(
     name = "isPro",

@@ -7,8 +7,8 @@ import android.os.Bundle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import com.wmods.wppenhacer.database.AppDatabase
-import com.wmods.wppenhacer.database.AutoReplyRule
+import com.rhdevs.rhpatch.database.AppDatabase
+import com.rhdevs.rhpatch.database.AutoReplyRule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -189,12 +189,12 @@ class AutoReplyService : NotificationListenerService() {
     private fun queryAiChatbot(apiKey: String, messageText: String, model: String, provider: String, jid: String, userInstruction: String?): String? {
         var connection: java.net.HttpURLConnection? = null
         return try {
-            val aiDb = com.wmods.wppenhacer.database.AiMemoryDatabase.getInstance(applicationContext)
+            val aiDb = com.rhdevs.rhpatch.database.AiMemoryDatabase.getInstance(applicationContext)
             val dao = aiDb.aiMemoryDao()
             
             val sysInstruction = if (!userInstruction.isNullOrEmpty()) userInstruction else "Anda adalah asisten AI pribadi yang ramah, sopan, dan menganggap diri Anda sebagai manusia nyata. Bahasa Anda tidak kaku, menggunakan gaya kata sehari-hari namun tetap sopan dan membantu. Jawablah pesan pengguna dengan natural."
 
-            dao.insertMemory(com.wmods.wppenhacer.database.AiMemoryEntity(jid = jid, role = "user", messageText = messageText, timestamp = System.currentTimeMillis()))
+            dao.insertMemory(com.rhdevs.rhpatch.database.AiMemoryEntity(jid = jid, role = "user", messageText = messageText, timestamp = System.currentTimeMillis()))
             if (dao.getMemoryCount(jid) > 15) {
                 dao.deleteOldestMemory(jid)
             }
@@ -271,7 +271,7 @@ class AutoReplyService : NotificationListenerService() {
                 }
                 
                 if (reply.isNotEmpty()) {
-                    dao.insertMemory(com.wmods.wppenhacer.database.AiMemoryEntity(jid = jid, role = "model", messageText = reply, timestamp = System.currentTimeMillis()))
+                    dao.insertMemory(com.rhdevs.rhpatch.database.AiMemoryEntity(jid = jid, role = "model", messageText = reply, timestamp = System.currentTimeMillis()))
                     if (dao.getMemoryCount(jid) > 15) {
                         dao.deleteOldestMemory(jid)
                     }

@@ -14,8 +14,9 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import com.rhdevs.rhpatch.activities.base.BaseActivity
 
-class ScreenLockConfigActivity : Activity() {
+class ScreenLockConfigActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,13 +99,23 @@ class ScreenLockConfigActivity : Activity() {
         }
         layout.addView(opt2Desc)
 
+        val prefs = getSharedPreferences("screen_lock_prefs", Context.MODE_PRIVATE)
+        val savedEncoded = prefs.getString("saved_pin", "") ?: ""
+        val savedPin = try {
+            if (savedEncoded.isNotEmpty()) String(Base64.decode(savedEncoded, Base64.DEFAULT)) else ""
+        } catch (e: Exception) { "" }
+
         val input = EditText(this).apply {
             hint = "Masukkan PIN / Sandi"
             setHintTextColor(Color.GRAY)
             setTextColor(Color.WHITE)
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
             setPadding(30, 30, 30, 30)
             setBackgroundColor(Color.parseColor("#1E293B"))
+            if (savedPin.isNotEmpty()) {
+                setText(savedPin)
+                setSelection(savedPin.length)
+            }
         }
         layout.addView(input)
 

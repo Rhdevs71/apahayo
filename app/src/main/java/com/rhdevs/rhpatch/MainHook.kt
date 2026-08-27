@@ -1,9 +1,9 @@
 package com.rhdevs.rhpatch
 
 import android.app.Application
-import app.morphe.extension.shared.ResourceType
-import app.morphe.extension.shared.ResourceUtils
-import app.morphe.extension.shared.Utils
+import com.rhdevs.rhpatch.youtube.extension.shared.ResourceType
+import com.rhdevs.rhpatch.youtube.extension.shared.ResourceUtils
+import com.rhdevs.rhpatch.youtube.extension.shared.Utils
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.IXposedHookZygoteInit.StartupParam
@@ -13,9 +13,9 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import com.rhdevs.rhpatch.common.UpdateChecker
-import com.rhdevs.rhpatch.morphe.ResourceFinder
-import com.rhdevs.rhpatch.morphe.resourceMappings
-import com.wmods.wppenhacer.BuildConfig
+import com.rhdevs.rhpatch.youtube.ResourceFinder
+import com.rhdevs.rhpatch.youtube.resourceMappings
+import com.rhdevs.rhpatch.BuildConfig
 
 class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
     lateinit var startupParam: StartupParam
@@ -29,6 +29,7 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         XposedBridge.log("Rhpatch: handleLoadPackage for ${lpparam.packageName}")
         try {
+            ResourceUtils.fallbackPackageName = BuildConfig.APPLICATION_ID
             val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, "prefs")
             com.rhdevs.rhpatch.system.DnsBypassHook.hook(lpparam.classLoader, lpparam.packageName, prefs)
             
@@ -58,14 +59,21 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
             }
             
             // TikTok Hooks
-            if (lpparam.packageName == "com.zhiliaoapp.musically" || lpparam.packageName == "com.ss.android.ugc.trill") {
-                com.rhdevs.rhpatch.revanced.tiktok.TikTokMainHook.handleLoadPackage(lpparam, prefs)
+            val tiktokPackages = setOf(
+                "com.zhiliaoapp.musically",
+                "com.ss.android.ugc.trill",
+                "com.ss.android.ugc.aweme",
+                "com.zhiliaoapp.musically.go",
+                "com.ss.android.ugc.trill.go"
+            )
+            if (tiktokPackages.contains(lpparam.packageName)) {
+                com.rhdevs.rhpatch.tiktok.TikTokMainHook.handleLoadPackage(lpparam, prefs)
             }
         } catch (e: Throwable) {
             XposedBridge.log("Rhpatch: Failed to init System Hooks for ${lpparam.packageName}: ${e.message}")
         }
 
-        if (lpparam.packageName == "com.rhdevs.rhpatch" || lpparam.packageName == "com.wmods.wppenhacer" || lpparam.packageName == "com.rhdevs.rhpatch.pro" || lpparam.packageName == "io.github.chsbuffer.revancedxposed") {
+        if (lpparam.packageName == "com.rhdevs.rhpatch" || lpparam.packageName == "com.rhdevs.rhpatch" || lpparam.packageName == "com.rhdevs.rhpatch.pro" || lpparam.packageName == "io.github.chsbuffer.revancedxposed") {
             runCatching {
                 val clazz = lpparam.classLoader.loadClass("com.rhdevs.rhpatch.activity.SettingsActivity")
                 XposedHelpers.findAndHookMethod(
@@ -107,23 +115,7 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java, getHook)
                 XposedHelpers.findAndHookMethod(systemPropertiesClass, "get", String::class.java, String::class.java, getHook)
                 
-                // Spoof system features to ensure Pixel features are unlocked
-                XposedHelpers.findAndHookMethod(
-                    "android.app.ApplicationPackageManager", 
-                    lpparam.classLoader, 
-                    "hasSystemFeature", 
-                    String::class.java, 
-                    object : XC_MethodHook() {
-                        override fun beforeHookedMethod(param: MethodHookParam) {
-                            val feature = param.args[0] as? String ?: return
-                            if (feature.startsWith("com.google.android.feature.PIXEL_")) {
-                                param.result = true
-                            }
-                        }
-                    }
-                )
-                
-                XposedBridge.log("Rhpatch: Successfully spoofed SystemProperties, Build, and SystemFeatures for Google Photos")
+                XposedBridge.log("Rhpatch: Successfully spoofed SystemProperties and Build for Google Photos")
             } catch (e: Throwable) {
                 XposedBridge.log("Rhpatch: Failed to spoof Google Photos SystemProperties/Build: ${e.message}")
             }
@@ -193,7 +185,30 @@ fun inContext(lpparam: LoadPackageParam, f: (Application) -> Unit) {
                     val app = param.thisObject as Application
                     if (app.packageName != lpparam.packageName) return
                     Utils.setContext(app)
-                    f(app)
+
+                    var isPatched = false
+                    val executePatch = {
+                        if (!isPatched) {
+                            isPatched = true
+                            f(app)
+                        }
+                    }
+
+                    // Execute patches immediately on Application start
+                    executePatch()
+
+                    // Fallback on Activity onCreate
+                    XposedHelpers.findAndHookMethod(
+                        android.app.Activity::class.java,
+                        "onCreate",
+                        android.os.Bundle::class.java,
+                        object : XC_MethodHook() {
+                            override fun beforeHookedMethod(actParam: MethodHookParam) {
+                                executePatch()
+                            }
+                        }
+                    )
+
                     if (XposedInit.modulePath.startsWith("/data/app/")) {
                         val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, "prefs")
                         if (!prefs.file.canRead() || !prefs.getBoolean("disable_auto_check_update", false)) {

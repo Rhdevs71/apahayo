@@ -30,7 +30,7 @@ object WaMessageBlockerHook {
         val ctx = context ?: getAppContext() ?: return fallback
         try {
             val remotePrefs = com.crossbowffs.remotepreferences.RemotePreferences(
-                ctx, "com.wmods.wppenhacer.preferences", "prefs"
+                ctx, "com.rhdevs.rhpatch.preferences", "prefs"
             )
             return remotePrefs.getString(key, fallback) ?: fallback
         } catch (e: Throwable) {

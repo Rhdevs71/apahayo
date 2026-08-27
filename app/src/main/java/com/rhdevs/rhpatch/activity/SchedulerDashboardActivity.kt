@@ -7,9 +7,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.wmods.wppenhacer.R
+import com.rhdevs.rhpatch.activities.base.BaseActivity
+import com.rhdevs.rhpatch.R
 
-class SchedulerDashboardActivity : AppCompatActivity() {
+class SchedulerDashboardActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

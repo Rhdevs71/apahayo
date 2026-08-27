@@ -8,10 +8,10 @@ import android.os.CountDownTimer
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import com.wmods.wppenhacer.R
+import com.rhdevs.rhpatch.activities.base.BaseActivity
+import com.rhdevs.rhpatch.R
 
-class AutomationCountdownActivity : AppCompatActivity() {
+class AutomationCountdownActivity : BaseActivity() {
 
     private var countDownTimer: CountDownTimer? = null
 
@@ -54,7 +54,11 @@ class AutomationCountdownActivity : AppCompatActivity() {
         automationReceiver = object : android.content.BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: android.content.Intent?) {
                 if (intent?.action == "com.rhdevs.rhpatch.AUTOMATION_COMPLETE") {
-                    finish()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        finishAndRemoveTask()
+                    } else {
+                        finish()
+                    }
                 }
             }
         }
@@ -68,7 +72,11 @@ class AutomationCountdownActivity : AppCompatActivity() {
 
         btnCancel.setOnClickListener {
             countDownTimer?.cancel()
-            finish()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                finishAndRemoveTask()
+            } else {
+                finish()
+            }
         }
 
         countDownTimer = object : CountDownTimer(10000, 1000) {
@@ -80,10 +88,30 @@ class AutomationCountdownActivity : AppCompatActivity() {
                 tvCountdown.textSize = 24f
                 tvCountdown.text = "Memproses..."
                 btnCancel.visibility = android.view.View.GONE
+                
+                if (com.rhdevs.rhpatch.services.AutoSenderAccessibilityService.instance == null) {
+                    android.widget.Toast.makeText(
+                        this@AutomationCountdownActivity,
+                        "Layanan Aksesibilitas Rhpatch belum aktif! Harap aktifkan di Setelan Aksesibilitas.",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                }
+
                 // Time's up! Send to Accessibility Service
                 com.rhdevs.rhpatch.services.AutoSenderAccessibilityService.enqueueUniversalTask(
                     taskId, targetApp, contact, messageText, mediaPath, mediaType
                 )
+
+                // Allow accessibility service to interact with keyguard/target app
+                tvCountdown.postDelayed({
+                    if (!isFinishing) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            finishAndRemoveTask()
+                        } else {
+                            finish()
+                        }
+                    }
+                }, 1500)
             }
         }.start()
     }

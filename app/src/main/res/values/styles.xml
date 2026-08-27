@@ -24,7 +24,23 @@
         <item name="android:clickable">true</item>
         <item name="android:background">@drawable/player_button_background</item>
     </style>
-    <style name="AppTheme" parent="Theme.Light" />
+    <style name="AppTheme" parent="Theme" />
+
+    <style name="CustomBottomNavStyle" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemActiveIndicatorStyle">@style/CustomActiveIndicator</item>
+        <item name="android:background">@color/bottom_nav_bg</item>
+        <item name="itemIconTint">@color/nav_item_tint</item>
+        <item name="itemTextColor">@color/nav_item_tint</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="CustomActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/primary_container</item>
+        <item name="android:width">56dp</item>
+        <item name="android:height">32dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Full</item>
+    </style>
 
     <style name="Widget.Design.SubtitleCollapsingToolbar" parent="Widget.Design.CollapsingToolbar" />
 

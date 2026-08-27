@@ -11,16 +11,17 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.textfield.TextInputEditText
-import com.wmods.wppenhacer.R
+import com.rhdevs.rhpatch.R
 import com.rhdevs.rhpatch.scheduler.UniversalScheduler
 import com.rhdevs.rhpatch.scheduler.UniversalTask
 import com.rhdevs.rhpatch.scheduler.db.UniversalTaskEntity
-import com.wmods.wppenhacer.database.AppDatabase
+import com.rhdevs.rhpatch.database.AppDatabase
+import com.rhdevs.rhpatch.activities.base.BaseActivity
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class ComposeScheduleActivity : AppCompatActivity() {
+class ComposeScheduleActivity : BaseActivity() {
 
     private var selectedTimeMillis: Long = 0
     private var selectedMediaUri: String? = null
@@ -281,7 +282,8 @@ class ComposeScheduleActivity : AppCompatActivity() {
                     targetApp = targetApp,
                     targetContact = recipient,
                     messageText = message,
-                    timestamp = selectedTimeMillis
+                    timestamp = selectedTimeMillis,
+                    mediaPath = selectedMediaUri
                 )
             )
 

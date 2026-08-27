@@ -2,14 +2,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="MainTheme" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/apahayo_bg</item>
-        <item name="android:colorAccent">@color/apahayo_accent</item>
+        <item name="android:windowBackground">@color/bg_app</item>
+        <item name="android:colorAccent">@color/primary</item>
         <item name="android:fitsSystemWindows">true</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
 
-        <item name="android:textColorPrimary">@color/apahayo_text_primary</item>
-        <item name="android:textColorSecondary">@color/apahayo_text_secondary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
     </style>
 
     <style name="ListDividerNull">
@@ -17,11 +17,11 @@
     </style>
 
     <style name="SettingsTheme" parent="android:Theme.Material">
-        <item name="android:windowBackground">@color/apahayo_bg</item>
-        <item name="android:colorBackground">@color/apahayo_bg</item>
-        <item name="android:textColorPrimary">@color/apahayo_text_primary</item>
-        <item name="android:textColorSecondary">@color/apahayo_text_secondary</item>
-        <item name="android:colorAccent">@color/apahayo_accent</item>
+        <item name="android:windowBackground">@color/bg_app</item>
+        <item name="android:colorBackground">@color/bg_app</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:colorAccent">@color/primary</item>
         <item name="android:fitsSystemWindows">true</item>
         <item name="android:singleLineTitle">false</item>
         <item name="android:listDivider">@null</item>
@@ -30,31 +30,46 @@
     </style>
 
     <style name="CustomActionBar" parent="android:Widget.Material.ActionBar">
-        <item name="android:background">@color/apahayo_surface</item>
+        <item name="android:background">@color/bg_surface</item>
         <item name="android:titleTextStyle">@style/CustomActionBarTitle</item>
     </style>
 
     <style name="CustomActionBarTitle" parent="android:TextAppearance.Material.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/apahayo_text_primary</item>
+        <item name="android:textColor">@color/text_primary</item>
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="PreferenceCategoryTitleStyle" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textColor">@color/accent_gold</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textAllCaps">true</item>
     </style>
 
     <style name="Base.AppTheme.Light" parent="Theme.Material3.DynamicColors.Light.Rikka">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="colorPrimaryVariant">@color/primary_dark_light_light_status_bar</item>
-        <item name="android:statusBarColor">?colorPrimary</item>
+        <item name="android:windowBackground">@color/bg_app</item>
+        <item name="android:colorBackground">@color/bg_app</item>
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorSurfaceContainer">@color/bg_card</item>
+        <item name="colorSurfaceContainerHigh">@color/bg_card_elevated</item>
+        <item name="colorOutline">@color/border_stroke</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="android:statusBarColor">@color/bg_surface</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:textAppearanceListItem">?textAppearanceSubtitle1</item>
-        <item name="android:colorAccent">?colorPrimary</item>
-        <item name="android:colorControlActivated">?colorPrimary</item>
+        <item name="android:colorAccent">@color/primary</item>
+        <item name="android:colorControlActivated">@color/primary</item>
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowEnterTransition">@android:transition/fade</item>
         <item name="android:windowExitTransition">@android:transition/fade</item>
         <item name="toolbarStyle">@style/ModernToolbarStyle</item>
+        <item name="preferenceCategoryTitleTextAppearance">@style/PreferenceCategoryTitleStyle</item>
     </style>
 
     <style name="Theme.Light" parent="Base.AppTheme.Light" />
@@ -62,19 +77,27 @@
     <style name="Base.AppTheme" parent="Theme.Material3.DynamicColors.Dark.Rikka">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/bg_app</item>
+        <item name="android:colorBackground">@color/bg_app</item>
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorSurfaceContainer">@color/bg_card</item>
+        <item name="colorSurfaceContainerHigh">@color/bg_card_elevated</item>
+        <item name="colorOutline">@color/border_stroke</item>
         <item name="android:textAppearanceListItem">?textAppearanceSubtitle1</item>
-        <item name="android:colorAccent">?colorPrimary</item>
-        <item name="android:colorControlActivated">?colorPrimary</item>
-        <item name="android:statusBarColor">?colorPrimaryContainer</item>
+        <item name="android:colorAccent">@color/primary</item>
+        <item name="android:colorControlActivated">@color/primary</item>
+        <item name="android:statusBarColor">@color/bg_surface</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowEnterTransition">@android:transition/fade</item>
         <item name="android:windowExitTransition">@android:transition/fade</item>
         <item name="toolbarStyle">@style/ModernToolbarStyle</item>
+        <item name="preferenceCategoryTitleTextAppearance">@style/PreferenceCategoryTitleStyle</item>
     </style>
 
     <style name="MyActionBar" parent="@style/Widget.Material3.ActionBar.Solid">
-        <item name="background">?colorOnSecondary</item>
+        <item name="background">@color/bg_surface</item>
         <item name="contentInsetStart">5dp</item>
     </style>
 

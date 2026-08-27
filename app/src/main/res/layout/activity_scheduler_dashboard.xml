@@ -4,21 +4,30 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0F172A">
+    android:background="@color/bg_app"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:background="#0F172A"
+        android:background="@color/bg_surface"
         app:elevation="0dp">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Universal Scheduler"
-            app:titleTextColor="#FFFFFF" />
+            app:title="Penjadwal Pesan Otomatis"
+            app:titleTextColor="@color/text_primary"
+            app:subtitle="WhatsApp &amp; SMS"
+            app:subtitleTextColor="@color/text_secondary"
+            app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+            app:navigationIconTint="@color/text_primary" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/border_stroke" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Fragment Container for Tabs -->
@@ -27,17 +36,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:paddingBottom="56dp" />
+        android:paddingBottom="64dp" />
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
+        style="@style/CustomBottomNavStyle"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="64dp"
         android:layout_gravity="bottom"
-        android:background="#1E293B"
-        app:itemIconTint="@color/bnv_item_color"
-        app:itemTextColor="@color/bnv_item_color"
+        android:background="@color/bottom_nav_bg"
         app:menu="@menu/scheduler_bottom_nav" />
 
     <!-- Floating Action Button for Adding Tasks -->
@@ -47,9 +55,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="88dp"
+        android:layout_marginBottom="80dp"
         android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="#3B82F6"
-        app:tint="#FFFFFF" />
+        app:backgroundTint="@color/primary"
+        app:tint="@color/on_primary"
+        app:elevation="4dp"
+        app:borderWidth="0dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -41,7 +41,7 @@ fun getGitCommitDate(): Long {
 val gitHash: String = getGitHashCommit().uppercase(Locale.getDefault())
 
 android {
-    namespace = "com.wmods.wppenhacer"
+    namespace = "com.rhdevs.rhpatch"
     //noinspection GradleDependency
     compileSdk = 36
     ndkVersion = "28.2.13676358"
@@ -57,7 +57,7 @@ android {
         versionName = "1.5.6 ($gitHash)"
         multiDexEnabled = true
 
-        val patchVersion = "1.5.0-dev.3"
+        val patchVersion = "1.39.1"
         buildConfigField("String", "PATCH_VERSION", "\"$patchVersion\"")
         buildConfigField("String", "COMMIT_HASH", "\"$gitHash\"")
         buildConfigField("long", "COMMIT_DATE", "${getGitCommitDate()}L")
@@ -194,22 +194,8 @@ android {
 
     sourceSets {
         named("main") {
-            val srcDirs = arrayOf(
-                "../morphe-patches/extensions/shared/library/src/main/java",
-                "../morphe-patches/extensions/shared-youtube/library/src/main/java",
-                "../morphe-patches/extensions/youtube/src/main/java",
-                "../morphe-patches/extensions/music/src/main/java",
-                "../morphe-patches/extensions/reddit/src/main/java",
-                "../morphe-patches-library/extension-library/src/main/java"
-            )
-            java.directories += srcDirs
-            kotlin.directories += srcDirs
-
             proto {
-                srcDirs(
-                    "../morphe-patches/extensions/youtube/src/main/proto",
-                    "../morphe-patches/extensions/shared-youtube/library/src/main/proto",
-                )
+                srcDir("src/main/proto")
             }
         }
     }
@@ -434,6 +420,7 @@ abstract class CopyResourcesTask @Inject constructor() : DefaultTask() {
             "qualitybutton/drawable" to null,
             "settings/drawable" to null,
             "settings/menu" to null,
+            "settings/xml" to null,
             "settings/layout" to listOf("morphe_settings_with_toolbar.xml"),
             "sponsorblock/drawable" to null,
             "sponsorblock/layout" to listOf("morphe_sb_skip_sponsor_button.xml"),
@@ -465,14 +452,14 @@ androidComponents {
     onVariants { variant ->
         val variantName = variant.name.uppercaseFirstChar()
         val strTask = project.tasks.register<GenerateStringsTask>("generateStrings$variantName") {
-            inputDirectory.set(project.file("../morphe-patches/patches/src/main/resources/addresources"))
+            inputDirectory.set(project.file("src/main/patch-resources/addresources"))
         }
         variant.sources.res?.addGeneratedSourceDirectory(
             strTask, GenerateStringsTask::outputDirectory
         )
 
         val resTask = project.tasks.register<CopyResourcesTask>("copyResources$variantName") {
-            inputDirectory.set(project.file("../morphe-patches/patches/src/main/resources"))
+            inputDirectory.set(project.file("src/main/patch-resources"))
         }
         variant.sources.res?.addGeneratedSourceDirectory(
             resTask, CopyResourcesTask::outputDirectory

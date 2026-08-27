@@ -1,26 +1,23 @@
 package com.rhdevs.rhpatch.common
 
-import android.R
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Instrumentation
 import android.content.Intent
 import android.net.Uri
-import android.text.Html
-import android.text.method.LinkMovementMethod
-import android.widget.TextView
-import android.widget.Toast
 import android.os.Handler
 import android.os.Looper
-import app.morphe.extension.shared.Logger
-import app.morphe.extension.shared.Utils
+import android.text.Html
+import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import com.rhdevs.rhpatch.App
+import com.rhdevs.rhpatch.BuildConfig
+import com.rhdevs.rhpatch.youtube.extension.shared.Logger
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import fuel.Fuel
 import fuel.get
-import com.wmods.wppenhacer.BuildConfig
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,11 +41,9 @@ data class VersionInfo(val versionCode: Int, val versionName: String) {
 
             val split = tagName.split('-', limit = 2)
             if (split.count() == 2) {
-                // VersionCode-VersionName
                 versionCode = split[0].toIntOrNull() ?: 0
                 versionName = split[1]
             } else {
-                // X.Y.Z, Z is versionCode
                 versionCode = tagName.split('.').last().toIntOrNull() ?: 0
                 versionName = tagName
             }
@@ -61,36 +56,40 @@ const val OWNER = "Rhdevs71"
 const val REPO = "apahayo"
 const val currentVersionCode = BuildConfig.VERSION_CODE
 
-class UpdateChecker() : CoroutineScope {
+class UpdateChecker(activity: Activity? = null) : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + CoroutineExceptionHandler { _, err ->
             Logger.printException({ "coroutineContext error" }, err)
         }
 
-    private var currentActivity = WeakReference<Activity>(null)
-    private lateinit var latestVersionInfo: VersionInfo
-    private lateinit var latestRelease: ReleaseInfo
+    private var currentActivity = WeakReference<Activity>(activity)
+    private var latestVersionInfo: VersionInfo? = null
+    private var latestRelease: ReleaseInfo? = null
 
-    lateinit var unhook: XC_MethodHook.Unhook
+    private var unhook: XC_MethodHook.Unhook? = null
 
     fun setActivity(activity: Activity) {
         currentActivity = WeakReference(activity)
     }
 
+    fun getActivity(): Activity? = currentActivity.get()
+
     fun hookNewActivity() {
-        unhook = XposedHelpers.findAndHookMethod(
-            Instrumentation::class.java,
-            "newActivity",
-            ClassLoader::class.java,
-            String::class.java,
-            Intent::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    currentActivity = WeakReference(param.result as Activity)
-                    autoCheckUpdate()
-                    unhook.unhook()
-                }
-            })
+        runCatching {
+            unhook = XposedHelpers.findAndHookMethod(
+                Instrumentation::class.java,
+                "newActivity",
+                ClassLoader::class.java,
+                String::class.java,
+                Intent::class.java,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        currentActivity = WeakReference(param.result as Activity)
+                        autoCheckUpdate()
+                        unhook?.unhook()
+                    }
+                })
+        }
     }
 
     fun autoCheckUpdate() {
@@ -100,6 +99,17 @@ class UpdateChecker() : CoroutineScope {
     }
 
     fun checkUpdate(silent: Boolean = true) {
+        if (!silent) {
+            Handler(Looper.getMainLooper()).post {
+                val act = getActivity()
+                if (act != null) {
+                    Toast.makeText(act, "Memeriksa pembaruan RHPatch...", Toast.LENGTH_SHORT).show()
+                } else {
+                    App.instance?.let { Toast.makeText(it, "Memeriksa pembaruan RHPatch...", Toast.LENGTH_SHORT).show() }
+                }
+            }
+        }
+
         launch {
             try {
                 val response = Fuel.get(
@@ -112,44 +122,49 @@ class UpdateChecker() : CoroutineScope {
                     }
                     if (!silent) {
                         Handler(Looper.getMainLooper()).post {
-                            try {
-                                val message = if (response.statusCode == 404) {
-                                    "Belum ada rilis versi terbaru."
-                                } else {
-                                    "Gagal memeriksa pembaruan (HTTP ${response.statusCode})."
-                                }
-                                val theme = if (Utils.isDarkModeEnabled()) android.R.style.Theme_DeviceDefault_Dialog_Alert else android.R.style.Theme_DeviceDefault_Light_Dialog_Alert
-                                AlertDialog.Builder(requireActivity(), theme)
+                            val act = getActivity()
+                            val message = if (response.statusCode == 404) {
+                                "Belum ada rilis versi terbaru di repositori."
+                            } else {
+                                "Gagal memeriksa pembaruan (HTTP ${response.statusCode})."
+                            }
+                            if (act != null && !act.isFinishing && !act.isDestroyed) {
+                                AlertDialog.Builder(act)
                                     .setTitle("Pembaruan")
                                     .setMessage(message)
-                                    .setPositiveButton(android.R.string.ok, null)
+                                    .setPositiveButton("OK", null)
                                     .show()
-                            } catch (e: Exception) {}
+                            } else {
+                                App.instance?.let { Toast.makeText(it, message, Toast.LENGTH_LONG).show() }
+                            }
                         }
                     }
                     return@launch
                 }
 
                 val content = response.source.readString()
-                Logger.printDebug { content }
-                latestRelease = Gson().fromJson(content, ReleaseInfo::class.java)
-                latestVersionInfo = VersionInfo.fromTagName(latestRelease.tagName)
-                Logger.printDebug { "$latestVersionInfo" }
-                if (latestVersionInfo.versionCode > currentVersionCode) {
-                    Logger.printInfo { "Found new version of Rhpatch ${latestRelease.tagName}" }
-                    showUpdateDialog()
+                val release = Gson().fromJson(content, ReleaseInfo::class.java)
+                val versionInfo = VersionInfo.fromTagName(release.tagName)
+                latestRelease = release
+                latestVersionInfo = versionInfo
+
+                if (versionInfo.versionCode > currentVersionCode) {
+                    Logger.printInfo { "Found new version of Rhpatch ${release.tagName}" }
+                    showUpdateDialog(release, versionInfo)
                 } else {
                     Logger.printInfo { "no update found for Rhpatch" }
                     if (!silent) {
                         Handler(Looper.getMainLooper()).post {
-                            try {
-                                val theme = if (Utils.isDarkModeEnabled()) android.R.style.Theme_DeviceDefault_Dialog_Alert else android.R.style.Theme_DeviceDefault_Light_Dialog_Alert
-                                AlertDialog.Builder(requireActivity(), theme)
+                            val act = getActivity()
+                            if (act != null && !act.isFinishing && !act.isDestroyed) {
+                                AlertDialog.Builder(act)
                                     .setTitle("Pembaruan")
-                                    .setMessage("Versi saat ini sudah yang terbaru.")
-                                    .setPositiveButton(android.R.string.ok, null)
+                                    .setMessage("Versi RHPatch saat ini (${BuildConfig.VERSION_NAME}) sudah yang terbaru.")
+                                    .setPositiveButton("OK", null)
                                     .show()
-                            } catch (e: Exception) {}
+                            } else {
+                                App.instance?.let { Toast.makeText(it, "Versi RHPatch saat ini sudah yang terbaru.", Toast.LENGTH_SHORT).show() }
+                            }
                         }
                     }
                 }
@@ -157,76 +172,52 @@ class UpdateChecker() : CoroutineScope {
                 Logger.printException({ "checkUpdate error" }, e)
                 if (!silent) {
                     Handler(Looper.getMainLooper()).post {
-                        try {
-                            val theme = if (Utils.isDarkModeEnabled()) android.R.style.Theme_DeviceDefault_Dialog_Alert else android.R.style.Theme_DeviceDefault_Light_Dialog_Alert
-                            AlertDialog.Builder(requireActivity(), theme)
+                        val act = getActivity()
+                        val errMessage = "Gagal memeriksa pembaruan: ${e.message}"
+                        if (act != null && !act.isFinishing && !act.isDestroyed) {
+                            AlertDialog.Builder(act)
                                 .setTitle("Error")
-                                .setMessage("Gagal memeriksa pembaruan. Silakan periksa koneksi internet Anda.")
-                                .setPositiveButton(android.R.string.ok, null)
+                                .setMessage(errMessage)
+                                .setPositiveButton("OK", null)
                                 .show()
-                        } catch (ex: Exception) {}
+                        } else {
+                            App.instance?.let { Toast.makeText(it, errMessage, Toast.LENGTH_LONG).show() }
+                        }
                     }
                 }
             }
         }
     }
 
-    @Deprecated("Test only.")
-    fun showRelease(version: String) {
-        launch {
-            val response = Fuel.get(
-                "https://api.github.com/repos/$OWNER/$REPO/releases/tags/$version",
-                headers = mapOf("Accept" to "application/vnd.github.html+json")
-            )
-            if (response.statusCode != 200) {
-                Logger.printException { "responseCode ${response.statusCode}" }
-                return@launch
-            }
-
-            val content = response.source.readString()
-            Logger.printDebug { content }
-
-            latestRelease = Gson().fromJson(content, ReleaseInfo::class.java)
-            latestVersionInfo = VersionInfo.fromTagName(latestRelease.tagName)
-            showUpdateDialog()
-        }
-    }
-
-    fun requireActivity() = currentActivity.get()!!
-
-    private fun showUpdateDialog() {
-        launch(Dispatchers.Main) {
+    private fun showUpdateDialog(release: ReleaseInfo, versionInfo: VersionInfo) {
+        Handler(Looper.getMainLooper()).post {
             try {
-                val theme =
-                    if (Utils.isDarkModeEnabled()) R.style.Theme_DeviceDefault_Dialog_Alert
-                    else R.style.Theme_DeviceDefault_Light_Dialog_Alert
-                val dialog = AlertDialog.Builder(requireActivity(), theme)
-                    .setTitle("Found new version of Rhpatch ${latestVersionInfo.versionName}")
-                    .setMessage(
-                        Html.fromHtml(latestRelease.releaseNoteHtml, Html.FROM_HTML_MODE_LEGACY)
-                    ).setPositiveButton(R.string.ok) { _, _ ->
-                        openReleasePage()
-                    }.setNegativeButton(requireActivity().getString(R.string.cancel), null)
+                val act = getActivity() ?: return@post
+                if (act.isFinishing || act.isDestroyed) return@post
+
+                AlertDialog.Builder(act)
+                    .setTitle("Versi Baru RHPatch Ditemukan: ${versionInfo.versionName}")
+                    .setMessage(Html.fromHtml(release.releaseNoteHtml, Html.FROM_HTML_MODE_LEGACY))
+                    .setPositiveButton("Unduh") { _, _ ->
+                        openReleasePage(release)
+                    }
+                    .setNegativeButton("Batal", null)
                     .create()
-                dialog.show()
-                dialog.findViewById<TextView>(R.id.message).movementMethod =
-                    LinkMovementMethod.getInstance()
-            } catch (e: Throwable) {
-                Logger.printException({ "showUpdateDialog error" }, e)
-            }
+                    .show()
+            } catch (_: Exception) {}
         }
     }
 
-    private fun openReleasePage() {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(latestRelease.releaseUrl))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            requireActivity().startActivity(intent)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Handler(Looper.getMainLooper()).post {
-                Toast.makeText(requireActivity(), e.message.toString(), Toast.LENGTH_LONG).show()
-            }
+    private fun openReleasePage(release: ReleaseInfo? = latestRelease) {
+        val url = release?.releaseUrl ?: "https://github.com/$OWNER/$REPO/releases/latest"
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        val act = getActivity()
+        if (act != null) {
+            act.startActivity(intent)
+        } else {
+            App.instance?.startActivity(intent)
         }
     }
 }

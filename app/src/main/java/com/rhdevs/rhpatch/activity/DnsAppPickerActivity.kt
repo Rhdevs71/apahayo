@@ -20,11 +20,12 @@ import android.widget.Switch
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wmods.wppenhacer.R
+import com.rhdevs.rhpatch.activities.base.BaseActivity
+import com.rhdevs.rhpatch.R
 import java.util.Locale
 import kotlin.concurrent.thread
 
-class DnsAppPickerActivity : Activity() {
+class DnsAppPickerActivity : BaseActivity() {
 
     private lateinit var prefs: SharedPreferences
     private lateinit var adapter: AppListAdapter
@@ -46,9 +47,13 @@ class DnsAppPickerActivity : Activity() {
         setContentView(R.layout.activity_app_picker)
         actionBar?.hide()
 
+        findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)?.setNavigationOnClickListener {
+            finish()
+        }
+
         prefs = getSharedPreferences("prefs", Context.MODE_PRIVATE)
 
-        val switchGlobalDns = findViewById<Switch>(R.id.switch_global_dns)
+        val switchGlobalDns = findViewById<android.widget.CompoundButton>(R.id.switch_global_dns)
         val searchBox = findViewById<EditText>(R.id.search_box)
         val btnSetAdguardDns = findViewById<android.widget.Button>(R.id.btn_set_adguard_dns)
         appRecycler = findViewById(R.id.app_recycler)

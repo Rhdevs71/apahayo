@@ -1,0 +1,30 @@
+package com.rhdevs.rhpatch.youtube.extension.youtube.patches;
+
+import android.net.Uri;
+
+import java.util.Objects;
+
+import com.rhdevs.rhpatch.youtube.extension.shared.Logger;
+import com.rhdevs.rhpatch.youtube.extension.youtube.settings.Settings;
+
+@SuppressWarnings("unused")
+public class BypassLinkRedirectsPatch {
+
+    /**
+     * Convert the YouTube redirect URI string to the redirect query URI.
+     *
+     * @param uri The YouTube redirect URI string.
+     * @return The redirect query URI.
+     */
+    public static Uri parseRedirectUri(Uri uri) {
+        if (Settings.BYPASS_LINK_REDIRECTS.get() && Objects.equals(uri.getPath(), "/redirect")) {
+            String queryParam = uri.getQueryParameter("q");
+            if (queryParam != null) {
+                var query = Uri.parse(queryParam);
+                Logger.printDebug(() -> "Bypassing YouTube redirect URI: " + query);
+                return query;
+            }
+        }
+        return uri;
+    }
+}

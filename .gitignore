@@ -4,6 +4,8 @@
 /.idea/
 .DS_Store
 /build
+/app/build
+/stub/build
 /captures
 .externalNativeBuild
 .cxx
@@ -14,3 +16,11 @@ key_base64.txt
 
 *.class
 *.patch
+*.log
+.kotlin
+apk_out/
+*.apk
+*.idsig
+*.bat
+*.ps1
+docs/

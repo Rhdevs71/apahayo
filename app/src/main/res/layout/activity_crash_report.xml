@@ -3,25 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0F172A"
+    android:background="@color/bg_app"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        app:elevation="4dp">
+        android:background="@color/bg_surface"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#1E293B"
             app:navigationIcon="@drawable/abc_ic_ab_back_material"
-            app:navigationIconTint="#FFFFFF"
+            app:navigationIconTint="@color/text_primary"
             app:title="@string/whatsapp_crash_report"
-            app:titleTextColor="#FFFFFF" />
+            app:titleTextColor="@color/text_primary" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/border_stroke" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
@@ -34,36 +37,38 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/spacing_medium">
+            android:padding="16dp">
 
             <com.google.android.material.card.MaterialCardView
-                style="@style/CardInfoStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_medium"
-                app:cardBackgroundColor="#1E293B">
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/bg_card"
+                app:cardCornerRadius="14dp"
+                app:strokeColor="@color/border_stroke"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="@dimen/spacing_medium">
+                    android:padding="16dp">
 
                     <com.google.android.material.textview.MaterialTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/crash_info"
-                        android:textColor="#FFFFFF"
-                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tvCrashInfo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_small"
+                        android:layout_marginTop="8dp"
                         android:lineSpacingExtra="3dp"
-                        android:textColor="#94A3B8"
+                        android:textColor="@color/text_secondary"
                         android:textIsSelectable="true"
                         android:textSize="14sp" />
 
@@ -72,37 +77,37 @@
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
-                style="@style/CardInfoStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#1E293B">
+                app:cardBackgroundColor="@color/bg_card"
+                app:cardCornerRadius="14dp"
+                app:strokeColor="@color/border_stroke"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <com.google.android.material.textview.MaterialTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingStart="@dimen/spacing_medium"
-                        android:paddingTop="@dimen/spacing_medium"
-                        android:paddingEnd="@dimen/spacing_medium"
                         android:text="@string/crash_trace"
-                        android:textColor="#FFFFFF"
-                        android:textSize="18sp"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tvCrashTrace"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:fontFamily="monospace"
                         android:lineSpacingExtra="2dp"
-                        android:padding="@dimen/spacing_medium"
                         android:scrollHorizontally="false"
                         android:singleLine="false"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/text_secondary"
                         android:textIsSelectable="true"
                         android:textSize="12sp" />
 
@@ -118,23 +123,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="@dimen/spacing_medium">
+        android:padding="16dp"
+        android:background="@color/bg_surface">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCopy"
-            style="@style/ModernButton.Outlined"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/spacing_small"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:text="@string/copy_to_clipboard" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnShare"
-            style="@style/ModernButton"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:text="@string/share" />
 
