@@ -1,20 +1,21 @@
-﻿# ⚡ RHpatch Release 1.5.6
+﻿# ⚡ RHpatch v1.5.6 Release
 
-### 🎵 TikTok Enhancer
-- [TikTok] Perbaikan Tako AI Controller: Mencegat class TakoAssem agar tombol Tako AI hilang 100% tanpa lag.
-- [TikTok] Perbaikan Filter Feed Postingan Foto (Java Model Hook): Mencegat FeedItemList & FollowFeedList langsung pada objek Aweme.
-- [TikTok] Tambahan Filter Tab Navigasi Atas: Saklar baru untuk menyembunyikan Tab Komunitas dan Tab Lokasi / Sekitar (Jakarta, Bekasi, dll).
-- [TikTok] Pemfilteran multi-bahasa (Bahasa Indonesia & Inggris) untuk seluruh tab atas.
+### 🎵 Modul TikTok
+- **Perbaikan Tako AI Controller**: Mencegat kelas TakoAssem agar tombol Tako AI hilang 100% tanpa lag.
+- **Filter Postingan Foto (Java Model Hook)**: Mencegat FeedItemList & FollowFeedList langsung pada objek Aweme agar postingan foto disaring sebelum dirender.
+- **Filter Tab Navigasi Atas**: Penambahan saklar untuk menyembunyikan Tab Komunitas dan Tab Lokasi / Sekitar (Jakarta, Bekasi, dll).
+- **Dukungan Multi-Bahasa**: Pemfilteran cerdas bilingual (Bahasa Indonesia & Inggris).
 
-### 📸 Instagram Enhancer
-- [Instagram] Perbaikan dialog menu Rhpatch Settings (Rhpatch Port).
-- [Instagram] Direct Thread Media Saver & tombol unduh di menu titik tiga postingan.
-- [Instagram] Ghost Mode Story & DM anti-bocor tanpa merusak DM channel.
+### 📸 Modul Instagram
+- **Pembaruan Antarmuka**: Dialog Rhpatch Settings yang bersih dan stabil.
+- **Direct Thread Media Saver**: Unduh media langsung dari percakapan DM & tombol download di menu titik tiga.
+- **Peningkatan Ghost Mode**: Lihat Story & baca DM tanpa jejak, aman tanpa merusak saluran/channel.
 
-### 💬 WhatsApp Enhancer
-- [WhatsApp] Anti-Revoke, Auto-Reply cerdas dengan multi-rules, Penjadwal Pesan dengan media.
-- [WhatsApp] Custom chat folders, Fake Call simulation, HD status downloader.
+### 💬 Modul WhatsApp
+- **Fitur Privasi & Media**: Anti-Revoke, Auto-Reply cerdas dengan multi-rules, dan Penjadwal Pesan.
+- **Peningkatan Fitur**: Custom chat folders, Fake Call simulation, dan status downloader resolusi tinggi.
 
-### 🧹 Repository Cleanup
-- Pembersihan folder tidak terpakai & standarisasi nama project Rhpatch.
-- Desain ulang README.md profesional dengan dokumentasi lengkap Bilingual (ID/EN).
+### 🧹 Pembersihan & Optimasi Repository
+- Menghapus file & folder sampah yang tidak terpakai dari root project.
+- Standarisasi nama project resmi menjadi Rhpatch.
+- Dokumentasi README.md baru yang profesional & lengkap (Bilingual ID/EN).

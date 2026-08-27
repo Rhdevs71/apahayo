@@ -61,26 +61,46 @@ class UpdateChecker(private val mActivity: Activity, private val isManual: Boole
 
                 if (tagName.isBlank()) return
 
-                hash = tagName.split("-")[1].trim()
+                hash = tagName
                 changelog = release.optString("body", "No changelog available.").trim()
                 publishedAt = release.optString("published_at", "")
             }
 
             if (hash.isBlank()) return
 
-            val packageInfo = try {
-                mActivity.packageManager.getPackageInfo(BuildConfig.APPLICATION_ID, 0)
-            } catch (e: Exception) {
-                XposedBridge.log(e)
-                return
+            val cleanLatest = hash.removePrefix("v").substringBefore("-").trim()
+            val cleanCurrent = BuildConfig.VERSION_NAME.removePrefix("v").substringBefore("-").trim()
+
+            val latestParts = cleanLatest.split(".").mapNotNull { it.toIntOrNull() }
+            val currentParts = cleanCurrent.split(".").mapNotNull { it.toIntOrNull() }
+
+            var isNewVersion = false
+            for (i in 0 until maxOf(latestParts.size, currentParts.size)) {
+                val l = latestParts.getOrElse(i) { 0 }
+                val c = currentParts.getOrElse(i) { 0 }
+                if (l > c) {
+                    isNewVersion = true
+                    break
+                }
+                if (l < c) {
+                    isNewVersion = false
+                    break
+                }
             }
 
-            val isNewVersion = !packageInfo.versionName!!.lowercase().contains(hash.lowercase().trim())
             val isIgnored = WppCore.getPrivString("ignored_version", "") == hash
 
             if (isNewVersion && !isIgnored) {
                 mActivity.runOnUiThread {
                     showUpdateDialog(hash, changelog, publishedAt)
+                }
+            } else if (isManual) {
+                mActivity.runOnUiThread {
+                    val dialog = AlertDialogWpp(mActivity)
+                    dialog.setTitle("Pembaruan")
+                    dialog.setMessage("Versi RHPatch saat ini (${BuildConfig.VERSION_NAME}) sudah yang terbaru.")
+                    dialog.setPositiveButton("OK") { d, _ -> d.dismiss() }
+                    dialog.show()
                 }
             }
         } catch (e: Exception) {
@@ -101,22 +121,22 @@ class UpdateChecker(private val mActivity: Activity, private val isManual: Boole
             val formattedDate = formatPublishedDate(publishedAt)
 
             val message = buildString {
-                append("ðŸ“¦ **Version:** `").append(hash).append("`\n")
+                append("📦 **Versi:** `").append(hash).append("`\n")
                 if (formattedDate.isNotEmpty()) {
-                    append("ðŸ“… **Released:** ").append(formattedDate).append("\n")
+                    append("📅 **Dirilis:** ").append(formattedDate).append("\n")
                 }
-                append("\n### What's New\n\n").append(changelog)
+                append("\n### Catatan Pembaruan\n\n").append(changelog)
             }
 
-            dialog.setTitle("ðŸŽ‰ New Update Available!")
+            dialog.setTitle("🎉 Pembaruan Rhpatch Tersedia!")
             dialog.setMessage(markwon.toMarkdown(message))
-            dialog.setNegativeButton("Ignore") { dialog, _ ->
+            dialog.setNegativeButton("Abaikan") { d, _ ->
                 WppCore.setPrivString("ignored_version", hash)
-                dialog.dismiss()
+                d.dismiss()
             }
-            dialog.setPositiveButton("Update Now") { dialog, _ ->
-                Utils.openLink(mActivity, TELEGRAM_UPDATE_URL)
-                dialog.dismiss()
+            dialog.setPositiveButton("Unduh Sekarang") { d, _ ->
+                Utils.openLink(mActivity, "https://github.com/Rhdevs71/apahayo/releases/latest")
+                d.dismiss()
             }
             dialog.show()
         } catch (e: Exception) {

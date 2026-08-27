@@ -74,7 +74,7 @@ Pre-built runtime optimizations and premium feature unlockers for:
 
 ### Prerequisites
 * Rooted Android Device (Magisk / KernelSU / APatch).
-* Working Xposed Framework (Recommended: **LSPosed (Zygisk)**).
+* Working Xposed Framework (Recommended: [**LSPosed (Zygisk)**](https://t.me/LSPosed/321)).
 * Android 9.0 (API 28) up to Android 15+.
 
 ### Setup Instructions
@@ -157,7 +157,7 @@ Optimasi runtime dan fitur premium untuk:
 
 ### Persyaratan
 * Perangkat Android dalam kondisi Root (Magisk / KernelSU / APatch).
-* Framework Xposed terpasang (Disarankan: **LSPosed (Zygisk)**).
+* Framework Xposed terpasang (Disarankan: [**LSPosed Versi 321**](https://t.me/LSPosed/321)).
 * Android 9.0 (API 28) hingga Android 15+.
 
 ### Langkah-Langkah

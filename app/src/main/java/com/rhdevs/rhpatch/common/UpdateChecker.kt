@@ -33,21 +33,28 @@ data class ReleaseInfo(
     @SerializedName("html_url") val releaseUrl: String
 )
 
-data class VersionInfo(val versionCode: Int, val versionName: String) {
+data class VersionInfo(val rawTagName: String, val versionName: String) {
     companion object {
         fun fromTagName(tagName: String): VersionInfo {
-            val versionCode: Int
-            val versionName: String
+            val cleanName = tagName.removePrefix("v").trim()
+            return VersionInfo(tagName, cleanName)
+        }
 
-            val split = tagName.split('-', limit = 2)
-            if (split.count() == 2) {
-                versionCode = split[0].toIntOrNull() ?: 0
-                versionName = split[1]
-            } else {
-                versionCode = tagName.split('.').last().toIntOrNull() ?: 0
-                versionName = tagName
+        fun isNewer(latestTagName: String, currentVerName: String): Boolean {
+            val cleanLatest = latestTagName.removePrefix("v").substringBefore("-").trim()
+            val cleanCurrent = currentVerName.removePrefix("v").substringBefore("-").trim()
+
+            val latestParts = cleanLatest.split(".").mapNotNull { it.toIntOrNull() }
+            val currentParts = cleanCurrent.split(".").mapNotNull { it.toIntOrNull() }
+
+            for (i in 0 until maxOf(latestParts.size, currentParts.size)) {
+                val l = latestParts.getOrElse(i) { 0 }
+                val c = currentParts.getOrElse(i) { 0 }
+                if (l > c) return true
+                if (l < c) return false
             }
-            return VersionInfo(versionCode, versionName)
+
+            return false
         }
     }
 }
@@ -148,7 +155,8 @@ class UpdateChecker(activity: Activity? = null) : CoroutineScope {
                 latestRelease = release
                 latestVersionInfo = versionInfo
 
-                if (versionInfo.versionCode > currentVersionCode) {
+                val isNewVersion = VersionInfo.isNewer(release.tagName, BuildConfig.VERSION_NAME)
+                if (isNewVersion) {
                     Logger.printInfo { "Found new version of Rhpatch ${release.tagName}" }
                     showUpdateDialog(release, versionInfo)
                 } else {
@@ -195,13 +203,19 @@ class UpdateChecker(activity: Activity? = null) : CoroutineScope {
                 val act = getActivity() ?: return@post
                 if (act.isFinishing || act.isDestroyed) return@post
 
+                val bodyText = if (release.releaseNoteHtml.isNullOrBlank()) {
+                    "Versi terbaru <b>${versionInfo.versionName}</b> telah tersedia untuk diunduh."
+                } else {
+                    release.releaseNoteHtml
+                }
+
                 AlertDialog.Builder(act)
-                    .setTitle("Versi Baru RHPatch Ditemukan: ${versionInfo.versionName}")
-                    .setMessage(Html.fromHtml(release.releaseNoteHtml, Html.FROM_HTML_MODE_LEGACY))
-                    .setPositiveButton("Unduh") { _, _ ->
+                    .setTitle("🎉 Pembaruan Rhpatch Tersedia: ${versionInfo.versionName}")
+                    .setMessage(Html.fromHtml(bodyText, Html.FROM_HTML_MODE_LEGACY))
+                    .setPositiveButton("Unduh Sekarang") { _, _ ->
                         openReleasePage(release)
                     }
-                    .setNegativeButton("Batal", null)
+                    .setNegativeButton("Nanti", null)
                     .create()
                     .show()
             } catch (_: Exception) {}
