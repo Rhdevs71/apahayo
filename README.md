@@ -1,7 +1,7 @@
 <div align="center">
   <img src="app/src/main/res/drawable/ic_launcher_new.jpg" width="128" height="128" style="border-radius: 28px;" alt="Rhpatch Logo">
   <h1>⚡ Rhpatch (Apahayo)</h1>
-  <p><strong>The All-in-One Multi-Target Xposed Customization & Enhancement Suite for Android</strong></p>
+  <p><strong>The All-in-One Multi-Target Xposed Customization & Modification Suite for Android</strong></p>
 
   <p>
     <a href="https://github.com/Rhdevs71/apahayo/releases"><img src="https://img.shields.io/github/v/release/Rhdevs71/apahayo?color=7C3AED&style=for-the-badge&logo=github" alt="Latest Release"></a>
@@ -28,7 +28,7 @@
 
 ## ✨ Features by Module
 
-### 🟢 1. WhatsApp Enhancer
+### 🟢 1. WhatsApp Module
 * **Anti-Revoke / Anti-Delete**: Never miss deleted messages; read unsend messages and deleted status updates.
 * **Stealth & Privacy**: Ghost mode, hide blue ticks, hide second tick, freeze last seen, and hide typing/recording indicators.
 * **Media & Status Downloader**: Save HD stories, profile pictures, and view-once media directly to your gallery.
@@ -38,7 +38,7 @@
 * **Simulated Incoming Call**: Trigger realistic scheduled fake calls for security or meeting exits.
 * **In-App Audio Player**: Advanced playback speed control and waveform seeking for voice notes.
 
-### 🎵 2. TikTok Enhancer
+### 🎵 2. TikTok Module
 * **Top Feed Tab Filter**: Toggle visibility for individual top tabs — **STEM**, **Shop/Toko**, **Explore/Jelajah**, **LIVE**, **Community**, and **Location/Nearby (Jakarta, Bekasi, etc.)**.
 * **Clean Feed Content Filter (Java Model Hook)**:
   * Automatically removes sponsored Ads & promoted videos.
@@ -48,15 +48,15 @@
   * Filter videos based on custom minimum/maximum view and like thresholds.
 * **Tako AI Controller Suppression**: Automatically disables and collapses the Tako AI chat bubble without UI stutter.
 * **Regional Restriction Bypass**: Custom SIM operator spoofing (MCC/MNC, ISO country codes) to unlock geo-locked content globally.
-* **Player Enhancements**: Force seekbar timeline display, video thumbnail preview seeking, and loop toggles.
+* **Player Improvements**: Force seekbar timeline display, video thumbnail preview seeking, and loop toggles.
 
-### 📸 3. Instagram Enhancer
+### 📸 3. Instagram Module
 * **Native Media Downloader**: Download high-resolution Reels, Feed videos, and Carousel photos with a single tap.
 * **Ghost Story & DM**: View Stories and read Direct Messages without sending read receipts or triggers.
 * **Ad & Suggestion Removal**: Strips sponsored ads, suggested posts, and recommended user grids from your feed.
 * **Direct Comment Copy**: Long-press to copy any comment text directly to your clipboard.
 
-### ▶️ 4. YouTube Enhancer
+### ▶️ 4. YouTube Module
 * **SponsorBlock Integration**: Automatically skips sponsor segments, intros, outros, and subscribe reminders.
 * **Return YouTube Dislike (RYD)**: Restores the public dislike counter using the official RYD API.
 * **Background Playback**: Continuous background audio and Picture-in-Picture (PiP) for all videos.
@@ -112,7 +112,7 @@ Rhpatch requires the following Android permissions to power its features:
 
 ## ✨ Rincian Fitur Modul
 
-### 🟢 1. WhatsApp Enhancer
+### 🟢 1. Modul WhatsApp
 * **Anti Hapus Pesan & Status**: Pesan dan status yang ditarik/dihapus oleh pengirim tetap dapat dibaca dan disimpan.
 * **Mode Privasi & Hantu**: Sembunyikan centang biru, centang dua, status online, serta status sedang mengetik/merekam suara.
 * **Pengunduh Media & Status**: Unduh status foto/video HD dan media sekali lihat (*view-once*) langsung ke galeri.
@@ -121,7 +121,7 @@ Rhpatch requires the following Android permissions to power its features:
 * **Folder & Kategori Chat**: Susun dan kelompokkan obrolan WhatsApp ke dalam tab folder kustom.
 * **Simulasi Panggilan Palsu**: Buat panggilan masuk tiruan terjadwal untuk situasi darurat atau keluar dari pertemuan.
 
-### 🎵 2. TikTok Enhancer
+### 🎵 2. Modul TikTok
 * **Filter Tab Navigasi Atas**: Sembunyikan tab atas individual sesuai keinginan — **STEM**, **Toko (Shop)**, **Jelajah (Explore)**, **LIVE**, **Komunitas**, dan **Lokasi/Sekitar (Jakarta, Bekasi, Surabaya, dll.)**.
 * **Filter Konten Feed Bersih (Java Model Hook)**:
   * Hapus iklan promosi dan video bersponsor secara otomatis.
@@ -133,13 +133,13 @@ Rhpatch requires the following Android permissions to power its features:
 * **Bypass Batasan Wilayah & Palsukan SIM**: Buka blokir konten antar negara dengan memalsukan kode negara ISO dan MCC/MNC operator.
 * **Peningkatan Pemutar**: Paksa timeline seekbar selalu muncul, aktifkan pratinjau thumbnail saat menggeser video, dan atur pemutaran ulang.
 
-### 📸 3. Instagram Enhancer
+### 📸 3. Modul Instagram
 * **Pengunduh Media Terintegrasi**: Unduh Reels, video Feed, dan foto Carousel beresolusi tinggi dengan sekali klik.
 * **Mode Hantu Story & DM**: Lihat Story dan baca Direct Message tanpa meninggalkan jejak terbaca (*seen*).
 * **Pembersih Iklan & Rekomendasi**: Bersihkan postingan bersponsor dan rekomendasi akun dari timeline beranda.
 * **Salin Teks Komentar**: Tekan lama komentar apapun untuk langsung menyalin teksnya ke clipboard.
 
-### ▶️ 4. YouTube Enhancer
+### ▶️ 4. Modul YouTube
 * **SponsorBlock**: Lewati segmen sponsor, intro, outro, dan pengingat subscribe secara otomatis.
 * **Kembalikan Jumlah Dislike (RYD)**: Menampilkan kembali jumlah dislike publik menggunakan API resmi Return YouTube Dislike.
 * **Pemutaran Latar Belakang**: Putar audio di latar belakang dan mode Gambar-dalam-Gambar (PiP).
