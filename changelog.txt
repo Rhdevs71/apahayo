@@ -1,21 +1,6 @@
-# ⚡ RHpatch v1.5.7 Release
+﻿# ⚡ RHpatch v1.5.7.1 Release
 
-### 🎵 Modul TikTok
-- **Perbaikan Tako AI Controller**: Mencegat kelas TakoAssem agar tombol Tako AI hilang 100% tanpa lag.
-- **Filter Postingan Foto (Java Model Hook)**: Mencegat FeedItemList & FollowFeedList langsung pada objek Aweme agar postingan foto disaring sebelum dirender.
-- **Filter Tab Navigasi Atas**: Penambahan saklar untuk menyembunyikan Tab Komunitas dan Tab Lokasi / Sekitar (Jakarta, Bekasi, dll).
-- **Dukungan Multi-Bahasa**: Pemfilteran cerdas bilingual (Bahasa Indonesia & Inggris).
-
-### 📸 Modul Instagram
-- **Pembaruan Antarmuka**: Dialog Rhpatch Settings yang bersih dan stabil.
-- **Direct Thread Media Saver**: Unduh media langsung dari percakapan DM & tombol download di menu titik tiga.
-- **Peningkatan Ghost Mode**: Lihat Story & baca DM tanpa jejak, aman tanpa merusak saluran/channel.
-
-### 💬 Modul WhatsApp
-- **Fitur Privasi & Media**: Anti-Revoke, Auto-Reply cerdas dengan multi-rules, dan Penjadwal Pesan.
-- **Peningkatan Fitur**: Custom chat folders, Fake Call simulation, dan status downloader resolusi tinggi.
-
-### 🧹 Pembersihan & Optimasi Repository
-- Menghapus file & folder sampah yang tidak terpakai dari root project.
-- Standarisasi nama project resmi menjadi Rhpatch.
-- Dokumentasi README.md baru yang profesional & lengkap (Bilingual ID/EN).
+### 🚀 Apa yang Baru di v1.5.7.1
+- **Perbaikan Native Build**: Penambahan langsung pustaka C++ (Opus & Ogg) ke repositori untuk kelancaran kompilasi.
+- **Optimasi Update Checker**: Integrasi penuh deteksi versi terbaru dari GitHub Releases publik.
+- **Pembersihan Modul**: Menghapus folder lama yang tidak digunakan di struktur root project.
