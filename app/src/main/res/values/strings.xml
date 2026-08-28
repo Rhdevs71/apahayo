@@ -1,6 +1,8 @@
 <resources>
-    <string name="accessibility_service_description">Rhpatch Auto Sender Service: Digunakan untuk membangunkan layar dan mengirim pesan WhatsApp secara otomatis yang telah dijadwalkan.</string>
-    <string name="device_admin_description">Digunakan untuk mematikan layar (mengunci perangkat) kembali setelah pesan WhatsApp otomatis selesai dikirimkan agar menghemat baterai dan menjaga keamanan.</string>
+    <string name="morphe_settings_title" translatable="false">Morphe</string>
+    <string name="accessibility_service_description">Layanan Otomatisasi Rhpatch: Digunakan untuk membuka kunci layar secara otomatis dan mengeksekusi pengiriman pesan terjadwal tepat waktu.</string>
+    <string name="device_admin_description">Izin Admin Perangkat Rhpatch: Digunakan untuk membangunkan layar dan mengelola penguncian perangkat setelah otomatisasi selesai.</string>
+    <string name="search_modules_hint">Cari modul atau aplikasi...</string>
     <string name="force_restore_backup">Force Restore Backup</string>
     <string name="force_restore_backup_summary">Launch the restore backup screen manually. Use this if you skipped restoration during setup.</string>
     <string name="app_name" translatable="false">Rhpatch</string>
@@ -578,4 +580,53 @@
     <string name="diag_copied">Line copied to clipboard</string>
     <string name="navigation_drawer_open">Buka Navigasi Laci</string>
     <string name="navigation_drawer_close">Tutup Navigasi Laci</string>
+
+    <!-- Dashboard & Settings UI -->
+    <string name="dashboard_title">Dashboard</string>
+    <string name="dashboard_subtitle">Customize your apps with Rhpatch</string>
+    <string name="module_status_header">MODULE STATUS</string>
+    <string name="module_status_active">Active</string>
+    <string name="module_status_inactive">Inactive</string>
+    <string name="module_status_active_desc">Rhpatch is loaded and functioning correctly.</string>
+    <string name="module_status_inactive_desc">Module is not active in LSPosed. Please enable it and reboot.</string>
+    <string name="help_faq_header">HELP &amp; FAQ</string>
+    <string name="help_faq_title">Frequently Asked Questions</string>
+    <string name="help_faq_desc">Tap to open the online wiki and troubleshoot common issues.</string>
+    <string name="update_center_header">UPDATE CENTER</string>
+    <string name="update_center_title">Check for Updates</string>
+    <string name="update_center_desc">Check GitHub releases for the latest version and features.</string>
+    <string name="diagnostics_header">DIAGNOSTICS</string>
+    <string name="diagnostics_title">Root &amp; System Log</string>
+    <string name="diagnostics_desc">Check root access and view LSPosed logs for troubleshooting.</string>
+    <string name="app_settings_header">APP SETTINGS</string>
+    <string name="app_settings_title">Theme &amp; Language</string>
+    <string name="app_settings_desc">Customize app appearance and language.</string>
+    <string name="btn_change_theme">Appearance Theme</string>
+    <string name="btn_change_language">Select Language</string>
+    <string name="backup_global_header">GLOBAL BACKUP &amp; RESTORE</string>
+    <string name="backup_global_title">Backup &amp; Restore All Configurations</string>
+    <string name="backup_global_desc">Export or import all module configurations as a single JSON file.</string>
+    <string name="btn_export_global">Export All</string>
+    <string name="btn_import_global">Import Backup</string>
+    <string name="btn_reset_global">Reset All Configurations</string>
+    <string name="modules_title">Modules</string>
+    <string name="modules_subtitle">Enable or configure patches for supported apps</string>
+    <string name="nav_overview">Overview</string>
+    <string name="nav_modules">Modules</string>
+    <string name="disable_swipe_up_in_group">Disable swipe up to chat in group</string>
+    <string name="disable_swipe_up_in_group_sum">Disables the swipe up gesture to navigate to the group chat list while recording audio.</string>
+
+    <string name="diag_share">Bagikan</string>
+    <string name="perm_dialog_title">Setup Required</string>
+    <string name="perm_dialog_intro">To ensure Rhpatch runs smoothly in the background, we need a few permissions. The app won\'t function properly without them:</string>
+    <string name="perm_overlay_title">Display Over Other Apps</string>
+    <string name="perm_overlay_desc">Allows us to run background tasks like sending scheduled messages without you keeping the app open.</string>
+    <string name="perm_notif_title">Notifications</string>
+    <string name="perm_notif_desc">Used to notify you about automation statuses. If your device supports Full Screen Notifications, this also helps bypass sleep modes.</string>
+    <string name="perm_alarm_title">Exact Alarms</string>
+    <string name="perm_alarm_desc">Ensures your scheduled tasks execute right on time, exactly when you set them.</string>
+    <string name="perm_btn_manual">Go to Settings</string>
+    <string name="perm_btn_auto_root">Grant Automatically (Root)</string>
+    <string name="perm_fullscreen_title">Full Screen Intents</string>
+    <string name="perm_fullscreen_desc">Required to accurately wake the device and show alerts for your scheduled tasks.</string>
 </resources>

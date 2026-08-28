@@ -20,7 +20,6 @@ import de.robv.android.xposed.XposedHelpers
 // Cache untuk menyimpan objek pembantu overflow terakhir yang dibuka
 var currentOverflowHelper: Any? = null
 var currentStoryHelper: Any? = null
-val videoViewCache = java.util.WeakHashMap<View, Boolean>()
 
 val MediaDownloaderPatch = patch(
     name = "Instagram Media Downloader (Piko Native Style)",
@@ -202,7 +201,7 @@ fun showPikoStyleDownloadMenu(context: Context, activity: android.app.Activity) 
             val actions = mutableListOf<Runnable>()
             
             // Cek apakah view yang aktif di layar adalah Video atau Gambar berdasarkan tag
-            val isVisibleVideo = visibleView != null && videoViewCache[visibleView] == true
+            val isVisibleVideo = visibleView != null && visibleView.getTag(visibleView.id) == "rhp_is_video"
             
             if (bestVideo != null || bestImage != null) {
                 options.add("Unduh media saat ini")
@@ -390,7 +389,7 @@ fun findMostVisibleMediaView(root: ViewGroup, context: Context): View? {
         if (view.visibility != View.VISIBLE) return
         
         val viewName = view.javaClass.name
-        val isVideo = viewName.contains("TextureView") || viewName.contains("SurfaceView") || viewName.contains("MediaFrameLayout") || viewName.contains("IgVideoView") || viewName.contains("Video")
+        val isVideo = viewName.contains("TextureView") || viewName.contains("SurfaceView") || viewName.contains("MediaFrameLayout") || viewName.contains("IgVideoView")
         val isImage = viewName.contains("IgProgressImageView") || viewName.contains("IgImageView")
         
         if (isVideo || isImage) {
@@ -434,7 +433,7 @@ fun findMostVisibleMediaView(root: ViewGroup, context: Context): View? {
     if (itemView != bestView && itemView != null) {
         // Tandai bahwa ini berasal dari video jika bestView adalah video
         if (bestView == bestVideoView) {
-            videoViewCache[itemView] = true
+            itemView.setTag(itemView.id, "rhp_is_video")
         }
         return itemView
     }
@@ -445,15 +444,15 @@ fun findMostVisibleMediaView(root: ViewGroup, context: Context): View? {
             parent = parent.parent as View
         }
     }
-    if (bestView == bestVideoView && parent != null) {
-        videoViewCache[parent] = true
+    if (bestView == bestVideoView) {
+        parent?.setTag(parent.id, "rhp_is_video")
     }
     return parent ?: bestView
 }
 
 object DeepMediaExtractor {
     fun extractAllUrls(obj: Any?, urls: MutableSet<String>, depth: Int, visited: MutableSet<Int>) {
-        if (obj == null || depth > 10) return
+        if (obj == null || depth > 8) return
         val hash = System.identityHashCode(obj)
         if (!visited.add(hash)) return
 
@@ -467,10 +466,6 @@ object DeepMediaExtractor {
             if (cls.name.startsWith("android.") || cls.name.startsWith("java.") || cls.name.startsWith("androidx.")) {
                 if (obj is Collection<*>) {
                     for (item in obj) extractAllUrls(item, urls, depth + 1, visited)
-                } else if (obj is Array<*>) {
-                    for (item in obj) extractAllUrls(item, urls, depth + 1, visited)
-                } else if (obj is Map<*, *>) {
-                    for (value in obj.values) extractAllUrls(value, urls, depth + 1, visited)
                 }
                 return
             }
@@ -490,8 +485,8 @@ object DeepMediaExtractor {
                 for (field in currentCls.declaredFields) {
                     if (field.type.isPrimitive) continue
                     val fieldName = field.name.lowercase()
-                    // Abaikan field yang kemungkinan berisi foto profil atau avatar
-                    if (fieldName.contains("profile") || fieldName.contains("avatar")) continue
+                    // Abaikan field yang kemungkinan berisi foto profil, avatar, atau track audio latar belakang
+                    if (fieldName.contains("profile") || fieldName.contains("avatar") || fieldName.contains("audio") || fieldName.contains("music") || fieldName.contains("sound")) continue
                     
                     field.isAccessible = true
                     val value = field.get(obj) ?: continue
@@ -541,6 +536,9 @@ object DeepTextExtractor {
 fun isInstagramCdnUrl(url: String): Boolean {
     val lower = url.lowercase()
     if (!lower.startsWith("http://") && !lower.startsWith("https://")) {
+        if (lower.startsWith("<?xml") && lower.contains("fbcdn.net")) {
+            XposedBridge.log("RHPATCH XML MANIFEST:\n$url")
+        }
         return false
     }
     return (lower.contains("fbcdn.net") || lower.contains("cdninstagram.com")) &&
@@ -552,7 +550,7 @@ fun isUnifiedMp4(url: String): Boolean {
     if (!lower.contains(".mp4") && !lower.contains("video")) return false
     
     // Blokir jika URL mentah secara eksplisit menyebut dash/audio track
-    if (lower.contains("mime=audio") || lower.contains("/audio/") || lower.contains("audio_aac")) return false
+    if (lower.contains("mime=audio") || lower.contains("/audio/") || lower.contains("bytestart") || lower.contains("audio_aac")) return false
     
     // Dekode parameter base64 efg dan _nc_vs untuk mendeteksi track audio tersembunyi
     try {

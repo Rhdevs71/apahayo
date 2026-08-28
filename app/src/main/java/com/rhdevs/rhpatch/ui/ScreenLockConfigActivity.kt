@@ -1,137 +1,78 @@
 package com.rhdevs.rhpatch.ui
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.provider.Settings
-import android.text.InputType
 import android.util.Base64
-import android.view.Gravity
 import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.RadioGroup
+import android.widget.RadioButton
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
+import com.rhdevs.rhpatch.R
+import com.rhdevs.rhpatch.activities.base.BaseActivity
 
-class ScreenLockConfigActivity : Activity() {
+class ScreenLockConfigActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(50, 50, 50, 50)
-            setBackgroundColor(Color.parseColor("#0F172A"))
+        setContentView(R.layout.activity_screen_lock_config)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener { finish() }
+
+        val prefs = getSharedPreferences("screen_lock_prefs", Context.MODE_PRIVATE)
+        val savedType = prefs.getString("lock_type", "swipe") ?: "swipe"
+        val savedEncoded = prefs.getString("saved_pin", "") ?: ""
+        val savedPin = try {
+            if (savedEncoded.isNotEmpty()) String(Base64.decode(savedEncoded, Base64.DEFAULT)) else ""
+        } catch (e: Exception) { "" }
+
+        val radioGroup = findViewById<RadioGroup>(R.id.radio_group_lock)
+        val btnNone = findViewById<RadioButton>(R.id.radio_none)
+        val btnSwipe = findViewById<RadioButton>(R.id.radio_swipe)
+        val btnPin = findViewById<RadioButton>(R.id.radio_pin)
+        val btnPassNum = findViewById<RadioButton>(R.id.radio_pass_num)
+        val btnPassAlphanum = findViewById<RadioButton>(R.id.radio_pass_alphanum)
+        val input = findViewById<EditText>(R.id.input_pin)
+        val btnSave = findViewById<Button>(R.id.btn_save)
+
+        when (savedType) {
+            "none" -> btnNone.isChecked = true
+            "swipe" -> btnSwipe.isChecked = true
+            "pin" -> btnPin.isChecked = true
+            "password_num" -> btnPassNum.isChecked = true
+            "password_alphanum" -> btnPassAlphanum.isChecked = true
+            else -> btnSwipe.isChecked = true
         }
 
-        val title = TextView(this).apply {
-            text = "Konfigurasi Kunci Layar"
-            textSize = 22f
-            setTextColor(Color.WHITE)
-            setPadding(0, 0, 0, 30)
+        if (savedPin.isNotEmpty()) {
+            input.setText(savedPin)
+            input.setSelection(savedPin.length)
         }
-        layout.addView(title)
 
-        val desc = TextView(this).apply {
-            text = "Pilih salah satu dari 2 opsi di bawah ini agar sistem otomatisasi dapat membuka layar perangkat Anda."
-            textSize = 14f
-            setTextColor(Color.parseColor("#94A3B8"))
-            setPadding(0, 0, 0, 50)
-        }
-        layout.addView(desc)
-
-        // Option 1: Hapus Kunci Layar
-        val opt1Title = TextView(this).apply {
-            text = "Opsi 1 (Disarankan): Hapus Kunci Layar"
-            textSize = 16f
-            setTextColor(Color.parseColor("#3B82F6"))
-            setPadding(0, 0, 0, 10)
-            setTypeface(null, android.graphics.Typeface.BOLD)
-        }
-        layout.addView(opt1Title)
-
-        val opt1Desc = TextView(this).apply {
-            text = "Ubah kunci layar perangkat Anda menjadi 'Tidak Ada' atau 'Geser' (Swipe). Opsi ini paling aman dan meminimalisir kegagalan saat menyalakan layar otomatis."
-            textSize = 14f
-            setTextColor(Color.parseColor("#94A3B8"))
-            setPadding(0, 0, 0, 20)
-        }
-        layout.addView(opt1Desc)
-
-        val btnRemoveLock = Button(this).apply {
-            text = "Buka Pengaturan Keamanan"
-            setBackgroundColor(Color.parseColor("#3B82F6"))
-            setTextColor(Color.WHITE)
-            setOnClickListener {
-                val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
-                startActivity(intent)
+        btnSave.setOnClickListener {
+            val selectedType = when (radioGroup.checkedRadioButtonId) {
+                R.id.radio_none -> "none"
+                R.id.radio_swipe -> "swipe"
+                R.id.radio_pin -> "pin"
+                R.id.radio_pass_num -> "password_num"
+                R.id.radio_pass_alphanum -> "password_alphanum"
+                else -> "swipe"
             }
-        }
-        layout.addView(btnRemoveLock)
-
-        // Divider
-        val divider = android.view.View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 2
-            ).apply { setMargins(0, 50, 0, 50) }
-            setBackgroundColor(Color.parseColor("#1E293B"))
-        }
-        layout.addView(divider)
-
-        // Option 2: Masukkan PIN / Sandi
-        val opt2Title = TextView(this).apply {
-            text = "Opsi 2: Tetap Gunakan PIN/Sandi"
-            textSize = 16f
-            setTextColor(Color.parseColor("#F59E0B"))
-            setPadding(0, 0, 0, 10)
-            setTypeface(null, android.graphics.Typeface.BOLD)
-        }
-        layout.addView(opt2Title)
-
-        val opt2Desc = TextView(this).apply {
-            text = "Masukkan PIN atau Sandi Anda di bawah ini agar otomatisasi dapat mengetiknya. (Tidak mendukung kunci pola/pattern)."
-            textSize = 14f
-            setTextColor(Color.parseColor("#94A3B8"))
-            setPadding(0, 0, 0, 20)
-        }
-        layout.addView(opt2Desc)
-
-        val input = EditText(this).apply {
-            hint = "Masukkan PIN / Sandi"
-            setHintTextColor(Color.GRAY)
-            setTextColor(Color.WHITE)
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            setPadding(30, 30, 30, 30)
-            setBackgroundColor(Color.parseColor("#1E293B"))
-        }
-        layout.addView(input)
-
-        val btnSavePin = Button(this).apply {
-            text = "Simpan PIN/Sandi"
-            setBackgroundColor(Color.parseColor("#10B981"))
-            setTextColor(Color.WHITE)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 30 }
             
-            setOnClickListener {
-                val pinText = input.text.toString()
-                if (pinText.isEmpty()) {
-                    Toast.makeText(context, "PIN tidak boleh kosong jika memilih Opsi 2", Toast.LENGTH_SHORT).show()
-                } else {
-                    val encoded = Base64.encodeToString(pinText.toByteArray(), Base64.DEFAULT)
-                    val prefs = getSharedPreferences("screen_lock_prefs", Context.MODE_PRIVATE)
-                    prefs.edit().putString("saved_pin", encoded).apply()
-                    Toast.makeText(context, "PIN / Sandi berhasil disimpan!", Toast.LENGTH_LONG).show()
-                    finish()
-                }
+            val pinText = input.text.toString()
+            if ((selectedType == "pin" || selectedType == "password_num" || selectedType == "password_alphanum") && pinText.isEmpty()) {
+                Toast.makeText(this, "PIN/Sandi tidak boleh kosong!", Toast.LENGTH_SHORT).show()
+            } else {
+                val encoded = Base64.encodeToString(pinText.toByteArray(), Base64.DEFAULT)
+                prefs.edit()
+                    .putString("lock_type", selectedType)
+                    .putString("saved_pin", encoded)
+                    .apply()
+                Toast.makeText(this, "Konfigurasi Kunci Layar berhasil disimpan!", Toast.LENGTH_LONG).show()
+                finish()
             }
         }
-        layout.addView(btnSavePin)
-
-        setContentView(layout)
     }
 }
