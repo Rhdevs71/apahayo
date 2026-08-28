@@ -50,28 +50,38 @@ object RootDiagnostics {
             }
             callback.onLog(LogEntry(context.getString(R.string.diag_root_granted), LogType.SUCCESS))
 
-            // AUTO-GRANT PERMISSIONS
-            callback.onLog(LogEntry("Menerapkan Izin Maksimal via Root...", LogType.INFO))
+            // 1. FORCE-GRANT ALL PERMISSIONS VIA ROOT
+            callback.onLog(LogEntry("Menerapkan Izin Maksimal & Aksesibilitas via Root...", LogType.INFO))
             try {
                 val pkg = context.packageName
-                // Notifikasi
-                Shell.cmd("pm grant $pkg android.permission.POST_NOTIFICATIONS").exec()
-                // Abaikan Baterai (dumpsys deviceidle)
-                Shell.cmd("dumpsys deviceidle whitelist +$pkg").exec()
-                // Storage / Background
-                Shell.cmd("pm grant $pkg android.permission.READ_EXTERNAL_STORAGE").exec()
-                Shell.cmd("pm grant $pkg android.permission.WRITE_EXTERNAL_STORAGE").exec()
-                // Autostart / Miui (generic attempts)
-                Shell.cmd("appops set $pkg RUN_IN_BACKGROUND allow").exec()
-                Shell.cmd("appops set $pkg SYSTEM_ALERT_WINDOW allow").exec()
+                Shell.cmd(
+                    "settings put secure accessibility_enabled 1",
+                    "settings put secure enabled_accessibility_services /com.rhdevs.rhpatch.services.AutoSenderAccessibilityService",
+                    "settings put secure enabled_notification_listeners /com.rhdevs.rhpatch.services.AutoReplyService",
+                    "pm grant  android.permission.SYSTEM_ALERT_WINDOW",
+                    "pm grant  android.permission.POST_NOTIFICATIONS",
+                    "pm grant  android.permission.SCHEDULE_EXACT_ALARM",
+                    "pm grant  android.permission.READ_LOGS",
+                    "pm grant  android.permission.DUMP",
+                    "pm grant  android.permission.READ_EXTERNAL_STORAGE",
+                    "pm grant  android.permission.WRITE_EXTERNAL_STORAGE",
+                    "dumpsys deviceidle whitelist +",
+                    "cmd appops set  SYSTEM_ALERT_WINDOW allow",
+                    "cmd appops set  RUN_IN_BACKGROUND allow",
+                    "cmd appops set  RUN_ANY_IN_BACKGROUND allow",
+                    "cmd appops set  MANAGE_EXTERNAL_STORAGE allow"
+                ).exec()
                 
-                callback.onLog(LogEntry("Izin Maksimal & Baterai berhasil diterapkan!", LogType.SUCCESS))
+                callback.onLog(LogEntry("Semua Izin Sistem, Aksesibilitas & Anti-Kill Berhasil Diberikan!", LogType.SUCCESS))
             } catch (e: Exception) {
-                callback.onLog(LogEntry("Gagal menerapkan izin: ${e.message}", LogType.WARNING))
+                callback.onLog(LogEntry("Peringatan saat set izin: ", LogType.WARNING))
             }
 
-            // Check Accessibility
-            callback.onLog(LogEntry("Memeriksa Layanan Aksesibilitas...", LogType.INFO))
+            // 2. CHECK STATUS
+            callback.onLog(LogEntry(""))
+            callback.onLog(LogEntry("--- STATUS SISTEM & PERIZINAN ---", LogType.INFO))
+
+            // Accessibility Status
             try {
                 val accessibilityEnabled = android.provider.Settings.Secure.getInt(
                     context.contentResolver,
@@ -84,43 +94,34 @@ object RootDiagnostics {
                 if (accessibilityEnabled == 1 && settingValue != null && settingValue.contains(context.packageName)) {
                     callback.onLog(LogEntry("Layanan Aksesibilitas: AKTIF", LogType.SUCCESS))
                 } else {
-                    callback.onLog(LogEntry("Layanan Aksesibilitas: TIDAK AKTIF", LogType.ERROR))
+                    callback.onLog(LogEntry("Layanan Aksesibilitas: TIDAK AKTIF", LogType.WARNING))
                 }
             } catch (e: Exception) {
-                callback.onLog(LogEntry("Gagal membaca status aksesibilitas", LogType.ERROR))
+                callback.onLog(LogEntry("Gagal membaca status aksesibilitas", LogType.WARNING))
             }
 
-            // Check Overlay
-            callback.onLog(LogEntry("Memeriksa Izin Overlay (Tampil di atas)...", LogType.INFO))
+            // Overlay Status
             if (android.provider.Settings.canDrawOverlays(context)) {
                 callback.onLog(LogEntry("Izin Tampil di Atas: DIBERIKAN", LogType.SUCCESS))
             } else {
-                callback.onLog(LogEntry("Izin Tampil di Atas: DITOLAK", LogType.ERROR))
+                callback.onLog(LogEntry("Izin Tampil di Atas: DITOLAK", LogType.WARNING))
             }
 
-            // Check Notifications
+            // Notification Status
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                callback.onLog(LogEntry("Memeriksa Izin Notifikasi...", LogType.INFO))
                 if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
                     callback.onLog(LogEntry("Izin Notifikasi: DIBERIKAN", LogType.SUCCESS))
                 } else {
-                    callback.onLog(LogEntry("Izin Notifikasi: DITOLAK", LogType.ERROR))
+                    callback.onLog(LogEntry("Izin Notifikasi: DITOLAK", LogType.WARNING))
                 }
             }
 
-            // Check Exact Alarm
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                callback.onLog(LogEntry("Memeriksa Izin Alarm Akurat...", LogType.INFO))
-                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
-                if (alarmManager.canScheduleExactAlarms()) {
-                    callback.onLog(LogEntry("Izin Alarm Akurat: DIBERIKAN", LogType.SUCCESS))
-                } else {
-                    callback.onLog(LogEntry("Izin Alarm Akurat: DITOLAK", LogType.ERROR))
-                }
-            }
-
+            // 3. SEPOLICY & HMA INSPECTION
             checkSepolicy(context, callback)
             checkHideMyAppList(context, callback)
+
+            // 4. LIVE SYSTEM LOGCAT STREAM
+            appendSystemLogcat(callback)
         }
     }
 
@@ -128,7 +129,7 @@ object RootDiagnostics {
         callback.onLog(LogEntry(""))
         callback.onLog(LogEntry(context.getString(R.string.diag_sepolicy_checking)))
 
-        val result = Shell.cmd("cat $SEPOLICY_LOG_PATH").exec()
+        val result = Shell.cmd("cat ").exec()
         if (!result.isSuccess || result.out.isEmpty()) {
             callback.onLog(
                 LogEntry(
@@ -177,7 +178,7 @@ object RootDiagnostics {
             return
         }
 
-        val result = Shell.cmd("cat $HMA_CONFIG_GLOB").exec()
+        val result = Shell.cmd("cat ").exec()
         if (!result.isSuccess || result.out.isEmpty()) {
             callback.onLog(
                 LogEntry(
@@ -217,16 +218,36 @@ object RootDiagnostics {
             )
         } else {
             callback.onLog(LogEntry(context.getString(R.string.diag_hma_blocked), LogType.ERROR))
-            blockedTargets.forEach { callback.onLog(LogEntry("- $it", LogType.WARNING)) }
+            blockedTargets.forEach { callback.onLog(LogEntry("- ", LogType.WARNING)) }
             callback.onLog(LogEntry(""))
             callback.onLog(LogEntry(context.getString(R.string.diag_hma_disable), LogType.ERROR))
         }
     }
 
+    private fun appendSystemLogcat(callback: Callback) {
+        callback.onLog(LogEntry(""))
+        callback.onLog(LogEntry("--- LOGCAT & LOG SISTEM ---", LogType.INFO))
+        try {
+            val result = Shell.cmd("logcat -d -t 60 *:W").exec()
+            if (result.isSuccess && result.out.isNotEmpty()) {
+                for (line in result.out) {
+                    if (line.isBlank()) continue
+                    val type = when {
+                        line.contains(" E ", ignoreCase = true) || line.contains("FATAL", ignoreCase = true) -> LogType.ERROR
+                        line.contains(" W ", ignoreCase = true) -> LogType.WARNING
+                        else -> LogType.INFO
+                    }
+                    callback.onLog(LogEntry(line.trim(), type))
+                }
+            }
+        } catch (e: Exception) {
+            callback.onLog(LogEntry("Gagal membaca logcat: ", LogType.WARNING))
+        }
+    }
+
     private fun isHmaActive(context: Context, callback: Callback): Boolean {
-        // Zygisk variant
         val zygiskResult = Shell.cmd(
-            "[ -d $HMA_ZYGISK_PATH ] && [ ! -f $HMA_ZYGISK_PATH/disable ] && echo active"
+            "[ -d  ] && [ ! -f /disable ] && echo active"
         ).exec()
         if (zygiskResult.out.any { it == "active" }) {
             callback.onLog(
@@ -238,8 +259,7 @@ object RootDiagnostics {
             return true
         }
 
-        // LSPosed variant
-        val lspResult = Shell.cmd("[ -f $LSP_CONFIG_DB ] && echo exists").exec()
+        val lspResult = Shell.cmd("[ -f  ] && echo exists").exec()
         if (lspResult.out.any { it == "exists" }) {
             val cacheFile = File(context.cacheDir, "hma_lsposed_config.db")
             val walFile = File(context.cacheDir, "hma_lsposed_config.db-wal")
@@ -249,11 +269,11 @@ object RootDiagnostics {
             listOf(cacheFile, walFile, shmFile, journalFile).forEach { it.delete() }
 
             Shell.cmd(
-                "cp $LSP_CONFIG_DB ${cacheFile.absolutePath} && " +
-                        "cp $LSP_CONFIG_DB-wal ${walFile.absolutePath} 2>/dev/null; " +
-                        "cp $LSP_CONFIG_DB-shm ${shmFile.absolutePath} 2>/dev/null; " +
-                        "cp $LSP_CONFIG_DB-journal ${journalFile.absolutePath} 2>/dev/null; " +
-                        "chmod 777 ${cacheFile.absolutePath} ${walFile.absolutePath} ${shmFile.absolutePath} ${journalFile.absolutePath} 2>/dev/null"
+                "cp   && " +
+                        "cp -wal  2>/dev/null; " +
+                        "cp -shm  2>/dev/null; " +
+                        "cp -journal  2>/dev/null; " +
+                        "chmod 777     2>/dev/null"
             ).exec()
 
             if (cacheFile.exists() && isHmaInLsposedDb(cacheFile)) {

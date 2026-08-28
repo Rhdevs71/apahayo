@@ -47,25 +47,7 @@ class UniversalAlarmReceiver : BroadcastReceiver() {
             e.printStackTrace()
         }
 
-        // Prepare Countdown Activity Intent
-        val countdownIntent = Intent(context, com.rhdevs.rhpatch.activity.AutomationCountdownActivity::class.java).apply {
-            putExtra("taskId", id)
-            putExtra("targetApp", targetApp)
-            putExtra("contact", contact)
-            putExtra("messageText", messageText)
-            putExtra("mediaPath", mediaPath)
-            putExtra("mediaType", mediaType)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-        }
-
-        val piFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        }
-        val fullScreenPendingIntent = PendingIntent.getActivity(context, id, countdownIntent, piFlags)
-
-        // Show High-Priority FullScreen Notification for Android 10+ Lockscreen Wake
+        // Show Informational Notification (Non-clickable)
         try {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val channelId = "scheduler_alarm_channel"
@@ -73,12 +55,11 @@ class UniversalAlarmReceiver : BroadcastReceiver() {
                 val channel = NotificationChannel(
                     channelId,
                     "Scheduler Alarm",
-                    NotificationManager.IMPORTANCE_HIGH
+                    NotificationManager.IMPORTANCE_LOW
                 ).apply {
-                    description = "Menjalankan jadwal pesan otomatis di layar terkunci"
-                    enableVibration(true)
+                    description = "Menjalankan jadwal pesan otomatis di background"
+                    enableVibration(false)
                     lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
-                    setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), null)
                 }
                 nm.createNotificationChannel(channel)
             }
@@ -87,10 +68,8 @@ class UniversalAlarmReceiver : BroadcastReceiver() {
                 .setSmallIcon(R.drawable.ic_launcher_new)
                 .setContentTitle("Menjalankan Jadwal Pesan...")
                 .setContentText("Kirim ke $contact ($targetApp)")
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setFullScreenIntent(fullScreenPendingIntent, true)
                 .setAutoCancel(true)
                 .build()
 
@@ -99,12 +78,15 @@ class UniversalAlarmReceiver : BroadcastReceiver() {
             e.printStackTrace()
         }
 
-        // Also directly launch activity
-        try {
-            context.startActivity(countdownIntent)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        // Direct task dispatch to AutoSenderAccessibilityService in background
+        com.rhdevs.rhpatch.services.AutoSenderAccessibilityService.enqueueUniversalTask(
+            id = id,
+            targetApp = targetApp,
+            contact = contact,
+            messageText = messageText,
+            mediaPath = mediaPath,
+            mediaType = mediaType
+        )
     }
 }
 
