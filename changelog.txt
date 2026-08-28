@@ -1,6 +1,6 @@
-﻿# ⚡ RHpatch v1.5.7.1 Release
+﻿# ⚡ RHpatch v1.5.7.2 Release
 
-### 🚀 Apa yang Baru di v1.5.7.1
-- **Perbaikan Native Build**: Penambahan langsung pustaka C++ (Opus & Ogg) ke repositori untuk kelancaran kompilasi.
-- **Optimasi Update Checker**: Integrasi penuh deteksi versi terbaru dari GitHub Releases publik.
-- **Pembersihan Modul**: Menghapus folder lama yang tidak digunakan di struktur root project.
+### 🚀 Apa yang Baru di v1.5.7.2
+- **Sinkronisasi Kode**: Update basis kode resmi Rhpatch ke versi 1.5.7.2.
+- **Stabilitas & Keandalan**: Perbaikan dan optimasi build rilis tanpa file sementara/debug.
+- **Optimasi Update Checker**: Integrasi deteksi versi terbaru langsung dari GitHub.

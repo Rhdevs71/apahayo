@@ -1,0 +1,82 @@
+[versions]
+morphe-patches-library = "1.5.0-dev.3"
+annotation = "1.10.0"
+androidx-javascriptengine = "1.1.0"
+collections4 = "4.5.0"
+gson = "2.14.0"
+lang3 = "3.20.0"
+guava = "33.6.0-jre"
+hiddenapi = "6.1"
+protobuf = "0.10.0"
+protoc = "4.35.1"
+arscblamer = "1.0"
+bcpkix-jdk18on = "1.83"
+betterypermissionhelper = "1.0.3"
+core = "6.0.0"
+documentfile = "1.1.0"
+filepicker = "9.2.5"
+flatbuffers = "23.5.26"
+jstyleparser = "4.0.1"
+lombok = "1.18.42"
+okhttp = "5.3.2"
+xposed-legacy = "82"
+agp = "8.13.2"
+colorpicker = "1.1.0"
+roomRuntime = "2.8.4"
+nav = "2.9.6"
+kotlin = "2.2.21"
+markwon = "4.6.2"
+remotePreferences = "0.8"
+fuel = "3.0.0-alpha04"
+
+[libraries]
+morphe-patches-library = { module = "app.morphe:morphe-patches-library", version.ref = "morphe-patches-library" }
+morphe-extensions-library = { module = "app.morphe:morphe-extensions-library", version.ref = "morphe-patches-library" }
+annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
+androidx-javascriptengine = { module = "androidx.javascriptengine:javascriptengine", version.ref = "androidx-javascriptengine" }
+collections4 = { module = "org.apache.commons:commons-collections4", version.ref = "collections4" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "lang3" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+hiddenapi = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenapi" }
+protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protoc" }
+protobuf-protoc = { module = "com.google.protobuf:protoc", version.ref = "protoc" }
+androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+arscblamer = { module = "com.github.DavidArsene:arscblamer", version.ref = "arscblamer" }
+bcpkix-jdk18on = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bcpkix-jdk18on" }
+betterypermissionhelper = { module = "com.waseemsabir:betterypermissionhelper", version.ref = "betterypermissionhelper" }
+colorpicker = { module = "com.jaredrummler:colorpicker", version.ref = "colorpicker" }
+core = { module = "com.github.topjohnwu.libsu:core", version.ref = "core" }
+filepicker = { module = "io.github.tutorialsandroid:filepicker", version.ref = "filepicker" }
+flatbuffers = { module = "com.google.flatbuffers:flatbuffers-java", version.ref = "flatbuffers" }
+jstyleparser = { module = "net.sf.cssbox:jstyleparser", version.ref = "jstyleparser" }
+libxposed-legacy = { group = "de.robv.android.xposed", name = "api", version.ref = "xposed-legacy" }
+
+androidx-activity = { module = "androidx.activity:activity", version = "1.12.0" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.2.1" }
+androidx-fragment = { module = "androidx.fragment:fragment", version = "1.8.9" }
+androidx-navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "nav" }
+androidx-navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "nav" }
+
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+rikkax-appcompat = { module = "dev.rikka.rikkax.appcompat:appcompat", version = "1.6.1" }
+rikkax-core = { module = "dev.rikka.rikkax.core:core", version = "1.4.1" }
+rikkax-material = { module = "dev.rikka.rikkax.material:material", version = "2.7.0" }
+rikkax-material-preference = { module = "dev.rikka.rikkax.material:material-preference", version = "2.0.0" }
+rikkax-widget-borderview = { module = "dev.rikka.rikkax.widget:borderview", version = "1.1.0" }
+material = { module = "com.google.android.material:material", version = "1.13.0" }
+markwon-core = { module = "io.noties.markwon:core", version.ref = "markwon" }
+remote-preferences = { module = "com.crossbowffs.remotepreferences:remotepreferences", version.ref = "remotePreferences" }
+fuel = { group = "com.github.kittinunf.fuel", name = "fuel", version.ref = "fuel" }
+
+[plugins]
+protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+materialthemebuilder = { id = "dev.rikka.tools.materialthemebuilder", version = "1.5.1" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kspPlugin = { id = "com.google.devtools.ksp", version = "2.2.21-2.0.4" }
+
+android-library = { id = "com.android.library", version.ref = "agp" }

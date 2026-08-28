@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_overview"
+        android:icon="@drawable/ic_nav_overview"
+        android:title="Ikhtisar" />
+    <item
+        android:id="@+id/nav_scheduler"
+        android:icon="@drawable/ic_nav_scheduler"
+        android:title="Jadwal" />
+    <item
+        android:id="@+id/nav_modules"
+        android:icon="@drawable/ic_nav_modules"
+        android:title="Modul" />
+    <item
+        android:id="@+id/nav_about"
+        android:icon="@drawable/ic_nav_about"
+        android:title="Tentang" />
+</menu>

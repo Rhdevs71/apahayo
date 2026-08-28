@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="Umum &amp; Tweak Sistem">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="update_check"
+            app:defaultValue="true"
+            app:summary="@string/update_check_sum"
+            app:title="@string/update_check" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="false"
+            app:key="disable_expiration"
+            app:summary="@string/disable_whatsapp_expiration_sum"
+            app:title="@string/disable_whatsapp_expiration" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="false"
+            app:key="disable_ads"
+            app:summary="@string/disable_ads_sum"
+            app:title="@string/disable_ads" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="enablelogs"
+            app:title="@string/verbose_logs" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="false"
+            app:key="bypass_version_check"
+            app:summary="@string/disable_version_check_sum"
+            app:title="@string/disable_version_check" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Tampilan Layar Utama">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="buttonaction"
+            app:summary="@string/show_menu_buttons_as_icons_sum"
+            app:title="@string/show_menu_buttons_as_icons" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="shownamehome"
+            app:summary="@string/showname_sum"
+            app:title="@string/showname" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="showbiohome"
+            app:summary="@string/showbio_sum"
+            app:title="@string/showbio" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="show_dndmode"
+            app:summary="@string/show_dnd_button_sum"
+            app:title="@string/show_dnd_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="newchat"
+            app:summary="@string/enable_new_chat_button_sum"
+            app:title="@string/enable_new_chat_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="restartbutton"
+            app:summary="@string/enable_restart_button_sum"
+            app:title="@string/enable_restart_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="open_wae"
+            app:summary="@string/enable_wa_enhancer_button_sum"
+            app:title="@string/enable_wa_enhancer_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="separategroups"
+            app:summary="@string/separate_groups_sum"
+            app:title="@string/separate_groups" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="filtergroups"
+            app:summary="@string/new_ui_group_filter_sum"
+            app:title="@string/new_ui_group_filter" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="dotonline"
+            app:summary="@string/show_online_dot_in_conversation_list_sum"
+            app:title="@string/show_online_dot_in_conversation_list" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="showonlinetext"
+            app:summary="@string/show_online_last_seen_in_conversation_list_sum"
+            app:title="@string/show_online_last_seen_in_conversation_list" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="filterseen"
+            app:summary="@string/enable_filter_chats_sum"
+            app:title="@string/enable_filter_chats" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="metaai"
+            app:summary="@string/disable_metaai_sum"
+            app:title="@string/disable_metaai" />
+
+        <ListPreference
+            app:entries="@array/chatfilter_buttons"
+            app:entryValues="@array/chatfilter_values"
+            app:defaultValue="2"
+            app:key="chatfilter"
+            app:summary="@string/novofiltro_sum"
+            app:title="@string/novofiltro" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="disable_profile_status"
+            app:summary="@string/disable_status_in_the_profile_photo_sum"
+            app:title="@string/disable_status_in_the_profile_photo" />
+
+    </PreferenceCategory>
+    
+    <PreferenceCategory app:title="Obrolan &amp; Notifikasi">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="showonline"
+            app:summary="@string/show_toast_on_contact_online_sum"
+            app:title="@string/show_toast_on_contact_online" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="toastdeleted"
+            app:summary="@string/toast_on_delete_sum"
+            app:title="@string/toast_on_delete" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="toast_viewed_message"
+            app:summary="@string/toast_on_viewed_message_sum"
+            app:title="@string/toast_on_viewed_message" />
+
+        <ListPreference
+            app:entries="@array/antirevoke_entries"
+            app:entryValues="@array/antirevoke_values"
+            app:key="antirevoke"
+            app:summary="@string/antirevoke_sum"
+            app:title="@string/antirevoke" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="antidisappearing"
+            app:summary="@string/antidisappearing_sum"
+            app:title="@string/antidisappearing" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="broadcast_tag"
+            app:summary="@string/show_chat_broadcast_icon_sum"
+            app:title="@string/show_chat_broadcast_icon" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="pinnedlimit"
+            app:summary="@string/disable_pinned_limit_sum"
+            app:title="@string/disable_pinned_limit" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="removeforwardlimit"
+            app:summary="@string/removeforwardlimit_sum"
+            app:title="@string/removeforwardlimit" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="hidetag"
+            app:summary="@string/hidetag_sum"
+            app:title="@string/hidetag" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="revokeallmessages"
+            app:summary="@string/delete_for_everyone_all_messages_sum"
+            app:title="@string/delete_for_everyone_all_messages" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="antieditmessages"
+            app:summary="@string/show_edited_message_history_sum"
+            app:title="@string/show_edited_message_history" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="calltype"
+            app:summary="@string/selection_of_call_type_sum"
+            app:title="@string/selection_of_call_type" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="doubletap2like"
+            app:summary="@string/double_click_to_like_sum"
+            app:title="@string/double_click_to_react" />
+
+        <com.rhdevs.rhpatch.preference.LimitedEditTextPreference
+            app:defaultValue="dY`?"
+            app:dependency="doubletap2like"
+            app:key="doubletap2like_emoji"
+            app:maxLength="2"
+            app:summary="@string/custom_reaction_sum"
+            app:title="@string/custom_reaction" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="google_translate"
+            app:summary="@string/google_translate_sum"
+            app:title="@string/google_translate" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="verify_blocked_contact"
+            app:summary="@string/show_contact_added_status_sum"
+            app:title="@string/show_contact_added_status" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Alat Otomatisasi &amp; Ekstra">
+
+        <Preference
+            app:key="auto_reply_settings"
+            app:title="Auto Reply"
+            app:summary="Auto reply keywords, delay and target filters" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="use_accessibility_sender"
+            app:defaultValue="false"
+            app:summary="Use Screen Unlock + UI Auto-Click to send scheduled messages"
+            app:title="Accessibility Auto-Sender Fallback" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="fake_chat_editor_enabled"
+            app:defaultValue="false"
+            app:summary="Edit teks dan waktu pesan dari daftar obrolan (tekan lama pesan)"
+            app:title="Fake Chat Editor" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="quick_translate_enabled"
+            app:defaultValue="false"
+            app:summary="Enable floating translate button in chat input"
+            app:title="Quick Translate" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="voice_changer_enabled"
+            app:defaultValue="false"
+            app:summary="Modify the pitch/speed of recorded voice notes"
+            app:title="Voice Changer" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="custom_folders_enabled"
+            app:defaultValue="false"
+            app:summary="Display custom category badges on chats list"
+            app:title="Custom Chat Folders" />
+
+        <Preference
+            app:dependency="custom_folders_enabled"
+            app:key="custom_folders_settings"
+            app:title="Configure Folders"
+            app:summary="Manage folders and select chats for each folder" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="media_cleaner_enabled"
+            app:defaultValue="false"
+            app:summary="Automatically delete media files older than X days"
+            app:title="Auto Media Cleaner" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="anti_screenshot_enabled"
+            app:defaultValue="false"
+            app:summary="Allow taking screenshots on view once media"
+            app:title="Anti-Screenshot Bypass" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="app_switcher_blur_enabled"
+            app:defaultValue="false"
+            app:summary="Hide screen preview in recent apps menu"
+            app:title="App Switcher Blur" />
+
+        <ListPreference
+            app:key="ai_provider"
+            app:defaultValue="groq"
+            app:entries="@array/ai_provider_entries"
+            app:entryValues="@array/ai_provider_values"
+            app:title="AI Service Provider" />
+
+        <EditTextPreference
+            app:key="ai_api_key"
+            app:title="AI Responder API Key"
+            app:summary="Enter your API Key" />
+    </PreferenceCategory>
+    
+    <PreferenceCategory app:title="Spoofing">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:summary="@string/bootloader_spoofer_sum"
+            android:title="@string/bootloader_spoofer"
+            app:key="bootloader_spoofer" />
+        <rikka.material.preference.MaterialSwitchPreference
+            android:summary="@string/bootloader_spoofer_sum"
+            android:title="Enable Custom KeyBox"
+            app:key="bootloader_spoofer_custom" />
+        <com.rhdevs.rhpatch.preference.FileReaderPreference
+            android:key="bootloader_spoofer_xml"
+            android:dependency="bootloader_spoofer_custom"
+            android:title="Use Custom keybox.xml file"
+            android:summary="No file selected" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

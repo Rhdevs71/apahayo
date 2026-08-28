@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_app"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_surface"
+        app:elevation="0dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:paddingHorizontal="16dp">
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_down"
+                android:rotation="90"
+                app:tint="#E3E6EB"
+                android:contentDescription="Back" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/btn_back"
+                android:layout_marginStart="12dp"
+                android:text="Auto Reply"
+                android:textColor="#E3E6EB"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btn_search"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="#E3E6EB"
+                android:contentDescription="Search" />
+        </RelativeLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:clipToPadding="false"
+            android:paddingBottom="100dp">
+
+            <!-- Rule Enabled Row -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:paddingVertical="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rule enabled"
+                    android:textColor="#E3E6EB"
+                    android:textSize="16sp"
+                    android:layout_centerVertical="true" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_rule_enabled"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    app:thumbTint="@android:color/white"
+                    app:trackTint="#9C87F2" />
+            </RelativeLayout>
+
+            <!-- Divider line -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#252D3D"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Trigger Pattern Box -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_bordered_box"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Trigger pattern"
+                    android:textColor="#9C87F2"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Text to Match Input -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Text to match (use * as wildcard)"
+                    android:textColor="#8F9CAE"
+                    android:textSize="12sp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginBottom="-8dp"
+                    android:elevation="2dp"
+                    android:background="#141A26"
+                    android:paddingHorizontal="4dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_bordered_box_nested"
+                    android:paddingHorizontal="16dp"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <EditText
+                        android:id="@+id/edit_keywords"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:inputType="text"
+                        android:text="ola"
+                        android:textColor="#E3E6EB"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <!-- Matching Type Dropdown -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginBottom="-8dp"
+                    android:elevation="2dp"
+                    android:background="#141A26"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="4dp">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Matching type"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp" />
+                        
+                    <ImageView
+                        android:id="@+id/btn_info_matching_type"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginStart="4dp"
+                        android:src="@android:drawable/ic_menu_help"
+                        app:tint="#9C87F2"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_bordered_box_nested"
+                    android:paddingHorizontal="16dp"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <Spinner
+                        android:id="@+id/spinner_matching_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#E3E6EB" />
+                </LinearLayout>
+
+                <!-- Ignore Case Checkbox -->
+                <CheckBox
+                    android:id="@+id/checkbox_ignore_case"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ignore case (UPPER/lower)"
+                    android:textColor="#E3E6EB"
+                    android:textSize="14sp"
+                    android:buttonTint="#9C87F2"
+                    android:checked="true" />
+            </LinearLayout>
+
+            <!-- Scope Box -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_bordered_box"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scope"
+                    android:textColor="#9C87F2"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Scope Dropdown -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scope"
+                    android:textColor="#8F9CAE"
+                    android:textSize="12sp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginBottom="-8dp"
+                    android:elevation="2dp"
+                    android:background="#141A26"
+                    android:paddingHorizontal="4dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_bordered_box_nested"
+                    android:paddingHorizontal="16dp"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <Spinner
+                        android:id="@+id/spinner_target_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#E3E6EB" />
+                </LinearLayout>
+
+                <!-- Selected Contacts input -->
+                <TextView
+                    android:id="@+id/label_selected_contacts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Selected contacts"
+                    android:textColor="#8F9CAE"
+                    android:textSize="12sp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginBottom="-8dp"
+                    android:elevation="2dp"
+                    android:background="#141A26"
+                    android:paddingHorizontal="4dp" />
+
+                <LinearLayout
+                    android:id="@+id/layout_selected_contacts"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_bordered_box_nested"
+                    android:paddingHorizontal="16dp"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <EditText
+                        android:id="@+id/edit_target_contacts"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:enabled="true"
+                        android:hint="JID, Username, or ID"
+                        android:textColorHint="#8E939D"
+                        android:textColor="#E3E6EB"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- Select Contacts Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_select_contacts"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Select Contacts"
+                        android:textColor="#E3E6EB"
+                        app:strokeColor="#252D3D"
+                        app:icon="@android:drawable/ic_menu_myplaces"
+                        app:iconTint="#E3E6EB" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Scheduled Box -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_bordered_box"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scheduled"
+                    android:textColor="#9C87F2"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Apply only on schedule"
+                        android:textColor="#E3E6EB"
+                        android:textSize="16sp" />
+
+                    <!-- We map this to whether active hours is checked or not -->
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switch_active_hours"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        app:thumbTint="@android:color/white"
+                        app:trackTint="#9C87F2" />
+                </RelativeLayout>
+
+                <!-- Hidden start/end time pickers for timing windows, auto-filled or clicked -->
+                <LinearLayout
+                    android:id="@+id/layout_active_hours"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp"
+                    android:visibility="gone">
+
+                    <Button
+                        android:id="@+id/btn_active_start"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:text="Start: 09:00" />
+
+                    <Button
+                        android:id="@+id/btn_active_end"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="End: 17:00" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Reply Type Box -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_bordered_box"
+                android:padding="16dp"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reply type"
+                    android:textColor="#9C87F2"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Reply Type Dropdown -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reply type"
+                    android:textColor="#8F9CAE"
+                    android:textSize="12sp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginBottom="-8dp"
+                    android:elevation="2dp"
+                    android:background="#141A26"
+                    android:paddingHorizontal="4dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_bordered_box_nested"
+                    android:paddingHorizontal="16dp"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <Spinner
+                        android:id="@+id/spinner_reply_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#E3E6EB" />
+                </LinearLayout>
+
+                <!-- AI Settings Box (Visible only if Reply Type is AI) -->
+                <LinearLayout
+                    android:id="@+id/layout_ai_settings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AI Provider"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginBottom="-8dp"
+                        android:elevation="2dp"
+                        android:background="#141A26"
+                        android:paddingHorizontal="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_bordered_box_nested"
+                        android:paddingHorizontal="16dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+                        <Spinner
+                            android:id="@+id/spinner_ai_provider"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#E3E6EB" />
+                    </LinearLayout>
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AI Model"
+                        android:textColor="#8F9CAE"
+                        android:textSize="12sp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginBottom="-8dp"
+                        android:elevation="2dp"
+                        android:background="#141A26"
+                        android:paddingHorizontal="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_bordered_box_nested"
+                        android:paddingHorizontal="16dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+                        <Spinner
+                            android:id="@+id/spinner_ai_model"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#E3E6EB" />
+                    </LinearLayout>
+
+                    <!-- Custom Model Name (Visible if Custom chosen) -->
+                    <EditText
+                        android:id="@+id/edit_custom_model"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_bordered_box_nested"
+                        android:paddingHorizontal="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Enter custom model id"
+                        android:textColor="#E3E6EB"
+                        android:textColorHint="#5A687C"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+                <!-- Reply Text Input -->
+                <TextView
+                    android:id="@+id/label_reply_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reply text (Use ||| to separate multiple/random replies)"
+                    android:textColor="#8F9CAE"
+                    android:textSize="12sp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginBottom="-8dp"
+                    android:elevation="2dp"
+                    android:background="#141A26"
+                    android:paddingHorizontal="4dp" />
+
+                <LinearLayout
+                    android:id="@+id/layout_reply_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_bordered_box_nested"
+                    android:padding="12dp">
+
+                    <EditText
+                        android:id="@+id/edit_reply_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minLines="3"
+                        android:gravity="top"
+                        android:background="@null"
+                        android:hint="Automatic response content"
+                        android:textColor="#E3E6EB"
+                        android:textColorHint="#5A687C"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <!-- Keep other advanced parameters functional in background -->
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_quote_original"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_is_ai"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_is_forward"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+                <SeekBar
+                    android:id="@+id/seek_bar_delay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Save Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:backgroundTint="#C3B4FC"
+                android:text="Save"
+                android:textColor="#0B0E14"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="28dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
