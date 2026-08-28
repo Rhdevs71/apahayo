@@ -162,13 +162,43 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             return
         }
         
+        val rootNode = rootInActiveWindow
+        var editTextFound = false
+        if (rootNode != null) {
+            val inputNodes = rootNode.findAccessibilityNodeInfosByViewId("com.android.systemui:id/passwordEntry")
+                ?.ifEmpty { rootNode.findAccessibilityNodeInfosByViewId("com.android.systemui:id/pinEntry") }
+                ?: emptyList()
+            
+            if (inputNodes.isNotEmpty()) {
+                val inputNode = inputNodes[0]
+                val args = Bundle()
+                args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, pin)
+                inputNode.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+                editTextFound = true
+            }
+        }
+
+        if (editTextFound) {
+            handler.postDelayed({
+                val node = rootInActiveWindow
+                if (node != null) {
+                    clickNodeByKeywords(node, "ok", "enter", "done", "selesai", "confirm", "check")
+                }
+                handler.postDelayed({
+                    step = 2
+                    launchTargetApp(currentTask!!)
+                }, 800)
+            }, 600)
+            return
+        }
+        
         for (i in pin.indices) {
             val digit = pin[i]
             val delay = (i * 350).toLong()
             handler.postDelayed({
-                val rootNode = rootInActiveWindow
-                if (rootNode != null) {
-                    clickNodeByText(rootNode, digit.toString())
+                val node = rootInActiveWindow
+                if (node != null) {
+                    clickNodeByText(node, digit.toString())
                 }
             }, delay)
         }
@@ -176,9 +206,9 @@ class AutoSenderAccessibilityService : AccessibilityService() {
         // Wait for all digits to be clicked, then press Enter / OK if needed
         val totalDelay = (pin.length * 350 + 800).toLong()
         handler.postDelayed({
-            val rootNode = rootInActiveWindow
-            if (rootNode != null) {
-                clickNodeByKeywords(rootNode, "ok", "enter", "done", "selesai", "confirm", "check")
+            val root = rootInActiveWindow
+            if (root != null) {
+                clickNodeByKeywords(root, "ok", "enter", "done", "selesai", "confirm", "check")
             }
             handler.postDelayed({
                 step = 2

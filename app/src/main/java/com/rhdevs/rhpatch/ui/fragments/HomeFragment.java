@@ -243,6 +243,7 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void showDiagnosticsDialog() {
+        if (!isAdded()) return;
         var context = requireContext();
         var dialogBinding = DialogDiagnosticsLogBinding.inflate(LayoutInflater.from(context));
         var adapter = new LogLineAdapter();
@@ -257,33 +258,19 @@ public class HomeFragment extends BaseFragment {
                 .setCancelable(true)
                 .show();
 
-        var handler = new Handler(Looper.getMainLooper());
-        var queue = new java.util.ArrayList<RootDiagnostics.LogEntry>();
-
         RootDiagnostics.INSTANCE.runDiagnostics(context, entry -> {
-            if (!isAdded()) return;
-            queue.add(entry);
-        });
-
-        Runnable poller = new Runnable() {
-            private int emptyCycles = 0;
-
-            @Override
-            public void run() {
-                if (!isAdded() || dialog == null || !dialog.isShowing()) return;
-
-                if (!queue.isEmpty()) {
-                    emptyCycles = 0;
-                    adapter.add(queue.remove(0));
-                    dialogBinding.logRecycler.smoothScrollToPosition(adapter.getItemCount() - 1);
-                    handler.postDelayed(this, 120);
-                } else if (emptyCycles < 50) {
-                    emptyCycles++;
-                    handler.postDelayed(this, 120);
+            var activity = getActivity();
+            if (activity == null || !isAdded()) return;
+            activity.runOnUiThread(() -> {
+                if (dialog.isShowing()) {
+                    adapter.add(entry);
+                    int count = adapter.getItemCount();
+                    if (count > 0) {
+                        dialogBinding.logRecycler.scrollToPosition(count - 1);
+                    }
                 }
-            }
-        };
-        handler.postDelayed(poller, 120);
+            });
+        });
     }
 
     @Override
