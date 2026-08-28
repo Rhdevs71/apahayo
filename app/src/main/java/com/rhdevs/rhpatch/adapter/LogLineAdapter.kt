@@ -19,6 +19,8 @@ class LogLineAdapter : RecyclerView.Adapter<LogLineAdapter.ViewHolder>() {
 
     private val items = mutableListOf<RootDiagnostics.LogEntry>()
 
+    fun getLogs(): List<RootDiagnostics.LogEntry> = items
+
     fun add(entry: RootDiagnostics.LogEntry) {
         items.add(entry)
         notifyItemInserted(items.size - 1)

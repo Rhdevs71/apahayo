@@ -251,53 +251,94 @@ public class HomeFragment extends BaseFragment {
         dialogBinding.logRecycler.setLayoutManager(new LinearLayoutManager(context));
         dialogBinding.logRecycler.setAdapter(adapter);
 
-        var logBuffer = new StringBuilder();
-
         var dialog = new MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.diag_dialog_title)
                 .setView(dialogBinding.getRoot())
                 .setPositiveButton(R.string.diag_close, null)
-                .setNeutralButton("Bagikan", (d, w) -> {
+                .setNeutralButton(R.string.diag_share, (dialogInterface, which) -> {
                     try {
-                        var file = new java.io.File(context.getCacheDir(), "logAndroid_Rhpatch.txt");
-                        var writer = new java.io.FileWriter(file);
-                        writer.write(logBuffer.toString());
-                        writer.flush();
-                        writer.close();
+                        var logHeader = new StringBuilder();
+                        logHeader.append("=== DIAGNOSTIK RHPATCH ===\n\n");
+                        for (var entry : adapter.getLogs()) {
+                            logHeader.append(entry.getMessage()).append("\n");
+                        }
+                        logHeader.append("\n--- BEGIN LOGCAT ---\n");
+
+                        var cacheHeaderFile = new java.io.File(context.getCacheDir(), "diag_header.tmp");
+                        java.nio.file.Files.write(cacheHeaderFile.toPath(), logHeader.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+                        var targetLogFile = new java.io.File(context.getCacheDir(), "logAndroid_Rhpatch.txt");
+                        var cmd = "cat " + cacheHeaderFile.getAbsolutePath() + " > " + targetLogFile.getAbsolutePath() +
+                                " && logcat -d >> " + targetLogFile.getAbsolutePath() +
+                                " && cat /data/adb/lspd/log/error.log >> " + targetLogFile.getAbsolutePath() +
+                                " && cat /data/adb/lspd/log/modules.log >> " + targetLogFile.getAbsolutePath() +
+                                " && cat /data/adb/lspd/log/verbose.log >> " + targetLogFile.getAbsolutePath() +
+                                " && chmod 666 " + targetLogFile.getAbsolutePath() +
+                                " && cp " + targetLogFile.getAbsolutePath() + " /sdcard/Download/logAndroid_Rhpatch.txt 2>/dev/null; " +
+                                "cp " + targetLogFile.getAbsolutePath() + " /sdcard/logAndroid_Rhpatch.txt 2>/dev/null";
+
+                        com.topjohnwu.superuser.Shell.cmd(cmd).exec();
 
                         var uri = androidx.core.content.FileProvider.getUriForFile(
                                 context,
                                 context.getPackageName() + ".fileprovider",
-                                file
+                                targetLogFile
                         );
 
-                        var shareIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+                        var shareIntent = new Intent(Intent.ACTION_SEND);
                         shareIntent.setType("text/plain");
-                        shareIntent.putExtra(android.content.Intent.EXTRA_STREAM, uri);
-                        shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, logBuffer.toString());
-                        shareIntent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        context.startActivity(android.content.Intent.createChooser(shareIntent, "Bagikan Log Diagnostik"));
+                        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Log Diagnosa Rhpatch");
+                        shareIntent.putExtra(Intent.EXTRA_TEXT, "Terlampir file log Diagnosa Root & Sistem Rhpatch secara lengkap.");
+                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        startActivity(Intent.createChooser(shareIntent, getString(R.string.diag_share)));
                     } catch (Exception e) {
-                        android.widget.Toast.makeText(context, "Gagal membagikan log: " + e.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+                        try {
+                            var fallbackIntent = new Intent(Intent.ACTION_SEND);
+                            fallbackIntent.setType("text/plain");
+                            var fallbackText = new StringBuilder("Gagal melampirkan file.\n\nLog Diagnosa Root:\n\n");
+                            for (var entry : adapter.getLogs()) {
+                                fallbackText.append(entry.getMessage()).append("\n");
+                            }
+                            fallbackIntent.putExtra(Intent.EXTRA_TEXT, fallbackText.toString());
+                            startActivity(Intent.createChooser(fallbackIntent, getString(R.string.diag_share)));
+                        } catch (Exception ignored) {
+                        }
                     }
                 })
                 .setCancelable(true)
                 .show();
 
+        var queue = new java.util.ArrayList<RootDiagnostics.LogEntry>();
         RootDiagnostics.INSTANCE.runDiagnostics(context, entry -> {
-            var activity = getActivity();
-            if (activity == null || !isAdded()) return;
-            activity.runOnUiThread(() -> {
-                logBuffer.append(entry.getMessage()).append("\n");
-                if (dialog.isShowing()) {
-                    adapter.add(entry);
+            synchronized (queue) {
+                queue.add(entry);
+            }
+        });
+
+        var handler = new Handler(Looper.getMainLooper());
+        var poller = new Runnable() {
+            @Override
+            public void run() {
+                if (!isAdded() || !dialog.isShowing()) return;
+                var batch = new java.util.ArrayList<RootDiagnostics.LogEntry>();
+                synchronized (queue) {
+                    batch.addAll(queue);
+                    queue.clear();
+                }
+                if (!batch.isEmpty()) {
+                    for (var e : batch) {
+                        adapter.add(e);
+                    }
                     int count = adapter.getItemCount();
                     if (count > 0) {
                         dialogBinding.logRecycler.scrollToPosition(count - 1);
                     }
                 }
-            });
-        });
+                handler.postDelayed(this, 120);
+            }
+        };
+        handler.postDelayed(poller, 120);
     }
 
     @Override
