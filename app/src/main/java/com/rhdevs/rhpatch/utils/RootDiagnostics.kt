@@ -1,12 +1,14 @@
 package com.rhdevs.rhpatch.utils
 
+import android.app.AlarmManager
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
+import android.os.Build
+import android.provider.Settings
+import androidx.core.app.NotificationManagerCompat
 import com.topjohnwu.superuser.Shell
 import com.rhdevs.rhpatch.R
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.File
 import java.util.regex.Pattern
 
 object RootDiagnostics {
@@ -14,7 +16,6 @@ object RootDiagnostics {
     private const val SEPOLICY_LOG_PATH = "/data/adb/lspd/log/verbose*.log"
     private const val HMA_CONFIG_GLOB = "/data/misc/hide_my_applist*/config.json"
     private const val HMA_ZYGISK_PATH = "/data/adb/modules/hma_oss_zygisk"
-    private const val LSP_CONFIG_DB = "/data/adb/lspd/config/modules_config.db"
 
     private val SEPOLICY_PATTERN = Pattern.compile("(?i)sepolicy")
     private val ISSUE_PATTERN = Pattern.compile("(?i)error|invalid|failed")
@@ -24,7 +25,7 @@ object RootDiagnostics {
         "com.whatsapp.w4b"
     )
 
-    private val Rhpatch_PACKAGES = listOf(
+    private val RHPATCH_PACKAGES = listOf(
         "com.rhdevs.rhpatch",
         "com.rhdevs.rhpatch.w4b"
     )
@@ -38,35 +39,105 @@ object RootDiagnostics {
     }
 
     fun runDiagnostics(context: Context, callback: Callback) {
+        callback.onLog(LogEntry("=== DIAGNOSTIK RHPATCH ==="))
+        callback.onLog(LogEntry(""))
+
         Shell.getShell { shell ->
             if (!shell.isRoot) {
-                callback.onLog(
-                    LogEntry(
-                        context.getString(R.string.diag_root_denied),
-                        LogType.ERROR
-                    )
-                )
+                callback.onLog(LogEntry(context.getString(R.string.diag_root_denied), LogType.ERROR))
                 return@getShell
             }
-            callback.onLog(LogEntry(context.getString(R.string.diag_root_granted), LogType.SUCCESS))
+            callback.onLog(LogEntry("Root access granted.", LogType.SUCCESS))
 
+            // 1. Grant maximum permissions & anti-hibernation via SU
+            callback.onLog(LogEntry("Menerapkan Izin Maksimal via Root..."))
+            val pkg = context.packageName
+            Shell.cmd(
+                "pm grant  android.permission.SYSTEM_ALERT_WINDOW",
+                "pm grant  android.permission.POST_NOTIFICATIONS",
+                "pm grant  android.permission.SCHEDULE_EXACT_ALARM",
+                "pm grant  android.permission.DUMP",
+                "pm grant  android.permission.READ_LOGS",
+                "dumpsys deviceidle whitelist +",
+                "cmd appops set  SYSTEM_ALERT_WINDOW allow",
+                "cmd appops set  RUN_IN_BACKGROUND allow",
+                "cmd appops set  RUN_ANY_IN_BACKGROUND allow"
+            ).exec()
+            callback.onLog(LogEntry("Izin Maksimal & Anti-Hibernasi berhasil diterapkan!", LogType.SUCCESS))
+
+            // 2. Check Accessibility Service
+            callback.onLog(LogEntry("Memeriksa Layanan Aksesibilitas..."))
+            val enabledServices = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?: ""
+            val isAccessOk = enabledServices.contains("com.rhdevs.rhpatch.services.AutoSenderAccessibilityService")
+            if (isAccessOk) {
+                callback.onLog(LogEntry("Layanan Aksesibilitas: AKTIF", LogType.SUCCESS))
+            } else {
+                callback.onLog(LogEntry("Layanan Aksesibilitas: TIDAK AKTIF", LogType.WARNING))
+            }
+
+            // 3. Check Overlay (Draw over apps)
+            callback.onLog(LogEntry("Memeriksa Izin Overlay (Tampil di atas)..."))
+            val isOverlayOk = Settings.canDrawOverlays(context)
+            if (isOverlayOk) {
+                callback.onLog(LogEntry("Izin Tampil di Atas: DIBERIKAN", LogType.SUCCESS))
+            } else {
+                callback.onLog(LogEntry("Izin Tampil di Atas: DITOLAK", LogType.WARNING))
+            }
+
+            // 4. Check Notifications
+            callback.onLog(LogEntry("Memeriksa Izin Notifikasi..."))
+            val isNotifOk = NotificationManagerCompat.from(context).areNotificationsEnabled()
+            if (isNotifOk) {
+                callback.onLog(LogEntry("Izin Notifikasi: DIBERIKAN", LogType.SUCCESS))
+            } else {
+                callback.onLog(LogEntry("Izin Notifikasi: DITOLAK", LogType.WARNING))
+            }
+
+            // 5. Check Exact Alarm
+            callback.onLog(LogEntry("Memeriksa Izin Alarm Akurat..."))
+            var isAlarmOk = true
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                isAlarmOk = alarmManager.canScheduleExactAlarms()
+            }
+            if (isAlarmOk) {
+                callback.onLog(LogEntry("Izin Alarm Akurat: DIBERIKAN", LogType.SUCCESS))
+            } else {
+                callback.onLog(LogEntry("Izin Alarm Akurat: DITOLAK", LogType.WARNING))
+            }
+
+            // 6. Check Sepolicy
             checkSepolicy(context, callback)
+
+            // 7. Check Hide My App List
             checkHideMyAppList(context, callback)
+
+            // 8. Capture Logcat
+            callback.onLog(LogEntry(""))
+            callback.onLog(LogEntry("--- BEGIN LOGCAT ---"))
+            val logcatResult = Shell.cmd("logcat -d -t 150").exec()
+            if (logcatResult.isSuccess && logcatResult.out.isNotEmpty()) {
+                logcatResult.out.takeLast(100).forEach { line ->
+                    val type = when {
+                        line.contains(" E ") || line.contains("FATAL") || line.contains("Exception") -> LogType.ERROR
+                        line.contains(" W ") || line.contains("Warning") -> LogType.WARNING
+                        else -> LogType.INFO
+                    }
+                    callback.onLog(LogEntry(line, type))
+                }
+            } else {
+                callback.onLog(LogEntry("Logcat kosong atau tidak dapat diakses.", LogType.WARNING))
+            }
         }
     }
 
     private fun checkSepolicy(context: Context, callback: Callback) {
         callback.onLog(LogEntry(""))
-        callback.onLog(LogEntry(context.getString(R.string.diag_sepolicy_checking)))
+        callback.onLog(LogEntry("Checking sepolicy log..."))
 
-        val result = Shell.cmd("cat $SEPOLICY_LOG_PATH").exec()
+        val result = Shell.cmd("cat ").exec()
         if (!result.isSuccess || result.out.isEmpty()) {
-            callback.onLog(
-                LogEntry(
-                    context.getString(R.string.diag_sepolicy_not_found),
-                    LogType.WARNING
-                )
-            )
+            callback.onLog(LogEntry("No sepolicy log found.", LogType.WARNING))
             return
         }
 
@@ -75,59 +146,33 @@ object RootDiagnostics {
         }
 
         if (foundLine == null) {
-            callback.onLog(
-                LogEntry(
-                    context.getString(R.string.diag_sepolicy_no_issues),
-                    LogType.SUCCESS
-                )
-            )
+            callback.onLog(LogEntry("No sepolicy issues found in the log.", LogType.SUCCESS))
         } else {
-            callback.onLog(LogEntry(context.getString(R.string.diag_sepolicy_found), LogType.ERROR))
+            callback.onLog(LogEntry("Sepolicy issue detected:", LogType.ERROR))
             callback.onLog(LogEntry(foundLine.trim(), LogType.WARNING))
-            callback.onLog(LogEntry(""))
-            callback.onLog(
-                LogEntry(
-                    context.getString(R.string.diag_sepolicy_broken),
-                    LogType.ERROR
-                )
-            )
         }
     }
 
     private fun checkHideMyAppList(context: Context, callback: Callback) {
         callback.onLog(LogEntry(""))
-        callback.onLog(LogEntry(context.getString(R.string.diag_hma_checking)))
+        callback.onLog(LogEntry("Checking Hide My App List status..."))
 
         if (!isHmaActive(context, callback)) {
-            callback.onLog(
-                LogEntry(
-                    context.getString(R.string.diag_hma_not_active),
-                    LogType.WARNING
-                )
-            )
+            callback.onLog(LogEntry("Hide My App List not active or not installed.", LogType.INFO))
             return
         }
 
-        val result = Shell.cmd("cat $HMA_CONFIG_GLOB").exec()
+        val result = Shell.cmd("cat ").exec()
         if (!result.isSuccess || result.out.isEmpty()) {
-            callback.onLog(
-                LogEntry(
-                    context.getString(R.string.diag_hma_not_found),
-                    LogType.WARNING
-                )
-            )
+            callback.onLog(LogEntry("Hide My App List (Zygisk) is active.", LogType.SUCCESS))
+            callback.onLog(LogEntry("No config found or default template active.", LogType.INFO))
             return
         }
 
         val config = try {
             JSONObject(result.out.joinToString("\n"))
         } catch (e: Exception) {
-            callback.onLog(
-                LogEntry(
-                    context.getString(R.string.diag_hma_invalid) + ": " + e.message,
-                    LogType.ERROR
-                )
-            )
+            callback.onLog(LogEntry("Error reading HMA config: ", LogType.ERROR))
             return
         }
 
@@ -140,120 +185,42 @@ object RootDiagnostics {
         }
 
         if (blockedTargets.isEmpty()) {
-            callback.onLog(
-                LogEntry(
-                    context.getString(R.string.diag_hma_no_blocks),
-                    LogType.SUCCESS
-                )
-            )
+            callback.onLog(LogEntry("Hide My App List (Zygisk) is active.", LogType.SUCCESS))
+            callback.onLog(LogEntry("No Hide My App List blocks detected for WhatsApp.", LogType.SUCCESS))
         } else {
-            callback.onLog(LogEntry(context.getString(R.string.diag_hma_blocked), LogType.ERROR))
-            blockedTargets.forEach { callback.onLog(LogEntry("- $it", LogType.WARNING)) }
-            callback.onLog(LogEntry(""))
-            callback.onLog(LogEntry(context.getString(R.string.diag_hma_disable), LogType.ERROR))
+            callback.onLog(LogEntry("Warning: HMA is hiding Rhpatch from WhatsApp!", LogType.ERROR))
+            blockedTargets.forEach { callback.onLog(LogEntry("- ", LogType.WARNING)) }
         }
     }
 
     private fun isHmaActive(context: Context, callback: Callback): Boolean {
-        // Zygisk variant
-        val zygiskResult = Shell.cmd(
-            "[ -d $HMA_ZYGISK_PATH ] && [ ! -f $HMA_ZYGISK_PATH/disable ] && echo active"
-        ).exec()
-        if (zygiskResult.out.any { it == "active" }) {
-            callback.onLog(
-                LogEntry(
-                    context.getString(R.string.diag_hma_zygisk_active),
-                    LogType.SUCCESS
-                )
-            )
-            return true
-        }
-
-        // LSPosed variant
-        val lspResult = Shell.cmd("[ -f $LSP_CONFIG_DB ] && echo exists").exec()
-        if (lspResult.out.any { it == "exists" }) {
-            val cacheFile = File(context.cacheDir, "hma_lsposed_config.db")
-            val walFile = File(context.cacheDir, "hma_lsposed_config.db-wal")
-            val shmFile = File(context.cacheDir, "hma_lsposed_config.db-shm")
-            val journalFile = File(context.cacheDir, "hma_lsposed_config.db-journal")
-
-            listOf(cacheFile, walFile, shmFile, journalFile).forEach { it.delete() }
-
-            Shell.cmd(
-                "cp $LSP_CONFIG_DB ${cacheFile.absolutePath} && " +
-                        "cp $LSP_CONFIG_DB-wal ${walFile.absolutePath} 2>/dev/null; " +
-                        "cp $LSP_CONFIG_DB-shm ${shmFile.absolutePath} 2>/dev/null; " +
-                        "cp $LSP_CONFIG_DB-journal ${journalFile.absolutePath} 2>/dev/null; " +
-                        "chmod 777 ${cacheFile.absolutePath} ${walFile.absolutePath} ${shmFile.absolutePath} ${journalFile.absolutePath} 2>/dev/null"
-            ).exec()
-
-            if (cacheFile.exists() && isHmaInLsposedDb(cacheFile)) {
-                callback.onLog(
-                    LogEntry(
-                        context.getString(R.string.diag_hma_lsposed_active),
-                        LogType.SUCCESS
-                    )
-                )
-                return true
-            }
-        }
-
-        return false
-    }
-
-    private fun isHmaInLsposedDb(dbFile: File): Boolean {
-        var db: SQLiteDatabase? = null
-        return try {
-            db =
-                SQLiteDatabase.openDatabase(dbFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY)
-            val cursor = db.rawQuery(
-                "SELECT 1 FROM modules WHERE module_pkg_name LIKE ? AND enabled = 1 LIMIT 1",
-                arrayOf("%hidemyapplist%")
-            )
-            val found = cursor.moveToFirst()
-            cursor.close()
-            found
-        } catch (e: Exception) {
-            false
-        } finally {
-            db?.close()
-        }
+        val zygiskResult = Shell.cmd("[ -d  ] && [ ! -f /disable ] && echo active").exec()
+        return zygiskResult.out.any { it.contains("active") }
     }
 
     private fun isHmaBlockingRhpatch(scopeObj: JSONObject, templates: JSONObject): Boolean {
-        val useWhitelist = scopeObj.optBoolean("useWhitelist", false)
+        val mode = scopeObj.optInt("mode", -1)
+        val templateList = scopeObj.optJSONArray("templates") ?: JSONArray()
+        val appList = scopeObj.optJSONArray("apps") ?: JSONArray()
 
-        val extraAppList = scopeObj.optJSONArray("extraAppList")?.toStringList() ?: emptyList()
-        val extraOppositeAppList =
-            scopeObj.optJSONArray("extraOppositeAppList")?.toStringList() ?: emptyList()
-
-        if (useWhitelist) {
-            if (extraOppositeAppList.any { it in Rhpatch_PACKAGES }) return true
-        } else {
-            if (extraAppList.any { it in Rhpatch_PACKAGES }) return true
+        val blockedPackages = mutableSetOf<String>()
+        for (i in 0 until appList.length()) {
+            blockedPackages.add(appList.optString(i))
         }
 
-        val appliedTemplates =
-            scopeObj.optJSONArray("applyTemplates")?.toStringList() ?: emptyList()
-        for (templateName in appliedTemplates) {
-            val template = templates.optJSONObject(templateName) ?: continue
-            val templateIsWhitelist = template.optBoolean("isWhitelist", false)
-            val appList = template.optJSONArray("appList")?.toStringList() ?: emptyList()
-
-            if (!templateIsWhitelist && appList.any { it in Rhpatch_PACKAGES }) {
-                return true
+        for (i in 0 until templateList.length()) {
+            val templateName = templateList.optString(i)
+            val templateObj = templates.optJSONObject(templateName) ?: continue
+            val templateApps = templateObj.optJSONArray("apps") ?: continue
+            for (j in 0 until templateApps.length()) {
+                blockedPackages.add(templateApps.optString(j))
             }
         }
 
-        val appliedPresets = scopeObj.optJSONArray("applyPresets")?.toStringList() ?: emptyList()
-        return appliedPresets.any { it.equals("xposed", ignoreCase = true) }
-    }
-
-    private fun JSONArray.toStringList(): List<String> {
-        val list = mutableListOf<String>()
-        for (i in 0 until length()) {
-            optString(i, null)?.let { list.add(it) }
+        return when (mode) {
+            1 -> RHPATCH_PACKAGES.any { it in blockedPackages }
+            2, 3 -> RHPATCH_PACKAGES.none { it in blockedPackages }
+            else -> false
         }
-        return list
     }
 }

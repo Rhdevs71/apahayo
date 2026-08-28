@@ -97,7 +97,7 @@ public class HomeFragment extends BaseFragment {
 
         binding.scrollDiagBtn.setOnClickListener(view -> {
             animateClick(view);
-            binding.nestedScrollView.post(() -> binding.nestedScrollView.smoothScrollBy(0, 500));
+            showDiagnosticsDialog();
         });
 
         binding.rebootBtn2.setOnClickListener(view -> {
