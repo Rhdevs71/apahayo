@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.util.Base64
 import android.widget.Button
 import android.widget.EditText
-import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import com.rhdevs.rhpatch.R
@@ -25,9 +25,7 @@ class ScreenLockConfigActivity : BaseActivity() {
         val savedType = prefs.getString("lock_type", "swipe") ?: "swipe"
         val savedEncoded = prefs.getString("saved_pin", "") ?: ""
         val savedPin = try {
-            if (savedEncoded.isNotEmpty()) {
-                String(Base64.decode(savedEncoded, Base64.DEFAULT), Charsets.UTF_8)
-            } else ""
+            if (savedEncoded.isNotEmpty()) String(Base64.decode(savedEncoded, Base64.DEFAULT)) else ""
         } catch (e: Exception) { "" }
 
         val radioGroup = findViewById<RadioGroup>(R.id.radio_group_lock)
@@ -50,6 +48,7 @@ class ScreenLockConfigActivity : BaseActivity() {
 
         if (savedPin.isNotEmpty()) {
             input.setText(savedPin)
+            input.setSelection(savedPin.length)
         }
 
         btnSave.setOnClickListener {
@@ -61,22 +60,19 @@ class ScreenLockConfigActivity : BaseActivity() {
                 R.id.radio_pass_alphanum -> "password_alphanum"
                 else -> "swipe"
             }
-
+            
             val pinText = input.text.toString()
-
             if ((selectedType == "pin" || selectedType == "password_num" || selectedType == "password_alphanum") && pinText.isEmpty()) {
                 Toast.makeText(this, "PIN/Sandi tidak boleh kosong!", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            } else {
+                val encoded = Base64.encodeToString(pinText.toByteArray(), Base64.DEFAULT)
+                prefs.edit()
+                    .putString("lock_type", selectedType)
+                    .putString("saved_pin", encoded)
+                    .apply()
+                Toast.makeText(this, "Konfigurasi Kunci Layar berhasil disimpan!", Toast.LENGTH_LONG).show()
+                finish()
             }
-
-            val encoded = Base64.encodeToString(pinText.toByteArray(Charsets.UTF_8), Base64.DEFAULT)
-            prefs.edit()
-                .putString("lock_type", selectedType)
-                .putString("saved_pin", encoded)
-                .apply()
-
-            Toast.makeText(this, "Konfigurasi Kunci Layar berhasil disimpan!", Toast.LENGTH_SHORT).show()
-            finish()
         }
     }
 }

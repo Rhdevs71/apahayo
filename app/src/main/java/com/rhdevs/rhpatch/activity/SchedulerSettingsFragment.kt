@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.rhdevs.rhpatch.R
-import com.rhdevs.rhpatch.ui.ScreenLockConfigActivity
 
 class SchedulerSettingsFragment : Fragment() {
     override fun onCreateView(
@@ -16,12 +15,15 @@ class SchedulerSettingsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_scheduler_settings, container, false)
+        
         view.findViewById<Button>(R.id.btn_lock_config).setOnClickListener {
-            startActivity(Intent(requireContext(), ScreenLockConfigActivity::class.java))
+            startActivity(Intent(requireContext(), com.rhdevs.rhpatch.ui.ScreenLockConfigActivity::class.java))
         }
+        
         view.findViewById<Button>(R.id.btn_troubleshoot).setOnClickListener {
             startActivity(Intent(requireContext(), TroubleshootingActivity::class.java))
         }
+
         return view
     }
 }

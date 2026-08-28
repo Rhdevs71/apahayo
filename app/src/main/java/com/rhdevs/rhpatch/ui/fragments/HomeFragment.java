@@ -251,10 +251,36 @@ public class HomeFragment extends BaseFragment {
         dialogBinding.logRecycler.setLayoutManager(new LinearLayoutManager(context));
         dialogBinding.logRecycler.setAdapter(adapter);
 
+        var logBuffer = new StringBuilder();
+
         var dialog = new MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.diag_dialog_title)
                 .setView(dialogBinding.getRoot())
                 .setPositiveButton(R.string.diag_close, null)
+                .setNeutralButton("Bagikan", (d, w) -> {
+                    try {
+                        var file = new java.io.File(context.getCacheDir(), "logAndroid_Rhpatch.txt");
+                        var writer = new java.io.FileWriter(file);
+                        writer.write(logBuffer.toString());
+                        writer.flush();
+                        writer.close();
+
+                        var uri = androidx.core.content.FileProvider.getUriForFile(
+                                context,
+                                context.getPackageName() + ".fileprovider",
+                                file
+                        );
+
+                        var shareIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+                        shareIntent.setType("text/plain");
+                        shareIntent.putExtra(android.content.Intent.EXTRA_STREAM, uri);
+                        shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, logBuffer.toString());
+                        shareIntent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        context.startActivity(android.content.Intent.createChooser(shareIntent, "Bagikan Log Diagnostik"));
+                    } catch (Exception e) {
+                        android.widget.Toast.makeText(context, "Gagal membagikan log: " + e.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+                    }
+                })
                 .setCancelable(true)
                 .show();
 
@@ -262,6 +288,7 @@ public class HomeFragment extends BaseFragment {
             var activity = getActivity();
             if (activity == null || !isAdded()) return;
             activity.runOnUiThread(() -> {
+                logBuffer.append(entry.getMessage()).append("\n");
                 if (dialog.isShowing()) {
                     adapter.add(entry);
                     int count = adapter.getItemCount();

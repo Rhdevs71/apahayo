@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?colorSurface"
+    android:background="?attr/colorSurface"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?colorSurface"
+        android:background="?attr/colorSurface"
         app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -17,14 +17,14 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-            app:navigationIconTint="?colorOnSurface"
+            app:navigationIconTint="?attr/colorOnSurface"
             app:title="Konfigurasi Kunci Layar"
-            app:titleTextColor="?colorOnSurface" />
+            app:titleTextColor="?attr/colorOnSurface" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="?colorOutlineVariant" />
+            android:background="?attr/colorOutlineVariant" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -44,7 +44,7 @@
                 android:layout_marginBottom="24dp"
                 android:lineSpacingMultiplier="1.2"
                 android:text="Pilih jenis kunci layar yang saat ini Anda gunakan di perangkat Anda agar sistem otomatisasi tahu cara membukanya."
-                android:textColor="?colorOnSurfaceVariant"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="14sp" />
 
             <RadioGroup
@@ -58,45 +58,45 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:buttonTint="?colorPrimary"
+                    android:buttonTint="?attr/colorPrimary"
                     android:text="Tidak Ada Kunci (Langsung Terbuka)"
-                    android:textColor="?colorOnSurface" />
+                    android:textColor="?attr/colorOnSurface" />
 
                 <RadioButton
                     android:id="@+id/radio_swipe"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:buttonTint="?colorPrimary"
+                    android:buttonTint="?attr/colorPrimary"
                     android:text="Geser (Swipe)"
-                    android:textColor="?colorOnSurface" />
+                    android:textColor="?attr/colorOnSurface" />
 
                 <RadioButton
                     android:id="@+id/radio_pin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:buttonTint="?colorPrimary"
+                    android:buttonTint="?attr/colorPrimary"
                     android:text="PIN (Angka)"
-                    android:textColor="?colorOnSurface" />
+                    android:textColor="?attr/colorOnSurface" />
 
                 <RadioButton
                     android:id="@+id/radio_pass_num"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:buttonTint="?colorPrimary"
+                    android:buttonTint="?attr/colorPrimary"
                     android:text="Kata Sandi Numerik (Angka + Enter)"
-                    android:textColor="?colorOnSurface" />
+                    android:textColor="?attr/colorOnSurface" />
 
                 <RadioButton
                     android:id="@+id/radio_pass_alphanum"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:buttonTint="?colorPrimary"
+                    android:buttonTint="?attr/colorPrimary"
                     android:text="Kata Sandi Alfanumerik (Teks + Enter)"
-                    android:textColor="?colorOnSurface" />
+                    android:textColor="?attr/colorOnSurface" />
             </RadioGroup>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -105,22 +105,22 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 android:hint="Masukkan PIN / Kata Sandi"
-                app:boxBackgroundColor="?colorSurfaceContainer"
+                app:boxBackgroundColor="?attr/colorSurfaceContainer"
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusTopStart="8dp"
                 app:boxStrokeWidth="0dp"
-                app:hintTextColor="?colorOnSurfaceVariant"
+                app:hintTextColor="?attr/colorOnSurfaceVariant"
                 app:passwordToggleEnabled="true"
-                app:passwordToggleTint="?colorOnSurfaceVariant">
+                app:passwordToggleTint="?attr/colorOnSurfaceVariant">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/input_pin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:textColor="?colorOnSurface" />
+                    android:textColor="?attr/colorOnSurface" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -128,10 +128,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
                 android:text="Simpan Konfigurasi"
-                android:textColor="?colorOnPrimary"
+                android:textColor="?attr/colorOnPrimary"
                 android:textSize="15sp"
-                app:backgroundTint="?colorPrimary"
+                app:backgroundTint="?attr/colorPrimary"
                 app:cornerRadius="12dp" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

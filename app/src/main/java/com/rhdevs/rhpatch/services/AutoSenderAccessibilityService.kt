@@ -162,43 +162,13 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             return
         }
         
-        val rootNode = rootInActiveWindow
-        var editTextFound = false
-        if (rootNode != null) {
-            val inputNodes = rootNode.findAccessibilityNodeInfosByViewId("com.android.systemui:id/passwordEntry")
-                ?.ifEmpty { rootNode.findAccessibilityNodeInfosByViewId("com.android.systemui:id/pinEntry") }
-                ?: emptyList()
-            
-            if (inputNodes.isNotEmpty()) {
-                val inputNode = inputNodes[0]
-                val args = Bundle()
-                args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, pin)
-                inputNode.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
-                editTextFound = true
-            }
-        }
-
-        if (editTextFound) {
-            handler.postDelayed({
-                val node = rootInActiveWindow
-                if (node != null) {
-                    clickNodeByKeywords(node, "ok", "enter", "done", "selesai", "confirm", "check")
-                }
-                handler.postDelayed({
-                    step = 2
-                    launchTargetApp(currentTask!!)
-                }, 800)
-            }, 600)
-            return
-        }
-        
         for (i in pin.indices) {
             val digit = pin[i]
             val delay = (i * 350).toLong()
             handler.postDelayed({
-                val node = rootInActiveWindow
-                if (node != null) {
-                    clickNodeByText(node, digit.toString())
+                val rootNode = rootInActiveWindow
+                if (rootNode != null) {
+                    clickNodeByText(rootNode, digit.toString())
                 }
             }, delay)
         }
@@ -206,9 +176,9 @@ class AutoSenderAccessibilityService : AccessibilityService() {
         // Wait for all digits to be clicked, then press Enter / OK if needed
         val totalDelay = (pin.length * 350 + 800).toLong()
         handler.postDelayed({
-            val root = rootInActiveWindow
-            if (root != null) {
-                clickNodeByKeywords(root, "ok", "enter", "done", "selesai", "confirm", "check")
+            val rootNode = rootInActiveWindow
+            if (rootNode != null) {
+                clickNodeByKeywords(rootNode, "ok", "enter", "done", "selesai", "confirm", "check")
             }
             handler.postDelayed({
                 step = 2
@@ -408,8 +378,42 @@ class AutoSenderAccessibilityService : AccessibilityService() {
         }
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
+
+        // --- Telegram Contact Picker Spy ---
+        val prefs = getSharedPreferences("rhpatch_prefs", android.content.Context.MODE_PRIVATE)
+        if (prefs.getBoolean("picking_telegram_contact", false)) {
+            val packageName = event.packageName?.toString() ?: ""
+            if (packageName.contains("org.telegram.messenger") || packageName.contains("telegram")) {
+                if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+                    val root = rootInActiveWindow
+                    if (root != null) {
+                        val nameNodes = root.findAccessibilityNodeInfosByViewId("org.telegram.messenger:id/name")
+                        var contactName = ""
+                        if (nameNodes != null && nameNodes.isNotEmpty() && nameNodes[0].text != null) {
+                            contactName = nameNodes[0].text.toString()
+                        }
+                        
+                        if (contactName.isNotEmpty() && contactName != "Telegram" && contactName != "Chats") {
+                            prefs.edit().putBoolean("picking_telegram_contact", false).apply()
+                            
+                            val intent = android.content.Intent("com.rhdevs.rhpatch.CONTACT_PICKED")
+                            intent.putExtra("name", contactName)
+                            intent.putExtra("id", contactName)
+                            sendBroadcast(intent)
+                            
+                            val launchIntent = packageManager.getLaunchIntentForPackage(getPackageName())
+                            if (launchIntent != null) {
+                                launchIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                startActivity(launchIntent)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // -----------------------------------
 
         if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
             val data = event.parcelableData
@@ -909,3 +913,4 @@ class AutoSenderAccessibilityService : AccessibilityService() {
         wakeLock?.release()
     }
 }
+

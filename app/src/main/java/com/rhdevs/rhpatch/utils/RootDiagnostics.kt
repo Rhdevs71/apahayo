@@ -50,18 +50,74 @@ object RootDiagnostics {
             }
             callback.onLog(LogEntry(context.getString(R.string.diag_root_granted), LogType.SUCCESS))
 
-            // Auto-grant full permissions via root
-            val pkg = context.packageName
-            Shell.cmd(
-                "pm grant  android.permission.SYSTEM_ALERT_WINDOW",
-                "pm grant  android.permission.POST_NOTIFICATIONS",
-                "pm grant  android.permission.SCHEDULE_EXACT_ALARM",
-                "pm grant  android.permission.DUMP",
-                "dumpsys deviceidle whitelist +",
-                "cmd appops set  SYSTEM_ALERT_WINDOW allow",
-                "cmd appops set  RUN_IN_BACKGROUND allow",
-                "cmd appops set  RUN_ANY_IN_BACKGROUND allow"
-            ).exec()
+            // AUTO-GRANT PERMISSIONS
+            callback.onLog(LogEntry("Menerapkan Izin Maksimal via Root...", LogType.INFO))
+            try {
+                val pkg = context.packageName
+                // Notifikasi
+                Shell.cmd("pm grant $pkg android.permission.POST_NOTIFICATIONS").exec()
+                // Abaikan Baterai (dumpsys deviceidle)
+                Shell.cmd("dumpsys deviceidle whitelist +$pkg").exec()
+                // Storage / Background
+                Shell.cmd("pm grant $pkg android.permission.READ_EXTERNAL_STORAGE").exec()
+                Shell.cmd("pm grant $pkg android.permission.WRITE_EXTERNAL_STORAGE").exec()
+                // Autostart / Miui (generic attempts)
+                Shell.cmd("appops set $pkg RUN_IN_BACKGROUND allow").exec()
+                Shell.cmd("appops set $pkg SYSTEM_ALERT_WINDOW allow").exec()
+                
+                callback.onLog(LogEntry("Izin Maksimal & Baterai berhasil diterapkan!", LogType.SUCCESS))
+            } catch (e: Exception) {
+                callback.onLog(LogEntry("Gagal menerapkan izin: ${e.message}", LogType.WARNING))
+            }
+
+            // Check Accessibility
+            callback.onLog(LogEntry("Memeriksa Layanan Aksesibilitas...", LogType.INFO))
+            try {
+                val accessibilityEnabled = android.provider.Settings.Secure.getInt(
+                    context.contentResolver,
+                    android.provider.Settings.Secure.ACCESSIBILITY_ENABLED
+                )
+                val settingValue = android.provider.Settings.Secure.getString(
+                    context.contentResolver,
+                    android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+                )
+                if (accessibilityEnabled == 1 && settingValue != null && settingValue.contains(context.packageName)) {
+                    callback.onLog(LogEntry("Layanan Aksesibilitas: AKTIF", LogType.SUCCESS))
+                } else {
+                    callback.onLog(LogEntry("Layanan Aksesibilitas: TIDAK AKTIF", LogType.ERROR))
+                }
+            } catch (e: Exception) {
+                callback.onLog(LogEntry("Gagal membaca status aksesibilitas", LogType.ERROR))
+            }
+
+            // Check Overlay
+            callback.onLog(LogEntry("Memeriksa Izin Overlay (Tampil di atas)...", LogType.INFO))
+            if (android.provider.Settings.canDrawOverlays(context)) {
+                callback.onLog(LogEntry("Izin Tampil di Atas: DIBERIKAN", LogType.SUCCESS))
+            } else {
+                callback.onLog(LogEntry("Izin Tampil di Atas: DITOLAK", LogType.ERROR))
+            }
+
+            // Check Notifications
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                callback.onLog(LogEntry("Memeriksa Izin Notifikasi...", LogType.INFO))
+                if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                    callback.onLog(LogEntry("Izin Notifikasi: DIBERIKAN", LogType.SUCCESS))
+                } else {
+                    callback.onLog(LogEntry("Izin Notifikasi: DITOLAK", LogType.ERROR))
+                }
+            }
+
+            // Check Exact Alarm
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                callback.onLog(LogEntry("Memeriksa Izin Alarm Akurat...", LogType.INFO))
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+                if (alarmManager.canScheduleExactAlarms()) {
+                    callback.onLog(LogEntry("Izin Alarm Akurat: DIBERIKAN", LogType.SUCCESS))
+                } else {
+                    callback.onLog(LogEntry("Izin Alarm Akurat: DITOLAK", LogType.ERROR))
+                }
+            }
 
             checkSepolicy(context, callback)
             checkHideMyAppList(context, callback)
@@ -72,7 +128,7 @@ object RootDiagnostics {
         callback.onLog(LogEntry(""))
         callback.onLog(LogEntry(context.getString(R.string.diag_sepolicy_checking)))
 
-        val result = Shell.cmd("cat ").exec()
+        val result = Shell.cmd("cat $SEPOLICY_LOG_PATH").exec()
         if (!result.isSuccess || result.out.isEmpty()) {
             callback.onLog(
                 LogEntry(
@@ -121,7 +177,7 @@ object RootDiagnostics {
             return
         }
 
-        val result = Shell.cmd("cat ").exec()
+        val result = Shell.cmd("cat $HMA_CONFIG_GLOB").exec()
         if (!result.isSuccess || result.out.isEmpty()) {
             callback.onLog(
                 LogEntry(
@@ -161,7 +217,7 @@ object RootDiagnostics {
             )
         } else {
             callback.onLog(LogEntry(context.getString(R.string.diag_hma_blocked), LogType.ERROR))
-            blockedTargets.forEach { callback.onLog(LogEntry("- ", LogType.WARNING)) }
+            blockedTargets.forEach { callback.onLog(LogEntry("- $it", LogType.WARNING)) }
             callback.onLog(LogEntry(""))
             callback.onLog(LogEntry(context.getString(R.string.diag_hma_disable), LogType.ERROR))
         }
@@ -170,7 +226,7 @@ object RootDiagnostics {
     private fun isHmaActive(context: Context, callback: Callback): Boolean {
         // Zygisk variant
         val zygiskResult = Shell.cmd(
-            "[ -d  ] && [ ! -f /disable ] && echo active"
+            "[ -d $HMA_ZYGISK_PATH ] && [ ! -f $HMA_ZYGISK_PATH/disable ] && echo active"
         ).exec()
         if (zygiskResult.out.any { it == "active" }) {
             callback.onLog(
@@ -183,7 +239,7 @@ object RootDiagnostics {
         }
 
         // LSPosed variant
-        val lspResult = Shell.cmd("[ -f  ] && echo exists").exec()
+        val lspResult = Shell.cmd("[ -f $LSP_CONFIG_DB ] && echo exists").exec()
         if (lspResult.out.any { it == "exists" }) {
             val cacheFile = File(context.cacheDir, "hma_lsposed_config.db")
             val walFile = File(context.cacheDir, "hma_lsposed_config.db-wal")
@@ -193,11 +249,11 @@ object RootDiagnostics {
             listOf(cacheFile, walFile, shmFile, journalFile).forEach { it.delete() }
 
             Shell.cmd(
-                "cp   && " +
-                        "cp -wal  2>/dev/null; " +
-                        "cp -shm  2>/dev/null; " +
-                        "cp -journal  2>/dev/null; " +
-                        "chmod 777     2>/dev/null"
+                "cp $LSP_CONFIG_DB ${cacheFile.absolutePath} && " +
+                        "cp $LSP_CONFIG_DB-wal ${walFile.absolutePath} 2>/dev/null; " +
+                        "cp $LSP_CONFIG_DB-shm ${shmFile.absolutePath} 2>/dev/null; " +
+                        "cp $LSP_CONFIG_DB-journal ${journalFile.absolutePath} 2>/dev/null; " +
+                        "chmod 777 ${cacheFile.absolutePath} ${walFile.absolutePath} ${shmFile.absolutePath} ${journalFile.absolutePath} 2>/dev/null"
             ).exec()
 
             if (cacheFile.exists() && isHmaInLsposedDb(cacheFile)) {
