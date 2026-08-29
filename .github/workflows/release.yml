@@ -11,8 +11,8 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     env:
-      BOT_TOKEN: "8976405279:AAEg1lt_btbscr8BlDG2pJ0bL-2fX6PuDmk"
-      CHANNEL_ID: "-1003965036298"
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+      CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -97,3 +97,4 @@ jobs:
             ${{ steps.changelog.outputs.content }}
 
             🔗 *Release Link*: https://github.com/${{ github.repository }}/releases/tag/${{ steps.vars.outputs.tag }}
+

@@ -71,14 +71,6 @@ android {
                 storePassword = project.property("androidStorePassword") as String
                 keyAlias = project.property("androidKeyAlias") as String
                 keyPassword = project.property("androidKeyPassword") as String
-            } else {
-                val fallbackKey = rootProject.file("app/release-key.jks")
-                if (fallbackKey.exists()) {
-                    storeFile = fallbackKey
-                    storePassword = "waenhancer"
-                    keyAlias = "wae"
-                    keyPassword = "waenhancer"
-                }
             }
         }
 
@@ -467,4 +459,5 @@ androidComponents {
         )
     }
 }
+
 
