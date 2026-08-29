@@ -15,8 +15,17 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Pilih Lokasi (Fake GPS)"
-            app:navigationIcon="?attr/homeAsUpIndicator" />
+            app:title="Fake GPS (Global)"
+            app:navigationIcon="?attr/homeAsUpIndicator">
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchMockLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
             
         <EditText
             android:id="@+id/searchEditText"

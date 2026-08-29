@@ -324,7 +324,7 @@ class SettingsActivity : AppCompatActivity() {
                             prefs?.edit()?.clear()?.apply()
                         }
                         // Clear WA prefs
-                        val waPrefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+                        val waPrefs = context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE)
                         waPrefs?.edit()?.clear()?.apply()
                         Toast.makeText(context, "Semua pengaturan berhasil di-reset!", Toast.LENGTH_SHORT).show()
                     }
@@ -577,7 +577,7 @@ class SettingsActivity : AppCompatActivity() {
                 val q = query.trim().lowercase()
 
                 // 1. System Anti-Spam Card
-                val spamName = "🛡️ System Anti-Spam"
+                val spamName = "ðŸ›¡ï¸ System Anti-Spam"
                 val spamPkg = "Blokir SMS, Telepon Spam, Penipuan & Judi Online"
                 if (q.isEmpty() || spamName.lowercase().contains(q) || spamPkg.lowercase().contains(q) || q.contains("spam") || q.contains("sms")) {
                     val spamCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
@@ -593,7 +593,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
 
                 // 2. DNS AdGuard Bypass Card
-                val dnsName = "🌐 DNS AdGuard Bypass"
+                val dnsName = "ðŸŒ DNS AdGuard Bypass"
                 val dnsPkg = "Bypass Private DNS & Blokir Iklan Global Tingkat Sistem"
                 if (q.isEmpty() || dnsName.lowercase().contains(q) || dnsPkg.lowercase().contains(q) || q.contains("dns") || q.contains("adguard") || q.contains("bypass")) {
                     val dnsCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
@@ -716,6 +716,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 }
+
 
 
 
