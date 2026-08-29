@@ -111,7 +111,42 @@
                     android:textColor="@color/primary" />
             </LinearLayout>
 
-            
+            <!-- Administrator Permission -->
+            <LinearLayout
+                android:id="@+id/layout_permission_admin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card_modern"
+                android:padding="16dp"
+                android:layout_marginBottom="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3. Administrator Perangkat"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Wajib agar aplikasi dapat mematikan dan mengunci layar otomatis setelah pengiriman selesai."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_enable_admin"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Aktifkan Admin Perangkat"
+                    app:backgroundTint="@color/primary_container"
+                    android:textColor="@color/primary" />
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
@@ -127,4 +162,3 @@
         android:layout_marginTop="8dp" />
 
 </LinearLayout>
-

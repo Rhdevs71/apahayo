@@ -39,8 +39,54 @@ class PermissionCheckActivity : BaseActivity() {
         }
         
         btnAdmin.setOnClickListener {
-            val isAdminOk = true
-        
+            val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
+            val adminComponent = android.content.ComponentName(this, com.rhdevs.rhpatch.receivers.WaDeviceAdminReceiver::class.java)
+            if (!dpm.isAdminActive(adminComponent)) {
+                val intent = Intent(android.app.admin.DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+                intent.putExtra(android.app.admin.DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent)
+                intent.putExtra(android.app.admin.DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Dibutuhkan untuk mematikan layar secara otomatis setelah jadwal terkirim.")
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Administrator sudah aktif.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        btnDone.setOnClickListener {
+            if (checkAllPermissions()) {
+                setResult(android.app.Activity.RESULT_OK)
+                finish()
+            } else {
+                Toast.makeText(this, "Tolong aktifkan SEMUA perizinan terlebih dahulu!", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updatePermissionUI()
+    }
+
+    private fun updatePermissionUI() {
+        val layoutAccessibility = findViewById<android.view.View>(R.id.layout_permission_accessibility)
+        val layoutAlarm = findViewById<android.view.View>(R.id.layout_permission_alarm)
+        val layoutAdmin = findViewById<android.view.View>(R.id.layout_permission_admin)
+
+        val am = getSystemService(Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
+        val enabledServices = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+        val isAccessOk = enabledServices != null && enabledServices.contains("com.rhdevs.rhpatch.services.AutoSenderAccessibilityService")
+        layoutAccessibility.visibility = if (isAccessOk) android.view.View.GONE else android.view.View.VISIBLE
+
+        var isAlarmOk = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            isAlarmOk = alarmManager.canScheduleExactAlarms()
+        }
+        layoutAlarm.visibility = if (isAlarmOk) android.view.View.GONE else android.view.View.VISIBLE
+
+        val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
+        val adminComponent = android.content.ComponentName(this, com.rhdevs.rhpatch.receivers.WaDeviceAdminReceiver::class.java)
+        val isAdminOk = dpm.isAdminActive(adminComponent)
+        layoutAdmin.visibility = if (isAdminOk) android.view.View.GONE else android.view.View.VISIBLE
         
         if (isAccessOk && isAlarmOk && isAdminOk) {
             setResult(android.app.Activity.RESULT_OK)
@@ -62,9 +108,10 @@ class PermissionCheckActivity : BaseActivity() {
             isAlarmOk = alarmManager.canScheduleExactAlarms()
         }
         
-        val isAdminOk = true
+        val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
+        val adminComponent = android.content.ComponentName(this, com.rhdevs.rhpatch.receivers.WaDeviceAdminReceiver::class.java)
+        val isAdminOk = dpm.isAdminActive(adminComponent)
 
         return isAccessOk && isAlarmOk && isAdminOk
     }
 }
-
