@@ -487,6 +487,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun showDiagnosticsDialog(context: Context) {
+            com.rhdevs.rhpatch.utils.PermissionWizardHelper.checkAndRequestPermissions(requireActivity())
             val dialogBinding = DialogDiagnosticsLogBinding.inflate(layoutInflater)
             val adapter = LogLineAdapter()
 

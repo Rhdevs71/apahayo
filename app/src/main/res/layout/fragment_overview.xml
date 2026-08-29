@@ -213,6 +213,11 @@
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="16dp"
+                android:background="@color/border_stroke" />
 
             <!-- TikTok Item -->
             <LinearLayout
@@ -268,6 +273,12 @@
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="16dp"
+                android:background="@color/border_stroke" />
+
             <!-- Instagram Item -->
             <LinearLayout
                 android:id="@+id/btn_feat_instagram"
@@ -322,7 +333,12 @@
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
-            
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="16dp"
+                android:background="@color/border_stroke" />
+
             <!-- Fake GPS Item -->
             <LinearLayout
                 android:id="@+id/btn_feat_fakegps"

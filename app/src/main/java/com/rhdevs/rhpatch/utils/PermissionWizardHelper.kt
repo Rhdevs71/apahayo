@@ -39,6 +39,12 @@ object PermissionWizardHelper {
             }
         }
 
+
+        // 4. Location
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            missingPermissions.add(activity.getString(R.string.perm_loc_title) + "\n" + activity.getString(R.string.perm_loc_desc))
+        }
+
         if (missingPermissions.isNotEmpty()) {
             showPermissionDialog(activity, missingPermissions)
         }
@@ -78,6 +84,11 @@ object PermissionWizardHelper {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 Shell.cmd("appops set " + activity.packageName + " SCHEDULE_EXACT_ALARM allow").exec()
             }
+
+            
+            // Grant Location
+            Shell.cmd("pm grant " + activity.packageName + " android.permission.ACCESS_FINE_LOCATION").exec()
+            Shell.cmd("pm grant " + activity.packageName + " android.permission.ACCESS_COARSE_LOCATION").exec()
 
             activity.runOnUiThread {
                 checkAndRequestPermissions(activity)
