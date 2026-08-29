@@ -1,5 +1,12 @@
 package com.rhdevs.rhpatch.activity
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
@@ -36,11 +43,25 @@ class MapActivity : AppCompatActivity() {
     private lateinit var searchEditText: EditText
     private lateinit var fabSaveLocation: ExtendedFloatingActionButton
     private lateinit var switchMockLocation: SwitchMaterial
+    private var myLocationOverlay: MyLocationNewOverlay? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        Configuration.getInstance().load(applicationContext, PreferenceManager.getDefaultSharedPreferences(applicationContext))
+        val osmdroidPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        try {
+            Configuration.getInstance().load(applicationContext, osmdroidPrefs)
+        } catch (e: Exception) {
+            // If SharedPreferences were corrupted (e.g., Long saved as Int by JSON restore), clear osmdroid keys
+            val editor = osmdroidPrefs.edit()
+            osmdroidPrefs.all.keys.forEach {
+                if (it.startsWith("osmdroid") || it == "osmdroid.basePath" || it == "osmdroid.cachePath") {
+                    editor.remove(it)
+                }
+            }
+            editor.apply()
+            Configuration.getInstance().load(applicationContext, osmdroidPrefs)
+        }
         Configuration.getInstance().userAgentValue = packageName
         
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
@@ -187,7 +208,46 @@ class MapActivity : AppCompatActivity() {
         if (item.itemId == android.R.id.home) { finish(); return true }
         return super.onOptionsItemSelected(item)
     }
-    override fun onResume() { super.onResume(); mapView.onResume() }
-    override fun onPause() { super.onPause(); mapView.onPause() }
+    private fun enableMyLocation() {
+        if (myLocationOverlay == null) {
+            myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(this), mapView)
+            mapView.overlays.add(myLocationOverlay)
+        }
+        
+        myLocationOverlay?.enableMyLocation()
+        
+        if (myLocationOverlay?.myLocation != null) {
+            mapView.controller.animateTo(myLocationOverlay?.myLocation)
+            mapView.controller.setZoom(18.0)
+        } else {
+            myLocationOverlay?.runOnFirstFix {
+                runOnUiThread {
+                    mapView.controller.animateTo(myLocationOverlay?.myLocation)
+                    mapView.controller.setZoom(18.0)
+                }
+            }
+            Toast.makeText(this, "Mencari lokasi...", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1001 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            enableMyLocation()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mapView.onResume()
+        myLocationOverlay?.enableMyLocation()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapView.onPause()
+        myLocationOverlay?.disableMyLocation()
+    }
 }
+
 
