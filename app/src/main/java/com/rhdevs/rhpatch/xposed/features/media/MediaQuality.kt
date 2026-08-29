@@ -117,7 +117,7 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
 
                     fieldimageMaxSize?.setInt(processImageQuality, 50 * 1024)
                     fieldimageMaxQuality?.setInt(processImageQuality, 100)
-                    fieldimageMaxEdge?.setInt(processImageQuality, 6000)
+                    fieldimageMaxEdge?.setInt(processImageQuality, 4096)
                 }
             })
 

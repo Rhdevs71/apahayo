@@ -68,6 +68,7 @@ import com.rhdevs.rhpatch.xposed.features.listeners.ContactItemListener
 import com.rhdevs.rhpatch.xposed.features.listeners.ConversationItemListener
 import com.rhdevs.rhpatch.xposed.features.listeners.MenuStatusListener
 import com.rhdevs.rhpatch.xposed.features.media.CallRecording
+import com.rhdevs.rhpatch.xposed.features.media.VideoCallRecorder
 import com.rhdevs.rhpatch.xposed.features.media.DownloadProfile
 import com.rhdevs.rhpatch.xposed.features.media.DownloadViewOnce
 import com.rhdevs.rhpatch.xposed.features.media.MediaPreview
@@ -562,6 +563,7 @@ class FeatureLoader {
                 ContactVerify::class.java,
                 LockedChatsEnhancer::class.java,
                 CallRecording::class.java,
+                VideoCallRecorder::class.java,
                 BackupRestore::class.java,
                 JumpFirstMessage::class.java,
                 AboutContactPicker::class.java,

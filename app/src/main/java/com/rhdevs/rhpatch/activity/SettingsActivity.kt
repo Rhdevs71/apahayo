@@ -414,7 +414,7 @@ class SettingsActivity : AppCompatActivity() {
                         }
                     }
                     // Also backup WA prefs
-                    val waPrefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+                    val waPrefs = context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE)
                     if (waPrefs != null) {
                         val waJson = JSONObject()
                         waPrefs.all.forEach { (key, value) ->
@@ -462,7 +462,7 @@ class SettingsActivity : AppCompatActivity() {
                     }
                     // Restore WA prefs
                     if (globalJson.has("com.whatsapp.prefs")) {
-                        val waPrefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+                        val waPrefs = context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE)
                         val waJson = globalJson.getJSONObject("com.whatsapp.prefs")
                         val editor = waPrefs?.edit()
                         val keys = waJson.keys()
@@ -502,11 +502,11 @@ class SettingsActivity : AppCompatActivity() {
                         val logText = adapter.getLogs().joinToString("\n") { it.message }
                         val logHeader = "=== DIAGNOSTIK RHPATCH ===\n\n" + logText + "\n\n--- BEGIN LOGCAT ---\n"
                         val cacheHeaderFile = java.io.File(context.cacheDir, "rhpatch_log_header.txt")
-                        val sdcardFile = java.io.File("/sdcard/logAndroid_Rhpatch.txt")
+                        val sdcardFile = java.io.File(context.cacheDir, "logAndroid_Rhpatch.txt")
                         
                         cacheHeaderFile.writeText(logHeader)
                         
-                        val shellCmd = "cat " + cacheHeaderFile.absolutePath + " > " + sdcardFile.absolutePath + " && logcat -d >> " + sdcardFile.absolutePath + " && cat /data/adb/lspd/log/error.log >> " + sdcardFile.absolutePath + " && cat /data/adb/lspd/log/modules.log >> " + sdcardFile.absolutePath + " && cat /data/adb/lspd/log/verbose.log >> " + sdcardFile.absolutePath + " && chmod 666 " + sdcardFile.absolutePath
+                        val shellCmd = "cat " + cacheHeaderFile.absolutePath + " > " + sdcardFile.absolutePath + " && logcat -d >> " + sdcardFile.absolutePath + " && cat /data/adb/lspd/log/error.log >> " + sdcardFile.absolutePath + " && cat /data/adb/lspd/log/modules.log >> " + sdcardFile.absolutePath + " && cat /data/adb/lspd/log/verbose.log >> " + sdcardFile.absolutePath + " && chown " + android.os.Process.myUid() + ":" + android.os.Process.myUid() + " " + sdcardFile.absolutePath + " && chmod 644 " + sdcardFile.absolutePath
                         com.topjohnwu.superuser.Shell.cmd(shellCmd).exec()
                         
                         val intent = android.content.Intent(android.content.Intent.ACTION_SEND)

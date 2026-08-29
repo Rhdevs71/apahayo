@@ -112,10 +112,18 @@
             app:title="@string/call_recording_settings" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            android:enabled="false"
             app:key="video_call_screen_rec"
-            app:summary="@string/coming_soon"
+            app:summary="Aktifkan fitur rekam panggilan video layar"
             app:title="@string/video_call_screen_rec" />
+            
+        <rikka.material.preference.MaterialListPreference
+            app:dependency="video_call_screen_rec"
+            app:entries="@array/video_call_screen_mode_entries"
+            app:entryValues="@array/video_call_screen_mode_values"
+            app:defaultValue="1"
+            app:key="video_call_screen_mode"
+            app:summary="%s"
+            app:title="Mode Perekaman" />
 
     </PreferenceCategory>
     

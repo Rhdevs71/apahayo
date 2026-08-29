@@ -421,4 +421,28 @@
         <item>openai</item>
         <item>gemini</item>
     </string-array>
+    
+    <!-- Video Call Screen Recorder Modes -->
+    <string-array name="video_call_screen_mode_entries">
+        <item>Mode 1: MediaProjection (Aman &amp; Terlihat)</item>
+        <item>Mode 2: WebRTC Hook (Silent &amp; Tanpa Ikon)</item>
+        <item>Mode 3: Root Daemon (Super Silent via su)</item>
+    </string-array>
+    <string-array name="video_call_screen_mode_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <!-- Fake GPS Spoofing Modes -->
+    <string-array name="fake_gps_mode_entries">
+        <item>Mode 1: Method Hooking (Ringan, Tanpa Root)</item>
+        <item>Mode 2: Mock Location (Mode Pengembang)</item>
+        <item>Mode 3: Root Injection (Level OS, Bypass Deteksi)</item>
+    </string-array>
+    <string-array name="fake_gps_mode_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
 </resources>
