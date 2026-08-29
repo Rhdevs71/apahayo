@@ -81,4 +81,8 @@
     <color name="whatsapp_teal">#075E54</color>
     <color name="gradient_start_primary">#0B0E14</color>
     <color name="gradient_end_primary">#111622</color>
+    <color name="feat_ig_bg">#2C1E26</color>
+    <color name="feat_ig_icon">#E1306C</color>
+    <color name="feat_gps_bg">#1E2C23</color>
+    <color name="feat_gps_icon">#10B981</color>
 </resources>

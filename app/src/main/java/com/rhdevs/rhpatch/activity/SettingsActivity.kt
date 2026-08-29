@@ -246,10 +246,10 @@ class SettingsActivity : AppCompatActivity() {
                 startActivity(Intent(context, TikTokSettingsActivity::class.java))
             }
             view.findViewById<View>(R.id.btn_feat_instagram)?.setOnClickListener {
-                val intent = Intent(context, AppPatchSettingsActivity::class.java).apply {
-                    putExtra(AppPatchSettingsActivity.ARGUMENT_APP_NAME, "Instagram")
-                }
-                startActivity(intent)
+                Toast.makeText(context, "Modul Instagram sedang dalam pengembangan.", Toast.LENGTH_SHORT).show()
+            }
+            view.findViewById<View>(R.id.btn_feat_fakegps)?.setOnClickListener {
+                startActivity(Intent(context, com.rhdevs.rhpatch.activity.MapActivity::class.java))
             }
 
             // Battery Optimization Anti-Kill Listener
@@ -577,7 +577,7 @@ class SettingsActivity : AppCompatActivity() {
                 val q = query.trim().lowercase()
 
                 // 1. System Anti-Spam Card
-                val spamName = "ðŸ›¡ï¸ System Anti-Spam"
+                val spamName = "🛡️ System Anti-Spam"
                 val spamPkg = "Blokir SMS, Telepon Spam, Penipuan & Judi Online"
                 if (q.isEmpty() || spamName.lowercase().contains(q) || spamPkg.lowercase().contains(q) || q.contains("spam") || q.contains("sms")) {
                     val spamCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
@@ -593,7 +593,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
 
                 // 2. DNS AdGuard Bypass Card
-                val dnsName = "ðŸŒ DNS AdGuard Bypass"
+                val dnsName = "🌍 DNS AdGuard Bypass"
                 val dnsPkg = "Bypass Private DNS & Blokir Iklan Global Tingkat Sistem"
                 if (q.isEmpty() || dnsName.lowercase().contains(q) || dnsPkg.lowercase().contains(q) || q.contains("dns") || q.contains("adguard") || q.contains("bypass")) {
                     val dnsCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
@@ -606,6 +606,22 @@ class SettingsActivity : AppCompatActivity() {
                         startActivity(Intent(context, DnsAppPickerActivity::class.java))
                     }
                     containerLayout.addView(dnsCard)
+                }
+                
+                // Fake GPS Card
+                val fakeGpsName = "📍 Fake GPS"
+                val fakeGpsPkg = "Lokasi palsu untuk semua aplikasi"
+                if (q.isEmpty() || fakeGpsName.lowercase().contains(q) || fakeGpsPkg.lowercase().contains(q) || q.contains("gps") || q.contains("lokasi")) {
+                    val fakeGpsCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
+                    fakeGpsCard.findViewById<TextView>(R.id.app_name).text = fakeGpsName
+                    fakeGpsCard.findViewById<TextView>(R.id.app_package).text = fakeGpsPkg
+                    val badge = fakeGpsCard.findViewById<TextView>(R.id.status_badge)
+                    badge.text = "System Module"
+                    badge.setTextColor(android.graphics.Color.parseColor("#8B5CF6"))
+                    fakeGpsCard.setOnClickListener {
+                        startActivity(Intent(context, com.rhdevs.rhpatch.activity.MapActivity::class.java))
+                    }
+                    containerLayout.addView(fakeGpsCard)
                 }
 
                 // 3. Explicit WhatsApp Card

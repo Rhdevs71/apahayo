@@ -93,5 +93,7 @@
     <color name="skip_ad_button_foreground_color">#FFFFFF</color>
     <color name="gradient_start_primary">#0D9488</color>
     <color name="gradient_end_primary">#14B8A6</color>
+    <color name="feat_gps_bg">#E0F2E9</color>
+    <color name="feat_gps_icon">#10B981</color>
 </resources>
 

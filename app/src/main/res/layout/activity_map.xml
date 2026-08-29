@@ -15,7 +15,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Fake GPS (Global)"
+            app:title="Fake GPS"
             app:navigationIcon="?attr/homeAsUpIndicator">
 
             <com.google.android.material.switchmaterial.SwitchMaterial
