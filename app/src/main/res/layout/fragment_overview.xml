@@ -1,160 +1,358 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/apahayo_bg"
+    android:background="@color/bg_app"
     android:padding="16dp"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="24dp">
 
-        <!-- Welcome Banner -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Dashboard"
-            android:textColor="@color/apahayo_text_primary"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Customize your apps with Rhpatch"
-            android:textColor="@color/apahayo_text_secondary"
-            android:textSize="12sp"
-            android:layout_marginBottom="18dp" />
-
-        <!-- Status Card -->
+        <!-- 1. Hero Status Card (LSPosed / Module Active) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/card_background"
+            android:background="@drawable/bg_card_modern"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginBottom="14dp">
+            android:padding="18dp"
+            android:layout_marginBottom="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="MODULE STATUS"
-                android:textColor="@color/apahayo_text_secondary"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.1"
-                android:layout_marginBottom="6dp" />
-
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/module_status_header"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.08" />
+
+                    <TextView
+                        android:id="@+id/card_active_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/module_status_active"
+                        android:textColor="@color/success"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <TextView
-                    android:id="@+id/card_active_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Active"
-                    android:textColor="#10B981"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
+                    android:background="@drawable/bg_badge_pill"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
                     android:text="LSPosed"
-                    android:textColor="@color/apahayo_text_secondary"
+                    android:textColor="@color/text_secondary"
                     android:textSize="11sp"
-                    android:background="@drawable/badge_background"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="3dp" />
-            </RelativeLayout>
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/status_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Rhpatch is loaded and functioning correctly."
-                android:textColor="@color/apahayo_text_secondary"
-                android:textSize="12sp" />
+                android:layout_marginTop="10dp"
+                android:lineSpacingMultiplier="1.15"
+                android:text="@string/module_status_active_desc"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- FAQ and Documentation Card -->
+        <!-- 2. Section Header: Modul Utama -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="MODUL UTAMA"
+            android:textColor="@color/accent_gold"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08" />
+
+        <!-- Core Targets Card Group -->
         <LinearLayout
-            android:id="@+id/card_faq"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/card_background"
+            android:background="@drawable/bg_card_modern"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:layout_marginBottom="14dp">
+            android:layout_marginBottom="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="HELP &amp; FAQ"
-                android:textColor="@color/apahayo_text_secondary"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.1"
-                android:layout_marginBottom="6dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Frequently Asked Questions"
-                android:textColor="@color/apahayo_text_primary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <TextView
+            <!-- WhatsApp Item -->
+            <LinearLayout
+                android:id="@+id/btn_feat_whatsapp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Tap to open the online wiki and troubleshoot common issues."
-                android:textColor="@color/apahayo_text_secondary"
-                android:textSize="12sp" />
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_feat_wa"
+                    android:padding="9dp"
+                    android:src="@android:drawable/stat_notify_chat"
+                    app:tint="@color/feat_wa_icon" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="WhatsApp"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Status, Privasi, Media, Anti-Hapus, &amp; Kustomisasi"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_badge_pill"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:text="Buka"
+                    android:textColor="@color/primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="16dp"
+                android:background="@color/border_stroke" />
+
+            <!-- YouTube Item -->
+            <LinearLayout
+                android:id="@+id/btn_feat_youtube"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_feat_yt"
+                    android:padding="9dp"
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="@color/feat_yt_icon" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="YouTube"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Morphe Patches, AdBlock, &amp; Pemutaran Latar"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_badge_pill"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:text="Buka"
+                    android:textColor="@color/primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- TikTok Item -->
+            <LinearLayout
+                android:id="@+id/btn_feat_tiktok"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_feat_tiktok"
+                    android:padding="9dp"
+                    android:src="@android:drawable/ic_menu_slideshow"
+                    app:tint="@color/feat_tiktok_icon" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TikTok &amp; TikTok Lite"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Modifikasi TikTok tanpa watermark"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_media_next"
+                    app:tint="@color/text_muted" />
+            </LinearLayout>
+            <!-- Instagram Item -->
+            <LinearLayout
+                android:id="@+id/btn_feat_instagram"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_feat_ig"
+                    android:padding="9dp"
+                    android:src="@android:drawable/ic_menu_camera"
+                    app:tint="@color/feat_ig_icon" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Instagram &amp; Lite"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hilangkan Iklan"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_media_next"
+                    app:tint="@color/text_muted" />
+            </LinearLayout>
         </LinearLayout>
+        <!-- 3. Section Header: Pengaturan & Pemeliharaan -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="PENGATURAN &amp; PEMELIHARAAN"
+            android:textColor="@color/accent_gold"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08" />
 
         <!-- Update Center Card -->
         <LinearLayout
             android:id="@+id/card_update"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/card_background"
+            android:background="@drawable/bg_card_modern"
             android:orientation="vertical"
             android:padding="16dp"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
-            android:layout_marginBottom="14dp">
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="UPDATE CENTER"
-                android:textColor="@color/apahayo_text_secondary"
+                android:text="@string/update_center_header"
+                android:textColor="@color/text_muted"
                 android:textSize="10sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.1"
-                android:layout_marginBottom="6dp" />
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="4dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Check for Updates"
-                android:textColor="@color/apahayo_text_primary"
-                android:textSize="14sp"
+                android:text="@string/update_center_title"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -162,8 +360,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:textColor="@color/apahayo_text_secondary"
-                android:textSize="11sp"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
                 android:lineSpacingMultiplier="1.2"
                 android:text="Checking version..." />
         </LinearLayout>
@@ -173,7 +371,239 @@
             android:id="@+id/card_diag"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/card_background"
+            android:background="@drawable/bg_card_modern"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/diagnostics_header"
+                android:textColor="@color/text_muted"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/diagnostics_title"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/diagnostics_desc"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Theme and Language Settings Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_modern"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_settings_header"
+                android:textColor="@color/text_muted"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_settings_title"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/app_settings_desc"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_change_theme"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="@string/btn_change_theme"
+                    android:textColor="@color/primary"
+                    app:backgroundTint="@color/primary_container"
+                    app:cornerRadius="12dp"
+                    app:elevation="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_change_language"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/btn_change_language"
+                    android:textColor="@color/primary"
+                    app:backgroundTint="@color/primary_container"
+                    app:cornerRadius="12dp"
+                    app:elevation="0dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Battery Protection Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_modern"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OPTIMASI SISTEM"
+                android:textColor="@color/text_muted"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Proteksi Latar Belakang"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Cegah sistem HP (seperti Tranpm/Infinix) agar tidak membunuh WhatsApp dan Rhpatch secara agresif."
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_battery_optimization"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Buka Pengecualian Baterai"
+                android:textColor="@color/primary"
+                app:backgroundTint="@color/primary_container"
+                app:cornerRadius="12dp"
+                app:elevation="0dp" />
+        </LinearLayout>
+
+        <!-- Global Backup Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_modern"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/backup_global_header"
+                android:textColor="@color/text_muted"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/backup_global_title"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/backup_global_desc"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_import_global"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="@string/btn_import_global"
+                    android:textColor="@color/primary"
+                    app:backgroundTint="@color/primary_container"
+                    app:cornerRadius="12dp"
+                    app:elevation="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_export_global"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/btn_export_global"
+                    android:textColor="@color/primary"
+                    app:backgroundTint="@color/primary_container"
+                    app:cornerRadius="12dp"
+                    app:elevation="0dp" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_reset_global"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/btn_reset_global"
+                android:textColor="@color/error"
+                app:backgroundTint="@color/bg_card_elevated"
+                app:cornerRadius="12dp"
+                app:elevation="0dp" />
+        </LinearLayout>
+
+        <!-- FAQ Card -->
+        <LinearLayout
+            android:id="@+id/card_faq"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_modern"
             android:orientation="vertical"
             android:padding="16dp"
             android:clickable="true"
@@ -183,29 +613,35 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="DIAGNOSTICS"
-                android:textColor="@color/apahayo_text_secondary"
+                android:text="@string/help_faq_header"
+                android:textColor="@color/text_muted"
                 android:textSize="10sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.1"
-                android:layout_marginBottom="6dp" />
+                android:letterSpacing="0.08"
+                android:layout_marginBottom="4dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Root &amp; System Log"
-                android:textColor="@color/apahayo_text_primary"
-                android:textSize="14sp"
+                android:text="@string/help_faq_title"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Check root access and view LSPosed logs for troubleshooting."
-                android:textColor="@color/apahayo_text_secondary"
+                android:text="@string/help_faq_desc"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
+
+
+
+
+
+

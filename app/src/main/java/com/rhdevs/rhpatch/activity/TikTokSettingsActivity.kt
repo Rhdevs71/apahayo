@@ -11,12 +11,13 @@ import android.view.View
 import android.widget.CompoundButton
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.rhdevs.rhpatch.activities.base.BaseActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
-import com.wmods.wppenhacer.R
+import com.rhdevs.rhpatch.R
 
-class TikTokSettingsActivity : AppCompatActivity() {
+class TikTokSettingsActivity : BaseActivity() {
 
     private lateinit var prefs: SharedPreferences
     
@@ -55,8 +56,12 @@ class TikTokSettingsActivity : AppCompatActivity() {
         setupTextInput(R.id.input_min_max_likes, "tiktok_min_max_likes", "")
         
         // 2. Feed Navigation
-        setupSwitch(R.id.switch_feed_navigation, "tiktok_feed_navigation")
-        setupSwitch(R.id.switch_bottom_navigation, "tiktok_bottom_navigation")
+        setupSwitch(R.id.switch_hide_top_stem, "tiktok_hide_top_stem")
+        setupSwitch(R.id.switch_hide_top_toko, "tiktok_hide_top_toko")
+        setupSwitch(R.id.switch_hide_top_explore, "tiktok_hide_top_explore")
+        setupSwitch(R.id.switch_hide_top_live, "tiktok_hide_top_live")
+        setupSwitch(R.id.switch_hide_top_komunitas, "tiktok_hide_top_komunitas")
+        setupSwitch(R.id.switch_hide_top_lokasi, "tiktok_hide_top_lokasi")
         setupSwitch(R.id.switch_hide_tako_ai, "tiktok_hide_tako_ai")
         
         // 3. Interface

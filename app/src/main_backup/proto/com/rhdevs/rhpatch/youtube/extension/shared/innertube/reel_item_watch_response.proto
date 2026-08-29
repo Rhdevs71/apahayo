@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "com/rhdevs/rhpatch/youtube/extension/shared/innertube/player_response.proto";
+
+package com.rhdevs.rhpatch.youtube.extension.shared.innertube;
+
+option optimize_for = LITE_RUNTIME;
+option java_package = "com.rhdevs.rhpatch.youtube.extension.shared.innertube";
+
+message ReelItemWatchResponse {
+    oneof data {
+      PlayerResponse player_response = 4;
+    }
+}

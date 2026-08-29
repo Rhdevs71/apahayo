@@ -1,70 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:orientation="vertical"
-    android:background="@color/apahayo_bg">
+    android:background="@color/bg_app">
 
-    <!-- Custom Header Bar -->
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:background="@color/apahayo_surface"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/header_title"
-            android:layout_width="wrap_content"
+        <!-- Top Header Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Rhpatch"
-            android:textColor="@color/apahayo_text_primary"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_centerVertical="true"/>
+            android:background="@color/bg_surface"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="14dp">
 
-        <!-- Active/Inactive Status Badge -->
-        <TextView
-            android:id="@+id/active_status_badge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:background="@color/apahayo_bg"
-            android:textColor="@color/apahayo_text_secondary"
-            android:textSize="12sp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:text="Checking..."
-            android:textStyle="bold"/>
-    </RelativeLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-    <!-- Main Fragment Container -->
-    <FrameLayout
-        android:id="@+id/settings_container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingBottom="16dp" />
+                <TextView
+                    android:id="@+id/header_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rhpatch"
+                    android:textColor="@color/text_primary"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#1E293B"
-        android:alpha="0.5" />
+                <TextView
+                    android:id="@+id/header_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Xposed Module Engine"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#0F172A"
-        app:itemIconTint="@color/bnv_item_color"
-        app:itemTextColor="@color/bnv_item_color"
-        app:menu="@menu/rhpatch_main_nav"
-        app:labelVisibilityMode="labeled" />
+            <!-- Active/Inactive Status Pill Chip -->
+            <TextView
+                android:id="@+id/active_status_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_badge_pill"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:text="Checking..."
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
-</LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/border_stroke" />
+
+
+
+        <!-- Main Fragment Container -->
+        <FrameLayout
+            android:id="@+id/settings_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/border_stroke" />
+
+        <!-- Bottom Navigation Bar -->
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            style="@style/CustomBottomNavStyle"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="@color/bottom_nav_bg"
+            app:menu="@menu/rhpatch_main_nav" />
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="16.0dp" android:layout_marginVertical="4.0dp" app:cardBackgroundColor="@color/bg_card" app:cardCornerRadius="14.0dp" app:cardElevation="1.0dp" app:strokeColor="@color/border_stroke" app:strokeWidth="1.0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:padding="14.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <FrameLayout android:id="@+id/icon_box" android:background="@drawable/bg_settings_icon_box" android:layout_width="40.0dp" android:layout_height="40.0dp">
+            <ImageView android:layout_gravity="center" android:id="@+id/img_patch_icon" android:layout_width="22.0dp" android:layout_height="22.0dp" android:src="@drawable/ic_round_settings_24" app:tint="@color/primary" />
+        </FrameLayout>
+        <LinearLayout android:orientation="vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="1.0" android:layout_marginStart="14.0dp" android:layout_marginEnd="10.0dp">
+            <TextView android:textSize="15.0sp" android:textStyle="bold" android:textColor="@color/text_primary" android:id="@+id/tv_patch_name" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <TextView android:textSize="12.0sp" android:textColor="@color/text_secondary" android:id="@+id/tv_patch_description" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2.0dp" android:lineSpacingMultiplier="1.15" />
+        </LinearLayout>
+        <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_patch" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

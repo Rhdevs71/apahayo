@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/bg_app">
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:elevation="0dp"
+        android:background="@color/bg_surface">
+        
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Pengaturan TikTok"
+            app:titleTextColor="@color/text_primary"
+            app:subtitle="Filter Konten, Unduhan &amp; Region"
+            app:subtitleTextColor="@color/text_secondary"
+            app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+            app:navigationIconTint="@color/text_primary" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/border_stroke" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:paddingBottom="32dp">
+            
+            <!-- MAIN MENU LIST -->
+            <LinearLayout
+                android:id="@+id/layout_main_menu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="KATEGORI PENGATURAN"
+                    android:textColor="@color/accent_gold"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.08"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_card_modern"
+                    android:orientation="vertical">
+                    
+                    <!-- Row: Feed Filter -->
+                    <LinearLayout android:id="@+id/row_feed_filter" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:attr/selectableItemBackground" android:clickable="true" android:padding="16dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_menu_sort_by_size" app:tint="@color/primary" />
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Filter Beranda (Feed)" android:textColor="@color/text_primary" android:textSize="15sp" android:textStyle="bold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Iklan, TikTok Shop, Livestream &amp; batasan view." android:textColor="@color/text_secondary" android:textSize="12sp" />
+                        </LinearLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="›" android:textColor="@color/text_secondary" android:textSize="18sp" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginHorizontal="16dp" android:background="@color/border_stroke" />
+
+                    <!-- Row: Feed Navigation -->
+                    <LinearLayout android:id="@+id/row_feed_nav" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:attr/selectableItemBackground" android:clickable="true" android:padding="16dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_menu_slideshow" app:tint="@color/primary" />
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Navigasi Feed &amp; Tab" android:textColor="@color/text_primary" android:textSize="15sp" android:textStyle="bold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tab atas, tab bawah, &amp; gelembung Tako AI." android:textColor="@color/text_secondary" android:textSize="12sp" />
+                        </LinearLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="›" android:textColor="@color/text_secondary" android:textSize="18sp" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginHorizontal="16dp" android:background="@color/border_stroke" />
+
+                    <!-- Row: Interface -->
+                    <LinearLayout android:id="@+id/row_interface" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:attr/selectableItemBackground" android:clickable="true" android:padding="16dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_menu_gallery" app:tint="@color/primary" />
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Antarmuka &amp; Tampilan" android:textColor="@color/text_primary" android:textSize="15sp" android:textStyle="bold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Promosi koin, popup CAPTCHA &amp; tanggal unggah." android:textColor="@color/text_secondary" android:textSize="12sp" />
+                        </LinearLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="›" android:textColor="@color/text_secondary" android:textSize="18sp" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginHorizontal="16dp" android:background="@color/border_stroke" />
+
+                    <!-- Row: Comments &amp; translation -->
+                    <LinearLayout android:id="@+id/row_comments" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:attr/selectableItemBackground" android:clickable="true" android:padding="16dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_dialog_email" app:tint="@color/primary" />
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Komentar &amp; Terjemahan" android:textColor="@color/text_primary" android:textSize="15sp" android:textStyle="bold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Auto translate, reaksi cepat, &amp; salin teks." android:textColor="@color/text_secondary" android:textSize="12sp" />
+                        </LinearLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="›" android:textColor="@color/text_secondary" android:textSize="18sp" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginHorizontal="16dp" android:background="@color/border_stroke" />
+
+                    <!-- Row: Downloads -->
+                    <LinearLayout android:id="@+id/row_downloads" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:attr/selectableItemBackground" android:clickable="true" android:padding="16dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/stat_sys_download" app:tint="@color/primary" />
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pengunduh Video (Downloader)" android:textColor="@color/text_primary" android:textSize="15sp" android:textStyle="bold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hapus watermark &amp; paksa unduh video dibatasi." android:textColor="@color/text_secondary" android:textSize="12sp" />
+                        </LinearLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="›" android:textColor="@color/text_secondary" android:textSize="18sp" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginHorizontal="16dp" android:background="@color/border_stroke" />
+
+                    <!-- Row: Bypass Regional -->
+                    <LinearLayout android:id="@+id/row_bypass_regional" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:attr/selectableItemBackground" android:clickable="true" android:padding="16dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_dialog_map" app:tint="@color/primary" />
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bypass Batasan Wilayah / Regional" android:textColor="@color/text_primary" android:textSize="15sp" android:textStyle="bold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Palsukan info SIM, negara, dan kode operator." android:textColor="@color/text_secondary" android:textSize="12sp" />
+                        </LinearLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="›" android:textColor="@color/text_secondary" android:textSize="18sp" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginHorizontal="16dp" android:background="@color/border_stroke" />
+
+                    <!-- Row: App Behavior -->
+                    <LinearLayout android:id="@+id/row_app_behavior" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="?android:attr/selectableItemBackground" android:clickable="true" android:padding="16dp" android:gravity="center_vertical" android:orientation="horizontal">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_menu_manage" app:tint="@color/primary" />
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="14dp" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Perilaku &amp; Kontrol Aplikasi" android:textColor="@color/text_primary" android:textSize="15sp" android:textStyle="bold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Buka link luar, seekbar, &amp; kontrol pemutaran." android:textColor="@color/text_secondary" android:textSize="12sp" />
+                        </LinearLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="›" android:textColor="@color/text_secondary" android:textSize="18sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- SUB MENUS (Dynamically Visible) -->
+            <!-- 1. FEED FILTER -->
+            <LinearLayout android:id="@+id/layout_sub_feed_filter" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="FILTER KONTEN FEED" android:textColor="@color/accent_gold" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.08" android:layout_marginBottom="8dp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_modern" android:orientation="vertical" android:padding="8dp">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_remove_ads" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Hapus Iklan Feed\nSembunyikan promosi dan sponsor." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_hide_shop" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sembunyikan TikTok Shop\nHilangkan banner belanja." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_hide_live" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sembunyikan Livestream\nHilangkan siaran langsung di feed." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_hide_story" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sembunyikan Story\nHilangkan postingan story." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_hide_image" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sembunyikan Postingan Foto\nHanya tampilkan video." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="12dp" android:layout_marginTop="8dp" android:hint="Min/Max Views (contoh: 0-1000)" app:boxBackgroundColor="@color/bg_surface" app:boxCornerRadiusTopStart="12dp" app:boxCornerRadiusTopEnd="12dp" app:boxCornerRadiusBottomStart="12dp" app:boxCornerRadiusBottomEnd="12dp" app:boxStrokeColor="@color/primary">
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/input_min_max_views" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_primary" android:inputType="text"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="12dp" android:layout_marginTop="8dp" android:layout_marginBottom="12dp" android:hint="Min/Max Likes (contoh: 0-500)" app:boxBackgroundColor="@color/bg_surface" app:boxCornerRadiusTopStart="12dp" app:boxCornerRadiusTopEnd="12dp" app:boxCornerRadiusBottomStart="12dp" app:boxCornerRadiusBottomEnd="12dp" app:boxStrokeColor="@color/primary">
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/input_min_max_likes" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_primary" android:inputType="text"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 2. FEED NAVIGATION -->
+            <LinearLayout android:id="@+id/layout_sub_feed_nav" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="NAVIGASI TAB FEED" android:textColor="@color/accent_gold" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.08" android:layout_marginBottom="8dp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_modern" android:orientation="vertical" android:padding="8dp">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_feed_navigation" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Filter Tab Feed Atas\nAtur tab yang ingin ditampilkan." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_bottom_navigation" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Filter Tab Navigasi Bawah\nAtur tab navigasi utama." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_hide_tako_ai" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sembunyikan Tako AI\nHilangkan ikon chat Tako AI." android:textColor="@color/text_primary" android:padding="12dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 3. INTERFACE -->
+            <LinearLayout android:id="@+id/layout_sub_interface" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PENGATURAN ANTARMUKA" android:textColor="@color/accent_gold" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.08" android:layout_marginBottom="8dp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_modern" android:orientation="vertical" android:padding="8dp">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_hide_captcha_popups" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sembunyikan Popup CAPTCHA\nBlokir dialog puzzle verifikasi." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_hide_homepage_coin" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sembunyikan Promosi Mengambang\nHilangkan koin dan promo melayang." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_always_show_publish_date" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tampilkan Tanggal Unggah\nSelalu perlihatkan tanggal rilis video." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_clear_display" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ingat Mode Tampilan Bersih\nSimpan status Clear Display." android:textColor="@color/text_primary" android:padding="12dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 4. COMMENTS -->
+            <LinearLayout android:id="@+id/layout_sub_comments" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="KOMENTAR &amp; TERJEMAHAN" android:textColor="@color/accent_gold" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.08" android:layout_marginBottom="8dp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_modern" android:orientation="vertical" android:padding="8dp">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_comment_batch_translation" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Terjemahkan Komentar Otomatis\nAuto terjemah saat komentar dimuat." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_hide_comment_quick_reactions" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sembunyikan Reaksi Cepat Emoji\nSembunyikan bar emoji di atas keyboard." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_copy_comments_without_username" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Salin Teks Tanpa Username\nHanya salin isi teks komentar." android:textColor="@color/text_primary" android:padding="12dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 5. DOWNLOADS -->
+            <LinearLayout android:id="@+id/layout_sub_downloads" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PENGATURAN UNDUHAN" android:textColor="@color/accent_gold" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.08" android:layout_marginBottom="8dp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_modern" android:orientation="vertical" android:padding="8dp">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_download_watermark" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Hapus Watermark Video\nUnduh video kualitas jernih tanpa logo." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_force_download" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Paksa Unduh Video Terkunci\nBuka tombol simpan untuk video yang dibatasi." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_custom_offline_videos" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Kustomisasi Video Offline\nOpsi kustom pada menu simpan offline." android:textColor="@color/text_primary" android:padding="12dp" />
+                </LinearLayout>
+            </LinearLayout>
+            
+            <!-- 6. BYPASS REGIONAL -->
+            <LinearLayout android:id="@+id/layout_sub_regional" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="BYPASS REGIONAL" android:textColor="@color/accent_gold" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.08" android:layout_marginBottom="8dp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_modern" android:orientation="vertical" android:padding="8dp">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_sim_spoof" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Palsukan Kartu SIM &amp; Region\nBuka batasan konten antar negara." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="12dp" android:layout_marginTop="8dp" android:hint="Kode Negara ISO (contoh: US, JP, ID)" app:boxBackgroundColor="@color/bg_surface" app:boxCornerRadiusTopStart="12dp" app:boxCornerRadiusTopEnd="12dp" app:boxCornerRadiusBottomStart="12dp" app:boxCornerRadiusBottomEnd="12dp" app:boxStrokeColor="@color/primary">
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/input_country" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_primary" android:inputType="textCapCharacters" android:maxLength="2"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="12dp" android:layout_marginTop="8dp" android:hint="MCC/MNC (contoh: 310260)" app:boxBackgroundColor="@color/bg_surface" app:boxCornerRadiusTopStart="12dp" app:boxCornerRadiusTopEnd="12dp" app:boxCornerRadiusBottomStart="12dp" app:boxCornerRadiusBottomEnd="12dp" app:boxStrokeColor="@color/primary">
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/input_mcc_mnc" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_primary" android:inputType="number" android:maxLength="6"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="12dp" android:layout_marginTop="8dp" android:layout_marginBottom="12dp" android:hint="Nama Operator (contoh: T-Mobile, Telkomsel)" app:boxBackgroundColor="@color/bg_surface" app:boxCornerRadiusTopStart="12dp" app:boxCornerRadiusTopEnd="12dp" app:boxCornerRadiusBottomStart="12dp" app:boxCornerRadiusBottomEnd="12dp" app:boxStrokeColor="@color/primary">
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/input_operator_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/text_primary" android:inputType="text"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 7. APP BEHAVIOR -->
+            <LinearLayout android:id="@+id/layout_sub_app_behavior" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PERILAKU APLIKASI" android:textColor="@color/accent_gold" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.08" android:layout_marginBottom="8dp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_modern" android:orientation="vertical" android:padding="8dp">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_open_external_links" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Buka Tautan Langsung di Browser\nBuka link eksternal dengan browser bawaan." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_show_seekbar" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tampilkan Seekbar Progres\nPerlihatkan timeline seekbar di semua video." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_show_seekbar_thumbnail" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tampilkan Thumbnail Saat Seeking\nPratinjau visual ketika menggeser video." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_stop_video_looping" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Hentikan Pengulangan Otomatis\nJeda video saat durasi berakhir." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_resume_video_after_scroll" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Lanjutkan Video Setelah Gulir\nLanjutkan pemutaran saat berpindah." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_enable_long_press_speed_lock" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Kunci Kecepatan Tekan Lama\nKunci kecepatan 2x tanpa harus terus menahan." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_disable_long_press_quick_share" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Nonaktifkan Quick Share\nCegah popup bagikan cepat saat tekan lama." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_enable_non_personalized_search" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Pencarian Non-Personalisasi\nHasil penelusuran murni tanpa riwayat." android:textColor="@color/text_primary" android:padding="12dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_tiktok_experimental" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mode Hook Eksperimental\nPaksa hook aktif pada versi TikTok baru." android:textColor="@color/text_primary" android:padding="12dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

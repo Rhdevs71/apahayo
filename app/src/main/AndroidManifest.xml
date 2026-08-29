@@ -8,7 +8,42 @@
         <package android:name="com.facebook.katana" />
         <package android:name="com.facebook.orca" />
         <package android:name="com.facebook.lite" />
-    <package android:name="com.google.android.youtube" /><package android:name="com.google.android.apps.youtube.music" /><package android:name="com.reddit.frontpage" /><package android:name="com.google.android.apps.photos" /><package android:name="com.microblink.photomath" /><package android:name="com.instagram.android" /><package android:name="com.instagram.lite" /><package android:name="com.instagram.barcelona" /><package android:name="com.zhiliaoapp.musically" /><package android:name="com.ss.android.ugc.trill" /><package android:name="com.strava" /><package android:name="com.alltrails.alltrails" /><package android:name="com.cloudflare.onedotonedotonedotone" /></queries>
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.google.android.apps.youtube.music" />
+        <package android:name="com.reddit.frontpage" />
+        <package android:name="com.google.android.apps.photos" />
+        <package android:name="com.microblink.photomath" />
+        <package android:name="com.instagram.android" />
+        <package android:name="com.instagram.lite" />
+        <package android:name="com.instagram.barcelona" />
+        <package android:name="com.zhiliaoapp.musically" />
+        <package android:name="com.ss.android.ugc.trill" />
+        <package android:name="com.strava" />
+        <package android:name="com.alltrails.alltrails" />
+        <package android:name="com.cloudflare.onedotonedotonedotone" />
+        <package android:name="com.duolingo" />
+        <package android:name="com.intsig.camscanner" />
+        <package android:name="com.adobe.lrmobile" />
+        <package android:name="cn.wps.moffice_eng" />
+        <package android:name="jp.ne.ibis.ibispaintx.app" />
+        <package android:name="tv.twitch.android.app" />
+        <package android:name="com.getcontact.app" />
+        <package android:name="com.nexstreaming.app.kinemasterfree" />
+        <package android:name="com.canva.editor" />
+        <package android:name="com.snowcorp.stickerly.android" />
+        <package android:name="eu.darken.sdmse" />
+        <package android:name="com.wolfram.android.alpha" />
+        <package android:name="com.kahoot.android" />
+        <package android:name="com.adobe.scan.android" />
+        <package android:name="jp.co.shueisha.mangaplus" />
+        <package android:name="org.zwanoo.android.speedtest" />
+        <package android:name="com.digibites.accubattery" />
+        <package android:name="com.arlosoft.macrodroid" />
+        <package android:name="com.rarlab.rar" />
+        <package android:name="org.telegram.messenger" />
+        <package android:name="com.zhiliaoapp.musically.go" />
+        <package android:name="com.ss.android.ugc.trill.go" />
+    </queries>
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -30,7 +65,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
-    <permission android:name="com.wmods.wppenhacer.permission.SEND_RECEIVE_WPP" android:protectionLevel="signatureOrSystem" />
+    <permission android:name="com.rhdevs.rhpatch.permission.SEND_RECEIVE_WPP" android:protectionLevel="signatureOrSystem" />
 
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -166,7 +201,7 @@
             android:exported="false" />
             
         <activity
-            android:name="com.wmods.wppenhacer.activities.CrashReportActivity"
+            android:name="com.rhdevs.rhpatch.activities.CrashReportActivity"
             android:label="Crash Report"
             android:theme="@style/AppTheme" />
             
@@ -253,7 +288,7 @@
             android:value="true" />
         <meta-data
             android:name="xposedscope"
-            android:resource="@array/scope" />
+            android:resource="@array/xposedscope" />
 
         <receiver
             android:name=".receivers.WAFReceiver"
@@ -340,7 +375,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-                <action android:name="com.wmods.wppenhacer.TRIGGER_ALARM" />
+                <action android:name="com.rhdevs.rhpatch.TRIGGER_ALARM" />
             </intent-filter>
         </receiver>
 
@@ -349,7 +384,7 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.wmods.wppenhacer.SCHEDULED_STATUS" />
+                <action android:name="com.rhdevs.rhpatch.SCHEDULED_STATUS" />
             </intent-filter>
         </receiver>
 
@@ -357,7 +392,7 @@
         <service
             android:name="com.rhdevs.rhpatch.services.AutoSenderAccessibilityService"
             android:exported="true"
-            android:label="Rhpatch Universal Auto Sender"
+            android:label="@string/app_name"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
@@ -391,5 +426,13 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
+    
+        <service android:name=".service.AntiSpamCallService"
+            android:permission="android.permission.BIND_SCREENING_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.telecom.CallScreeningService" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>
