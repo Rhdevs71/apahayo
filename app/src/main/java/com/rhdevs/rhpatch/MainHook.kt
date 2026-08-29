@@ -26,6 +26,53 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
         return patchesByPackage.containsKey(packageName)
     }
 
+    private fun hookLocationManager(classLoader: ClassLoader, prefs: de.robv.android.xposed.XSharedPreferences) {
+        val locationManagerClass = de.robv.android.xposed.XposedHelpers.findClassIfExists("android.location.LocationManager", classLoader)
+        if (locationManagerClass != null) {
+            val locationHook = object : de.robv.android.xposed.XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    prefs.reload()
+                    if (prefs.getBoolean("fake_gps_running", false) && prefs.getInt("fake_gps_mode", 0) == 2) {
+                        val lat = prefs.getFloat("fake_gps_lat", 0f).toDouble()
+                        val lon = prefs.getFloat("fake_gps_lon", 0f).toDouble()
+                        if (lat != 0.0 && lon != 0.0) {
+                            val fakeLocation = android.location.Location(android.location.LocationManager.GPS_PROVIDER).apply {
+                                latitude = lat
+                                longitude = lon
+                                accuracy = 1.0f
+                                time = System.currentTimeMillis()
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                                    elapsedRealtimeNanos = android.os.SystemClock.elapsedRealtimeNanos()
+                                }
+                            }
+                            param.result = fakeLocation
+                        }
+                    }
+                }
+            }
+            runCatching { de.robv.android.xposed.XposedHelpers.findAndHookMethod(locationManagerClass, "getLastKnownLocation", String::class.java, locationHook) }
+            runCatching { de.robv.android.xposed.XposedHelpers.findAndHookMethod(locationManagerClass, "getLastLocation", locationHook) }
+        }
+
+        val locationClass = de.robv.android.xposed.XposedHelpers.findClassIfExists("android.location.Location", classLoader)
+        if (locationClass != null) {
+            val locationGetterHook = object : de.robv.android.xposed.XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    prefs.reload()
+                    if (prefs.getBoolean("fake_gps_running", false) && prefs.getInt("fake_gps_mode", 0) == 2) {
+                        val isLat = param.method.name == "getLatitude"
+                        val value = if (isLat) prefs.getFloat("fake_gps_lat", 0f).toDouble() else prefs.getFloat("fake_gps_lon", 0f).toDouble()
+                        if (value != 0.0) {
+                            param.result = value
+                        }
+                    }
+                }
+            }
+            runCatching { de.robv.android.xposed.XposedHelpers.findAndHookMethod(locationClass, "getLatitude", locationGetterHook) }
+            runCatching { de.robv.android.xposed.XposedHelpers.findAndHookMethod(locationClass, "getLongitude", locationGetterHook) }
+        }
+    }
+
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         XposedBridge.log("Rhpatch: handleLoadPackage for ")
         try {

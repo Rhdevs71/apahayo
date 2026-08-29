@@ -76,7 +76,20 @@ class MapActivity : AppCompatActivity() {
         mapView = findViewById(R.id.mapView)
         searchEditText = findViewById(R.id.searchEditText)
         fabSaveLocation = findViewById(R.id.fabSaveLocation)
+        val fabMyLocation = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fabMyLocation)
+        fabMyLocation.setOnClickListener {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                androidx.core.app.ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), 1001)
+            } else {
+                enableMyLocation()
+            }
+        }
         switchMockLocation = findViewById(R.id.switchMockLocation)
+
+        val btnSettings = findViewById<android.widget.ImageButton>(R.id.btnSettings)
+        btnSettings.setOnClickListener {
+            showMockLocationDialog()
+        }
 
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
@@ -93,7 +106,8 @@ class MapActivity : AppCompatActivity() {
 
         switchMockLocation.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                if (!isMockLocationEnabled()) {
+                val currentMode = prefs.getInt("fake_gps_mode", 0) // 0: Manual, 1: Root, 2: Xposed
+                if (currentMode != 2 && !isMockLocationEnabled()) {
                     switchMockLocation.isChecked = false
                     showMockLocationDialog()
                 } else {
@@ -103,57 +117,27 @@ class MapActivity : AppCompatActivity() {
                         putFloat("fake_gps_lon", center.longitude.toFloat())
                         putBoolean("fake_gps_running", true)
                     }
-                    val serviceIntent = Intent(this, MockLocationService::class.java).apply {
-                        putExtra("lat", center.latitude)
-                        putExtra("lon", center.longitude)
+                    if (currentMode != 2) {
+                        // Start service if NOT Xposed mode. Xposed mode doesn't need the service running constantly if hooked correctly, or it can run alongside. Let's just start it anyway as a backup.
+                        val serviceIntent = Intent(this, MockLocationService::class.java).apply {
+                            putExtra("lat", center.latitude)
+                            putExtra("lon", center.longitude)
+                        }
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            startForegroundService(serviceIntent)
+                        } else {
+                            startService(serviceIntent)
+                        }
                     }
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        startForegroundService(serviceIntent)
-                    } else {
-                        startService(serviceIntent)
-                    }
-                    Toast.makeText(this, "Fake GPS (Play) dimulai", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Fake GPS Aktif", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 prefs.edit { putBoolean("fake_gps_running", false) }
                 stopService(Intent(this, MockLocationService::class.java))
-                Toast.makeText(this, "Fake GPS (Stop) dihentikan", Toast.LENGTH_SHORT).show()
             }
-        }
-
-        fabSaveLocation.setOnClickListener {
-            val center = mapView.mapCenter as GeoPoint
-            prefs.edit {
-                putFloat("fake_gps_lat", center.latitude.toFloat())
-                putFloat("fake_gps_lon", center.longitude.toFloat())
-            }
-            if (switchMockLocation.isChecked) {
-                val serviceIntent = Intent(this, MockLocationService::class.java).apply {
-                    putExtra("lat", center.latitude)
-                    putExtra("lon", center.longitude)
-                }
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    startForegroundService(serviceIntent)
-                } else {
-                    startService(serviceIntent)
-                }
-            }
-            Toast.makeText(this, "Lokasi palsu disimpan: ${center.latitude}, ${center.longitude}", Toast.LENGTH_SHORT).show()
-        }
-
-        searchEditText.setOnEditorActionListener { v, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                val query = v.text.toString()
-                if (query.isNotEmpty()) searchLocation(query)
-                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(v.windowToken, 0)
-                true
-            } else false
         }
         
-        if (!isMockLocationEnabled()) {
-            showMockLocationDialog()
-        }
+        // Remove the automatic popup on start
     }
     
     private fun isMockLocationEnabled(): Boolean {
@@ -167,10 +151,15 @@ class MapActivity : AppCompatActivity() {
     }
 
     private fun showMockLocationDialog() {
+        val prefs = getSharedPreferences(packageName + "_preferences", Context.MODE_PRIVATE)
+        val currentMode = prefs.getInt("fake_gps_mode", 0) // 0: Manual, 1: Root, 2: Xposed
+        
         val options = arrayOf("Opsi Pengembang (Manual)", "Mode Root (Otomatis)", "Mode Xposed (Anti-Deteksi)")
         AlertDialog.Builder(this)
             .setTitle("Pilih Mode Injeksi Fake GPS")
-            .setItems(options) { _, which ->
+            .setSingleChoiceItems(options, currentMode) { dialog, which ->
+                prefs.edit().putInt("fake_gps_mode", which).apply()
+                
                 when (which) {
                     0 -> {
                         startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
@@ -180,7 +169,7 @@ class MapActivity : AppCompatActivity() {
                             com.topjohnwu.superuser.Shell.cmd("appops set " + packageName + " android:mock_location allow").exec()
                             runOnUiThread {
                                 if (isMockLocationEnabled()) {
-                                    Toast.makeText(this, "Root Injeksi Berhasil! Silakan klik Play lagi.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this, "Root Injeksi Berhasil!", Toast.LENGTH_SHORT).show()
                                 } else {
                                     Toast.makeText(this, "Gagal menginjeksi via Root", Toast.LENGTH_SHORT).show()
                                 }
@@ -191,18 +180,12 @@ class MapActivity : AppCompatActivity() {
                         Toast.makeText(this, "Mode Xposed dipilih. Sistem Anti-Deteksi (Stealth) sudah aktif di belakang layar!", Toast.LENGTH_LONG).show()
                         com.topjohnwu.superuser.Shell.getShell { shell ->
                             com.topjohnwu.superuser.Shell.cmd("appops set " + packageName + " android:mock_location allow").exec()
-                            runOnUiThread {
-                                if (!isMockLocationEnabled()) {
-                                    Toast.makeText(this, "Perhatian: Anda tetap butuh Opsi Pengembang jika Root gagal", Toast.LENGTH_LONG).show()
-                                } else {
-                                    Toast.makeText(this, "Stealth Mode & Injeksi Siap! Klik Play.", Toast.LENGTH_SHORT).show()
-                                }
-                            }
                         }
                     }
                 }
+                dialog.dismiss()
             }
-            .setNegativeButton("Batal", null)
+            .setNegativeButton("Tutup", null)
             .show()
     }
 
@@ -253,27 +236,35 @@ class MapActivity : AppCompatActivity() {
         } else {
             // Fallback to request actual location update
             try {
-                val locationManager = getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
-                val isGpsEnabled = locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
-                val isNetworkEnabled = locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
-                
-                val provider = if (isNetworkEnabled) android.location.LocationManager.NETWORK_PROVIDER else if (isGpsEnabled) android.location.LocationManager.GPS_PROVIDER else null
-                
-                if (provider != null) {
-                    val locationListener = object : android.location.LocationListener {
-                        override fun onLocationChanged(location: android.location.Location) {
-                            mapView.controller.animateTo(org.osmdroid.util.GeoPoint(location.latitude, location.longitude))
-                            mapView.controller.setZoom(18.0)
-                            locationManager.removeUpdates(this)
-                        }
-                        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-                        override fun onProviderEnabled(provider: String) {}
-                        override fun onProviderDisabled(provider: String) {}
-                    }
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                        locationManager.requestLocationUpdates(provider, 100L, 1f, locationListener, android.os.Looper.getMainLooper())
+                val fusedLocationClient = com.google.android.gms.location.LocationServices.getFusedLocationProviderClient(this)
+                fusedLocationClient.lastLocation.addOnSuccessListener { location: android.location.Location? ->
+                    if (location != null) {
+                        mapView.controller.animateTo(org.osmdroid.util.GeoPoint(location.latitude, location.longitude))
+                        mapView.controller.setZoom(18.0)
                     } else {
-                        locationManager.requestSingleUpdate(provider, locationListener, android.os.Looper.getMainLooper())
+                        // If null, try LocationManager
+                        val locationManager = getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+                        val isGpsEnabled = locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
+                        val isNetworkEnabled = locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
+                        
+                        val provider = if (isNetworkEnabled) android.location.LocationManager.NETWORK_PROVIDER else if (isGpsEnabled) android.location.LocationManager.GPS_PROVIDER else null
+                        if (provider != null) {
+                            val locationListener = object : android.location.LocationListener {
+                                override fun onLocationChanged(loc: android.location.Location) {
+                                    mapView.controller.animateTo(org.osmdroid.util.GeoPoint(loc.latitude, loc.longitude))
+                                    mapView.controller.setZoom(18.0)
+                                    locationManager.removeUpdates(this)
+                                }
+                                override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+                                override fun onProviderEnabled(provider: String) {}
+                                override fun onProviderDisabled(provider: String) {}
+                            }
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                                locationManager.requestLocationUpdates(provider, 100L, 1f, locationListener, android.os.Looper.getMainLooper())
+                            } else {
+                                locationManager.requestSingleUpdate(provider, locationListener, android.os.Looper.getMainLooper())
+                            }
+                        }
                     }
                 }
             } catch (e: Exception) {
