@@ -27,7 +27,37 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
-        XposedBridge.log("Rhpatch: handleLoadPackage for ${lpparam.packageName}")
+        XposedBridge.log("Rhpatch: handleLoadPackage for ")
+        try {
+            // System-wide Anti-Mock Location Detection Hook (Fake GPS Stealth Mode)
+            val locationClass = de.robv.android.xposed.XposedHelpers.findClassIfExists("android.location.Location", lpparam.classLoader)
+            if (locationClass != null) {
+                val returnFalse = de.robv.android.xposed.XC_MethodReplacement.returnConstant(false)
+                runCatching { de.robv.android.xposed.XposedHelpers.findAndHookMethod(locationClass, "isFromMockProvider", returnFalse) }
+                if (android.os.Build.VERSION.SDK_INT >= 31) {
+                    runCatching { de.robv.android.xposed.XposedHelpers.findAndHookMethod(locationClass, "isMock", returnFalse) }
+                }
+            }
+            val settingsSecureClass = de.robv.android.xposed.XposedHelpers.findClassIfExists("android.provider.Settings\$Secure", lpparam.classLoader)
+            if (settingsSecureClass != null) {
+                runCatching {
+                    de.robv.android.xposed.XposedHelpers.findAndHookMethod(settingsSecureClass, "getString", 
+                        android.content.ContentResolver::class.java, 
+                        String::class.java, 
+                        object : de.robv.android.xposed.XC_MethodHook() {
+                            override fun afterHookedMethod(param: MethodHookParam) {
+                                if ((param.args[1] as? String) == "mock_location") {
+                                    param.result = "0"
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        } catch (e: Throwable) {
+            // Ignore stealth hook errors
+        }
+
         try {
             ResourceUtils.fallbackPackageName = BuildConfig.APPLICATION_ID
             val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, "prefs")

@@ -18,7 +18,7 @@ import kotlinx.coroutines.*
 class MockLocationService : Service() {
 
     private lateinit var locationManager: LocationManager
-private val providers = arrayOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
+private val providers = arrayOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, "fused")
     private var serviceJob: Job? = null
     private val scope = CoroutineScope(Dispatchers.Default)
 
