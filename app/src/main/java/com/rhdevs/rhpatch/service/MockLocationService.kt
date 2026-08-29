@@ -18,7 +18,7 @@ import kotlinx.coroutines.*
 class MockLocationService : Service() {
 
     private lateinit var locationManager: LocationManager
-    private val providerName = LocationManager.GPS_PROVIDER
+private val providers = arrayOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
     private var serviceJob: Job? = null
     private val scope = CoroutineScope(Dispatchers.Default)
 
@@ -32,22 +32,28 @@ class MockLocationService : Service() {
         val lat = intent?.getDoubleExtra("lat", -6.200000) ?: -6.200000
         val lon = intent?.getDoubleExtra("lon", 106.816666) ?: 106.816666
 
-        startForeground(1999, createNotification())
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(1999, createNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+        } else {
+            startForeground(1999, createNotification())
+        }
         
-        setupMockProvider()
+        setupMockProviders()
         startMocking(lat, lon)
 
         return START_STICKY
     }
 
-    private fun setupMockProvider() {
-        try {
-            locationManager.addTestProvider(
-                providerName, false, false, false, false, true, true, true, 1, 1
-            )
-            locationManager.setTestProviderEnabled(providerName, true)
-        } catch (e: Exception) {
-            Log.e("RhpatchFakeGPS", "Failed to add test provider: ${e.message}")
+    private fun setupMockProviders() {
+        for (provider in providers) {
+            try {
+                locationManager.addTestProvider(
+                    provider, false, false, false, false, true, true, true, 1, 1
+                )
+                locationManager.setTestProviderEnabled(provider, true)
+            } catch (e: Exception) {
+                Log.e("RhpatchFakeGPS", "Failed to add test provider: ")
+            }
         }
     }
 
@@ -55,31 +61,35 @@ class MockLocationService : Service() {
         serviceJob?.cancel()
         serviceJob = scope.launch {
             while (isActive) {
-                try {
-                    val location = Location(providerName).apply {
-                        latitude = lat
-                        longitude = lon
-                        accuracy = 3.0f
-                        time = System.currentTimeMillis()
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                            elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
+                for (provider in providers) {
+                    try {
+                        val location = Location(provider).apply {
+                            latitude = lat
+                            longitude = lon
+                            accuracy = 1.0f // High accuracy to override real GPS
+                            time = System.currentTimeMillis()
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                                elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
+                            }
                         }
+                        locationManager.setTestProviderLocation(provider, location)
+                    } catch (e: Exception) {
+                        Log.e("RhpatchFakeGPS", "Failed to set location for: ")
                     }
-                    locationManager.setTestProviderLocation(providerName, location)
-                } catch (e: Exception) {
-                    Log.e("RhpatchFakeGPS", "Failed to set location: ${e.message}")
                 }
-                delay(1000)
+                delay(1000) // update every second
             }
         }
     }
 
     override fun onDestroy() {
         serviceJob?.cancel()
-        try {
-            locationManager.removeTestProvider(providerName)
-        } catch (e: Exception) {
-            // Ignore
+        for (provider in providers) {
+            try {
+                locationManager.removeTestProvider(provider)
+            } catch (e: Exception) {
+                // Ignore
+            }
         }
         super.onDestroy()
     }

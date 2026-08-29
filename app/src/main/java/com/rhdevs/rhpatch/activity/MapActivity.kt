@@ -208,6 +208,7 @@ class MapActivity : AppCompatActivity() {
         if (item.itemId == android.R.id.home) { finish(); return true }
         return super.onOptionsItemSelected(item)
     }
+@SuppressWarnings("MissingPermission")
     private fun enableMyLocation() {
         if (myLocationOverlay == null) {
             myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(this), mapView)
@@ -215,11 +216,32 @@ class MapActivity : AppCompatActivity() {
         }
         
         myLocationOverlay?.enableMyLocation()
+        myLocationOverlay?.enableFollowLocation()
         
         if (myLocationOverlay?.myLocation != null) {
             mapView.controller.animateTo(myLocationOverlay?.myLocation)
             mapView.controller.setZoom(18.0)
         } else {
+            // Fallback to get last known location instantly
+            try {
+                val locationManager = getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+                val lastNetwork = locationManager.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
+                val lastGps = locationManager.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
+                
+                val bestLocation = when {
+                    lastGps != null && lastNetwork != null -> if (lastGps.time > lastNetwork.time) lastGps else lastNetwork
+                    lastGps != null -> lastGps
+                    else -> lastNetwork
+                }
+                
+                if (bestLocation != null) {
+                    mapView.controller.animateTo(org.osmdroid.util.GeoPoint(bestLocation.latitude, bestLocation.longitude))
+                    mapView.controller.setZoom(18.0)
+                }
+            } catch (e: Exception) {
+                // Ignore
+            }
+
             myLocationOverlay?.runOnFirstFix {
                 runOnUiThread {
                     mapView.controller.animateTo(myLocationOverlay?.myLocation)
