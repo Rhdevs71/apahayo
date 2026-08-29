@@ -94,7 +94,7 @@ class MapActivity : AppCompatActivity() {
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
 
-        val prefs = getSharedPreferences(packageName + "_preferences", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("prefs", Context.MODE_PRIVATE)
         val currentLat = prefs.getFloat("fake_gps_lat", -6.175110f).toDouble()
         val currentLon = prefs.getFloat("fake_gps_lon", 106.827153f).toDouble()
         val startPoint = GeoPoint(currentLat, currentLon)
@@ -112,7 +112,7 @@ class MapActivity : AppCompatActivity() {
                     showMockLocationDialog()
                 } else {
                     val center = mapView.mapCenter as GeoPoint
-                    prefs.edit {
+                    prefs.edit(commit = true) {
                         putFloat("fake_gps_lat", center.latitude.toFloat())
                         putFloat("fake_gps_lon", center.longitude.toFloat())
                         putBoolean("fake_gps_running", true)
@@ -132,7 +132,7 @@ class MapActivity : AppCompatActivity() {
                     Toast.makeText(this, "Fake GPS Aktif", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                prefs.edit { putBoolean("fake_gps_running", false) }
+                prefs.edit(commit = true) { putBoolean("fake_gps_running", false) }
                 stopService(Intent(this, MockLocationService::class.java))
             }
         }
@@ -151,14 +151,14 @@ class MapActivity : AppCompatActivity() {
     }
 
     private fun showMockLocationDialog() {
-        val prefs = getSharedPreferences(packageName + "_preferences", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("prefs", Context.MODE_PRIVATE)
         val currentMode = (try { prefs.getInt("fake_gps_mode", 0) } catch(e: Exception) { prefs.getString("fake_gps_mode", "0")?.toIntOrNull() ?: 0 }) // 0: Manual, 1: Root, 2: Xposed
         
         val options = arrayOf("Opsi Pengembang (Manual)", "Mode Root (Otomatis)", "Mode Xposed (Anti-Deteksi)")
         AlertDialog.Builder(this)
             .setTitle("Pilih Mode Injeksi Fake GPS")
             .setSingleChoiceItems(options, currentMode) { dialog, which ->
-                prefs.edit().putInt("fake_gps_mode", which).apply()
+                prefs.edit().putInt("fake_gps_mode", which).commit()
                 
                 when (which) {
                     0 -> {
