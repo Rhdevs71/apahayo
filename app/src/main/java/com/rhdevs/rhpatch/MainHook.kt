@@ -70,21 +70,33 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
             }
             runCatching { de.robv.android.xposed.XposedHelpers.findAndHookMethod(locationClass, "getLatitude", locationGetterHook) }
             runCatching { de.robv.android.xposed.XposedHelpers.findAndHookMethod(locationClass, "getLongitude", locationGetterHook) }
+            
+            val mockStealthHook = object : de.robv.android.xposed.XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    prefs.reload()
+                    if (prefs.getBoolean("fake_gps_running", false) && (try { prefs.getInt("fake_gps_mode", 0) } catch(e: Exception) { prefs.getString("fake_gps_mode", "0")?.toIntOrNull() ?: 0 }) == 2) {
+                        param.result = false // Selalu katakan BUKAN mock location
+                    }
+                }
+            }
+            runCatching { de.robv.android.xposed.XposedHelpers.findAndHookMethod(locationClass, "isFromMockProvider", mockStealthHook) }
+            if (android.os.Build.VERSION.SDK_INT >= 31) {
+                runCatching { de.robv.android.xposed.XposedHelpers.findAndHookMethod(locationClass, "isMock", mockStealthHook) }
+            }
         }
     }
 
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         XposedBridge.log("Rhpatch: handleLoadPackage for ")
         try {
-            // System-wide Anti-Mock Location Detection Hook (Fake GPS Stealth Mode)
-            val locationClass = de.robv.android.xposed.XposedHelpers.findClassIfExists("android.location.Location", lpparam.classLoader)
-            if (locationClass != null) {
-                val returnFalse = de.robv.android.xposed.XC_MethodReplacement.returnConstant(false)
-                runCatching { de.robv.android.xposed.XposedHelpers.findAndHookMethod(locationClass, "isFromMockProvider", returnFalse) }
-                if (android.os.Build.VERSION.SDK_INT >= 31) {
-                    runCatching { de.robv.android.xposed.XposedHelpers.findAndHookMethod(locationClass, "isMock", returnFalse) }
-                }
-            }
+            ResourceUtils.fallbackPackageName = BuildConfig.APPLICATION_ID
+            val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, "prefs")
+            prefs.makeWorldReadable()
+            
+            // XPOSED ULTIMATE STEALTH
+            hookLocationManager(lpparam.classLoader, prefs)
+
+
             val settingsSecureClass = de.robv.android.xposed.XposedHelpers.findClassIfExists("android.provider.Settings\$Secure", lpparam.classLoader)
             if (settingsSecureClass != null) {
                 runCatching {
@@ -108,7 +120,8 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
         try {
             ResourceUtils.fallbackPackageName = BuildConfig.APPLICATION_ID
             val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, "prefs")
-            com.rhdevs.rhpatch.system.DnsBypassHook.hook(lpparam.classLoader, lpparam.packageName, prefs)
+            
+                        com.rhdevs.rhpatch.system.DnsBypassHook.hook(lpparam.classLoader, lpparam.packageName, prefs)
             
             // System Anti-Spam Hooks
             val smsPackages = listOf(
