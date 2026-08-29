@@ -161,4 +161,27 @@
             app:title="@string/lockedchats_enhancer" />
     </PreferenceCategory>
 
+    <!-- FAKE GPS -->
+    <PreferenceCategory app:title="Lokasi &amp; Peta">
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="fake_gps_enable"
+            app:summary="Aktifkan lokasi palsu (Fake GPS) untuk Live Location"
+            app:title="Aktifkan Fake GPS" />
+            
+        <ListPreference
+            app:dependency="fake_gps_enable"
+            app:entries="@array/fake_gps_mode_entries"
+            app:entryValues="@array/fake_gps_mode_values"
+            app:defaultValue="1"
+            app:key="fake_gps_mode"
+            app:summary="%s"
+            app:title="Mode Injeksi Lokasi" />
+            
+        <Preference
+            app:dependency="fake_gps_enable"
+            app:key="fake_gps_map"
+            app:summary="Pilih titik lokasi palsu Anda di Peta"
+            app:title="Buka Peta Lokasi" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

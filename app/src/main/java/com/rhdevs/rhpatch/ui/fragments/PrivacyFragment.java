@@ -21,6 +21,13 @@ public class PrivacyFragment extends BasePreferenceFragment {
         super.onCreatePreferences(savedInstanceState, rootKey);
         setPreferencesFromResource(R.xml.fragment_privacy, rootKey);
 
+        androidx.preference.Preference mapPref = findPreference("fake_gps_map");
+        if (mapPref != null) {
+            mapPref.setOnPreferenceClickListener(preference -> {
+                startActivity(new Intent(requireContext(), com.rhdevs.rhpatch.activity.MapActivity.class));
+                return true;
+            });
+        }
     }
 
     @Override

@@ -303,6 +303,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.annotation:annotation:1.7.1")
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
 }
 
 protobuf {

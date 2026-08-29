@@ -116,7 +116,7 @@
             app:summary="Aktifkan fitur rekam panggilan video layar"
             app:title="@string/video_call_screen_rec" />
             
-        <rikka.material.preference.MaterialListPreference
+        <ListPreference
             app:dependency="video_call_screen_rec"
             app:entries="@array/video_call_screen_mode_entries"
             app:entryValues="@array/video_call_screen_mode_values"

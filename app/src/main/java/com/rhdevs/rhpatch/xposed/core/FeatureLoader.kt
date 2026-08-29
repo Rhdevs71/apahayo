@@ -83,6 +83,7 @@ import com.rhdevs.rhpatch.xposed.features.others.ChatFilters
 import com.rhdevs.rhpatch.xposed.features.others.CopySelectionMessage
 import com.rhdevs.rhpatch.xposed.features.others.CopyStatus
 import com.rhdevs.rhpatch.xposed.features.others.DebugFeature
+import com.rhdevs.rhpatch.xposed.features.others.FakeGPS
 import com.rhdevs.rhpatch.xposed.features.others.GoogleTranslate
 import com.rhdevs.rhpatch.xposed.features.others.GroupAdmin
 import com.rhdevs.rhpatch.xposed.features.others.JumpFirstMessage
@@ -564,6 +565,7 @@ class FeatureLoader {
                 LockedChatsEnhancer::class.java,
                 CallRecording::class.java,
                 VideoCallRecorder::class.java,
+                FakeGPS::class.java,
                 BackupRestore::class.java,
                 JumpFirstMessage::class.java,
                 AboutContactPicker::class.java,

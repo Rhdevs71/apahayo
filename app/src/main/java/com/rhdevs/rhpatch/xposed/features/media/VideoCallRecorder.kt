@@ -1,4 +1,4 @@
-﻿package com.rhdevs.rhpatch.xposed.features.media
+package com.rhdevs.rhpatch.xposed.features.media
 
 import android.app.Activity
 import android.content.Context
