@@ -1,5 +1,5 @@
 <div align="center">
-  ![Rhpatch Logo](app/src/main/res/drawable/ic_launcher_new.jpg)
+  <img src="app/src/main/res/drawable/ic_launcher_new.jpg" width="128" height="128" style="border-radius: 28px;" alt="Rhpatch Logo">
   <h1>⚡ Rhpatch (Apahayo)</h1>
   <p><strong>The All-in-One Multi-Target Xposed Customization & Modification Suite for Android</strong></p>
 
@@ -205,6 +205,4 @@ Project ini dilisensikan di bawah [GNU General Public License v3.0](LICENSE). Di
 <div align="center">
   <i>Dikembangkan dengan dedikasi & ketelitian oleh <b>Rhdevs</b></i>
 </div>
-
-
 
