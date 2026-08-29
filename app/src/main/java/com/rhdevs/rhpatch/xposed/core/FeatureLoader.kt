@@ -355,16 +355,18 @@ class FeatureLoader {
         @Throws(Exception::class)
         fun disableExpirationVersion(classLoader: ClassLoader) {
             val expirationClass = Unobfuscator.loadExpirationClass(classLoader)
-            val method =
-                ReflectionUtils.findMethodUsingFilter(expirationClass) { m -> m.returnType == Date::class.java }
-            XposedBridge.hookMethod(method, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val calendar = Calendar.getInstance().apply {
-                        set(2099, 11, 31)
+            val methods =
+                ReflectionUtils.findAllMethodsUsingFilter(expirationClass) { m -> m.returnType == Date::class.java }
+            for (method in methods) {
+                XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        val calendar = Calendar.getInstance().apply {
+                            set(2099, 11, 31)
+                        }
+                        param.result = calendar.time
                     }
-                    param.result = calendar.time
-                }
-            })
+                })
+            }
         }
 
         @Throws(Exception::class)
@@ -572,9 +574,11 @@ class FeatureLoader {
             )
 
             XposedBridge.log("Loading Plugins")
-            val executorService = Executors.newWorkStealingPool(
-                Runtime.getRuntime().availableProcessors().coerceAtMost(4)
-            )
+            val executorService = Executors.newSingleThreadExecutor { runnable ->
+                Thread(runnable, "WAE-HookInstaller").apply {
+                    isDaemon = true
+                }
+            }
             val times = Collections.synchronizedList(ArrayList<String>())
 
             for (clazz in classes) {
@@ -613,7 +617,8 @@ class FeatureLoader {
             executorService.awaitTermination(15, TimeUnit.SECONDS)
 
             if (Feature.DEBUG) {
-                times.forEach { XposedBridge.log(it) }
+                val loadedTimes = synchronized(times) { times.toList() }
+                loadedTimes.forEach { XposedBridge.log(it) }
             }
         }
     }

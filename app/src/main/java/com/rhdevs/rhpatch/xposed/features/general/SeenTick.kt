@@ -208,6 +208,8 @@ class SeenTick(
         if (ticktype == 1) {
             XposedBridge.hookMethod(viewButtonMethod, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
+                    if (!prefs.getBoolean("hidestatusview", false)) return
+
                     if (viewStatusField == null) {
                         viewStatusField =
                             ReflectionUtils.findFieldUsingFilter(param.thisObject.javaClass) { f ->
@@ -320,7 +322,7 @@ class SeenTick(
                 ): MenuItem? {
                     if (menu.findItem(R.string.send_blue_tick) != null) return null
                     if (statusData.currentItem.isFromMe) return null
-                    return menu.add(0, R.string.send_blue_tick, 0, Utils.getString(R.string.send_blue_tick))
+                    return menu.add(0, R.string.send_blue_tick, 0, R.string.send_blue_tick)
                 }
 
                 override fun onClick(
@@ -344,7 +346,7 @@ class SeenTick(
         XposedBridge.hookMethod(onCreateMenuConversationMethod, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val menu = param.args[0] as Menu
-                val menuItem = menu.add(0, 0, 0, Utils.getString(R.string.send_blue_tick))
+                val menuItem = menu.add(0, 0, 0, R.string.send_blue_tick)
                 if (ticktype == 1) menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 menuItem.setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
                 menuItem.setOnMenuItemClickListener {
@@ -371,7 +373,7 @@ class SeenTick(
                     0,
                     R.string.read_all_mark_as_read,
                     0,
-                    Utils.getString(R.string.read_all_mark_as_read)
+                    R.string.read_all_mark_as_read
                 )
             }
 
@@ -411,31 +413,31 @@ class SeenTick(
                     return
                 }
 
-                val item = menu.add(0, 0, 0, Utils.getString(R.string.send_blue_tick))
+                val item = menu.add(0, 0, 0, R.string.send_blue_tick)
                     .setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
                 if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
                 item.setOnMenuItemClickListener {
-                    scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                    scope.launch(Dispatchers.IO) {
                         val userJid = fMessage.key.remoteJid
                         val messageID = fMessage.key.messageID
-                        com.rhdevs.rhpatch.xposed.core.db.MessageHistoryStore.getInstance().updateViewedMessage(
+                        MessageHistoryStore.getInstance().updateViewedMessage(
                             userJid.phoneRawString,
                             messageID,
-                            com.rhdevs.rhpatch.xposed.core.db.MessageHistoryStore.ReceiptType.PLAYED,
+                            MessageHistoryStore.ReceiptType.PLAYED,
                             true
                         )
-                        com.rhdevs.rhpatch.xposed.core.db.MessageHistoryStore.getInstance().updateViewedMessage(
+                        MessageHistoryStore.getInstance().updateViewedMessage(
                             userJid.phoneRawString,
                             messageID,
-                            com.rhdevs.rhpatch.xposed.core.db.MessageHistoryStore.ReceiptType.READ,
+                            MessageHistoryStore.ReceiptType.READ,
                             true
                         )
                         sendBlueTickMedia(fMessage)
                     }
-                    com.rhdevs.rhpatch.xposed.utils.Utils.showToast(
-                        com.rhdevs.rhpatch.xposed.utils.Utils.getString(com.rhdevs.rhpatch.R.string.sending_read_blue_tick),
-                        android.widget.Toast.LENGTH_SHORT
+                    Utils.showToast(
+                        Utils.getString(R.string.sending_read_blue_tick),
+                        Toast.LENGTH_SHORT
                     )
                     true
                 }
@@ -449,7 +451,7 @@ class SeenTick(
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val menu = param.args[0] as Menu
-                    val item = menu.add(0, 0, 0, Utils.getString(R.string.send_blue_tick))
+                    val item = menu.add(0, 0, 0, R.string.send_blue_tick)
                         .setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
                     if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 

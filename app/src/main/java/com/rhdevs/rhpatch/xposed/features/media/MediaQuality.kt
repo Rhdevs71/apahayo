@@ -60,6 +60,10 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
                     fieldsVideoQuality["videoMaxEdge"]?.setInt(instance, EDGE_WIDTH)
                     fieldsVideoQuality["videoMaxBitrate"]?.setInt(instance, BITRATE * 1000)
                     fieldsVideoQuality["mainHighBitRate"]?.set(instance, null)
+                    fieldsVideoQuality["videoBitrateMode"]?.set(
+                        instance,
+                        android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR
+                    )
                 }
             })
 

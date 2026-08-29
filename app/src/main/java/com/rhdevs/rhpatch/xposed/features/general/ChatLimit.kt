@@ -36,7 +36,9 @@ class ChatLimit(loader: ClassLoader, preferences:SharedPreferences) :
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam?) {
                     if (antiDisappearing) {
-                        getInstance().executeSQL("UPDATE message_ephemeral SET expire_timestamp = 2553512370000")
+                        com.rhdevs.rhpatch.xposed.utils.Utils.databaseExecutor.execute {
+                            getInstance().executeWritableSQL("UPDATE message_ephemeral SET expire_timestamp = 2553512370000")
+                        }
                     }
                 }
             })
