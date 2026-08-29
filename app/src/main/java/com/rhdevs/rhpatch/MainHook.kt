@@ -32,7 +32,7 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
             val locationHook = object : de.robv.android.xposed.XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     prefs.reload()
-                    if (prefs.getBoolean("fake_gps_running", false) && prefs.getInt("fake_gps_mode", 0) == 2) {
+                    if (prefs.getBoolean("fake_gps_running", false) && (try { prefs.getInt("fake_gps_mode", 0) } catch(e: Exception) { prefs.getString("fake_gps_mode", "0")?.toIntOrNull() ?: 0 }) == 2) {
                         val lat = prefs.getFloat("fake_gps_lat", 0f).toDouble()
                         val lon = prefs.getFloat("fake_gps_lon", 0f).toDouble()
                         if (lat != 0.0 && lon != 0.0) {
@@ -59,7 +59,7 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
             val locationGetterHook = object : de.robv.android.xposed.XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     prefs.reload()
-                    if (prefs.getBoolean("fake_gps_running", false) && prefs.getInt("fake_gps_mode", 0) == 2) {
+                    if (prefs.getBoolean("fake_gps_running", false) && (try { prefs.getInt("fake_gps_mode", 0) } catch(e: Exception) { prefs.getString("fake_gps_mode", "0")?.toIntOrNull() ?: 0 }) == 2) {
                         val isLat = param.method.name == "getLatitude"
                         val value = if (isLat) prefs.getFloat("fake_gps_lat", 0f).toDouble() else prefs.getFloat("fake_gps_lon", 0f).toDouble()
                         if (value != 0.0) {

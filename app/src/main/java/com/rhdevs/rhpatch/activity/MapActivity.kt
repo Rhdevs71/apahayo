@@ -106,7 +106,7 @@ class MapActivity : AppCompatActivity() {
 
         switchMockLocation.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                val currentMode = prefs.getInt("fake_gps_mode", 0) // 0: Manual, 1: Root, 2: Xposed
+                val currentMode = (try { prefs.getInt("fake_gps_mode", 0) } catch(e: Exception) { prefs.getString("fake_gps_mode", "0")?.toIntOrNull() ?: 0 }) // 0: Manual, 1: Root, 2: Xposed
                 if (currentMode != 2 && !isMockLocationEnabled()) {
                     switchMockLocation.isChecked = false
                     showMockLocationDialog()
@@ -152,7 +152,7 @@ class MapActivity : AppCompatActivity() {
 
     private fun showMockLocationDialog() {
         val prefs = getSharedPreferences(packageName + "_preferences", Context.MODE_PRIVATE)
-        val currentMode = prefs.getInt("fake_gps_mode", 0) // 0: Manual, 1: Root, 2: Xposed
+        val currentMode = (try { prefs.getInt("fake_gps_mode", 0) } catch(e: Exception) { prefs.getString("fake_gps_mode", "0")?.toIntOrNull() ?: 0 }) // 0: Manual, 1: Root, 2: Xposed
         
         val options = arrayOf("Opsi Pengembang (Manual)", "Mode Root (Otomatis)", "Mode Xposed (Anti-Deteksi)")
         AlertDialog.Builder(this)
