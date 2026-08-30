@@ -2,8 +2,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- BUBBLE COLORS -->
-    <PreferenceCategory app:title="Warna Gelembung Obrolan">
+    <!-- BUBBLE STYLES & COLORS -->
+    <PreferenceCategory app:title="Gaya &amp; Warna Gelembung">
+    
+        <rikka.material.preference.MaterialListPreference
+            app:defaultValue="default"
+            app:entries="@array/bubble_style_entries"
+            app:entryValues="@array/bubble_style_values"
+            app:key="pref_bubble_style"
+            app:summary="Pilih gaya gelembung obrolan (Default, iOS)"
+            app:title="Gaya Gelembung (BETA)" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="bubble_color"

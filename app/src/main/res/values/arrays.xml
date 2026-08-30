@@ -445,4 +445,14 @@
         <item>2</item>
         <item>3</item>
     </string-array>
+    
+    <!-- Bubble Styles -->
+    <string-array name="bubble_style_entries">
+        <item>Default WA</item>
+        <item>iOS Style</item>
+    </string-array>
+    <string-array name="bubble_style_values">
+        <item>default</item>
+        <item>ios</item>
+    </string-array>
 </resources>

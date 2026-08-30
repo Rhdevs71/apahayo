@@ -12,15 +12,7 @@ val UnlockPlusBenefitsPatch = patch(
         if (!com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.init(appContext)) return@runCatching
 
         // Coba cari metode dengan berbagai kemungkinan string terkait IG Plus / Verified
-        val targetStrings = listOf(
-            "is_benefit_active", 
-            "is_ig_creator_plus_unlocked",
-            "is_creator_plus_unlocked",
-            "has_active_subscription",
-            "is_subscriber",
-            "is_premium",
-            "is_verified"
-        )
+        val targetStrings = listOf("is_benefit_active", "is_ig_creator_plus_unlocked")
         
         var methods = emptyList<java.lang.reflect.Method>()
         for (str in targetStrings) {
