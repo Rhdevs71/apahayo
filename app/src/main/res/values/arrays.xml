@@ -450,9 +450,15 @@
     <string-array name="bubble_style_entries">
         <item>Default WA</item>
         <item>iOS Style</item>
+        <item>Bulat (Rounded)</item>
+        <item>Kotak (Square)</item>
+        <item>Transparan (Ghost)</item>
     </string-array>
     <string-array name="bubble_style_values">
         <item>default</item>
         <item>ios</item>
+        <item>rounded</item>
+        <item>square</item>
+        <item>transparent</item>
     </string-array>
 </resources>
