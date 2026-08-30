@@ -1,10 +1,18 @@
 [
     {
-        "id": "ios_dark",
-        "name": "iOS Dark Mode",
-        "author": "Rhdevs",
-        "description": "Tampilan elegan WhatsApp menyerupai iOS Dark Mode dengan gelembung chat ala iPhone.",
-        "css_url": "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/ios_dark/theme.css",
-        "preview_img": "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/ios_dark/preview.png"
+        "id": "tele_theme",
+        "name": "Telegram Theme",
+        "author": "Unknown",
+        "description": "Tema komprehensif yang menyerupai Telegram dengan aset ikon kustom dan wallpaper transparan.",
+        "zip_url": "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/tele_theme.zip",
+        "preview_img": "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/tele_theme.zip"
+    },
+    {
+        "id": "ocean_blue",
+        "name": "Ocean Blue",
+        "author": "Rhdevs AI",
+        "description": "Tema bernuansa lautan dalam dengan gelembung biru gelap elegan. Dibuat murni oleh AI.",
+        "zip_url": "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/ocean_blue.zip",
+        "preview_img": ""
     }
 ]

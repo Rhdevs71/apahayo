@@ -22,6 +22,12 @@ import org.json.JSONArray
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
+
+import java.util.zip.ZipInputStream
+import java.io.FileOutputStream
+import java.io.FileInputStream
+import java.io.BufferedOutputStream
+
 import java.net.URL
 import kotlin.concurrent.thread
 
@@ -115,10 +121,36 @@ class ThemeStoreActivity : AppCompatActivity() {
 
         recyclerThemes.layoutManager = LinearLayoutManager(this)
         
+        
+        val btnResetTheme = findViewById<View>(R.id.btnResetTheme)
+        btnResetTheme.setOnClickListener {
+            val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
+            prefs.edit()
+                .remove("folder_theme")
+                .remove("css_theme")
+                .remove("custom_css")
+                .putBoolean("custom_filters", false)
+                .apply()
+            Toast.makeText(this, "Tema berhasil di-reset ke Default WhatsApp!", Toast.LENGTH_SHORT).show()
+        }
+
         fetchThemes()
     }
 
-    private fun fetchThemes() {
+    private fun 
+        val btnResetTheme = findViewById<View>(R.id.btnResetTheme)
+        btnResetTheme.setOnClickListener {
+            val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
+            prefs.edit()
+                .remove("folder_theme")
+                .remove("css_theme")
+                .remove("custom_css")
+                .putBoolean("custom_filters", false)
+                .apply()
+            Toast.makeText(this, "Tema berhasil di-reset ke Default WhatsApp!", Toast.LENGTH_SHORT).show()
+        }
+
+        fetchThemes() {
         progressBar.visibility = View.VISIBLE
         tvError.visibility = View.GONE
         recyclerThemes.visibility = View.GONE
@@ -143,7 +175,7 @@ class ThemeStoreActivity : AppCompatActivity() {
                                 name = obj.optString("name", "Unknown Theme"),
                                 author = obj.optString("author", "Unknown"),
                                 description = obj.optString("description", ""),
-                                cssUrl = obj.optString("css_url", ""),
+                                cssUrl = obj.optString("zip_url", ""),
                                 previewUrl = obj.optString("preview_img", "")
                             )
                         )
@@ -175,13 +207,14 @@ class ThemeStoreActivity : AppCompatActivity() {
         }
     }
 
+    
     private fun downloadAndApplyTheme(theme: ThemeModel) {
         if (theme.cssUrl.isEmpty()) {
-            Toast.makeText(this, "Theme CSS URL is empty!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Theme ZIP URL is empty!", Toast.LENGTH_SHORT).show()
             return
         }
 
-        Toast.makeText(this, "Downloading ${theme.name}...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Mengunduh dan mengekstrak ${theme.name}...", Toast.LENGTH_LONG).show()
         
         thread {
             try {
@@ -190,35 +223,56 @@ class ThemeStoreActivity : AppCompatActivity() {
                 conn.doInput = true
                 conn.connect()
 
-                val cssContent = conn.inputStream.bufferedReader().use { it.readText() }
-                
-                // Save to ThemePreference.rootDirectory
                 val themeDir = File(ThemePreference.rootDirectory, theme.id)
                 if (!themeDir.exists()) themeDir.mkdirs()
 
-                val cssFile = File(themeDir, "theme.css")
-                FileOutputStream(cssFile).use {
-                    it.write(cssContent.toByteArray())
+                // Download and Unzip
+                ZipInputStream(conn.inputStream).use { zis ->
+                    var entry = zis.nextEntry
+                    while (entry != null) {
+                        val file = File(themeDir, entry.name)
+                        if (entry.isDirectory) {
+                            file.mkdirs()
+                        } else {
+                            file.parentFile?.mkdirs()
+                            FileOutputStream(file).use { fos ->
+                                val buffer = ByteArray(1024)
+                                var len: Int
+                                while (zis.read(buffer).also { len = it } > 0) {
+                                    fos.write(buffer, 0, len)
+                                }
+                            }
+                        }
+                        zis.closeEntry()
+                        entry = zis.nextEntry
+                    }
                 }
 
                 // Apply to SharedPreferences
                 val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
-                prefs.edit()
-                    .putString("folder_theme", theme.id)
-                    .putString("css_theme", "theme.css")
-                    .putBoolean("custom_filters", true) // Enable CSS Engine
-                    .apply()
+                val edit = prefs.edit()
+                edit.putString("folder_theme", theme.id)
+                edit.putString("css_theme", "style.css")
+                edit.putBoolean("custom_filters", true)
+                
+                // Read style.css and put it into custom_css
+                val styleCssFile = File(themeDir, "style.css")
+                if (styleCssFile.exists()) {
+                    val cssContent = styleCssFile.readText(Charsets.UTF_8)
+                    edit.putString("custom_css", cssContent)
+                }
+                edit.apply()
 
                 runOnUiThread {
-                    Toast.makeText(this, "Theme applied! Please restart WhatsApp.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@ThemeStoreActivity, "Tema ${theme.name} berhasil diterapkan!", Toast.LENGTH_LONG).show()
                 }
-
             } catch (e: Exception) {
                 e.printStackTrace()
                 runOnUiThread {
-                    Toast.makeText(this, "Failed to apply theme: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@ThemeStoreActivity, "Gagal memasang tema: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
+
 }
