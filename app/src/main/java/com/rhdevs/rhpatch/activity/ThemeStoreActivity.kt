@@ -1,4 +1,4 @@
-﻿package com.rhdevs.rhpatch.activity
+package com.rhdevs.rhpatch.activity
 
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -104,7 +104,7 @@ class ThemeStoreActivity : AppCompatActivity() {
 
         val btnResetTheme = findViewById<View>(R.id.btnResetTheme)
         btnResetTheme.setOnClickListener {
-            val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
+            val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
             prefs.edit()
                 .remove("folder_theme")
                 .remove("css_theme")
@@ -215,7 +215,7 @@ class ThemeStoreActivity : AppCompatActivity() {
                 }
 
                 // Apply to SharedPreferences
-                val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
+                val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this@ThemeStoreActivity)
                 val edit = prefs.edit()
                 edit.putString("folder_theme", theme.id)
                 edit.putString("css_theme", "style.css")

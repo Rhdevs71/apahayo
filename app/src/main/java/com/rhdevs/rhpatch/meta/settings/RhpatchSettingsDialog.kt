@@ -1,180 +1,196 @@
 package com.rhdevs.rhpatch.meta.settings
 
-import android.app.AlertDialog
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
-import android.text.InputType
-import android.view.Gravity
-import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
+import android.graphics.Color
+import android.view.Gravity
 import android.widget.Toast
+import android.app.AlertDialog
+import android.view.ViewGroup
 
 object RhpatchSettingsDialog {
 
     fun showSettingsDialog(context: Context) {
         val dp = context.resources.displayMetrics.density
-        val isIndo = java.util.Locale.getDefault().language == "in" || java.util.Locale.getDefault().language == "id"
+        
+        val scrollView = ScrollView(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            setBackgroundColor(Color.parseColor("#121212")) // Dark mode IG
+        }
 
-        val prefs = context.getSharedPreferences("rhpatch_settings", Context.MODE_PRIVATE)
-
-        val rootLayout = LinearLayout(context).apply {
+        val layout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.parseColor("#121212")) // Dark theme background
-            setPadding((16 * dp).toInt(), (24 * dp).toInt(), (16 * dp).toInt(), (24 * dp).toInt())
+            setPadding((16 * dp).toInt(), (16 * dp).toInt(), (16 * dp).toInt(), (16 * dp).toInt())
         }
 
         // Title
         val title = TextView(context).apply {
-            text = "Rhpatch settings"
-            textSize = 24f
-            setTextColor(Color.parseColor("#BB86FC")) // Purple accent
+            text = "✨ Rhpatch Settings (Rhpatch Port)"
+            textSize = 22f
+            setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
             setPadding(0, 0, 0, (24 * dp).toInt())
-            typeface = android.graphics.Typeface.DEFAULT_BOLD
         }
-        rootLayout.addView(title)
+        layout.addView(title)
 
-        fun createCard(): LinearLayout {
-            return LinearLayout(context).apply {
-                orientation = LinearLayout.VERTICAL
-                val shape = GradientDrawable().apply {
-                    cornerRadius = 16 * dp
-                    setColor(Color.parseColor("#1E1E1E"))
-                }
-                background = shape
-                setPadding((16 * dp).toInt(), (16 * dp).toInt(), (16 * dp).toInt(), (16 * dp).toInt())
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    setMargins(0, 0, 0, (12 * dp).toInt())
-                }
-            }
-        }
+        val prefs = context.getSharedPreferences("rhpatch_settings", Context.MODE_PRIVATE)
 
-        fun addSwitchToCard(card: LinearLayout, titleStr: String, descStr: String, key: String, defaultVal: Boolean = true) {
+        fun createSwitch(titleStr: String, descStr: String, key: String, defaultVal: Boolean = true): LinearLayout {
             val itemLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
+                setPadding(0, (12 * dp).toInt(), 0, (12 * dp).toInt())
                 gravity = Gravity.CENTER_VERTICAL
-                setPadding(0, (8 * dp).toInt(), 0, (8 * dp).toInt())
+            }
+
+            val textLayout = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+
+            val itemTitle = TextView(context).apply {
+                text = titleStr
+                textSize = 18f
+                setTextColor(Color.WHITE)
+            }
+            
+            val itemDesc = TextView(context).apply {
+                text = descStr
+                textSize = 14f
+                setTextColor(Color.parseColor("#A0A0A0"))
+                setPadding(0, (4 * dp).toInt(), 0, 0)
+            }
+
+            textLayout.addView(itemTitle)
+            textLayout.addView(itemDesc)
+
+            val toggle = Switch(context).apply {
+                isChecked = prefs.getBoolean(key, defaultVal)
+                setOnCheckedChangeListener { _, isChecked ->
+                    prefs.edit().putBoolean(key, isChecked).apply()
+                    Toast.makeText(context, "$titleStr ${if(isChecked) "Diaktifkan" else "Dimatikan"}\nRestart IG untuk menerapkan", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            itemLayout.addView(textLayout)
+            itemLayout.addView(toggle)
+            
+            return itemLayout
+        }
+
+        layout.addView(createSwitch("Ghost Mode", "Sembunyikan status dilihat pada DM dan Stories", "pref_ghost_mode"))
+        layout.addView(createSwitch("Disable Typing Status", "Sembunyikan status sedang mengetik di DM", "pref_disable_typing"))
+        layout.addView(createSwitch("Make Ephemeral Permanent", "Ubah pesan View Once menjadi permanen", "pref_ephemeral"))
+        layout.addView(createSwitch("View Live Anonymously", "Tonton Live tanpa diketahui host atau penonton lain", "pref_view_live_anon"))
+        layout.addView(createSwitch("Media Downloader", "Aktifkan tombol download pada Feed, Reels, dan Stories", "pref_downloader"))
+        layout.addView(createSwitch("Copy Comments", "Tahan lama (Long Press) komentar untuk menyalin", "pref_copy_comments"))
+        layout.addView(createSwitch("Disable Swipe To Create", "Mencegah buka kamera saat swipe kanan di Beranda", "pref_disable_swipe"))
+        layout.addView(createSwitch("Disable Video Autoplay", "Mematikan putar otomatis video di Feed", "pref_disable_video_autoplay"))
+        layout.addView(createSwitch("Disable Stories Audio Autoplay", "Mematikan audio otomatis di Story", "pref_disable_stories_audio"))
+        layout.addView(createSwitch("Unlock IG Plus", "Membuka kunci fitur berlangganan Creator Plus", "pref_ig_plus"))
+        layout.addView(createSwitch("Disable Double Tap Like", "Matikan fungsi 2 kali ketuk untuk like", "pref_disable_double_tap_like"))
+
+        // --- SECTION: DEBUG & FALLBACKS ---
+        val debugTitle = TextView(context).apply {
+            text = "🔬 Pelacak Hook & Fallbacks"
+            textSize = 18f
+            setTextColor(Color.parseColor("#FFD700"))
+            setPadding(0, (24 * dp).toInt(), 0, (8 * dp).toInt())
+        }
+        layout.addView(debugTitle)
+
+        fun createOptionSelector(titleStr: String, descStr: String, key: String, options: Array<String>, defaultIndex: Int = 0): LinearLayout {
+            val itemLayout = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(0, (12 * dp).toInt(), 0, (12 * dp).toInt())
+                gravity = Gravity.CENTER_VERTICAL
             }
             val textLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             }
-            val itemTitle = TextView(context).apply { text = titleStr; textSize = 16f; setTextColor(Color.WHITE); typeface = android.graphics.Typeface.DEFAULT_BOLD }
-            val itemDesc = TextView(context).apply { text = descStr; textSize = 13f; setTextColor(Color.parseColor("#B0B0B0")); setPadding(0, (4 * dp).toInt(), 0, 0) }
+            val itemTitle = TextView(context).apply { text = titleStr; textSize = 18f; setTextColor(Color.WHITE) }
+            val itemDesc = TextView(context).apply {
+                val currentIndex = prefs.getInt(key, defaultIndex)
+                text = "$descStr\nSaat ini: ${options.getOrElse(currentIndex) { options[0] }}"
+                textSize = 14f; setTextColor(Color.parseColor("#A0A0A0")); setPadding(0, (4 * dp).toInt(), 0, 0)
+            }
             textLayout.addView(itemTitle)
             textLayout.addView(itemDesc)
             
-            val toggle = Switch(context).apply {
-                isChecked = prefs.getBoolean(key, defaultVal)
-                setOnCheckedChangeListener { _, isChecked ->
-                    prefs.edit().putBoolean(key, isChecked).apply()
-                    Toast.makeText(context, if (isChecked) " AKTIF" else " MATI", Toast.LENGTH_SHORT).show()
-                }
+            itemLayout.addView(textLayout)
+            itemLayout.setOnClickListener {
+                val currentIndex = prefs.getInt(key, defaultIndex)
+                AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                    .setTitle("Pilih $titleStr")
+                    .setSingleChoiceItems(options, currentIndex) { dialog, which ->
+                        prefs.edit().putInt(key, which).apply()
+                        itemDesc.text = "$descStr\nSaat ini: ${options[which]}"
+                        Toast.makeText(context, "Disimpan! Restart IG untuk menerapkan.", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    }
+                    .show()
             }
+            return itemLayout
+        }
+
+        fun createTextInputOption(titleStr: String, descStr: String, key: String, defaultVal: String): LinearLayout {
+            val itemLayout = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(0, (12 * dp).toInt(), 0, (12 * dp).toInt())
+                gravity = Gravity.CENTER_VERTICAL
+            }
+            val textLayout = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            val itemTitle = TextView(context).apply { text = titleStr; textSize = 18f; setTextColor(Color.WHITE) }
+            val itemDesc = TextView(context).apply {
+                val currentVal = prefs.getString(key, defaultVal)
+                text = "$descStr\nSaat ini: $currentVal"
+                textSize = 14f; setTextColor(Color.parseColor("#A0A0A0")); setPadding(0, (4 * dp).toInt(), 0, 0)
+            }
+            textLayout.addView(itemTitle)
+            textLayout.addView(itemDesc)
             
             itemLayout.addView(textLayout)
-            itemLayout.addView(toggle)
-            card.addView(itemLayout)
+            itemLayout.setOnClickListener {
+                val currentVal = prefs.getString(key, defaultVal)
+                val input = android.widget.EditText(context).apply {
+                    setText(currentVal)
+                    setTextColor(Color.WHITE)
+                }
+                AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                    .setTitle("Atur $titleStr")
+                    .setView(input)
+                    .setPositiveButton("Simpan") { dialog, _ ->
+                        val newVal = input.text.toString()
+                        prefs.edit().putString(key, newVal).apply()
+                        itemDesc.text = "$descStr\nSaat ini: $newVal"
+                        Toast.makeText(context, "Disimpan!", Toast.LENGTH_SHORT).show()
+                    }
+                    .setNegativeButton("Batal", null)
+                    .show()
+            }
+            return itemLayout
         }
 
-        fun addInputToCard(card: LinearLayout, titleStr: String, descStr: String, key: String, defaultVal: String = "") {
-            val itemLayout = LinearLayout(context).apply {
-                orientation = LinearLayout.VERTICAL
-                setPadding(0, (8 * dp).toInt(), 0, (8 * dp).toInt())
-            }
-            val itemTitle = TextView(context).apply { text = titleStr; textSize = 16f; setTextColor(Color.WHITE); typeface = android.graphics.Typeface.DEFAULT_BOLD }
-            val itemDesc = TextView(context).apply { text = descStr; textSize = 13f; setTextColor(Color.parseColor("#B0B0B0")); setPadding(0, (4 * dp).toInt(), 0, (8 * dp).toInt()) }
-            
-            val input = EditText(context).apply {
-                setText(prefs.getString(key, defaultVal))
-                setTextColor(Color.WHITE)
-                setHintTextColor(Color.GRAY)
-                hint = "/storage/emulated/0/Download/Rhpatch"
-                background = GradientDrawable().apply {
-                    cornerRadius = 8 * dp
-                    setColor(Color.parseColor("#2C2C2C"))
-                    setStroke((1 * dp).toInt(), Color.parseColor("#333333"))
-                }
-                setPadding((12 * dp).toInt(), (12 * dp).toInt(), (12 * dp).toInt(), (12 * dp).toInt())
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            }
-            
-            val saveBtn = TextView(context).apply {
-                text = "Rhpatch settings"
-                textSize = 14f
-                setTextColor(Color.parseColor("#BB86FC"))
-                gravity = Gravity.END
-                setPadding(0, (8 * dp).toInt(), 0, 0)
-                setOnClickListener {
-                    prefs.edit().putString(key, input.text.toString()).apply()
-                    Toast.makeText(context, "Path Disimpan", Toast.LENGTH_SHORT).show()
-                }
-            }
-            
-            itemLayout.addView(itemTitle)
-            itemLayout.addView(itemDesc)
-            itemLayout.addView(input)
-            itemLayout.addView(saveBtn)
-            card.addView(itemLayout)
-        }
-
-        val card1 = createCard()
-        addSwitchToCard(card1, if (isIndo) "Mode Hantu" else "Ghost Mode", if (isIndo) "Baca DM tanpa ketahuan" else "Read DMs secretly", "pref_ghost_mode")
-        addSwitchToCard(card1, if (isIndo) "Mode Hantu: Saluran OFF" else "Ghost Mode: Channels OFF", if (isIndo) "Matikan Ghost Mode di Saluran" else "Disable Ghost Mode in Channels", "pref_ghost_mode_channels_off")
-        rootLayout.addView(card1)
-
-        val card2 = createCard()
-        addSwitchToCard(card2, if (isIndo) "Unduh Media" else "Download Media", if (isIndo) "Tombol unduh di Feed & Reels" else "Download button in Feed & Reels", "pref_downloader")
-        addInputToCard(card2, if (isIndo) "Lokasi Unduhan" else "Download Path", if (isIndo) "Tentukan folder tempat menyimpan hasil download" else "Set folder to save downloaded media", "custom_download_path")
-        addSwitchToCard(card2, if (isIndo) "Salin Komentar" else "Copy Comments", if (isIndo) "Tahan komentar untuk menyalin" else "Long press comments to copy", "pref_copy_comments")
-        addSwitchToCard(card2, if (isIndo) "Sembunyikan Saran Pengguna" else "Hide Suggested Users", if (isIndo) "Sembunyikan 'Mungkin Anda Kenal'" else "Hide 'Suggested for you'", "pref_hide_suggested_users")
-        rootLayout.addView(card2)
+        layout.addView(createTextInputOption("Download Path", "Lokasi folder penyimpanan (dalam folder Download)", "pref_download_path", "Rhpatch"))
+        layout.addView(createSwitch("Hook Tracker (Toast)", "Munculkan peringatan Toast saat fungsi disadap. Berguna untuk mencari tahu hook mana yang jalan.", "pref_hook_tracker", false))
+        layout.addView(createSwitch("Ghost Mode: Saluran OFF", "Matikan Ghost Mode pada Broadcast Channels untuk menghindari bug joining", "pref_ghost_mode_channels_off", true))
         
-        val card3 = createCard()
-        addSwitchToCard(card3, if (isIndo) "Matikan Iklan" else "Disable Ads", if (isIndo) "Sembunyikan postingan bersponsor" else "Hide sponsored posts", "pref_disable_ads")
-        addSwitchToCard(card3, if (isIndo) "Matikan Putar Otomatis" else "Disable Autoplay", if (isIndo) "Matikan video otomatis di Feed" else "Disable video autoplay", "pref_disable_video_autoplay")
-        addSwitchToCard(card3, if (isIndo) "Buka Kunci IG Plus" else "Unlock IG Plus", if (isIndo) "Buka fitur Creator Plus" else "Unlock Creator Plus features", "pref_ig_plus")
-        addSwitchToCard(card3, if (isIndo) "Toast Debug" else "Toast Debug", if (isIndo) "Tampilkan log/pesan toast saat proses download/patch" else "Show toast log messages", "pref_toast_debug", false)
-        rootLayout.addView(card3)
+        layout.addView(createSwitch("Hide Suggested Users", "Sembunyikan deretan akun/profil yang disarankan (Mungkin Anda Kenal) di feed", "pref_hide_suggested_users", true))
+        
+        scrollView.addView(layout)
 
-        val closeBtn = TextView(context).apply {
-            text = "Rhpatch settings"
-            textSize = 16f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
-            setPadding(0, (12 * dp).toInt(), 0, (12 * dp).toInt())
-            val shape = GradientDrawable().apply {
-                cornerRadius = 24 * dp
-                setColor(Color.parseColor("#BB86FC")) // Purple accent button
-            }
-            background = shape
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                setMargins(0, (8 * dp).toInt(), 0, 0)
-            }
-        }
-        rootLayout.addView(closeBtn)
-
-        val scrollView = ScrollView(context).apply {
-            addView(rootLayout)
-        }
-
-        val dialog = AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_NoActionBar_Fullscreen)
+        AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_Dialog_Alert)
             .setView(scrollView)
+            .setPositiveButton("Tutup") { dialog, _ -> dialog.dismiss() }
             .show()
-            
-        closeBtn.setOnClickListener {
-            dialog.dismiss()
-        }
     }
 }
