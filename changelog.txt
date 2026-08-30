@@ -1,13 +1,13 @@
-﻿- Menambahkan dukungan lampiran media untuk Scheduler (Kirim Gambar/Video dengan Text)
+- Menambahkan dukungan lampiran media untuk Scheduler (Kirim Gambar/Video dengan Text)
 - Menambahkan pola pencocokan (Trigger Patterns): StartsWith dan EndsWith pada fungsi Auto-Reply
 - Menambahkan fitur balasan ganda (Multiple Replies) dipisah dengan |||
 - Menambahkan fitur tipe balasan acak (Random Replies)
 - Mengintegrasikan fungsi AI (Gemini, ChatGPT, Llama) pada balasan Auto-Reply dengan UI Spinner
 - Mengimplementasikan sistem Multi-API-Key Failover untuk AI
 - Memperbaiki tata letak UI Auto-Reply dan membersihkan UI Home Module
-- Menambahkan panduan instalasi (installation_guide.md) dan panduan kontribusi (contribution.md)
+- Menambahkan panduan instalasi (installation panduan) dan panduan kontribusi (contribution panduan)
 
-- [Instagram] Perbaikan bug (Crash) MetaUnobfuscator (menghindari abstract & <clinit> method).
+- [Instagram] Perbaikan bug (Crash) MetaUnobfuscator (menghindari abstract & clinit method).
 - [Instagram] Integrasi fitur Piko: Direct Thread Media Saver (Simpan media langsung dari DM).
 - [Instagram] Integrasi fitur Piko: Inject baris tombol Download di BottomSheet (titik tiga) postingan.
 - [Instagram] Perbaikan Ghost Mode: Memastikan fingerprint yang benar (tanpa merusak join channel DM).
