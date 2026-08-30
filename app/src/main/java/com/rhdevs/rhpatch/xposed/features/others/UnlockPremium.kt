@@ -10,7 +10,7 @@ class UnlockPremium(classLoader: ClassLoader, preferences: SharedPreferences) :
     Feature(classLoader, preferences) {
 
     override fun doHook() {
-        if (!preferences.getBoolean("pref_wa_premium", false)) return
+        if (!prefs.getBoolean("pref_wa_premium", false)) return
 
         try {
             val targetStrings = arrayOf(
