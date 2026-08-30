@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION") @file:SuppressLint("WorldReadableFiles")
+﻿@file:Suppress("DEPRECATION") @file:SuppressLint("WorldReadableFiles")
 package com.rhdevs.rhpatch.activity
 
 import android.annotation.SuppressLint
@@ -230,7 +230,7 @@ class SettingsActivity : AppCompatActivity() {
             // Version info
             val versionInfo = view.findViewById<TextView>(R.id.text_version_info)
             val buildDateStr = DateUtils.getRelativeTimeSpanString(BuildConfig.COMMIT_DATE * 1000)
-            versionInfo.text = "Version: ${BuildConfig.VERSION_NAME} (${BuildConfig.COMMIT_HASH})\nBuild: $buildDateStr"
+            versionInfo.text = "Version: ${BuildConfig.VERSION_NAME}\nBuild: $buildDateStr"
 
             // Core Modules Click Listeners
             view.findViewById<View>(R.id.btn_feat_whatsapp)?.setOnClickListener {
@@ -578,7 +578,7 @@ class SettingsActivity : AppCompatActivity() {
                 val q = query.trim().lowercase()
 
                 // 1. System Anti-Spam Card
-                val spamName = "🛡️ System Anti-Spam"
+                val spamName = "ðŸ›¡ï¸ System Anti-Spam"
                 val spamPkg = "Blokir SMS, Telepon Spam, Penipuan & Judi Online"
                 if (q.isEmpty() || spamName.lowercase().contains(q) || spamPkg.lowercase().contains(q) || q.contains("spam") || q.contains("sms")) {
                     val spamCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
@@ -594,7 +594,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
 
                 // 2. DNS AdGuard Bypass Card
-                val dnsName = "🌍 DNS AdGuard Bypass"
+                val dnsName = "ðŸŒ DNS AdGuard Bypass"
                 val dnsPkg = "Bypass Private DNS & Blokir Iklan Global Tingkat Sistem"
                 if (q.isEmpty() || dnsName.lowercase().contains(q) || dnsPkg.lowercase().contains(q) || q.contains("dns") || q.contains("adguard") || q.contains("bypass")) {
                     val dnsCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
@@ -610,7 +610,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
                 
                 // Fake GPS Card
-                val fakeGpsName = "📍 Fake GPS"
+                val fakeGpsName = "ðŸ“ Fake GPS"
                 val fakeGpsPkg = "Lokasi palsu untuk semua aplikasi"
                 if (q.isEmpty() || fakeGpsName.lowercase().contains(q) || fakeGpsPkg.lowercase().contains(q) || q.contains("gps") || q.contains("lokasi")) {
                     val fakeGpsCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
@@ -704,7 +704,7 @@ class SettingsActivity : AppCompatActivity() {
     class AboutFragment : Fragment() {
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
             val view = inflater.inflate(R.layout.fragment_about, container, false)
-            view.findViewById<TextView>(R.id.about_version).text = "Version ${BuildConfig.VERSION_NAME} (${BuildConfig.COMMIT_HASH})"
+            view.findViewById<TextView>(R.id.about_version).text = "Version ${BuildConfig.VERSION_NAME}"
             
             view.findViewById<View>(R.id.btn_bagibagi)?.setOnClickListener {
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://bagibagi.co/Rh7155")))
@@ -735,6 +735,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 }
+
 
 
 
