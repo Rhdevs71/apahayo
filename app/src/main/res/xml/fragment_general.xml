@@ -24,6 +24,12 @@
             app:summary="@string/disable_version_check_sum"
             app:title="@string/disable_version_check" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="false"
+            app:key="pref_wa_premium"
+            app:summary="Bypass or unlock WhatsApp Premium/Verified capabilities locally."
+            app:title="Unlock WA Premium" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Tampilan Layar Utama">

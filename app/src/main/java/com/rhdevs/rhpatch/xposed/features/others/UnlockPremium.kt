@@ -1,4 +1,4 @@
-﻿package com.rhdevs.rhpatch.xposed.features.others
+package com.rhdevs.rhpatch.xposed.features.others
 
 import android.content.SharedPreferences
 import com.rhdevs.rhpatch.xposed.core.Feature
@@ -13,18 +13,36 @@ class UnlockPremium(classLoader: ClassLoader, preferences: SharedPreferences) :
         if (!preferences.getBoolean("pref_wa_premium", false)) return
 
         try {
-            // Karena WA seringkali tidak mengecek langganan premium/verified melalui metode dengan string 
-            // literal seperti di IG (melainkan dari data server/AbProps), metode sederhana hook 
-            // kelas-kelas yang berkaitan dengan Premium atau Biz profile bisa dilakukan di sini.
+            val targetStrings = arrayOf("is_premium_user", "is_smb_premium", "smb_premium", "is_verified_user", "is_whatsapp_premium")
             
-            // Sebagai placeholder untuk 'Unlock Plus' di WA:
-            XposedBridge.log("Rhpatch: [UnlockPremium] Initiating WA premium/verified hooks...")
+            var hookedCount = 0
+            for (str in targetStrings) {
+                val methods = com.rhdevs.rhpatch.xposed.core.devkit.Unobfuscator.findAllMethodUsingStrings(
+                    classLoader,
+                    org.luckypray.dexkit.query.enums.StringMatchType.Contains,
+                    str
+                )
+                
+                for (method in methods) {
+                    if (method.returnType == Boolean::class.javaPrimitiveType || method.returnType == java.lang.Boolean::class.java) {
+                        try {
+                            XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                                override fun beforeHookedMethod(param: MethodHookParam) {
+                                    param.result = true
+                                }
+                            })
+                            hookedCount++
+                            XposedBridge.log("Rhpatch: [UnlockPremium] Hooked ${method.declaringClass.name}.${method.name} via '$str'")
+                        } catch (e: Exception) {
+                            // ignore hook errors for abstract/interface methods that bypassed DexKit somehow
+                        }
+                    }
+                }
+            }
             
-            // Contoh jika kita menemukan metode getBizPremium() atau isVerified()
-            // Kita harus mencarinya menggunakan WA Unobfuscator, yang memerlukan pemahaman struktur WA DexKit.
-            // Saat ini fitur belum meng-hook target spesifik karena WA Premium berbasis backend (AbProps).
+            XposedBridge.log("Rhpatch: [UnlockPremium] Successfully hooked $hookedCount premium/verified checker methods.")
         } catch (e: Exception) {
-            XposedBridge.log("Rhpatch: [UnlockPremium] Error: \")
+            XposedBridge.log("Rhpatch: [UnlockPremium] Error: ${e.message}")
         }
     }
 
