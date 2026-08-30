@@ -1030,7 +1030,7 @@ object Unobfuscator {
                 .filter { methodData -> methodData.paramTypes[0].name == Context::class.java.name }
                 .collect(Collectors.toList())
             if (methods.isEmpty()) throw ClassNotFoundException("View Holder not found!")
-            methods[0].getMethodInstance(loader).declaringClass
+            XposedHelpers.findClass(methods[0].declaredClassName, loader)
         }
     }
 
@@ -2168,7 +2168,7 @@ object Unobfuscator {
                 }
             }
             if (methodData.isEmpty()) throw Exception("LoadDateWrapper method not found")
-            val clazz = methodData[0].getMethodInstance(classLoader).declaringClass
+            val clazz = XposedHelpers.findClass(methodData[0].declaredClassName, classLoader)
             ReflectionUtils.findMethodUsingFilterIfExists(clazz) { m ->
                 listOf(
                     1,
