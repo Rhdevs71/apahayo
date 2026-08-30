@@ -453,6 +453,9 @@
         <item>Bulat (Rounded)</item>
         <item>Kotak (Square)</item>
         <item>Transparan (Ghost)</item>
+        <item>Kapsul (Capsule)</item>
+        <item>3D Shadow</item>
+        <item>Material Flat</item>
     </string-array>
     <string-array name="bubble_style_values">
         <item>default</item>
@@ -460,5 +463,8 @@
         <item>rounded</item>
         <item>square</item>
         <item>transparent</item>
+        <item>capsule</item>
+        <item>3d</item>
+        <item>material</item>
     </string-array>
 </resources>

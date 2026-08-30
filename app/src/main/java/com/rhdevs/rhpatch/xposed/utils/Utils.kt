@@ -120,14 +120,34 @@ object Utils {
      * @param type The resource type (e.g., "id", "drawable", "layout", "string")
      * @return The resource ID or -1 if not found or an error occurred
      */
+    // Kamus pemetaan ID Fouad Mods ke Original WhatsApp
+    private val fouadToWa = mapOf(
+        "input_layout_content" to "entry",
+        "reply_bar_background" to "quoted_message_frame",
+        "whatsapp_toolbar_home" to "toolbar",
+        "send_container" to "send",
+        "toolbar_logo" to "action_bar",
+        "conversation_background" to "conversation_layout",
+        "input_layout" to "bottom_container",
+        "input_attach_button" to "attachment",
+        "camera_btn" to "camera_btn",
+        "menuitem_camera" to "menuitem_camera",
+        "menuitem_search" to "menuitem_search"
+    )
+
     @JvmStatic
     @SuppressLint("DiscouragedApi")
     fun getID(name: String?, type: String?): Int {
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(type)) {
             return -1
         }
+        
+        var mappedName = name
+        if (type == "id") {
+            mappedName = fouadToWa[name] ?: name
+        }
 
-        val key = type + "_" + name
+        val key = type + "_" + mappedName
 
         synchronized(ids) {
             if (ids.containsKey(key)) {
@@ -139,7 +159,7 @@ object Utils {
         try {
             val app: Application = application
             val context = app.applicationContext
-            val id = context.resources.getIdentifier(name, type, app.packageName)
+            val id = context.resources.getIdentifier(mappedName, type, app.packageName)
 
             synchronized(ids) {
                 ids.put(key, id)
@@ -147,7 +167,7 @@ object Utils {
 
             return id
         } catch (e: Exception) {
-            XposedBridge.log("Error getting resource ID: type=" + type + ", name=" + name + ", error: " + e.message)
+            XposedBridge.log("Error getting resource ID: type=" + type + ", name=" + mappedName + ", error: " + e.message)
             return -1
         }
     }
