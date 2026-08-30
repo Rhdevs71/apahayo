@@ -21,30 +21,16 @@
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:cpv_showAlphaSlider="true"
             app:dependency="bubble_color"
-            app:key="bubble_left_light"
-            app:summary="Warna gelembung kiri (saat mode Terang)"
-            app:title="Warna Kiri (Terang)" />
+            app:key="bubble_left"
+            app:summary="@string/default_color"
+            app:title="@string/bubble_left" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:cpv_showAlphaSlider="true"
             app:dependency="bubble_color"
-            app:key="bubble_right_light"
-            app:summary="Warna gelembung kanan (saat mode Terang)"
-            app:title="Warna Kanan (Terang)" />
-            
-        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            app:cpv_showAlphaSlider="true"
-            app:dependency="bubble_color"
-            app:key="bubble_left_dark"
-            app:summary="Warna gelembung kiri (saat mode Gelap)"
-            app:title="Warna Kiri (Gelap)" />
-
-        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            app:cpv_showAlphaSlider="true"
-            app:dependency="bubble_color"
-            app:key="bubble_right_dark"
-            app:summary="Warna gelembung kanan (saat mode Gelap)"
-            app:title="Warna Kanan (Gelap)" />
+            app:key="bubble_right"
+            app:summary="@string/default_color"
+            app:title="@string/bubble_right" />
 
     </PreferenceCategory>
 
