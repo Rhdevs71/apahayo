@@ -57,11 +57,20 @@ object Utils {
     val application: Application
         get() = FeatureLoader.mApp ?: App.instance!!
 
-    fun getString(id: Int): String {
+    fun getString(id: Int, vararg formatArgs: Any): String {
         return try {
-            FeatureLoader.moduleContext.getString(id)
+            FeatureLoader.moduleContext.getString(id, *formatArgs)
         } catch (e: Exception) {
-            application.getString(id)
+            application.getString(id, *formatArgs)
+        }
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    fun getDrawable(id: Int): android.graphics.drawable.Drawable? {
+        return try {
+            FeatureLoader.moduleContext.getDrawable(id)
+        } catch (e: Exception) {
+            application.getDrawable(id)
         }
     }
 

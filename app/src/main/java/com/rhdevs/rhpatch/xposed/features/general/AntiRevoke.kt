@@ -280,7 +280,7 @@ class AntiRevoke(loader: ClassLoader, preferences:SharedPreferences) :
                         dateTextView.setOnClickListener {
                             if (boundView != null && !ConversationItemListener.isViewBoundToMessage(boundView, boundMessageId)) return@setOnClickListener
                             val toastMessage =
-                                Utils.application.getString(R.string.message_removed_on)
+                                Utils.getString(R.string.message_removed_on)
                                     .format(date)
                             Utils.showToast(toastMessage, Toast.LENGTH_LONG)
                         }
@@ -301,7 +301,7 @@ class AntiRevoke(loader: ClassLoader, preferences:SharedPreferences) :
                         }
 
                         2 -> {
-                            val drawable = Utils.application.getDrawable(R.drawable.deleted)
+                            val drawable = Utils.getDrawable(R.drawable.deleted)
                             dateTextView.setCompoundDrawablesWithIntrinsicBounds(
                                 null,
                                 null,
@@ -355,10 +355,10 @@ class AntiRevoke(loader: ClassLoader, preferences:SharedPreferences) :
 
     private fun formatRevocationMessage(fMessage: FMessageWpp): String? {
         var jidAuthor = fMessage.key.remoteJid
-        var messageSuffix = Utils.application.getString(R.string.deleted_message)
+        var messageSuffix = Utils.getString(R.string.deleted_message)
 
         if (jidAuthor.isStatus) {
-            messageSuffix = Utils.application.getString(R.string.deleted_status)
+            messageSuffix = Utils.getString(R.string.deleted_status)
             jidAuthor = fMessage.userJid
         }
         val waContact = WaContactWpp.getWaContactFromJid(jidAuthor)
