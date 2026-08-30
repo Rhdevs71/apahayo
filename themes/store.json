@@ -1,0 +1,10 @@
+[
+    {
+        "id": "ios_dark",
+        "name": "iOS Dark Mode",
+        "author": "Rhdevs",
+        "description": "Tampilan elegan WhatsApp menyerupai iOS Dark Mode dengan gelembung chat ala iPhone.",
+        "css_url": "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/ios_dark/theme.css",
+        "preview_img": "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/ios_dark/preview.png"
+    }
+]
