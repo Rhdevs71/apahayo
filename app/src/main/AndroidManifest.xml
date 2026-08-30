@@ -448,6 +448,12 @@
             android:foregroundServiceType="location"
             android:exported="false" />
 
+    
+        <activity
+            android:name=".activity.ThemeStoreActivity"
+            android:label="Theme Store"
+            android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar"
+            android:exported="false" />
     </application>
 </manifest>
 
