@@ -1,11 +1,19 @@
-[
+﻿[
     {
         "id": "tele_theme",
         "name": "Telegram Theme",
         "author": "Unknown",
         "description": "Tema komprehensif yang menyerupai Telegram dengan aset ikon kustom dan wallpaper transparan.",
         "zip_url": "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/tele_theme.zip",
-        "preview_img": "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/tele_theme.zip"
+        "preview_img": "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/previews/tele_theme.png"
+    },
+    {
+        "id": "anime_theme",
+        "name": "Soft Sad Anime",
+        "author": "Antigravity",
+        "description": "Tema estetik anime bernuansa senja pastel yang tenang dan melankolis, dilengkapi warna gelembung soft pink dan biru.",
+        "zip_url": "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/anime_theme.zip",
+        "preview_img": "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/previews/anime_theme.jpg"
     },
     {
         "id": "ocean_blue",
