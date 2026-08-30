@@ -7,11 +7,11 @@
     
         <ListPreference
             app:defaultValue="default"
-            app:entries="@array/bubble_style_entries"
-            app:entryValues="@array/bubble_style_values"
-            app:key="pref_bubble_style"
-            app:summary="Pilih gaya gelembung obrolan (Default, iOS)"
-            app:title="Gaya Gelembung (BETA)" />
+            app:entries="@array/tick_style_entries"
+            app:entryValues="@array/tick_style_values"
+            app:key="pref_tick_style"
+            app:summary="Pilih gaya centang/status pesan (Centang 1, 2, Biru)"
+            app:title="Gaya Tanda Centang" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="bubble_color"

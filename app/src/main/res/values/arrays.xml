@@ -446,25 +446,12 @@
         <item>3</item>
     </string-array>
     
-    <!-- Bubble Styles -->
-    <string-array name="bubble_style_entries">
+    <string-array name="tick_style_entries">
         <item>Default WA</item>
-        <item>iOS Style</item>
-        <item>Bulat (Rounded)</item>
-        <item>Kotak (Square)</item>
-        <item>Transparan (Ghost)</item>
-        <item>Kapsul (Capsule)</item>
-        <item>3D Shadow</item>
-        <item>Material Flat</item>
+        <item>iOS Style (Lingkaran)</item>
     </string-array>
-    <string-array name="bubble_style_values">
+    <string-array name="tick_style_values">
         <item>default</item>
         <item>ios</item>
-        <item>rounded</item>
-        <item>square</item>
-        <item>transparent</item>
-        <item>capsule</item>
-        <item>3d</item>
-        <item>material</item>
     </string-array>
 </resources>

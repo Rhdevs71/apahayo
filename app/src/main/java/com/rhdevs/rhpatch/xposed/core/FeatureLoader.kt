@@ -521,7 +521,7 @@ class FeatureLoader {
                 // com.rhdevs.rhpatch.xposed.features.privacy.MessageBlocker::class.java, // Removed SQL Hook
                 ActivityController::class.java,
                 CustomThemeV2::class.java,
-                com.rhdevs.rhpatch.xposed.features.customization.BubbleTickStyles::class.java,
+                com.rhdevs.rhpatch.xposed.features.customization.TickStyles::class.java,
                 FloatingBottomBar::class.java,
                 ChatLimit::class.java,
                 SeparateGroup::class.java,
