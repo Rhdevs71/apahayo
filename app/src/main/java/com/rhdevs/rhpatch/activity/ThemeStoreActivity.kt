@@ -1,6 +1,5 @@
 ﻿package com.rhdevs.rhpatch.activity
 
-import android.content.Context
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,22 +11,15 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.rhdevs.rhpatch.App
 import com.rhdevs.rhpatch.R
 import com.rhdevs.rhpatch.preference.ThemePreference
 import org.json.JSONArray
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
-
 import java.util.zip.ZipInputStream
-import java.io.FileOutputStream
-import java.io.FileInputStream
-import java.io.BufferedOutputStream
-
 import java.net.URL
 import kotlin.concurrent.thread
 
@@ -46,25 +38,22 @@ class ThemeAdapter(
 ) : RecyclerView.Adapter<ThemeAdapter.ThemeViewHolder>() {
 
     class ThemeViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val imgPreview: ImageView = view.findViewById(R.id.img_preview)
-        val tvName: TextView = view.findViewById(R.id.tv_theme_name)
-        val tvAuthor: TextView = view.findViewById(R.id.tv_theme_author)
-        val tvDesc: TextView = view.findViewById(R.id.tv_theme_desc)
-        val btnApply: Button = view.findViewById(R.id.btn_apply)
+        val tvTitle: TextView = view.findViewById(R.id.tvTitle)
+        val tvAuthor: TextView = view.findViewById(R.id.tvAuthor)
+        val imgPreview: ImageView = view.findViewById(R.id.imgPreview)
+        val btnApply: Button = view.findViewById(R.id.btnApply)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ThemeViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_theme_card, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.id.item_theme_card, parent, false)
         return ThemeViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ThemeViewHolder, position: Int) {
         val theme = themes[position]
-        holder.tvName.text = theme.name
+        holder.tvTitle.text = theme.name
         holder.tvAuthor.text = "By ${theme.author}"
-        holder.tvDesc.text = theme.description
 
-        // Basic image downloader
         holder.imgPreview.setImageDrawable(null)
         if (theme.previewUrl.isNotEmpty()) {
             thread {
@@ -96,32 +85,23 @@ class ThemeStoreActivity : AppCompatActivity() {
     private lateinit var recyclerThemes: RecyclerView
     private lateinit var progressBar: ProgressBar
     private lateinit var tvError: TextView
-
-    // Default store URL (can be changed later)
     private val STORE_URL = "https://raw.githubusercontent.com/Rhdevs71/apahayo/main/themes/store.json"
-
-    override fun attachBaseContext(newBase: Context) {
-        val localized = App.changeLanguage(newBase)
-        super.attachBaseContext(localized)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_theme_store)
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar?.title = "Theme Store"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { finish() }
 
-        recyclerThemes = findViewById(R.id.recycler_themes)
-        progressBar = findViewById(R.id.progress_bar)
-        tvError = findViewById(R.id.tv_error)
+        recyclerThemes = findViewById(R.id.recyclerThemes)
+        progressBar = findViewById(R.id.progressBar)
+        tvError = findViewById(R.id.tvError)
 
         recyclerThemes.layoutManager = LinearLayoutManager(this)
-        
-        
+
         val btnResetTheme = findViewById<View>(R.id.btnResetTheme)
         btnResetTheme.setOnClickListener {
             val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
@@ -137,20 +117,7 @@ class ThemeStoreActivity : AppCompatActivity() {
         fetchThemes()
     }
 
-    private fun 
-        val btnResetTheme = findViewById<View>(R.id.btnResetTheme)
-        btnResetTheme.setOnClickListener {
-            val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
-            prefs.edit()
-                .remove("folder_theme")
-                .remove("css_theme")
-                .remove("custom_css")
-                .putBoolean("custom_filters", false)
-                .apply()
-            Toast.makeText(this, "Tema berhasil di-reset ke Default WhatsApp!", Toast.LENGTH_SHORT).show()
-        }
-
-        fetchThemes() {
+    private fun fetchThemes() {
         progressBar.visibility = View.VISIBLE
         tvError.visibility = View.GONE
         recyclerThemes.visibility = View.GONE
@@ -180,7 +147,7 @@ class ThemeStoreActivity : AppCompatActivity() {
                             )
                         )
                     }
-
+                    
                     runOnUiThread {
                         progressBar.visibility = View.GONE
                         if (themeList.isEmpty()) {
@@ -207,7 +174,6 @@ class ThemeStoreActivity : AppCompatActivity() {
         }
     }
 
-    
     private fun downloadAndApplyTheme(theme: ThemeModel) {
         if (theme.cssUrl.isEmpty()) {
             Toast.makeText(this, "Theme ZIP URL is empty!", Toast.LENGTH_SHORT).show()
@@ -274,5 +240,4 @@ class ThemeStoreActivity : AppCompatActivity() {
             }
         }
     }
-
 }
