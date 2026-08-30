@@ -646,21 +646,7 @@ class SettingsActivity : AppCompatActivity() {
                     }
                     containerLayout.addView(waCard)
                 }
-                // Theme Store Card
-                val themeStoreName = "🎨 Theme Store (WA GB)"
-                val themeStorePkg = "Koleksi Tema Custom & Gaya Gelembung"
-                if (q.isEmpty() || themeStoreName.lowercase().contains(q) || themeStorePkg.lowercase().contains(q) || q.contains("theme") || q.contains("tema")) {
-                    val storeCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
-                    storeCard.findViewById<TextView>(R.id.app_name).text = themeStoreName
-                    storeCard.findViewById<TextView>(R.id.app_package).text = themeStorePkg
-                    val storeBadge = storeCard.findViewById<TextView>(R.id.status_badge)
-                    storeBadge.text = "New Feature"
-                    storeBadge.setTextColor(android.graphics.Color.parseColor("#F59E0B")) // Amber
-                    storeCard.setOnClickListener {
-                        startActivity(android.content.Intent(context, com.rhdevs.rhpatch.activity.ThemeStoreActivity::class.java))
-                    }
-                    containerLayout.addView(storeCard)
-                }
+
 
 
                 for (appPatchInfo in appPatchConfigurations) {

@@ -1,5 +1,8 @@
 package com.rhdevs.rhpatch.ui.fragments;
 
+import android.content.Intent;
+import androidx.preference.Preference;
+import com.rhdevs.rhpatch.activity.ThemeStoreActivity;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +16,16 @@ public class CustomizationFragment extends BasePreferenceFragment {
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         super.onCreatePreferences(savedInstanceState, rootKey);
         setPreferencesFromResource(R.xml.fragment_customization, rootKey);
+
+        Preference storePref = findPreference("theme_store_online");
+        if (storePref != null) {
+            storePref.setOnPreferenceClickListener(preference -> {
+                Intent intent = new Intent(getContext(), ThemeStoreActivity.class);
+                startActivity(intent);
+                return true;
+            });
+        }
+
     }
 
     @Override

@@ -73,6 +73,31 @@
     <!-- UI MODS -->
     <PreferenceCategory app:title="Modifikasi UI Layar">
 
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:summary="@string/custom_filters_sum"
+            app:key="custom_filters"
+            app:title="@string/custom_appearance" />
+
+        <EditTextPreference
+            android:summary="@string/custom_theme_css_sum"
+            app:dependency="custom_filters"
+            app:key="css_theme"
+            app:title="@string/custom_theme_css" />
+
+        <com.rhdevs.rhpatch.preference.ThemePreference
+            android:key="folder_theme"
+            app:dependency="custom_filters"
+            android:summary="@string/manage_theme_sum"
+            android:title="@string/theme_manager" />
+            
+        <Preference
+            android:key="theme_store_online"
+            app:dependency="custom_filters"
+            android:summary="Download koleksi tema dari GitHub"
+            android:title="🎨 Online Theme Store" />
+
+
         <ListPreference
             android:defaultValue="0"
             android:entries="@array/configui_entries"
