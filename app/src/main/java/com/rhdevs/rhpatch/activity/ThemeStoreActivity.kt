@@ -38,14 +38,14 @@ class ThemeAdapter(
 ) : RecyclerView.Adapter<ThemeAdapter.ThemeViewHolder>() {
 
     class ThemeViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvTitle: TextView = view.findViewById(R.id.tvTitle)
-        val tvAuthor: TextView = view.findViewById(R.id.tvAuthor)
-        val imgPreview: ImageView = view.findViewById(R.id.imgPreview)
-        val btnApply: Button = view.findViewById(R.id.btnApply)
+        val tvTitle: TextView = view.findViewById(R.id.tv_theme_name)
+        val tvAuthor: TextView = view.findViewById(R.id.tv_theme_author)
+        val imgPreview: ImageView = view.findViewById(R.id.img_preview)
+        val btnApply: Button = view.findViewById(R.id.btn_apply)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ThemeViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.id.item_theme_card, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_theme_card, parent, false)
         return ThemeViewHolder(view)
     }
 
@@ -96,9 +96,9 @@ class ThemeStoreActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { finish() }
 
-        recyclerThemes = findViewById(R.id.recyclerThemes)
-        progressBar = findViewById(R.id.progressBar)
-        tvError = findViewById(R.id.tvError)
+        recyclerThemes = findViewById(R.id.recycler_themes)
+        progressBar = findViewById(R.id.progress_bar)
+        tvError = findViewById(R.id.tv_error)
 
         recyclerThemes.layoutManager = LinearLayoutManager(this)
 
