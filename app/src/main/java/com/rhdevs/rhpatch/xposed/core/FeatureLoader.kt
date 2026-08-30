@@ -83,6 +83,7 @@ import com.rhdevs.rhpatch.xposed.features.others.ChatFilters
 import com.rhdevs.rhpatch.xposed.features.others.CopySelectionMessage
 import com.rhdevs.rhpatch.xposed.features.others.CopyStatus
 import com.rhdevs.rhpatch.xposed.features.others.DebugFeature
+import com.rhdevs.rhpatch.xposed.features.others.UnlockPremium
 import com.rhdevs.rhpatch.xposed.features.others.GoogleTranslate
 import com.rhdevs.rhpatch.xposed.features.others.GroupAdmin
 import com.rhdevs.rhpatch.xposed.features.others.JumpFirstMessage
@@ -506,6 +507,7 @@ class FeatureLoader {
         private fun plugins(loader: ClassLoader, pref: SharedPreferences, versionWpp: String) {
             val classes = arrayOf(
                 DebugFeature::class.java,
+                UnlockPremium::class.java,
                 ContactItemListener::class.java,
                 ConversationItemListener::class.java,
                 MenuStatusListener::class.java,

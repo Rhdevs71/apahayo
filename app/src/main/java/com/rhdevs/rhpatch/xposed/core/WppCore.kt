@@ -211,7 +211,7 @@ object WppCore {
             prefsCacheHooks.edit { putInt("preferredOrder", newPreferredOrder) }
             return
         }
-        throw Exception(context.getString(R.string.bridge_error))
+        throw Exception("Failed to connect to WaEnhancer Bridge. Module is likely killed or not running.")
     }
 
     @JvmStatic
