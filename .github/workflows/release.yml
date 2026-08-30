@@ -92,9 +92,8 @@ jobs:
           disable_web_page_preview: true
           document: ${{ steps.find_apk.outputs.apk_path }}
           message: |
-            🚀 *New RHpatch Release* 🚀
+            🎉 *New RHpatch Release* 🎉
 
             ${{ steps.changelog.outputs.content }}
 
-            🔗 *Release Link*: https://github.com/${{ github.repository }}/releases/tag/${{ steps.vars.outputs.tag }}
-
+            📥 *Release Link*: https://github.com/${{ github.repository }}/releases/tag/${{ steps.vars.outputs.tag }}
