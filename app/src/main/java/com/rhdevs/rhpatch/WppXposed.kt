@@ -1,4 +1,4 @@
-package com.rhdevs.rhpatch
+﻿package com.rhdevs.rhpatch
 
 import android.annotation.SuppressLint
 import android.content.ContextWrapper
@@ -89,7 +89,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
         if ((packageName == FeatureLoader.PACKAGE_WPP && com.rhdevs.rhpatch.App.isOriginalPackage) || packageName == FeatureLoader.PACKAGE_BUSINESS) {
             if (lpparam.isFirstApplication) {
-                XposedBridge.log("[•] This package: ${lpparam.packageName}")
+                XposedBridge.log("[â€¢] This package: ${lpparam.packageName}")
                 FeatureLoader.start(classLoader, lpparam.appInfo.sourceDir)
             } else {
                 disableSecureFlag()
@@ -98,7 +98,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
     }
 
     @Throws(Throwable::class)
-    override fun handleInitPackageResources(resparam: InitPackageResourcesParam) {
+        override fun handleInitPackageResources(resparam: InitPackageResourcesParam) {
         val packageName = resparam.packageName
 
         if (packageName != FeatureLoader.PACKAGE_WPP && packageName != FeatureLoader.PACKAGE_BUSINESS) {
@@ -116,6 +116,26 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
             injectResources(it, modRes, resparam)
         }
 
+        try {
+            val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, BuildConfig.APPLICATION_ID + "_preferences")
+            prefs.makeWorldReadable()
+            prefs.reload()
+            val tickStyle = prefs.getString("pref_tick_style", "default")
+            if (tickStyle != "default") {
+                val serverId = modRes.getIdentifier("wae_tick_${tickStyle}_server", "drawable", BuildConfig.APPLICATION_ID)
+                if (serverId != 0) resparam.res.setReplacement(packageName, "drawable", "msg_status_server", modRes.fwd(serverId))
+                if (serverId != 0) resparam.res.setReplacement(packageName, "drawable", "msg_status_client_read_any", modRes.fwd(serverId))
+                
+                val deliveredId = modRes.getIdentifier("wae_tick_${tickStyle}_delivered", "drawable", BuildConfig.APPLICATION_ID)
+                if (deliveredId != 0) resparam.res.setReplacement(packageName, "drawable", "msg_status_client_delivered", modRes.fwd(deliveredId))
+                if (deliveredId != 0) resparam.res.setReplacement(packageName, "drawable", "msg_status_client_read_all", modRes.fwd(deliveredId))
+                
+                val readId = modRes.getIdentifier("wae_tick_${tickStyle}_read", "drawable", BuildConfig.APPLICATION_ID)
+                if (readId != 0) resparam.res.setReplacement(packageName, "drawable", "msg_status_client_read", modRes.fwd(readId))
+            }
+        } catch (e: Throwable) {
+            de.robv.android.xposed.XposedBridge.log("Failed to replace ticks: " + e.message)
+        }
     }
 
     private fun injectResources(
@@ -197,3 +217,4 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
         )
     }
 }
+
