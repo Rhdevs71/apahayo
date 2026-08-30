@@ -25,8 +25,13 @@ class BubbleColors(loader: ClassLoader, preferences:SharedPreferences) :
 
         if (!bubbleColor && properties.getProperty("bubble_colors") != "true") return
 
+        val isDark = DesignUtils.isNightMode()
+        
+        val leftKey = if (isDark) "bubble_left_dark" else "bubble_left_light"
+        val rightKey = if (isDark) "bubble_right_dark" else "bubble_right_light"
+        
         val bubbleLeftColor = if (bubbleColor) prefs.getInt(
-            "bubble_left",
+            leftKey,
             0
         ) else DesignUtils.checkSystemColor(
             properties.getProperty(
@@ -35,7 +40,7 @@ class BubbleColors(loader: ClassLoader, preferences:SharedPreferences) :
             )
         ).toColorInt()
         val bubbleRightColor = if (bubbleColor) prefs.getInt(
-            "bubble_right",
+            rightKey,
             0
         ) else DesignUtils.checkSystemColor(
             properties.getProperty(
