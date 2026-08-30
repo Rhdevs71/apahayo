@@ -5,7 +5,7 @@
     <!-- BUBBLE STYLES & COLORS -->
     <PreferenceCategory app:title="Gaya &amp; Warna Gelembung">
     
-        <rikka.material.preference.MaterialListPreference
+        <ListPreference
             app:defaultValue="default"
             app:entries="@array/bubble_style_entries"
             app:entryValues="@array/bubble_style_values"
