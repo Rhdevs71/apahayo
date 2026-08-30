@@ -13,7 +13,11 @@ class UnlockPremium(classLoader: ClassLoader, preferences: SharedPreferences) :
         if (!preferences.getBoolean("pref_wa_premium", false)) return
 
         try {
-            val targetStrings = arrayOf("is_premium_user", "is_smb_premium", "smb_premium", "is_verified_user", "is_whatsapp_premium")
+            val targetStrings = arrayOf(
+                "is_premium_user", "is_smb_premium", "smb_premium", "is_verified_user", "is_whatsapp_premium",
+                "is_benefit_active", "is_wa_creator_plus_unlocked", "is_creator_plus_unlocked",
+                "has_active_subscription", "is_subscriber", "is_premium", "is_verified", "is_plus"
+            )
             
             var hookedCount = 0
             for (str in targetStrings) {
@@ -47,6 +51,6 @@ class UnlockPremium(classLoader: ClassLoader, preferences: SharedPreferences) :
     }
 
     override fun getPluginName(): String {
-        return "Unlock Premium"
+        return "Unlock Plus & Premium"
     }
 }

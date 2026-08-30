@@ -1,24 +1,3 @@
-- Menambahkan dukungan lampiran media untuk Scheduler (Kirim Gambar/Video dengan Text)
-- Menambahkan pola pencocokan (Trigger Patterns): StartsWith dan EndsWith pada fungsi Auto-Reply
-- Menambahkan fitur balasan ganda (Multiple Replies) dipisah dengan |||
-- Menambahkan fitur tipe balasan acak (Random Replies)
-- Mengintegrasikan fungsi AI (Gemini, ChatGPT, Llama) pada balasan Auto-Reply dengan UI Spinner
-- Mengimplementasikan sistem Multi-API-Key Failover untuk AI
-- Memperbaiki tata letak UI Auto-Reply dan membersihkan UI Home Module
-- Menambahkan panduan instalasi (installation panduan) dan panduan kontribusi (contribution panduan)
-
-- [Instagram] Perbaikan bug (Crash) MetaUnobfuscator (menghindari abstract & clinit method).
-- [Instagram] Integrasi fitur Piko: Direct Thread Media Saver (Simpan media langsung dari DM).
-- [Instagram] Integrasi fitur Piko: Inject baris tombol Download di BottomSheet (titik tiga) postingan.
-- [Instagram] Perbaikan Ghost Mode: Memastikan fingerprint yang benar (tanpa merusak join channel DM).
-- [Instagram] Penghapusan fitur Hide Stories Tray agar beranda berjalan normal.
-- [AntiSpam] Refaktor UI menjadi Material Design dan perbaikan bypass SELinux.
-- [AntiSpam] Perbaikan Regex filter menjadi Case-Insensitive.
-- [Discord] Perbaikan bug lag/pending saat mengetik dan mengirim pesan.
-- [Instagram] Perbaikan UI Hide Suggested Content via LayoutParams.
-- [Instagram] Perbaikan bug DM Channel hilang akibat Ghost Mode.
-- [Instagram] Penyesuaian skema Piko untuk Override Experiment Flags.
-- [Instagram] Perbaikan mutlak Ghost Mode DM sesuai Piko (Menghapus filter join untuk menghindari bug channel).
-- [Instagram] Perbaikan mutlak Ghost Mode Story sesuai Piko (Mengembalikan status 'Sudah Dilihat' agar request tidak dikirim).
-- [Instagram] Perbaikan Media Downloader (Fallback ke Floating Action Button (FAB) menonjol yang anti-gagal tertimpa UI).
-- [Instagram] Piko Parity: Implementasi Network Interceptor untuk Story Seen agar beranda normal, Filter Channel untuk DM Seen agar bebas bug hilang dari saluran, dan Injeksi baris Download (Native UI) langsung ke dalam BottomSheet (menu titik tiga).
+﻿- [WA] Perbaikan mutlak bug (Crash) WA saat reload UI Theme Store (String Resource ID error).
+- [WA] Penambahan mekanisme dasar latar belakang & UI switch untuk fitur 'Unlock WA Plus & Premium'.
+- [IG] Perbaikan target pencarian string untuk fitur 'Unlock Plus' agar dapat dideteksi pada versi Instagram terbaru.

@@ -101,14 +101,14 @@ class UpdateChecker(private val mActivity: Activity, private val isManual: Boole
             val formattedDate = formatPublishedDate(publishedAt)
 
             val message = buildString {
-                append("ðŸ“¦ **Version:** `").append(hash).append("`\n")
+                append("\uD83D\uDCE6 **Version:** `").append(hash).append("`\n")
                 if (formattedDate.isNotEmpty()) {
-                    append("ðŸ“… **Released:** ").append(formattedDate).append("\n")
+                    append("\uD83D\uDCC5 **Released:** ").append(formattedDate).append("\n")
                 }
                 append("\n### What's New\n\n").append(changelog)
             }
 
-            dialog.setTitle("ðŸŽ‰ New Update Available!")
+            dialog.setTitle("\uD83C\uDF89 New Update Available!")
             dialog.setMessage(markwon.toMarkdown(message))
             dialog.setNegativeButton("Ignore") { dialog, _ ->
                 WppCore.setPrivString("ignored_version", hash)
