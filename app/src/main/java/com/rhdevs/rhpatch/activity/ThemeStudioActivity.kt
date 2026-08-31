@@ -1,6 +1,6 @@
 package com.rhdevs.rhpatch.activity
 
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
@@ -16,7 +16,7 @@ import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.rhdevs.rhpatch.R
 
-class ThemeStudioActivity : Activity() {
+class ThemeStudioActivity : AppCompatActivity() {
 
     private lateinit var mockContainer: FrameLayout
     private var isHomeView = true
@@ -148,5 +148,6 @@ class ThemeStudioActivity : Activity() {
         }
     }
 }
+
 
 
