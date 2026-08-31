@@ -99,11 +99,17 @@
             android:summary="@string/manage_theme_sum"
             android:title="@string/theme_manager" />
             
-        <Preference
+                <Preference
             android:key="theme_store_online"
             app:dependency="custom_filters"
             android:summary="Download koleksi tema dari GitHub"
-            android:title="🎨 Online Theme Store" />
+            android:title="Online Theme Store" />
+
+        <Preference
+            android:key="visual_theme_studio"
+            app:dependency="custom_filters"
+            android:summary="Buat tema secara visual tanpa koding (WYSIWYG)"
+            android:title="Visual Theme Studio" />
 
 
         <ListPreference
@@ -207,3 +213,4 @@
     </PreferenceCategory>
 
 </PreferenceScreen>
+

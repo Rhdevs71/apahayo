@@ -150,7 +150,7 @@ class FeatureLoader {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         mApp = param.args[0] as Application
                         val application = mApp!!
-                        val pref = getPreferences(application)
+                        val pref = ThemePrefsOverride.initAndWrap(loader, getPreferences(application))
                         Feature.DEBUG = pref.getBoolean("enablelogs", true)
                         Utils.xprefs = pref
 

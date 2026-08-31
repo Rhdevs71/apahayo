@@ -751,7 +751,7 @@ Catatan: Harap gunakan rhpatch secara bertanggung jawab dan sesuai dengan syarat
     <string name="perm_btn_auto_root">Izinkan Otomatis (Root)</string>
     <string name="diag_share">Bagikan Log</string>
 
-    <string name="perm_fullscreen_title">📺 Tampilan Layar Penuh</string>
+    <string name="perm_fullscreen_title"> Tampilan Layar Penuh</string>
     <string name="perm_fullscreen_desc">Diperlukan agar alarm penjadwalan dapat membangunkan perangkat Anda tepat waktu meski sedang terkunci.</string>
 
 </resources>

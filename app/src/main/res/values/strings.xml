@@ -656,7 +656,7 @@
     <string name="ar_err_keyword_required">Pola/Kata Kunci pemicu diperlukan</string>
     <string name="ar_rule_saved">Aturan disimpan</string>
     <string name="ar_search">Cari</string>
-    <string name="perm_loc_title">📍 Location</string>
+    <string name="perm_loc_title"> Location</string>
     <string name="perm_loc_desc">Required to show your current location in Fake GPS map and to run location mocking.</string>
     <string name="perm_dialog_title">Setup Required</string>
     <string name="perm_dialog_intro">To ensure Rhpatch runs smoothly in the background, we need a few permissions. The app won\'t function properly without them:</string>
@@ -670,7 +670,7 @@
     <string name="perm_btn_auto_root">Grant Automatically (Root)</string>
     <string name="diag_share">Share Log</string>
 
-    <string name="perm_fullscreen_title">📺 Full Screen Intents</string>
+    <string name="perm_fullscreen_title"> Full Screen Intents</string>
     <string name="perm_fullscreen_desc">Required to accurately wake the device and show alerts for your scheduled tasks.</string>
 
 </resources>

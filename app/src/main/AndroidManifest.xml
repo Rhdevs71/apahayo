@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -454,8 +454,13 @@
             android:label="Theme Store"
             android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar"
             android:exported="false" />
+            <activity
+            android:name=".activity.ThemeStudioActivity"
+            android:label="Visual Theme Studio"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
     </application>
 </manifest>
+
 
 
 

@@ -18,6 +18,7 @@ import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
 import android.os.Handler
 import android.os.Looper
+import android.os.Build
 import android.text.TextUtils
 import android.util.DisplayMetrics
 import android.util.Log
@@ -127,7 +128,7 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     log("CustomView: loaded compiled rules from disk cache")
                 }
             } catch (e: Exception) {
-                log("CustomView: cache load failed – ${e.message}")
+                log("CustomView: cache load failed â€“ ${e.message}")
                 mapIds = null
                 leafMapIds = null
             }
@@ -155,7 +156,7 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                         oos.writeObject(lCopy)
                     }
                 } catch (e: Exception) {
-                    log("CustomView: cache save failed – ${e.message}")
+                    log("CustomView: cache save failed â€“ ${e.message}")
                 }
             }, "cv-cache-writer").start()
         }
@@ -418,6 +419,27 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                         val drawable = view.drawable ?: continue
                         drawable.setTint(colorNew)
                         view.postInvalidate()
+                    }
+                }
+                                "border-radius" -> {
+                    val radius = getRealValue(terms[0], 0).toFloat()
+                    view.outlineProvider = object : android.view.ViewOutlineProvider() {
+                        override fun getOutline(v: View, outline: android.graphics.Outline) {
+                            outline.setRoundRect(0, 0, v.width, v.height, radius)
+                        }
+                    }
+                    view.clipToOutline = true
+                }
+                                "backdrop-filter" -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        try {
+                            if (terms[0].strValue.startsWith("blur")) {
+                                val radius = getRealValue(terms[0], 0).toFloat()
+                                view.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(radius, radius, android.graphics.Shader.TileMode.MIRROR))
+                            } else if (terms[0].strValue == "none") {
+                                view.setRenderEffect(null)
+                            }
+                        } catch (e: Exception) {}
                     }
                 }
                 "display" -> {
@@ -1297,3 +1319,6 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
         }
     }
 }
+
+
+

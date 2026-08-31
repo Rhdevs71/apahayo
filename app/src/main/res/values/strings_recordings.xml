@@ -45,7 +45,7 @@
     <string name="recording_mode_description">Choose how call audio is captured. Root mode provides better quality but requires a rooted device.</string>
     
     <!-- Root Mode -->
-    <string name="root_mode">🔓 Root Mode (Recommended)</string>
+    <string name="root_mode"> Root Mode (Recommended)</string>
     <string name="root_mode_description">Uses system-level audio capture for the best recording quality.</string>
     <string name="root_advantage_1">Records both sides of the conversation</string>
     <string name="root_advantage_2">Crystal clear audio quality</string>
@@ -53,15 +53,15 @@
     <string name="root_requirement">⚠️ Not working on all devices because Android Restrictions</string>
     
     <!-- Non-Root Mode -->
-    <string name="non_root_mode">📱 Non-Root Mode</string>
+    <string name="non_root_mode"> Non-Root Mode</string>
     <string name="non_root_mode_description">Uses standard Android audio APIs. Works on all devices but with limitations.</string>
     <string name="non_root_advantage_1">No root required</string>
     <string name="non_root_advantage_2">Works on any Android device</string>
     <string name="non_root_limitation_1">May only capture your microphone (not the other party)</string>
     
     <!-- Common -->
-    <string name="advantages">✓ Advantages</string>
-    <string name="limitations">⚠ Limitations</string>
+    <string name="advantages"> Advantages</string>
+    <string name="limitations"> Limitations</string>
     <string name="recording_mode_info">Changes take effect on the next call. Restart WhatsApp after changing settings for best results.</string>
     <string name="root_access_granted">Root access granted! VOICE_CALL source enabled.</string>
     <string name="root_access_denied">Root access denied. Falling back to non-root mode.</string>

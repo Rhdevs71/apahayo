@@ -17,10 +17,19 @@ public class CustomizationFragment extends BasePreferenceFragment {
         super.onCreatePreferences(savedInstanceState, rootKey);
         setPreferencesFromResource(R.xml.fragment_customization, rootKey);
 
-        Preference storePref = findPreference("theme_store_online");
+                Preference storePref = findPreference("theme_store_online");
         if (storePref != null) {
             storePref.setOnPreferenceClickListener(preference -> {
                 Intent intent = new Intent(getContext(), ThemeStoreActivity.class);
+                startActivity(intent);
+                return true;
+            });
+        }
+
+        Preference studioPref = findPreference("visual_theme_studio");
+        if (studioPref != null) {
+            studioPref.setOnPreferenceClickListener(preference -> {
+                Intent intent = new Intent(getContext(), com.rhdevs.rhpatch.activity.ThemeStudioActivity.class);
                 startActivity(intent);
                 return true;
             });
@@ -49,3 +58,4 @@ public class CustomizationFragment extends BasePreferenceFragment {
     }
 
 }
+
