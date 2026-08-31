@@ -1,120 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/chat_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#000000"
-    android:id="@+id/chat_background">
+    android:background="#0b141a"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/chat_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="#2A2F32"
-        android:orientation="horizontal"
+        android:layout_height="56dp"
+        android:background="#1f2c34"
         android:gravity="center_vertical"
-        android:paddingHorizontal="8dp">
+        android:orientation="horizontal"
+        android:paddingHorizontal="4dp">
 
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_marginStart="8dp"
             android:src="@android:drawable/ic_menu_revert"
-            app:tint="#FFFFFF" xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_marginEnd="8dp"/>
-
+            app:tint="#e9edef" />
+            
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@android:drawable/sym_def_app_icon"
-            android:layout_marginEnd="8dp"/>
-
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:background="@android:drawable/sym_def_app_icon"
+            app:tint="#8696a0"/>
+            
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:paddingStart="12dp"
             android:text="John Doe"
-            android:textColor="#FFFFFF"
+            android:textColor="#e9edef"
             android:textSize="18sp"
             android:textStyle="bold" />
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@android:drawable/ic_menu_call"
-            app:tint="#FFFFFF" xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_marginEnd="16dp"/>
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@android:drawable/ic_menu_more"
-            app:tint="#FFFFFF" xmlns:app="http://schemas.android.com/apk/res-auto"/>
     </LinearLayout>
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/conversation_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="16dp">
+        android:orientation="vertical"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="16dp">
 
-        <!-- Incoming Bubble -->
-        <LinearLayout
+        <!-- Bubble Left -->
+        <FrameLayout
             android:id="@+id/bubble_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#242F3D"
-            android:padding="12dp"
-            android:layout_gravity="start|top"
-            android:layout_marginTop="16dp">
+            android:layout_marginBottom="12dp"
+            android:layout_marginEnd="64dp"
+            android:background="@drawable/bg_bubble_left"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hi there! Is the RHPatch studio ready?"
-                android:textColor="#FFFFFF"
+                android:text="Hello, this is a test message!"
+                android:textColor="#e9edef"
                 android:textSize="16sp"/>
-        </LinearLayout>
+        </FrameLayout>
 
-        <!-- Outgoing Bubble -->
-        <LinearLayout
+        <!-- Bubble Right -->
+        <FrameLayout
             android:id="@+id/bubble_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#1F3150"
-            android:padding="12dp"
-            android:layout_gravity="end|bottom"
-            android:layout_marginBottom="16dp">
+            android:layout_gravity="end"
+            android:layout_marginStart="64dp"
+            android:background="@drawable/bg_bubble_right"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Almost done with Phase 2! 🚀"
-                android:textColor="#FFFFFF"
+                android:text="I see it, looks good!"
+                android:textColor="#e9edef"
                 android:textSize="16sp"/>
-        </LinearLayout>
-    </FrameLayout>
+        </FrameLayout>
+    </LinearLayout>
 
-    <!-- Bottom Input -->
+    <!-- Input Bar -->
     <LinearLayout
-        android:id="@+id/bottom_nav"
+        android:id="@+id/entry"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#0b141a"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="8dp"
-        android:background="#1E2326"
-        android:gravity="center_vertical">
-        <TextView
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="6dp">
+
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
-            android:text="Message"
-            android:padding="12dp"
-            android:background="#2A2F32"
-            android:textColor="#888888"/>
+            android:background="@drawable/bg_entry"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+            
+            <ImageView
+                android:id="@+id/emoji_picker_btn"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@android:drawable/ic_menu_edit"
+                app:tint="#8696a0" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="12dp"
+                android:text="Message"
+                android:textColor="#8696a0"
+                android:textSize="18sp"/>
+
+            <ImageView
+                android:id="@+id/input_attach_button"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@android:drawable/ic_menu_add"
+                app:tint="#8696a0" />
+
+            <ImageView
+                android:id="@+id/camera_btn"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="4dp"
+                android:src="@android:drawable/ic_menu_camera"
+                app:tint="#8696a0" />
+        </LinearLayout>
+
         <ImageView
+            android:id="@+id/voice_note_btn"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@android:drawable/ic_menu_send"
-            app:tint="#00A884" xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_marginStart="8dp"/>
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_mic"
+            android:padding="12dp"
+            android:src="@android:drawable/ic_btn_speak_now"
+            app:tint="#111b21" />
     </LinearLayout>
 </LinearLayout>
+

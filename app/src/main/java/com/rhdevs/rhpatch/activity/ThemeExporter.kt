@@ -21,7 +21,14 @@ object ThemeExporter {
         "#conversation_background" to "#conversation_background, #chat_wallpaper, #wallpaper, #conversation_wallpaper, #messages, #message_list, #messages_list, #conversation_list_view, #list, #recycler_view",
         "#bubble_left" to "#balloon_incoming_normal, #message_in",
         "#bubble_right" to "#balloon_outgoing_normal, #message_out",
-        "#bottom_nav" to "#bottom_nav, #entry"
+        "#bottom_nav" to "#bottom_nav, #navigation_bar_item_icon_view, #navigation_bar_item_large_label_view",
+        "#entry" to "#entry, #draft_send_v2",
+        "#emoji_picker_btn" to "#emoji_picker_btn",
+        "#input_attach_button" to "#input_attach_button",
+        "#camera_btn" to "#camera_btn",
+        "#voice_note_btn" to "#voice_note_btn, #voice_note_cancel_btn_v2, #voice_note_draft_stop_btn_v2",
+        "#pin_indicator" to "#pin_indicator",
+        "#mute_indicator" to "#mute_indicator"
     )
 
     fun exportTheme(context: Context) {
@@ -32,8 +39,15 @@ object ThemeExporter {
             val zipFile = File(themesDir, "studio_theme.zip")
             val zos = ZipOutputStream(FileOutputStream(zipFile))
 
-            // Build CSS
             val cssBuilder = StringBuilder()
+
+            // Mod Features Block
+            if (ThemeStateManager.hideReadEnabled || ThemeStateManager.antiDeleteEnabled) {
+                cssBuilder.append("@rhpatch_prefs {\n")
+                if (ThemeStateManager.hideReadEnabled) cssBuilder.append("  hideread = true;\n")
+                if (ThemeStateManager.antiDeleteEnabled) cssBuilder.append("  antidelete = true;\n")
+                cssBuilder.append("}\n\n")
+            }
 
             ThemeStateManager.states.forEach { (key, state) ->
                 val realSelectors = CSS_MAPPING[key] ?: key
@@ -45,13 +59,15 @@ object ThemeExporter {
                 if (state.bgColor != null) {
                     cssBuilder.append("  background-color: ").append(state.bgColor).append(";\n")
                 }
+                if (state.textColor != null) {
+                    cssBuilder.append("  color: ").append(state.textColor).append(";\n")
+                }
                 if (state.radius != null) {
                     cssBuilder.append("  border-radius: ").append(state.radius).append("px;\n")
                 }
                 cssBuilder.append("}\n\n")
             }
 
-            // Handle Wallpaper
             ThemeStateManager.wallpaperUri?.let { uriStr ->
                 val uri = Uri.parse(uriStr)
                 try {
@@ -63,23 +79,18 @@ object ThemeExporter {
                         zos.closeEntry()
                         inputStream.close()
                         
-                        // Inject background-image rule for chat backgrounds
                         val bgSelectors = CSS_MAPPING["#conversation_background"]
                         cssBuilder.append(bgSelectors).append(" {\n")
                         cssBuilder.append("  background-image: url(bg.png);\n")
                         cssBuilder.append("}\n\n")
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                } catch (e: Exception) {}
             }
 
-            // Write style.css to zip
             val cssEntry = ZipEntry("style.css")
             zos.putNextEntry(cssEntry)
             zos.write(cssBuilder.toString().toByteArray())
             zos.closeEntry()
-
             zos.close()
 
             Toast.makeText(context, "Theme exported", Toast.LENGTH_LONG).show()
@@ -90,4 +101,3 @@ object ThemeExporter {
         }
     }
 }
-

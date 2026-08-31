@@ -1,111 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#111111"
-    android:id="@+id/main_layout">
-
-    <LinearLayout
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="#2A2F32"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="16dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="WhatsApp"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <ImageView
-            android:id="@+id/menuitem_camera"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@android:drawable/ic_menu_camera"
-            app:tint="#FFFFFF" xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_marginEnd="16dp"/>
-
-        <ImageView
-            android:id="@+id/menuitem_search"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@android:drawable/ic_menu_search"
-            app:tint="#FFFFFF" xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_marginEnd="16dp"/>
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@android:drawable/ic_menu_more"
-            app:tint="#FFFFFF" xmlns:app="http://schemas.android.com/apk/res-auto"/>
-    </LinearLayout>
+    android:background="#0b141a">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="#2A2F32"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="CHATS"
-            android:textColor="#00A884"
-            android:gravity="center"
-            android:textStyle="bold"/>
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="STATUS"
-            android:textColor="#888888"
-            android:gravity="center"
-            android:textStyle="bold"/>
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="CALLS"
-            android:textColor="#888888"
-            android:gravity="center"
-            android:textStyle="bold"/>
-    </LinearLayout>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/chat_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical">
-        <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@android:drawable/sym_def_app_icon"/>
+        <!-- Toolbar -->
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginStart="16dp">
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="#1f2c34"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="John Doe"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-            <TextView
-                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:text="WhatsApp"
+                android:textColor="#e9edef"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/menuitem_camera"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="20dp"
+                android:src="@android:drawable/ic_menu_camera"
+                app:tint="#e9edef" />
+            <ImageView
+                android:id="@+id/menuitem_search"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="16dp"
+                android:src="@android:drawable/ic_search_category_default"
+                app:tint="#e9edef" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_more"
+                app:tint="#e9edef" />
+        </LinearLayout>
+
+        <!-- Chats List -->
+        <LinearLayout
+            android:id="@+id/chat_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Hello there!"
-                android:textColor="#888888"/>
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp">
+                
+                <!-- Profile Pic Placeholder -->
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@android:drawable/sym_def_app_icon"
+                    app:tint="#8696a0"/>
+                
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="John Doe"
+                            android:textColor="#e9edef"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="10:30"
+                            android:textColor="#8696a0"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="2dp"
+                        android:gravity="center_vertical">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Hello, how are you?"
+                            android:textColor="#8696a0"
+                            android:textSize="15sp"
+                            android:maxLines="1"
+                            android:ellipsize="end"/>
+                        
+                        <ImageView
+                            android:id="@+id/mute_indicator"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="6dp"
+                            android:src="@android:drawable/ic_lock_silent_mode_off"
+                            app:tint="#8696a0" />
+                        <ImageView
+                            android:id="@+id/pin_indicator"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="6dp"
+                            android:src="@android:drawable/ic_menu_mylocation"
+                            app:tint="#8696a0" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Bottom Nav -->
+        <LinearLayout
+            android:id="@+id/bottom_nav"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="#0b141a"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="4dp">
+            
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <View android:layout_width="64dp" android:layout_height="32dp" android:background="#103629" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chats" android:textColor="#e9edef" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="-24dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Updates" android:textColor="#8696a0" android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Calls" android:textColor="#8696a0" android:textSize="12sp" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+
+</FrameLayout>

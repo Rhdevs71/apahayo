@@ -172,6 +172,8 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
             }
         }
 
+        com.rhdevs.rhpatch.system.UniversalHiderHook.handleLoadPackage(lpparam)
+
         if (!shouldHook(lpparam.packageName)) return
         this.lpparam = lpparam
 
@@ -310,3 +312,5 @@ fun inContext(lpparam: LoadPackageParam, f: (Application) -> Unit) {
         }
     )
 }
+
+

@@ -1,18 +1,20 @@
 package com.rhdevs.rhpatch.activity
 
-import androidx.appcompat.app.AppCompatActivity
-import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Outline
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewOutlineProvider
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.rhdevs.rhpatch.R
 
@@ -37,7 +39,7 @@ class ThemeStudioActivity : AppCompatActivity() {
         }
 
         btnExport.setOnClickListener {
-            ThemeExporter.exportTheme(this)
+            showExportDialog()
         }
     }
 
@@ -53,12 +55,19 @@ class ThemeStudioActivity : AppCompatActivity() {
             setupClickListener(mockView, R.id.menuitem_search, "#menuitem_search")
             setupClickListener(mockView, R.id.chat_list, "#chat_list")
             setupClickListener(mockView, R.id.main_layout, "#main_layout")
+            setupClickListener(mockView, R.id.bottom_nav, "#bottom_nav")
+            setupClickListener(mockView, R.id.pin_indicator, "#pin_indicator")
+            setupClickListener(mockView, R.id.mute_indicator, "#mute_indicator")
         } else {
             setupClickListener(mockView, R.id.chat_toolbar, "#chat_toolbar")
             setupClickListener(mockView, R.id.chat_background, "#conversation_background")
             setupClickListener(mockView, R.id.bubble_left, "#bubble_left")
             setupClickListener(mockView, R.id.bubble_right, "#bubble_right")
-            setupClickListener(mockView, R.id.bottom_nav, "#bottom_nav")
+            setupClickListener(mockView, R.id.entry, "#entry")
+            setupClickListener(mockView, R.id.emoji_picker_btn, "#emoji_picker_btn")
+            setupClickListener(mockView, R.id.input_attach_button, "#input_attach_button")
+            setupClickListener(mockView, R.id.camera_btn, "#camera_btn")
+            setupClickListener(mockView, R.id.voice_note_btn, "#voice_note_btn")
         }
     }
 
@@ -80,7 +89,7 @@ class ThemeStudioActivity : AppCompatActivity() {
 
         // Hide Switch
         val swHide = Switch(this).apply {
-            text = "Hide Element (display: none)"
+            text = "Hide Element ($cssKey) (display: none)"
             isChecked = state.isHidden
             setOnCheckedChangeListener { _, isChecked -> state.isHidden = isChecked }
         }
@@ -92,6 +101,13 @@ class ThemeStudioActivity : AppCompatActivity() {
             setText(state.bgColor ?: "")
         }
         container.addView(colorInput)
+        
+        // Text/Icon Color Input
+        val textColorInput = EditText(this).apply {
+            hint = "Text/Icon Color (e.g. #FFFFFF)"
+            setText(state.textColor ?: "")
+        }
+        container.addView(textColorInput)
 
         // Radius Input
         val radiusInput = EditText(this).apply {
@@ -100,7 +116,7 @@ class ThemeStudioActivity : AppCompatActivity() {
         }
         container.addView(radiusInput)
 
-        // Wallpaper Button (only for backgrounds)
+        // Wallpaper Button
         if (cssKey == "#conversation_background" || cssKey == "#main_layout") {
             val btnWallpaper = Button(this).apply {
                 text = "Select Wallpaper"
@@ -118,15 +134,22 @@ class ThemeStudioActivity : AppCompatActivity() {
             text = "Apply"
             setOnClickListener {
                 state.bgColor = colorInput.text.toString().takeIf { it.isNotEmpty() }
+                state.textColor = textColorInput.text.toString().takeIf { it.isNotEmpty() }
                 state.radius = radiusInput.text.toString().toIntOrNull()
                 
-                // Live preview logic (basic)
+                // Live preview logic
                 if (state.isHidden) {
                     view.visibility = View.GONE
                 } else {
                     view.visibility = View.VISIBLE
                     try {
-                        state.bgColor?.let { view.setBackgroundColor(Color.parseColor(it)) }
+                        // Apply Background Color & Radius
+                        if (state.bgColor != null || state.radius != null) {
+                            val bg = GradientDrawable()
+                            state.bgColor?.let { bg.setColor(Color.parseColor(it)) }
+                            state.radius?.let { bg.cornerRadius = it.toFloat() * 3f } // scale for preview
+                            view.background = bg
+                        }
                     } catch (e: Exception) {}
                 }
                 
@@ -139,6 +162,47 @@ class ThemeStudioActivity : AppCompatActivity() {
         dialog.setContentView(container)
         dialog.show()
     }
+    
+    private fun showExportDialog() {
+        val dialog = BottomSheetDialog(this)
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(50, 50, 50, 50)
+        }
+        
+        val title = android.widget.TextView(this).apply {
+            text = "Theme Features & Export"
+            textSize = 20f
+            setPadding(0, 0, 0, 30)
+        }
+        container.addView(title)
+        
+        val swHideRead = Switch(this).apply {
+            text = "Force Hide Read (Blue Ticks)"
+            isChecked = ThemeStateManager.hideReadEnabled
+            setOnCheckedChangeListener { _, isChecked -> ThemeStateManager.hideReadEnabled = isChecked }
+        }
+        container.addView(swHideRead)
+        
+        val swAntiDelete = Switch(this).apply {
+            text = "Force Anti-Delete"
+            isChecked = ThemeStateManager.antiDeleteEnabled
+            setOnCheckedChangeListener { _, isChecked -> ThemeStateManager.antiDeleteEnabled = isChecked }
+        }
+        container.addView(swAntiDelete)
+        
+        val btnFinalExport = Button(this).apply {
+            text = "EXPORT THEME TO ZIP"
+            setOnClickListener {
+                dialog.dismiss()
+                ThemeExporter.exportTheme(this@ThemeStudioActivity)
+            }
+        }
+        container.addView(btnFinalExport)
+        
+        dialog.setContentView(container)
+        dialog.show()
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -148,6 +212,4 @@ class ThemeStudioActivity : AppCompatActivity() {
         }
     }
 }
-
-
 
