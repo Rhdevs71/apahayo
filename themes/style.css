@@ -1,0 +1,500 @@
+/*
+wallpaper = true
+wallpaper_file = "wall.png"
+wallpaper_alpha = 62
+wallpaper_alpha_navigation = 92
+wallpaper_alpha_toolbar = 92
+change_colors = true
+primary_color = #FF2AABEE
+secondary_color = #FF17212B
+background_color = #FF17212B
+bubble_colors = true
+bubble_right = #E61F3150
+bubble_left = #FF242F3D
+*/
+
+#toolbar_logo
+{
+ background-image: url("./icons/homescreen/iOSlogo.png");
+ color-tint: #F5F5F7;
+ left: 0px;
+}
+
+#toolbar,
+#whatsapp_toolbar,
+#home_toolbar,
+#toolbar_container,
+#app_bar_layout,
+#main_layout,
+#main_content,
+#content,
+#root_view,
+#pager,
+#chat_list,
+#conversation_list
+{
+ background-color: #FF17212B;
+}
+
+#menuitem_camera
+{
+ background-image: url("./icons/homescreen/camera.png");
+ background-size: 25px 25px;
+ color-tint: #DCE7F0;
+}
+
+#pager LinearLayout ListView RelativeLayout
+#pin_indicator
+{
+ background-image: url("./icons/homescreen/pinned.png");
+}
+
+#pager LinearLayout ListView RelativeLayout
+#mute_indicator
+{
+ background-image: url("./icons/homescreen/mute.png");
+}
+
+#bottom_nav
+{
+ background-color: #FF17212B;
+}
+
+#bottom_nav ViewGroup FrameLayout:nth-child(1)
+#navigation_bar_item_icon_view
+{
+ background-image: url("./icons/navbar/navbar-chat.png");
+ color-tint: #D8E4ED;
+}
+
+#bottom_nav ViewGroup FrameLayout:nth-child(2)
+#navigation_bar_item_icon_view
+{
+ background-image: url("./icons/navbar/navbar-call.png");
+ color-tint: #D8E4ED;
+}
+
+#bottom_nav ViewGroup FrameLayout:nth-child(3)
+#navigation_bar_item_icon_view
+{
+ background-image: url("./icons/navbar/navbar-update.png");
+ color-tint: #D8E4ED;
+}
+
+#bottom_nav ViewGroup FrameLayout:nth-child(4)
+#navigation_bar_item_icon_view
+{
+ background-image: url("./icons/navbar/navbar-group.png");
+ color-tint: #D8E4ED;
+}
+
+#bottom_nav #navigation_bar_item_label_view,
+#bottom_nav #navigation_bar_item_small_label_view,
+#bottom_nav #navigation_bar_item_large_label_view
+{
+ color: #D8E4ED;
+}
+
+#bottom_nav ViewGroup FrameLayout:nth-child(1)
+#navigation_bar_item_active_indicator_view,
+#bottom_nav ViewGroup FrameLayout:nth-child(2)
+#navigation_bar_item_active_indicator_view,
+#bottom_nav ViewGroup FrameLayout:nth-child(3)
+#navigation_bar_item_active_indicator_view,
+#bottom_nav ViewGroup FrameLayout:nth-child(4)
+#navigation_bar_item_active_indicator_view
+{
+ background-image: url("./icons/navbar/active_pill.png");
+ background-size: 72px 34px;
+ color-tint: #FF2AABEE;
+ background-color: #FF2AABEE;
+}
+
+#filter_chip,
+#filter_tab,
+#chip,
+#chip_text,
+#chips_container TextView
+{
+ color: #C7D3DE;
+}
+
+#menuitem_overflow
+{
+ background-image: url("./icons/chatscreen/menu.png");
+ background-size: 25px 25px;
+ color-tint: #F5F5F7;
+}
+
+#search_fragment_and_toolbar_holder
+#toolbar ViewGroup ImageButton:nth-child(1)
+{
+ background-image: url("./icons/chatscreen/videocall.png");
+ background-size: 25px 25px;
+ color-tint: #F5F5F7;
+}
+
+#search_fragment_and_toolbar_holder
+#toolbar ViewGroup ImageButton:nth-child(2)
+{
+ background-image: url("./icons/chatscreen/call.png");
+ background-size: 25px 25px;
+ color-tint: #F5F5F7;
+}
+
+#emoji_picker_btn
+{
+ background-image: url("./icons/chatscreen/emoji.png");
+ background-size: 25px 25px;
+ color-tint: #F5F5F7;
+}
+
+#input_attach_button
+{
+ background-image: url("./icons/chatscreen/attach.png");
+ background-size: 25px 25px;
+ color-tint: #F5F5F7;
+}
+
+#camera_btn
+{
+ background-image: url("./icons/chatscreen/camera.png");
+ background-size: 24px 24px;
+ color-tint: #F5F5F7;
+}
+
+#voice_note_btn
+{
+ background-image: url("./icons/chatscreen/mic.png");
+ background-size: 25px 25px;
+ color-tint: #0B0D10;
+}
+
+#send,
+#draft_send_v2
+{
+ background-image: url("./icons/chatscreen/send.png");
+ background-size: 25px 25px;
+ color-tint: #0B0D10;
+}
+
+#voice_note_cancel_btn_v2
+{
+ background-image: url("./icons/chatscreen/trash.png");
+ background-size: 25px 25px;
+}
+
+#voice_note_draft_stop_btn_v2
+{
+ background-image: url("./icons/chatscreen/pause.png");
+ background-size: 25px 25px;
+ color-tint: #990000;
+}
+
+#voice_note_view_once_toggle
+{
+ background-image: url("./icons/chatscreen/once.png");
+ background-size: 25px 25px;
+}
+
+#whatsapp_toolbar_home
+{
+ background-image: url("./icons/chatscreen/back.png");
+ background-size: 25px 25px;
+}
+
+#conversation_background,
+#chat_wallpaper,
+#wallpaper,
+#conversation_wallpaper
+{
+ background-image: url("./wall.png");
+ background-size: cover;
+}
+
+TextView:contains(All)
+{
+ color: #072436;
+ font-weight: 700;
+}
+
+TextView:contains(Groups),
+TextView:contains(Unread),
+TextView:contains(Favourites),
+TextView:contains(Favorites)
+{
+ color: #D2DEE8;
+ font-weight: 700;
+}
+
+/* v3: replace WhatsApp selected-message green overlay with theme blue.
+   Uses descendant selectors because the selected state is often on a child view, not on the chat root itself. */
+#main_layout,
+#main_content,
+#content,
+#root_view,
+#conversation_layout,
+#conversation_root,
+#conversation_root_view,
+#conversation_fragment,
+#conversation_container,
+#conversation_content,
+#conversation_background,
+#chat_wallpaper,
+#wallpaper,
+#conversation_wallpaper,
+#messages,
+#message_list,
+#messages_list,
+#message_list_view,
+#messages_list_view,
+#conversation_list_view,
+#conversation_recycler_view,
+#conversation_recycler,
+#chat_list_view,
+#chat_list,
+#list,
+#recycler_view,
+#message_container,
+#message_row,
+#conversation_row,
+#chat_row,
+#row_content,
+#message_layout,
+#message_frame,
+#message_wrapper,
+#bubble_container,
+#bubble_layout,
+#msg_container,
+#message_content,
+#selected_background,
+#selection_background,
+#selection_overlay,
+#selection_view,
+#selection_highlight,
+#selected_overlay,
+#selected_view,
+#message_selection,
+#message_selection_background,
+#message_selection_overlay,
+#message_selection_highlight,
+#row_selection,
+#selection,
+#highlight_view,
+#message_highlight,
+#selected_message_background,
+#root_view FrameLayout,
+#root_view LinearLayout,
+#root_view RelativeLayout,
+#root_view ListView,
+#root_view RecyclerView,
+#root_view TextView,
+#root_view ImageView,
+#root_view ViewStub,
+#root_view HorizontalScrollView,
+#root_view ScrollView,
+#root_view GridView,
+#content FrameLayout,
+#content LinearLayout,
+#content RelativeLayout,
+#content ListView,
+#content RecyclerView,
+#content TextView,
+#content ImageView,
+#content ViewStub,
+#content HorizontalScrollView,
+#content ScrollView,
+#content GridView,
+#main_layout FrameLayout,
+#main_layout LinearLayout,
+#main_layout RelativeLayout,
+#main_layout ListView,
+#main_layout RecyclerView,
+#main_layout TextView,
+#main_layout ImageView,
+#main_layout ViewStub,
+#main_layout HorizontalScrollView,
+#main_layout ScrollView,
+#main_layout GridView,
+#main_content FrameLayout,
+#main_content LinearLayout,
+#main_content RelativeLayout,
+#main_content ListView,
+#main_content RecyclerView,
+#main_content TextView,
+#main_content ImageView,
+#main_content ViewStub,
+#main_content HorizontalScrollView,
+#main_content ScrollView,
+#main_content GridView,
+#conversation_background FrameLayout,
+#conversation_background LinearLayout,
+#conversation_background RelativeLayout,
+#conversation_background ListView,
+#conversation_background RecyclerView,
+#conversation_background TextView,
+#conversation_background ImageView,
+#conversation_background ViewStub,
+#conversation_background HorizontalScrollView,
+#conversation_background ScrollView,
+#conversation_background GridView,
+#conversation_container FrameLayout,
+#conversation_container LinearLayout,
+#conversation_container RelativeLayout,
+#conversation_container ListView,
+#conversation_container RecyclerView,
+#conversation_container TextView,
+#conversation_container ImageView,
+#conversation_container ViewStub,
+#conversation_container HorizontalScrollView,
+#conversation_container ScrollView,
+#conversation_container GridView,
+#conversation_content FrameLayout,
+#conversation_content LinearLayout,
+#conversation_content RelativeLayout,
+#conversation_content ListView,
+#conversation_content RecyclerView,
+#conversation_content TextView,
+#conversation_content ImageView,
+#conversation_content ViewStub,
+#conversation_content HorizontalScrollView,
+#conversation_content ScrollView,
+#conversation_content GridView,
+#message_list FrameLayout,
+#message_list LinearLayout,
+#message_list RelativeLayout,
+#message_list ListView,
+#message_list RecyclerView,
+#message_list TextView,
+#message_list ImageView,
+#message_list ViewStub,
+#message_list HorizontalScrollView,
+#message_list ScrollView,
+#message_list GridView,
+#messages_list FrameLayout,
+#messages_list LinearLayout,
+#messages_list RelativeLayout,
+#messages_list ListView,
+#messages_list RecyclerView,
+#messages_list TextView,
+#messages_list ImageView,
+#messages_list ViewStub,
+#messages_list HorizontalScrollView,
+#messages_list ScrollView,
+#messages_list GridView,
+#message_list_view FrameLayout,
+#message_list_view LinearLayout,
+#message_list_view RelativeLayout,
+#message_list_view ListView,
+#message_list_view RecyclerView,
+#message_list_view TextView,
+#message_list_view ImageView,
+#message_list_view ViewStub,
+#message_list_view HorizontalScrollView,
+#message_list_view ScrollView,
+#message_list_view GridView,
+#messages_list_view FrameLayout,
+#messages_list_view LinearLayout,
+#messages_list_view RelativeLayout,
+#messages_list_view ListView,
+#messages_list_view RecyclerView,
+#messages_list_view TextView,
+#messages_list_view ImageView,
+#messages_list_view ViewStub,
+#messages_list_view HorizontalScrollView,
+#messages_list_view ScrollView,
+#messages_list_view GridView,
+#conversation_recycler_view FrameLayout,
+#conversation_recycler_view LinearLayout,
+#conversation_recycler_view RelativeLayout,
+#conversation_recycler_view ListView,
+#conversation_recycler_view RecyclerView,
+#conversation_recycler_view TextView,
+#conversation_recycler_view ImageView,
+#conversation_recycler_view ViewStub,
+#conversation_recycler_view HorizontalScrollView,
+#conversation_recycler_view ScrollView,
+#conversation_recycler_view GridView,
+#chat_list FrameLayout,
+#chat_list LinearLayout,
+#chat_list RelativeLayout,
+#chat_list ListView,
+#chat_list RecyclerView,
+#chat_list TextView,
+#chat_list ImageView,
+#chat_list ViewStub,
+#chat_list HorizontalScrollView,
+#chat_list ScrollView,
+#chat_list GridView
+{
+ background-color: #ff103529 #4D2AABEE;
+ background-color: #c0103529 #4D2AABEE;
+ background-color: #8015603e #4D2AABEE;
+ background-color: #6615603e #4D2AABEE;
+ background-color: #4d15603e #4D2AABEE;
+ background-color: #4015603e #4D2AABEE;
+ background-color: #3315603e #4D2AABEE;
+ background-color: #2615603e #4D2AABEE;
+ background-color: #1a15603e #4D2AABEE;
+ background-color: #ff15603e #4D2AABEE;
+ background-color: #ff144d37 #4D2AABEE;
+ background-color: #ff1b8755 #4D2AABEE;
+ background-color: #ff1daa61 #4D2AABEE;
+ background-color: #ff1da457 #4D2AABEE;
+ background-color: #ff21c063 #4D2AABEE;
+ background-color: #ff25d366 #4D2AABEE;
+ background-color: #ff00a884 #4D2AABEE;
+ background-color: #cc00a884 #4D2AABEE;
+ background-color: #9900a884 #4D2AABEE;
+ background-color: #8000a884 #4D2AABEE;
+ background-color: #6600a884 #4D2AABEE;
+ background-color: #4d00a884 #4D2AABEE;
+ background-color: #4000a884 #4D2AABEE;
+ background-color: #3300a884 #4D2AABEE;
+ background-color: #2600a884 #4D2AABEE;
+ background-color: #1a00a884 #4D2AABEE;
+ background-color: #cc1daa61 #4D2AABEE;
+ background-color: #991daa61 #4D2AABEE;
+ background-color: #801daa61 #4D2AABEE;
+ background-color: #661daa61 #4D2AABEE;
+ background-color: #4d1daa61 #4D2AABEE;
+ background-color: #401daa61 #4D2AABEE;
+ background-color: #331daa61 #4D2AABEE;
+ background-color: #cc21c063 #4D2AABEE;
+ background-color: #9921c063 #4D2AABEE;
+ background-color: #8021c063 #4D2AABEE;
+ background-color: #6621c063 #4D2AABEE;
+ background-color: #4d21c063 #4D2AABEE;
+ background-color: #4021c063 #4D2AABEE;
+ background-color: #3321c063 #4D2AABEE;
+ background-color: #0e3f29 #4D2AABEE;
+ background-color: #0d412b #4D2AABEE;
+ background-color: #0d3f2a #4D2AABEE;
+ background-color: #0e422c #4D2AABEE;
+ background-color: #10402e #4D2AABEE;
+ background-color: #0d3e28 #4D2AABEE;
+ background-color: #0b4028 #4D2AABEE;
+ background-color: #0a4028 #4D2AABEE;
+ background-color: #0b3d2e #4D2AABEE;
+ background-color: #0b3d2a #4D2AABEE;
+ background-color: #0a3f29 #4D2AABEE;
+ background-color: #0d412d #4D2AABEE;
+ background-color: #0f3f30 #4D2AABEE;
+ background-color: #104030 #4D2AABEE;
+ background-color: #103529 #4D2AABEE;
+ background-color: #144d37 #4D2AABEE;
+ background-color: #15603e #4D2AABEE;
+ background-color: #1d5a53 #4D2AABEE;
+ background-color: #1e5952 #4D2AABEE;
+ background-color: #1d5a55 #4D2AABEE;
+ background-color: #1e5b54 #4D2AABEE;
+ background-color: #1e5a52 #4D2AABEE;
+ background-color: #1f5a50 #4D2AABEE;
+ background-color: #205852 #4D2AABEE;
+ background-color: #175145 #4D2AABEE;
+ background-color: #18564d #4D2AABEE;
+ background-color: #165040 #4D2AABEE;
+ background-color: #1c5b52 #4D2AABEE;
+ background-color: #114031 #4D2AABEE;
+ background-color: #0c392b #4D2AABEE;
+}
