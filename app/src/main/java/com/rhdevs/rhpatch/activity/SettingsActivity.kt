@@ -582,7 +582,7 @@ class SettingsActivity : AppCompatActivity() {
                 val q = query.trim().lowercase()
 
                 // 1. System Anti-Spam Card
-                val spamName = "ðŸ›¡ï¸ System Anti-Spam"
+                val spamName = "System Anti-Spam"
                 val spamPkg = "Blokir SMS, Telepon Spam, Penipuan & Judi Online"
                 if (q.isEmpty() || spamName.lowercase().contains(q) || spamPkg.lowercase().contains(q) || q.contains("spam") || q.contains("sms")) {
                     val spamCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
@@ -598,7 +598,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
 
                 // 2. DNS AdGuard Bypass Card
-                val dnsName = "ðŸŒ DNS AdGuard Bypass"
+                val dnsName = "DNS AdGuard Bypass"
                 val dnsPkg = "Bypass Private DNS & Blokir Iklan Global Tingkat Sistem"
                 if (q.isEmpty() || dnsName.lowercase().contains(q) || dnsPkg.lowercase().contains(q) || q.contains("dns") || q.contains("adguard") || q.contains("bypass")) {
                     val dnsCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
@@ -614,7 +614,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
                 
                 // Fake GPS Card
-                val fakeGpsName = "ðŸ“ Fake GPS"
+                val fakeGpsName = "Fake GPS"
                 val fakeGpsPkg = "Lokasi palsu untuk semua aplikasi"
                 if (q.isEmpty() || fakeGpsName.lowercase().contains(q) || fakeGpsPkg.lowercase().contains(q) || q.contains("gps") || q.contains("lokasi")) {
                     val fakeGpsCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
@@ -627,6 +627,23 @@ class SettingsActivity : AppCompatActivity() {
                         startActivity(Intent(context, com.rhdevs.rhpatch.activity.MapActivity::class.java))
                     }
                     containerLayout.addView(fakeGpsCard)
+                }
+
+                
+                // Element Hider Card
+                val hiderName = "Filter Elemen UI (Hider)"
+                val hiderPkg = "Sembunyikan UI dengan ID secara spesifik"
+                if (q.isEmpty() || hiderName.lowercase().contains(q) || hiderPkg.lowercase().contains(q)) {
+                    val hiderCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
+                    hiderCard.findViewById<TextView>(R.id.app_name).text = hiderName
+                    hiderCard.findViewById<TextView>(R.id.app_package).text = hiderPkg
+                    val badge = hiderCard.findViewById<TextView>(R.id.status_badge)
+                    badge.text = "System Module"
+                    badge.setTextColor(android.graphics.Color.parseColor("#8B5CF6"))
+                    hiderCard.setOnClickListener {
+                        startActivity(Intent(context, com.rhdevs.rhpatch.activity.ElementHiderActivity::class.java))
+                    }
+                    containerLayout.addView(hiderCard)
                 }
 
                 // 3. Explicit WhatsApp Card
