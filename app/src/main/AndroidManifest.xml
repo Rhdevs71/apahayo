@@ -121,7 +121,8 @@
 
         <activity
             android:name="com.rhdevs.rhpatch.activity.ElementHiderActivity"
-            android:label="Filter Elemen UI" />
+            android:label="Filter Elemen UI"
+            android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar" />
         <activity
             android:name="com.rhdevs.rhpatch.activity.SettingsActivity"
             android:exported="true"
