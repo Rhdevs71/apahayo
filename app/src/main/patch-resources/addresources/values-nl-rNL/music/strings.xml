@@ -74,7 +74,7 @@ Second \"item\" text"</string>
   <string name="morphe_music_crossfade_video_mode_disabled_toast">Videomodus is niet beschikbaar wanneer crossfade is ingeschakeld</string>
   <string name="morphe_music_crossfade_cast_unstable_toast">Crossfade is gepauzeerd tijdens het casten of spiegelen van audio. Crossfade over cast/mirror is instabiel en kan mogelijk niet worden opgelost.</string>
   <string name="morphe_music_crossfade_about_title">Over</string>
-  <string name="morphe_music_crossfade_about_summary">Hoe crossfade werkt – en wanneer het niet werkt</string>
+  <string name="morphe_music_crossfade_about_summary">Hoe crossfade werkt  en wanneer het niet werkt</string>
   <!-- Banner row has no text; it shows a full-width graphic via a custom layout. -->
   <string name="morphe_music_crossfade_about_how_title">Hoe het werkt</string>
   <string name="morphe_music_crossfade_about_how_summary">"Crossfade laat het einde van het ene nummer overlappen met het begin van het volgende, waarbij het ene nummer zachter wordt terwijl het andere omhoog komt over de door jou gekozen duur en curve.
@@ -83,7 +83,7 @@ Het werkt op automatisch doorspelen (wanneer een nummer vanzelf eindigt) en op h
 
 Vereist YouTube Music 9.x of nieuwer."</string>
   <string name="morphe_music_crossfade_about_best_title">Werkt het beste met</string>
-  <string name="morphe_music_crossfade_about_best_summary">Normaal afspelen van nummer naar nummer en automatisch doorspelen, herhaal-één (het nummer vervaagt in zichzelf), en lokale audio – telefoonspeaker, bedrade hoofdtelefoon, Bluetooth of USB.</string>
+  <string name="morphe_music_crossfade_about_best_summary">Normaal afspelen van nummer naar nummer en automatisch doorspelen, herhaal-één (het nummer vervaagt in zichzelf), en lokale audio  telefoonspeaker, bedrade hoofdtelefoon, Bluetooth of USB.</string>
   <string name="morphe_music_crossfade_about_quirks_title">Werkt niet helemaal goed</string>
   <string name="morphe_music_crossfade_about_quirks_summary">"Muziekvideo's worden afgespeeld als audio-only terwijl crossfade is ingeschakeld (houd shuffle ingedrukt om te pauzeren als je de video wilt zien)
 

@@ -422,7 +422,7 @@
     <string name="update_available">Aggiornamento Disponibile</string>
     <string name="update_available_summary">Nuova versione %s Ã¨ disponibile!</string>
     <string name="up_to_date">Aggiornato</string>
-    <string name="checking_for_updates">Controllo aggiornamentiâ€¦</string>
+    <string name="checking_for_updates">Controllo aggiornamenti</string>
     <string name="update_check_failed">Impossibile Controllare gli Aggiornamenti</string>
     <string name="update_check_failed_summary">Impossibile raggiungere il server di aggiornamento</string>
     <string name="current_version_s">Versione attuale %s</string>
@@ -487,9 +487,9 @@
     <string name="jump_first_message_sum">Aggiungi un pulsante per saltare il primo messaggio nella schermata delle conversazioni</string>
     <string name="copy_selection_message_title">Copia selezione messaggio</string>
     <string name="copy_selection_message_sum">Aggiunge un pulsante per selezionare e copiare una parte specifica di un messaggio</string>
-    <string name="copy_selection_action">âœ‚ Copia selezione</string>
+    <string name="copy_selection_action"> Copia selezione</string>
     <string name="copy_selection_dialog_title">Copia testo</string>
-    <string name="picker_loading_contacts">Caricamento contattiâ€¦</string>
+    <string name="picker_loading_contacts">Caricamento contatti</string>
     <string name="mode_all">Tutto</string>
     <string name="picker_contacts">Contatti</string>
     <string name="groups">Gruppi</string>

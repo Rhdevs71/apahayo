@@ -74,16 +74,16 @@ Second \"item\" text"</string>
   <string name="morphe_music_crossfade_video_mode_disabled_toast">وضع الفيديو غير متاح أثناء تمكين التلاشي التدريجي</string>
   <string name="morphe_music_crossfade_cast_unstable_toast">تم إيقاف التشغيل التدريجي أثناء البث أو انعكاس الصوت. التلاشي التدريجي عبر البث/الانعكاس غير مستقر وقد لا يمكن إصلاحه أبدًا.</string>
   <string name="morphe_music_crossfade_about_title">لمحة</string>
-  <string name="morphe_music_crossfade_about_summary">كيف يعمل التشغيل التدريجي — ومتى لا يعمل</string>
+  <string name="morphe_music_crossfade_about_summary">كيف يعمل التشغيل التدريجي  ومتى لا يعمل</string>
   <!-- Banner row has no text; it shows a full-width graphic via a custom layout. -->
   <string name="morphe_music_crossfade_about_how_title">كيف يعمل</string>
   <string name="morphe_music_crossfade_about_how_summary">"يؤدي التشغيل التدريجي إلى تداخل نهاية إحدى الأغاني مع بداية الأغنية التالية، مع خفض صوت الأولى تدريجيًا أثناء ارتفاع صوت الأخرى خلال المدة والمنحنى اللذين اخترتهما.
 
-يعمل على التقديم التلقائي (عندما تنتهي الأغنية من تلقاء نفسها) وعلى عمليات التخطي اليدوي — ولكل منهما مفتاح تشغيل/إيقاف خاص به أعلاه. في التقديم التلقائي، يبدأ المزج قبل ثوانٍ قليلة من نهاية الأغنية.
+يعمل على التقديم التلقائي (عندما تنتهي الأغنية من تلقاء نفسها) وعلى عمليات التخطي اليدوي  ولكل منهما مفتاح تشغيل/إيقاف خاص به أعلاه. في التقديم التلقائي، يبدأ المزج قبل ثوانٍ قليلة من نهاية الأغنية.
 
 يتطلب YouTube Music الإصدار 9.x أو أحدث."</string>
   <string name="morphe_music_crossfade_about_best_title">يعمل بشكل أفضل مع</string>
-  <string name="morphe_music_crossfade_about_best_summary">التشغيل العادي للأغاني من أغنية إلى أخرى، والتقديم التلقائي، والتكرار الواحد (حيث تتلاشى الأغنية في نفسها)، والصوت المحلي — مكبر صوت الهاتف، وسماعات الرأس السلكية، والبلوتوث، أو USB.</string>
+  <string name="morphe_music_crossfade_about_best_summary">التشغيل العادي للأغاني من أغنية إلى أخرى، والتقديم التلقائي، والتكرار الواحد (حيث تتلاشى الأغنية في نفسها)، والصوت المحلي  مكبر صوت الهاتف، وسماعات الرأس السلكية، والبلوتوث، أو USB.</string>
   <string name="morphe_music_crossfade_about_quirks_title">لا يعمل بشكل صحيح</string>
   <string name="morphe_music_crossfade_about_quirks_summary">"تعمل مقاطع فيديو الموسيقى كصوت فقط أثناء تشغيل الانتقال التدريجي (اضغط مع الاستمرار على زر التشغيل العشوائي للإيقاف إذا كنت تريد الفيديو)
 

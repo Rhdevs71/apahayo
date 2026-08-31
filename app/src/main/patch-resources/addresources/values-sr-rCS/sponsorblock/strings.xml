@@ -28,7 +28,7 @@ Second \"item\" text"</string>
   <string name="morphe_sb_auto_hide_skip_button_title">Automatski sakrij dugme za preskakanje</string>
   <string name="morphe_sb_auto_hide_skip_button_summary">Sakriva dugme Preskoči nakon nekoliko sekundi umesto da ga drži vidljivim tokom celog segmenta</string>
   <string name="morphe_sb_auto_hide_skip_button_duration_title">Trajanje dugmeta za preskakanje</string>
-  <string name="morphe_sb_auto_hide_skip_button_duration_summary">Postavi koliko dugo ostaje vidljivo dugme „Preskoči”</string>
+  <string name="morphe_sb_auto_hide_skip_button_duration_summary">Postavi koliko dugo ostaje vidljivo dugme Preskoči</string>
   <string name="morphe_sb_toast_on_skip_title">Prikaži obaveštenje o preskakanju</string>
   <string name="morphe_sb_toast_on_skip_summary">Prikazuje obaveštenje kada se segment automatski preskoči</string>
   <string name="morphe_sb_toast_on_skip_duration_title">Trajanje iskačućeg obaveštenja pri preskakanju</string>
@@ -214,7 +214,7 @@ Ako ne šaljete isticanje, dodirnite Otkaži i označite drugu lokaciju."</strin
   <string name="morphe_sb_stats_title">Statistika</string>
   <!-- Shown in the settings preferences, and translations can be any text length. -->
   <string name="morphe_sb_stats_connection_failure">Statistike privremeno nisu dostupne (API ne radi)</string>
-  <string name="morphe_sb_stats_loading">Učitavanje…</string>
+  <string name="morphe_sb_stats_loading">Učitavanje</string>
   <string name="morphe_sb_stats_sb_disabled">SponsorBlock je onemogućen</string>
   <string name="morphe_sb_stats_username">Vaše korisničko ime: &lt;b&gt;%s&lt;/b&gt;</string>
   <string name="morphe_sb_stats_username_change">Dodirnite ovde da promenite svoje korisničko ime</string>

@@ -93,9 +93,9 @@ Ak sa chcete prihlásiť, stlačte tlačidlo Pokračovať"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Prihlásenie úspešné</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Overenie uložené
 
-• Nastavenia Morphe nebudú importovať/exportovať overenie pre Android VR
-• Po 6 mesiacoch od posledného použitia tejto aplikácie Google odstráni toto overenie
-• Budete sa musieť znova prihlásiť, ak zmeníte svoje heslo Google alebo zrušíte registráciu tohto zariadenia v nastaveniach Google"</string>
+ Nastavenia Morphe nebudú importovať/exportovať overenie pre Android VR
+ Po 6 mesiacoch od posledného použitia tejto aplikácie Google odstráni toto overenie
+ Budete sa musieť znova prihlásiť, ak zmeníte svoje heslo Google alebo zrušíte registráciu tohto zariadenia v nastaveniach Google"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 je dočasne nedostupné (časový limit API vypršal)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Vypršala platnosť prihlásenia Android VR, skúste sa znova prihlásiť do VR</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 je dočasne nedostupné (stav %d)</string>
@@ -107,9 +107,9 @@ Ak sa chcete prihlásiť, stlačte tlačidlo Pokračovať"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Vypnúť aktualizáciu JavaScriptu prehrávača</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Uzamkne JavaScript prehrávača na konkrétnu verziu
 
-• Vyžaduje sa platný hash JavaScript prehrávača
-• Hashe JavaScript prehrávača sú platné približne jeden mesiac a zastaralé hashe zruší GVS
-• Prehrávanie zlyhá, ak je hash zrušený."</string>
+ Vyžaduje sa platný hash JavaScript prehrávača
+ Hashe JavaScript prehrávača sú platné približne jeden mesiac a zastaralé hashe zruší GVS
+ Prehrávanie zlyhá, ak je hash zrušený."</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Musíte poskytnúť platný hash JavaScript prehrávača.
 
 Prehrávanie zlyhá, ak je hash JavaScript prehrávača zastaraný."</string>

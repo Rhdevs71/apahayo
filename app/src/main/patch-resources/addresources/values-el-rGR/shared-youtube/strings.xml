@@ -93,9 +93,9 @@ Second \"item\" text"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Η είσοδος ολοκληρώθηκε με επιτυχία</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Η ταυτοποίηση αποθηκεύτηκε
 
-• Οι ρυθμίσεις του Morphe δεν θα εισάγουν/εξάγουν την ταυτοποίηση Android VR
-• Εάν η εφαρμογή παραμείνει αχρησιμοποίητη για 6 μήνες, η Google θα αφαιρέσει αυτή την ταυτοποίηση
-• Θα χρειαστεί να συνδεθείτε ξανά, εάν αλλάξετε το κωδικό πρόσβασης της Google ή απεγράψετε αυτή την συσκευή από τις ρυθμίσεις της Google"</string>
+ Οι ρυθμίσεις του Morphe δεν θα εισάγουν/εξάγουν την ταυτοποίηση Android VR
+ Εάν η εφαρμογή παραμείνει αχρησιμοποίητη για 6 μήνες, η Google θα αφαιρέσει αυτή την ταυτοποίηση
+ Θα χρειαστεί να συνδεθείτε ξανά, εάν αλλάξετε το κωδικό πρόσβασης της Google ή απεγράψετε αυτή την συσκευή από τις ρυθμίσεις της Google"</string>
   <string name="morphe_oauth2_connection_failure_timeout">Το OAuth2 είναι προσωρινά μη διαθέσιμο (λήξη API)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Η σύνδεση Android VR έληξε, προσπαθήστε να συνδεθείτε ξανά στο VR</string>
   <string name="morphe_oauth2_connection_failure_status">Το OAuth2 είναι προσωρινά μη διαθέσιμο (κατάσταση %d)</string>
@@ -107,9 +107,9 @@ Second \"item\" text"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Απενεργοποίηση ενημέρωσης του προγράμματος αναπαραγωγής JavaScript</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Κλειδώνει το JavaScript του player σε μια συγκεκριμένη έκδοση
 
-• Απαιτείται ένα έγκυρο hash JavaScript του player
-• Τα hash JavaScript του player είναι έγκυρα για περίπου ένα μήνα, και τα παρωχημένα hash θα ανακληθούν από το GVS
-• Η αναπαραγωγή αποτυγχάνει εάν το hash έχει ανακληθεί"</string>
+ Απαιτείται ένα έγκυρο hash JavaScript του player
+ Τα hash JavaScript του player είναι έγκυρα για περίπου ένα μήνα, και τα παρωχημένα hash θα ανακληθούν από το GVS
+ Η αναπαραγωγή αποτυγχάνει εάν το hash έχει ανακληθεί"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Πρέπει να παρέχετε ένα έγκυρο hash JavaScript του player.
 
 Η αναπαραγωγή θα αποτύχει εάν το hash JavaScript του player είναι παρωχημένο."</string>

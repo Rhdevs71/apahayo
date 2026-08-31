@@ -93,9 +93,9 @@ Per accedere, premi su Continua di seguito"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Accesso effettuato con successo</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Autenticazione salvata
 
-• Le tue impostazioni Morphe non importeranno o esporteranno l'autenticazione per Android VR
-• Se questa app non verrà utilizzata per 6 mesi, Google rimuoverà questa autenticazione
-• In caso di cambio password dell'account Google o deregistrazione di questo dispositivo dalle impostazioni Google, dovrai accedere nuovamente"</string>
+ Le tue impostazioni Morphe non importeranno o esporteranno l'autenticazione per Android VR
+ Se questa app non verrà utilizzata per 6 mesi, Google rimuoverà questa autenticazione
+ In caso di cambio password dell'account Google o deregistrazione di questo dispositivo dalle impostazioni Google, dovrai accedere nuovamente"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 è temporaneamente non disponibile (API scaduta)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Accesso ad Android VR scaduto, prova ad accedere nuovamente</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 è temporaneamente non disponibile (stato %d)</string>
@@ -107,9 +107,9 @@ Per accedere, premi su Continua di seguito"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Disabilita l\'aggiornamento del lettore JavaScript</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Blocca lo script JavaScript del player a una versione specifica
 
-• È richiesto un hash JavaScript del player valido
-• Gli hash JavaScript del player sono validi per circa un mese e gli hash obsoleti verranno revocati da GVS
-• La riproduzione fallisce se l'hash viene revocato"</string>
+ È richiesto un hash JavaScript del player valido
+ Gli hash JavaScript del player sono validi per circa un mese e gli hash obsoleti verranno revocati da GVS
+ La riproduzione fallisce se l'hash viene revocato"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"È necessario fornire un hash JavaScript del player valido.
 
 La riproduzione fallirà se l'hash JavaScript del player è obsoleto."</string>

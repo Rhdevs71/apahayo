@@ -86,7 +86,7 @@
     <string name="chatfilter_no_search">Tidak ada pencarian</string>
     <string name="chatfilter_search_bar">Bilah pencarian</string>
     <string name="chatfilter_search_icon">Ikon pencarian</string>
-    <string name="checking_for_updates">Checking for updatesâ€¦</string>
+    <string name="checking_for_updates">Checking for updates</string>
     <string name="checking_if_the_contact_is_blocked">Memeriksa apakah kontak tersebut diblokir...</string>
     <string name="city_s">Kota: %s</string>
     <string name="clear">Hapus</string>
@@ -119,7 +119,7 @@
     <string name="conversation">Layar Percakapan</string>
     <string name="converting_audio">Converting audio, wait a few minutes until it is complete...</string>
     <string name="copied_to_clipboard">Disalin ke papan klip</string>
-    <string name="copy_selection_action">âœ‚ Salin Pilihan</string>
+    <string name="copy_selection_action"> Salin Pilihan</string>
     <string name="copy_selection_dialog_title">Salin Teks</string>
     <string name="copy_selection_message_sum">Tambahkan tombol untuk memilih dan menyalin bagian tertentu dari pesan</string>
     <string name="copy_selection_message_title">Salin Pilihan Pesan</string>
@@ -378,7 +378,7 @@ Catatan: Harap gunakan rhpatch secara bertanggung jawab dan sesuai dengan syarat
     <string name="picker_contact">Contact</string>
     <string name="picker_contacts">Contacts</string>
     <string name="picker_group">Group</string>
-    <string name="picker_loading_contacts">Loading contactsâ€¦</string>
+    <string name="picker_loading_contacts">Loading contacts</string>
     <string name="picker_no_results">No contacts found</string>
     <string name="platform_s">Platform: %s</string>
     <string name="possible_block_detected">Kemungkinan blok terdeteksi</string>

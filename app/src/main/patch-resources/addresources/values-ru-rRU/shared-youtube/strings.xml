@@ -93,9 +93,9 @@ Second \"item\" text"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Вход выполнен успешно</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Аутентификация сохранена
 
-• В настройках Morphe не будет импортироваться/экспортироваться аутентификация Android VR
-• Если это приложение не будет использоваться в течение 6 месяцев, Google удалит эту аутентификацию
-• Вам нужно будет снова войти, если вы измените пароль Google или отмените регистрацию этого устройства в настройках Google"</string>
+ В настройках Morphe не будет импортироваться/экспортироваться аутентификация Android VR
+ Если это приложение не будет использоваться в течение 6 месяцев, Google удалит эту аутентификацию
+ Вам нужно будет снова войти, если вы измените пароль Google или отмените регистрацию этого устройства в настройках Google"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 временно недоступен (время ожидания API истекло)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Срок действия входа в Android VR истек. Попробуйте войти в VR снова</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 временно недоступна (статус %d)</string>
@@ -107,9 +107,9 @@ Second \"item\" text"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Отключить обновление JavaScript плеера</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Блокирует JavaScript-код плеера до определенной версии
 
-• Требуется допустимый хэш JavaScript-кода плеера.
-• Хэши JavaScript-кода плеера действительны в течение примерно одного месяца, а устаревшие хэши будут отозваны GVS.
-• Воспроизведение не удастся, если хэш отозван."</string>
+ Требуется допустимый хэш JavaScript-кода плеера.
+ Хэши JavaScript-кода плеера действительны в течение примерно одного месяца, а устаревшие хэши будут отозваны GVS.
+ Воспроизведение не удастся, если хэш отозван."</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Вам необходимо предоставить допустимый хэш JavaScript-кода плеера.
 
 Воспроизведение не удастся, если хэш JavaScript-кода плеера устарел."</string>

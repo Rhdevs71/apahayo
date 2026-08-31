@@ -126,7 +126,7 @@
     <string name="chatfilter_no_search">Tidak ada pencarian</string>
     <string name="chatfilter_search_bar">Bilah pencarian</string>
     <string name="chatfilter_search_icon">Ikon pencarian</string>
-    <string name="checking_for_updates">Checking for updatesâ€¦</string>
+    <string name="checking_for_updates">Checking for updates</string>
     <string name="checking_if_the_contact_is_blocked">Memeriksa apakah kontak tersebut diblokir...</string>
     <string name="city_s">Kota: %s</string>
     <string name="clear">Hapus</string>
@@ -161,7 +161,7 @@
     <string name="converting_audio">Converting audio, wait a few minutes until it is complete...</string>
     <string name="copied_to_clipboard">Disalin ke papan klip</string>
     <string name="copy">Salin</string>
-    <string name="copy_selection_action">âœ‚ Salin Pilihan</string>
+    <string name="copy_selection_action"> Salin Pilihan</string>
     <string name="copy_selection_dialog_title">Salin Teks</string>
     <string name="copy_selection_message_sum">Tambahkan tombol untuk memilih dan menyalin bagian tertentu dari pesan</string>
     <string name="copy_selection_message_title">Salin Pilihan Pesan</string>
@@ -417,7 +417,7 @@ Catatan: Harap gunakan rhpatch secara bertanggung jawab dan sesuai dengan syarat
     <string name="mtrl_exceed_max_badge_number_content_description">Lebih dari %1$d notifikasi baru</string>
     <string name="mtrl_picker_a11y_next_month">Ubah ke bulan berikutnya</string>
     <string name="mtrl_picker_a11y_prev_month">Ubah ke bulan sebelumnya</string>
-    <string name="mtrl_picker_announce_current_range_selection">Pilihan tanggal mulai: %1$s – Pilihan tanggal akhir: %2$s</string>
+    <string name="mtrl_picker_announce_current_range_selection">Pilihan tanggal mulai: %1$s  Pilihan tanggal akhir: %2$s</string>
     <string name="mtrl_picker_announce_current_selection">Pilihan saat ini: %1$s</string>
     <string name="mtrl_picker_announce_current_selection_none">tidak ada</string>
     <string name="mtrl_picker_cancel">Batal</string>
@@ -434,11 +434,11 @@ Catatan: Harap gunakan rhpatch secara bertanggung jawab dan sesuai dengan syarat
     <string name="mtrl_picker_navigate_to_current_year_description">Pilih tahun ini %1$d</string>
     <string name="mtrl_picker_navigate_to_year_description">Buka tahun %1$d</string>
     <string name="mtrl_picker_out_of_range">Di luar rentang: %1$s</string>
-    <string name="mtrl_picker_range_header_only_end_selected">Tanggal mulai – %1$s</string>
-    <string name="mtrl_picker_range_header_only_start_selected">%1$s – Tanggal akhir</string>
-    <string name="mtrl_picker_range_header_selected">%1$s – %2$s</string>
+    <string name="mtrl_picker_range_header_only_end_selected">Tanggal mulai  %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s  Tanggal akhir</string>
+    <string name="mtrl_picker_range_header_selected">%1$s  %2$s</string>
     <string name="mtrl_picker_range_header_title">Pilih Rentang</string>
-    <string name="mtrl_picker_range_header_unselected">Tanggal mulai – Tanggal akhir</string>
+    <string name="mtrl_picker_range_header_unselected">Tanggal mulai  Tanggal akhir</string>
     <string name="mtrl_picker_save">Simpan</string>
     <string name="mtrl_picker_start_date_description">Tanggal mulai %1$s</string>
     <string name="mtrl_picker_text_input_date_hint">Tanggal</string>
@@ -492,7 +492,7 @@ Catatan: Harap gunakan rhpatch secara bertanggung jawab dan sesuai dengan syarat
     <string name="picker_contact">Contact</string>
     <string name="picker_contacts">Contacts</string>
     <string name="picker_group">Group</string>
-    <string name="picker_loading_contacts">Loading contactsâ€¦</string>
+    <string name="picker_loading_contacts">Loading contacts</string>
     <string name="picker_no_results">No contacts found</string>
     <string name="platform_s">Platform: %s</string>
     <string name="possible_block_detected">Kemungkinan blok terdeteksi</string>
@@ -730,7 +730,7 @@ Catatan: Harap gunakan rhpatch secara bertanggung jawab dan sesuai dengan syarat
 2. Gaya Manusia Asli: Ketikan mengalir santai dan natural layaknya manusia yang membalas pesan WhatsApp. Hindari struktur kalimat kaku, robotik, atau bahasa formal ala call center korporat.
 3. Humor &amp; Sarkasme Berbobot: Boleh menyelipkan humor ringan, opini kritis, atau sarkasme halus yang cerdas, asalkan tetap menjaga sopan santun dan rasa hormat.
 4. Panjang Jawaban: 
-   - Default: SINGKAT dan TO THE POINT (1–4 kalimat).
+   - Default: SINGKAT dan TO THE POINT (14 kalimat).
    - Panjang: HANYA jika lawan bicara secara eksplisit meminta rincian mendalam, panduan lengkap, atau penjelasan konsep yang kompleks.
 [INTEGRITAS PENGETAHUAN &amp; VALIDITAS DATA]
 1. Wajib Valid (Anti-Halu &amp; Anti-Asbun): Setiap informasi faktual harus akurat dan berbasis fakta yang dapat diverifikasi. Dilarang keras mengarang jawaban, berspekulasi liar, atau sok tahu jika informasinya belum pasti.
@@ -741,11 +741,11 @@ Catatan: Harap gunakan rhpatch secara bertanggung jawab dan sesuai dengan syarat
     <string name="ar_search">Cari</string>
     <string name="perm_dialog_title">Perlu Akses Tambahan</string>
     <string name="perm_dialog_intro">Agar fitur Rhpatch bisa berjalan lancar di latar belakang, aplikasi membutuhkan beberapa izin. Mohon izinkan akses berikut agar aplikasi dapat beroperasi:</string>
-    <string name="perm_overlay_title">• Tampil di Atas Aplikasi Lain</string>
+    <string name="perm_overlay_title"> Tampil di Atas Aplikasi Lain</string>
     <string name="perm_overlay_desc">Memungkinkan aplikasi menjalankan tugas otomatis (seperti jadwal pesan) tanpa harus terus dibuka.</string>
-    <string name="perm_notif_title">• Notifikasi</string>
+    <string name="perm_notif_title"> Notifikasi</string>
     <string name="perm_notif_desc">Memberikan informasi mengenai status otomasi. Jika didukung, izin ini termasuk Notifikasi Layar Penuh untuk memastikan jadwal tidak tertunda saat layar mati.</string>
-    <string name="perm_alarm_title">• Alarm Akurat (Exact Alarms)</string>
+    <string name="perm_alarm_title"> Alarm Akurat (Exact Alarms)</string>
     <string name="perm_alarm_desc">Memastikan tugas terjadwal tereksekusi tepat waktu sesuai dengan detik dan menit yang Anda atur.</string>
     <string name="perm_btn_manual">Buka Pengaturan</string>
     <string name="perm_btn_auto_root">Izinkan Otomatis (Root)</string>

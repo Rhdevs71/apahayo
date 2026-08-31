@@ -177,7 +177,7 @@ Már létezik"</string>
   <string name="morphe_sb_vote_category">Kategória megváltoztatása</string>
   <string name="morphe_sb_vote_no_segments">Nincsenek szakaszok, amikre szavazni lehet</string>
   <!-- A segment start and end time, such as "02:10 to 03:40". -->
-  <string name="morphe_sb_vote_segment_time_to_from">%1$s – %2$s</string>
+  <string name="morphe_sb_vote_segment_time_to_from">%1$s  %2$s</string>
   <string name="morphe_sb_new_segment_choose_category">Válassza ki a szakasz kategóriáját</string>
   <string name="morphe_sb_new_segment_disabled_category">A kategória letiltva a beállításokban. Engedélyezze a beküldéshez.</string>
   <string name="morphe_sb_new_segment_title">Új SponsorBlock szakasz</string>

@@ -14,7 +14,8 @@
         android:background="#1f2c34"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="4dp">
+        android:paddingHorizontal="4dp"
+        android:elevation="4dp">
 
         <ImageView
             android:layout_width="24dp"
@@ -47,44 +48,80 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingHorizontal="8dp"
+        android:paddingHorizontal="12dp"
         android:paddingVertical="16dp">
 
         <!-- Bubble Left -->
-        <FrameLayout
+        <LinearLayout
             android:id="@+id/bubble_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             android:layout_marginEnd="64dp"
             android:background="@drawable/bg_bubble_left"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp">
+            android:elevation="1dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp">
+            
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Hello, this is a test message!"
                 android:textColor="#e9edef"
                 android:textSize="16sp"/>
-        </FrameLayout>
+                
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="2dp"
+                android:text="10:30"
+                android:textColor="#8696a0"
+                android:textSize="11sp"/>
+        </LinearLayout>
 
         <!-- Bubble Right -->
-        <FrameLayout
+        <LinearLayout
             android:id="@+id/bubble_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginStart="64dp"
             android:background="@drawable/bg_bubble_right"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp">
+            android:elevation="1dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp">
+            
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="I see it, looks good!"
                 android:textColor="#e9edef"
                 android:textSize="16sp"/>
-        </FrameLayout>
+                
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10:31"
+                    android:textColor="#8696a0"
+                    android:textSize="11sp"/>
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@android:drawable/checkbox_on_background"
+                    app:tint="#53bdeb" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Input Bar -->
@@ -92,7 +129,7 @@
         android:id="@+id/entry"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#0b141a"
+        android:background="@android:color/transparent"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="8dp"
@@ -103,6 +140,7 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:background="@drawable/bg_entry"
+            android:elevation="1dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="8dp">
@@ -146,9 +184,9 @@
             android:layout_height="48dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_mic"
+            android:elevation="1dp"
             android:padding="12dp"
             android:src="@android:drawable/ic_btn_speak_now"
             app:tint="#111b21" />
     </LinearLayout>
 </LinearLayout>
-

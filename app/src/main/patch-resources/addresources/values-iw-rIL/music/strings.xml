@@ -74,16 +74,16 @@ Second \"item\" text"</string>
   <string name="morphe_music_crossfade_video_mode_disabled_toast">מצב וידאו אינו זמין כאשר מעבר בין השירים מופעל</string>
   <string name="morphe_music_crossfade_cast_unstable_toast">המעבר הדרגתי מושהה בזמן שידור או מראה שמע. מעבר הדרגתי בשידור/מראה אינו יציב וייתכן שלא ניתן יהיה לתקן אותו.</string>
   <string name="morphe_music_crossfade_about_title">אודות</string>
-  <string name="morphe_music_crossfade_about_summary">איך מעבר הדרגתי עובד – ומתי הוא לא עובד</string>
+  <string name="morphe_music_crossfade_about_summary">איך מעבר הדרגתי עובד  ומתי הוא לא עובד</string>
   <!-- Banner row has no text; it shows a full-width graphic via a custom layout. -->
   <string name="morphe_music_crossfade_about_how_title">איך זה עובד</string>
   <string name="morphe_music_crossfade_about_how_summary">"מעבר הדרגתי חופף את סוף השיר אחד לתחילת השיר הבא, דועך את אחד בעוד השני עולה במהלך משך הזמן והעקומה שבחרת.
 
-הוא פועל במצב של מעבר אוטומטי (כאשר שיר מסתיים מעצמו) ובדילוגים ידניים – לכל אחד מהם יש מתג משלו למעלה. במצב של מעבר אוטומטי, הערבוב מתחיל כמה שניות לפני שהשיר מסתיים.
+הוא פועל במצב של מעבר אוטומטי (כאשר שיר מסתיים מעצמו) ובדילוגים ידניים  לכל אחד מהם יש מתג משלו למעלה. במצב של מעבר אוטומטי, הערבוב מתחיל כמה שניות לפני שהשיר מסתיים.
 
 דורש YouTube Music 9.x ומעלה."</string>
   <string name="morphe_music_crossfade_about_best_title">עובד הכי טוב עם</string>
-  <string name="morphe_music_crossfade_about_best_summary">השמעה רגילה של שיר לשיר ומעבר אוטומטי, חזרה על שיר אחד (השיר עובר מעבר הדרגתי לתוך עצמו), ושמע מקומי – רמקול הטלפון, אוזניות חוטיות, Bluetooth או USB.</string>
+  <string name="morphe_music_crossfade_about_best_summary">השמעה רגילה של שיר לשיר ומעבר אוטומטי, חזרה על שיר אחד (השיר עובר מעבר הדרגתי לתוך עצמו), ושמע מקומי  רמקול הטלפון, אוזניות חוטיות, Bluetooth או USB.</string>
   <string name="morphe_music_crossfade_about_quirks_title">לא עובד בצורה חלקה</string>
   <string name="morphe_music_crossfade_about_quirks_summary">"סרטוני מוזיקה מתנגנים רק עם אודיו כאשר מעבר צלילים פעיל (לחיצה ארוכה על כפתור הערבוב תעצור את הוידאו אם תרצו לראות אותו).
 

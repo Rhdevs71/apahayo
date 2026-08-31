@@ -142,7 +142,7 @@ class AntiSpamActivity : BaseActivity() {
                 textLayout.orientation = LinearLayout.VERTICAL
                 
                 val headerText = TextView(this)
-                val typeLabel = if (type.contains("WhatsApp", true)) "💬 $type" else "📱 $type"
+                val typeLabel = if (type.contains("WhatsApp", true)) " $type" else " $type"
                 headerText.text = "$typeLabel • $dateString"
                 headerText.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
                 headerText.textSize = 12f

@@ -28,7 +28,7 @@ Second \"item\" text"</string>
   <string name="morphe_sb_auto_hide_skip_button_title">Sjálfvirklega felja sleppa hnapp</string>
   <string name="morphe_sb_auto_hide_skip_button_summary">Felur sleppa hnappinn eftir nokkrar sekúndur frekar en að láta hann sýnan allan hlutanum</string>
   <string name="morphe_sb_auto_hide_skip_button_duration_title">Lengd sleppa hnapps</string>
-  <string name="morphe_sb_auto_hide_skip_button_duration_summary">Stilltu hversu lengi hnapparnir „Hleypa yfir“ eru sýnilegir</string>
+  <string name="morphe_sb_auto_hide_skip_button_duration_summary">Stilltu hversu lengi hnapparnir Hleypa yfir eru sýnilegir</string>
   <string name="morphe_sb_toast_on_skip_title">Sýna sleppa tilkynningu</string>
   <string name="morphe_sb_toast_on_skip_summary">Sýnir tilkynningu þegar hluti er sleppt sjálfvirkt</string>
   <string name="morphe_sb_toast_on_skip_duration_title">Lengd sleppa tilkynningar</string>

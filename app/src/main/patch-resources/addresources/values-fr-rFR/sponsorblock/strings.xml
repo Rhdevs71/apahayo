@@ -30,7 +30,7 @@ Second \"item\" text"</string>
   <string name="morphe_sb_auto_hide_skip_button_duration_title">Durée du bouton \'Passer\'</string>
   <string name="morphe_sb_auto_hide_skip_button_duration_summary">Définir la durée pendant laquelle le bouton \'Passer\' reste visible</string>
   <string name="morphe_sb_toast_on_skip_title">Afficher une notification d\'annulation de saut</string>
-  <string name="morphe_sb_toast_on_skip_summary">Affiche une notification lorsqu’un segment est automatiquement sauté</string>
+  <string name="morphe_sb_toast_on_skip_summary">Affiche une notification lorsquun segment est automatiquement sauté</string>
   <string name="morphe_sb_toast_on_skip_duration_title">Durée de la notification de saut</string>
   <string name="morphe_sb_toast_on_skip_duration_summary">Définir la durée pendant laquelle la notification d\'annulation reste visible</string>
   <string name="morphe_sb_duration_1s">1 seconde</string>
@@ -66,7 +66,7 @@ Second \"item\" text"</string>
   <string name="morphe_sb_min_segment_duration_summary">Les segments plus courts que cette valeur (en secondes) ne seront pas affichés ni passés</string>
   <string name="morphe_sb_min_segment_duration_invalid">Durée invalide</string>
   <string name="morphe_sb_private_user_id_Do_Not_Share_title">Votre ID utilisateur privé</string>
-  <string name="morphe_sb_private_user_id_Do_Not_Share_summary">Ceci doit rester privé. C\'est comme un mot de passe et ne doit être partagé avec personne. Si quelqu’un l\'obtient, il peut se faire passer pour vous</string>
+  <string name="morphe_sb_private_user_id_Do_Not_Share_summary">Ceci doit rester privé. C\'est comme un mot de passe et ne doit être partagé avec personne. Si quelquun l\'obtient, il peut se faire passer pour vous</string>
   <string name="morphe_sb_private_user_id_Do_Not_Share_invalid">L\'ID utilisateur privé doit comporter au moins 30 caractères</string>
   <string name="morphe_sb_api_url_title">Modifier l\'URL de l\'API</string>
   <string name="morphe_sb_api_url_summary">L\'adresse que SponsorBlock utilise pour effectuer des appels au serveur</string>
@@ -236,7 +236,7 @@ Si vous ne soumettez pas de point clé, appuyez sur 'Annuler' et marquez le seco
   <string name="morphe_sb_color_opacity_label">Opacité :</string>
   <string name="morphe_sb_color_dot_label">Couleur :</string>
   <string name="morphe_sb_about_title">À propos</string>
-  <string name="morphe_sb_about_api_summary">"Les données sont fournies par l’API SponsorBlock.
+  <string name="morphe_sb_about_api_summary">"Les données sont fournies par lAPI SponsorBlock.
 
 Appuyez ici pour ouvrir Sponsor.ajay.app et voir les téléchargements disponibles pour les autres plateformes"</string>
 </resources>

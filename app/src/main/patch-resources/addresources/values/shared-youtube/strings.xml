@@ -98,9 +98,9 @@ To sign in, press continue below"</string>
     <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Successfully signed in</string>
     <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Authentication saved
 
-• Your Morphe settings will not import/export Android VR authentication
-• If this app is unused for 6 months then Google will remove this authentication
-• You will need to sign in again if you change your Google password or deregister this device from your Google settings"</string>
+ Your Morphe settings will not import/export Android VR authentication
+ If this app is unused for 6 months then Google will remove this authentication
+ You will need to sign in again if you change your Google password or deregister this device from your Google settings"</string>
     <string name="morphe_oauth2_connection_failure_timeout">OAuth2 is temporarily not available (API timed out)</string>
     <string name="morphe_oauth2_connection_failure_status_400">Android VR sign in expired, try signing in to VR again</string>
     <string name="morphe_oauth2_connection_failure_status">OAuth2 is temporarily not available (status %d)</string>
@@ -112,9 +112,9 @@ To sign in, press continue below"</string>
     <string name="morphe_spoof_video_streams_disable_player_js_update_title">Disable player JavaScript update</string>
     <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Locks the player JavaScript to a specific version
 
-• A valid player JavaScript hash is required
-• Player JavaScript hashes are valid for approximately one month, and outdated hashes will be revoked by GVS
-• Playback fails if the hash is revoked"</string>
+ A valid player JavaScript hash is required
+ Player JavaScript hashes are valid for approximately one month, and outdated hashes will be revoked by GVS
+ Playback fails if the hash is revoked"</string>
     <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"You need to provide a valid player JavaScript hash.
 
 Playback will fail if the Player JavaScript hash is outdated."</string>

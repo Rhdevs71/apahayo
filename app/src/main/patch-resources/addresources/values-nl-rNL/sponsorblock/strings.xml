@@ -32,7 +32,7 @@ Second \"item\" text"</string>
   <string name="morphe_sb_toast_on_skip_title">Toon \"overslaan ongedaan maken\"-melding</string>
   <string name="morphe_sb_toast_on_skip_summary">Toont een melding wanneer een segment automatisch wordt overgeslagen</string>
   <string name="morphe_sb_toast_on_skip_duration_title">Duur van overslaan-toast</string>
-  <string name="morphe_sb_toast_on_skip_duration_summary">Stel de duur in (in seconden) waarvoor de melding ‘Ongedaan maken’ zichtbaar blijft</string>
+  <string name="morphe_sb_toast_on_skip_duration_summary">Stel de duur in (in seconden) waarvoor de melding Ongedaan maken zichtbaar blijft</string>
   <string name="morphe_sb_duration_1s">1 seconde</string>
   <string name="morphe_sb_duration_2s">2 seconden</string>
   <string name="morphe_sb_duration_3s">3 seconden</string>
@@ -118,7 +118,7 @@ Je gebruikers-ID is als een wachtwoord en mag nooit worden gedeeld."</string>
   <string name="morphe_sb_segments_filler">Terzijde / Grappen</string>
   <string name="morphe_sb_segments_filler_summary">Tangentiaële scènes of grappen die niet nodig zijn om de hoofdinhoud van de video te begrijpen. Exclusief secties die context of achtergronddetails bieden</string>
   <string name="morphe_sb_segments_nomusic">Muziek: Niet-muziekgedeelte</string>
-  <string name="morphe_sb_segments_nomusic_summary">Alleen voor gebruik in muziekvideo’s. Secties van muziekvideo’s zonder muziek die nog niet door een andere categorie worden gedekt</string>
+  <string name="morphe_sb_segments_nomusic_summary">Alleen voor gebruik in muziekvideos. Secties van muziekvideos zonder muziek die nog niet door een andere categorie worden gedekt</string>
   <string name="morphe_sb_skip_button_compact">Overslaan</string>
   <string name="morphe_sb_skip_button_compact_highlight">Markeren</string>
   <string name="morphe_sb_skip_button_sponsor">Sponsor overslaan</string>

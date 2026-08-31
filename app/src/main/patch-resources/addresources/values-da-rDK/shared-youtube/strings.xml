@@ -93,9 +93,9 @@ For at logge ind, tryk på fortsæt nedenfor"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Succesfuldt logget ind</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Autentificering gemt
 
-• Dine Morphe indstillinger vil ikke importere/eksportere Android VR autentificering
-• Hvis denne app ikke bruges i 6 måneder, vil Google fjerne denne autentificering
-• Du skal logge ind igen, hvis du ændrer din Google-adgangskode eller deautoriserer denne enhed fra dine Google-instillinger"</string>
+ Dine Morphe indstillinger vil ikke importere/eksportere Android VR autentificering
+ Hvis denne app ikke bruges i 6 måneder, vil Google fjerne denne autentificering
+ Du skal logge ind igen, hvis du ændrer din Google-adgangskode eller deautoriserer denne enhed fra dine Google-instillinger"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 er midlertidigt utilgængelig (API timeout)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Android VR-indlogning er udløbet, prøv at logge ind på VR igen</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 er midlertidigt utilgængelig (status %d)</string>
@@ -107,9 +107,9 @@ For at logge ind, tryk på fortsæt nedenfor"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Deaktiver JavaScript-opdatering for afspiller</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Låser JavaScript for afspilleren til en bestemt version
 
-• Der kræves en gyldig hash for afspiller JavaScript
-• Hashes for afspiller JavaScript er gyldige i cirka en måned, og ugyldige hashes vil blive tilbagekaldt af GVS
-• Afspilningen mislykkes, hvis hashen er blevet tilbagekaldt"</string>
+ Der kræves en gyldig hash for afspiller JavaScript
+ Hashes for afspiller JavaScript er gyldige i cirka en måned, og ugyldige hashes vil blive tilbagekaldt af GVS
+ Afspilningen mislykkes, hvis hashen er blevet tilbagekaldt"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Du skal angive en gyldig hash for afspiller JavaScript.
 
 Afspilningen vil mislykkes, hvis hashen for afspiller JavaScript er forældet."</string>

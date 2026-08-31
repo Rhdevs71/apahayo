@@ -93,9 +93,9 @@ Second \"item\" text"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">تم تسجيل الدخول بنجاح</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"تم حفظ بيانات المصادقة
 
-• لن يتم استيراد/تصدير بيانات مصادقة Android VR من إعدادات Morphe الخاصة بك
-• إذا لم يتم استخدام هذا التطبيق لمدة 6 أشهر، فستقوم Google بإزالة بيانات المصادقة هذه
-• ستحتاج إلى تسجيل الدخول مرة أخرى إذا قمت بتغيير كلمة مرور Google أو إلغاء تسجيل هذا الجهاز من إعدادات Google الخاصة بك"</string>
+ لن يتم استيراد/تصدير بيانات مصادقة Android VR من إعدادات Morphe الخاصة بك
+ إذا لم يتم استخدام هذا التطبيق لمدة 6 أشهر، فستقوم Google بإزالة بيانات المصادقة هذه
+ ستحتاج إلى تسجيل الدخول مرة أخرى إذا قمت بتغيير كلمة مرور Google أو إلغاء تسجيل هذا الجهاز من إعدادات Google الخاصة بك"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 غير متاح مؤقتًا (انتهت مهلة API)</string>
   <string name="morphe_oauth2_connection_failure_status_400">انتهت صلاحية تسجيل الدخول إلى Android VR، حاول تسجيل الدخول إلى VR مرة أخرى</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 غير متاح مؤقتًا (الحالة %d)</string>
@@ -107,9 +107,9 @@ Second \"item\" text"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">تعطيل تحديث JavaScript الخاص بالمشغل</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"يقوم بتقييد JavaScript الخاص بالمشغل إلى إصدار محدد
 
-• مطلوب تجزئة (hash) JavaScript صالحة للمشغل
-• تجزئات JavaScript صالحة لمدة شهر تقريبًا، وستقوم GVS بإبطال التجزئات القديمة
-• سيفشل التشغيل إذا تم إبطال التجزئة"</string>
+ مطلوب تجزئة (hash) JavaScript صالحة للمشغل
+ تجزئات JavaScript صالحة لمدة شهر تقريبًا، وستقوم GVS بإبطال التجزئات القديمة
+ سيفشل التشغيل إذا تم إبطال التجزئة"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"يجب عليك توفير تجزئة JavaScript صالحة للمشغل.
 
 سيفشل التشغيل إذا كانت تجزئة JavaScript للمشغل قديمة."</string>

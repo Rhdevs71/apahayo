@@ -92,8 +92,8 @@ Da ku teqezîya nêzîkê bikin, li jêr bidixin 'bidin pêşbaz'."</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_toast_get_authorization_code_failed">Ne başa nîşana otantîkasyonê dabî.</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Bi ser ket teqezîya nêzîkê.</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Saziyên we ji Morphe nebazin/neçênin Android VR teqezîya otantîkasyonê.
-• Ger ev sepan ji 6 mehyan kêmtir neyê bikarîn, Google ev teqezîya ji holê radike.
-• Ger hûn peyva Google-a xwe biguhênin an ev alav ji avakerên Google-a we ji holê rabikin, wê demê divê we îze ba nêzîkê bikin."</string>
+ Ger ev sepan ji 6 mehyan kêmtir neyê bikarîn, Google ev teqezîya ji holê radike.
+ Ger hûn peyva Google-a xwe biguhênin an ev alav ji avakerên Google-a we ji holê rabikin, wê demê divê we îze ba nêzîkê bikin."</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 niha rê ne. (API derket).</string>
   <string name="morphe_oauth2_connection_failure_status_400">Teqezîya VR bi rêz ve ne, teqezîya malpera otantîkasyonê ne-qebûl kirin.</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 niha rê ne (demî %d).</string>
@@ -105,9 +105,9 @@ Da ku teqezîya nêzîkê bikin, li jêr bidixin 'bidin pêşbaz'."</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Serê pêşandera JavaScriptê astive</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"JavaScriptê yê lîstikvanê bi guhertoyek taybet li ser rasterasti girê dide
 
-• Hash-a valide ya JavaScriptê ya lîstikvanê hewce ye
-• Hash-ên JavaScriptê ya lîstikvanê bi nêzîkî mehêyek derbasbûyî valide ne, û hash-ên derbasbûyî ji aliyê GVS ve têne betal kirin
-• Lêkirin têk diçe eger hash betal bibe."</string>
+ Hash-a valide ya JavaScriptê ya lîstikvanê hewce ye
+ Hash-ên JavaScriptê ya lîstikvanê bi nêzîkî mehêyek derbasbûyî valide ne, û hash-ên derbasbûyî ji aliyê GVS ve têne betal kirin
+ Lêkirin têk diçe eger hash betal bibe."</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Divê hûn hash-a valide ya JavaScriptê ya lîstikvanê peyda bikin.
 
 Lêkirin têk diçe eger hash-a JavaScriptê ya lîstikvanê kevn be."</string>

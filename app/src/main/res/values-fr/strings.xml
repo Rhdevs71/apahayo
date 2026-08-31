@@ -106,7 +106,7 @@
     <string name="communities">CommunautÃ©s</string>
     <string name="calls">Appels</string>
     <string name="updates">Mises Ã  jour</string>
-    <string name="about">Ã€ propos</string>
+    <string name="about"> propos</string>
     <string name="igstatus_on_home_screen">Activer statut Instagram sur l\'Ã©cran d\'accueil</string>
     <string name="igstatus_on_home_screen_sum">Afficher le style de statut Instagram sur l\'Ã©cran d\'accueil</string>
     <string name="chatfilter_no_search">Pas de recherche</string>
@@ -117,7 +117,7 @@
     <string name="remove_see_more_button">Supprimer le bouton Â«Â Voir plusÂ Â»</string>
     <string name="remove_see_more_button_">DÃ©sactivez le bouton \"Voir plus\" et affichez tous les messages longs</string>
     <string name="tools">Outils</string>
-    <string name="title_home">Ã‰cran d\'accueil</string>
+    <string name="title_home">cran d\'accueil</string>
     <string name="privacy">ConfidentialitÃ©</string>
     <string name="module_enabled">Module activÃ©</string>
     <string name="version_s">Version %s</string>
@@ -161,7 +161,7 @@
     <string name="verbose_logs">Activer les journaux dÃ©taillÃ©s pour le dÃ©bogueur</string>
     <string name="phone_call">Coup de fil</string>
     <string name="whatsapp_call">Appel WhatsApp</string>
-    <string name="home_screen">Ã‰cran d\'accueil</string>
+    <string name="home_screen">cran d\'accueil</string>
     <string name="selection_of_call_type">Activer la sÃ©lection du type d\'appel</string>
     <string name="selection_of_call_type_sum">Afficher une option pour sÃ©lectionner si vous souhaitez un appel par tÃ©lÃ©phone ou WhatsApp</string>
     <string name="yes">Oui</string>
@@ -319,7 +319,7 @@
     <string name="read_all_mark_as_read">Lire tout (marquer comme lu)</string>
     <string name="enable_copy_status">Activer copie statuts</string>
     <string name="enable_copy_status_sum">Active la possibilitÃ© de copier la description et la lÃ©gende des statuts en les maintenant enfoncÃ©s</string>
-    <string name="animation_emojis">Ã‰mojis animÃ©s</string>
+    <string name="animation_emojis">mojis animÃ©s</string>
     <string name="animation_emojis_sum">Activer les emojis animÃ©s (cela crÃ©e de gros emojis dans les conversations)</string>
     <string name="vertical_status">Statut vertical</string>
     <string name="vertical_status_sum">Afficher l\'Ã©tat en mode vertical dans l\'onglet actus</string>
@@ -379,7 +379,7 @@
     <string name="show_menu_buttons_as_icons">Afficher les boutons de menu sous forme d\'icÃ´nes</string>
     <string name="show_menu_buttons_as_icons_sum">Affiche les boutons de menu sur l\'Ã©cran d\'accueil sous forme d\'icÃ´nes pour y accÃ©der facilement</string>
     <string name="starting_cache">DÃ©marrage du cache de hook dans WhatsApp. Cela peut prendre un certain temps.</string>
-    <string name="bridge_error">Ã‰chec du pontÂ : activez SystÃ¨me Framework dans Lsposed et redÃ©marrez l\'appareil</string>
+    <string name="bridge_error">chec du pontÂ : activez SystÃ¨me Framework dans Lsposed et redÃ©marrez l\'appareil</string>
     <string name="disable_battery_optimization">DÃ©sactiver l\'optimisation de la batterie</string>
     <string name="bootloader_spoofer">Spoofer du chargeur de dÃ©marrage</string>
     <string name="bootloader_spoofer_sum">Utilisez-le si vous avez Ã©tÃ© banni et recevez le message Whatsapp non officiel</string>
@@ -388,7 +388,7 @@
     <string name="custom_colors_for_text_status">Couleurs personnalisÃ©es pour le texte du statut</string>
     <string name="custom_colors_for_text_status_sum">Appuyez et maintenez sur le sÃ©lecteur de couleur dans l\'Ã©tat pour le personnaliser</string>
     <string name="enable_wa_enhancer_button">Activer le bouton rhpatch</string>
-    <string name="enable_wa_enhancer_button_sum">Ajouter un bouton sur lâ€™Ã©cran dâ€™accueil pour ouvrir rhpatch</string>
+    <string name="enable_wa_enhancer_button_sum">Ajouter un bouton sur lcran daccueil pour ouvrir rhpatch</string>
     <string name="custom_privacy">ConfidentialitÃ© personnalisÃ©e</string>
     <string name="custom_privacy_sum">Activer/DÃ©sactiver La confidentialitÃ© personnalisÃ©e</string>
     <string name="custom_privacy_per_contact">ConfidentialitÃ© personnalisÃ©e par contact</string>
@@ -422,7 +422,7 @@
     <string name="update_available">Update Available</string>
     <string name="update_available_summary">New version %s is available!</string>
     <string name="up_to_date">Up to Date</string>
-    <string name="checking_for_updates">Checking for updatesâ€¦</string>
+    <string name="checking_for_updates">Checking for updates</string>
     <string name="update_check_failed">Unable to Check for Updates</string>
     <string name="update_check_failed_summary">Could not reach update server</string>
     <string name="current_version_s">Current version %s</string>
@@ -487,9 +487,9 @@
     <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
     <string name="copy_selection_message_title">Copier la sÃ©lection du message</string>
     <string name="copy_selection_message_sum">Ajouter un bouton pour sÃ©lectionner et copier une partie spÃ©cifique d\'un message</string>
-    <string name="copy_selection_action">âœ‚ Copier la sÃ©lection</string>
+    <string name="copy_selection_action"> Copier la sÃ©lection</string>
     <string name="copy_selection_dialog_title">Copier le texte</string>
-    <string name="picker_loading_contacts">Loading contactsâ€¦</string>
+    <string name="picker_loading_contacts">Loading contacts</string>
     <string name="mode_all">All</string>
     <string name="picker_contacts">Contacts</string>
     <string name="groups">Groups</string>

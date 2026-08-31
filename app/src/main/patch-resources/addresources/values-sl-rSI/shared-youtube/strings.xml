@@ -93,9 +93,9 @@ Pritisnite \"nadaljujte\", da se prijavite"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Uspešno ste prijavljeni</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Shranjeni so avtentikacijski podatki
 
-• Vaše nastavitve Morphe ne bodo uvažale/izvažale avtentikacije Android VR.
-• Če te aplikacijo ne boste uporabljali 6 mesecev, bo Google izbrisal to avtentikacijo.
-• Ponovno se boste morali prijaviti, če spremenite geslo Google ali odstranite napravo iz nastavitev Google"</string>
+ Vaše nastavitve Morphe ne bodo uvažale/izvažale avtentikacije Android VR.
+ Če te aplikacijo ne boste uporabljali 6 mesecev, bo Google izbrisal to avtentikacijo.
+ Ponovno se boste morali prijaviti, če spremenite geslo Google ali odstranite napravo iz nastavitev Google"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 je začasno nedostopen (API je potekel)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Iztek prijave v VR, poskusite se znova prijaviti v VR</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 je začasno nedostopen (status %d)</string>
@@ -107,9 +107,9 @@ Pritisnite \"nadaljujte\", da se prijavite"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Onemogoči JavaScript posodobitev predvajalnika</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Zaklene JavaScript predvajalnika na določeno različico
 
-• Potreben je veljaven hash JavaScript predvajalnika
-• Hashi JavaScript predvajalnika so veljavni približno en mesec, GVS pa bo preklical zastarele hashe
-• Predvajanje se bo izvedlo neuspešno, če je hash preklican."</string>
+ Potreben je veljaven hash JavaScript predvajalnika
+ Hashi JavaScript predvajalnika so veljavni približno en mesec, GVS pa bo preklical zastarele hashe
+ Predvajanje se bo izvedlo neuspešno, če je hash preklican."</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Morate vnesti veljaven hash JavaScript predvajalnika.
 
 Predvajanje se bo izvedlo neuspešno, če je hash JavaScript predvajalnika zastarel."</string>

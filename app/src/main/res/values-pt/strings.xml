@@ -48,7 +48,7 @@
     <string name="menuwicon_sum">Adicione Ã­cones nas opÃ§Ãµes de menu ao longo do app</string>
     <string name="freezelastseen">Congelar visto por Ãºltimo</string>
     <string name="freezelastseen_sum">Quando ativo, congela a hora e data do visto por Ãºltimo.\n(CUIDADO: As informaÃ§Ãµes das outras pessoas nÃ£o serÃ£o exibidas para vocÃª, como digitando, gravando Ã¡udio e visto por Ãºltimo)</string>
-    <string name="removeforwardlimit_sum">Remova o limite de encaminhamento para 5 chats (normal) e 1 chat (mÃºltiplas vezes).\n(OBSERVAÃ‡ÃƒO: Use com cautela, vocÃª pode ser banido por spam)</string>
+    <string name="removeforwardlimit_sum">Remova o limite de encaminhamento para 5 chats (normal) e 1 chat (mÃºltiplas vezes).\n(OBSERVAO: Use com cautela, vocÃª pode ser banido por spam)</string>
     <string name="removeforwardlimit">Remover limite de encaminhamento</string>
     <string name="showname">Mostrar nome</string>
     <string name="showname_sum">Mostra o seu nome no topo da tela inicial, substituindo o \"WhatsApp\" pelo nome da sua conta.</string>
@@ -64,7 +64,7 @@
     <string name="separate_groups">Grupos separados</string>
     <string name="separate_groups_sum">Separe suas conversas por: Grupos, Conversas privadas, AtualizaÃ§Ãµes, LigaÃ§Ãµes e Comunidades.</string>
     <string name="blueonreply">Enviar marca azul ao responder</string>
-    <string name="blueonreply_sum">Envia a marca azul ao responder Ã  mensagem\n(OBSERVAÃ‡ÃƒO: Deve ter \"Ocultar visualizaÃ§Ã£o de mensagens\" ativo)</string>
+    <string name="blueonreply_sum">Envia a marca azul ao responder Ã  mensagem\n(OBSERVAO: Deve ter \"Ocultar visualizaÃ§Ã£o de mensagens\" ativo)</string>
     <string name="hide_archived_chat">Ocultar conversas arquivadas</string>
     <string name="hide_archived_chat_sum">Para acessar clique 5 vezes ou segure o no nome \"WhatsApp\" na tela inicial</string>
     <string name="hide_once_view_seen">Ocultar visualizaÃ§Ã£o Ãºnica de mÃ­dia</string>
@@ -72,7 +72,7 @@
     <string name="call_blocker">Bloquear chamadas</string>
     <string name="call_blocker_sum">Bloqueie chamadas do WhatsApp com base no tipo de privacidade</string>
     <string name="show_online_dot_in_conversation_list">Mostrar ponto de online na guia de conversas</string>
-    <string name="show_online_dot_in_conversation_list_sum">Mostre um ponto online verde na tela inicial\n(OBSERVAÃ‡ÃƒO: Ã‰ necessÃ¡rio ativar a opÃ§Ã£o online para todos em ConfiguraÃ§Ãµes &gt; Privacidade &gt; Visto por Ãºltimo e online no WhatsApp)</string>
+    <string name="show_online_dot_in_conversation_list_sum">Mostre um ponto online verde na tela inicial\n(OBSERVAO:  necessÃ¡rio ativar a opÃ§Ã£o online para todos em ConfiguraÃ§Ãµes &gt; Privacidade &gt; Visto por Ãºltimo e online no WhatsApp)</string>
     <string name="show_dnd_button">Mostrar botÃ£o NÃ£o perturbe</string>
     <string name="show_dnd_button_sum">Mostra uma opÃ§Ã£o para ativar o modo NÃ£o perturbe na tela inicial</string>
     <string name="dev4mod">Dev4Mod (Desenvolvedor)</string>
@@ -125,7 +125,7 @@
     <string name="whatsapp_in_background">WhatsApp em segundo plano</string>
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">O WhatsApp nÃ£o estÃ¡ em execuÃ§Ã£o ou nÃ£o foi ativado no LSPosed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">O WhatsApp Business nÃ£o estÃ¡ em execuÃ§Ã£o ou nÃ£o foi ativado no LSPosed</string>
-    <string name="restart_wpp">Ã‰ necessÃ¡rio reiniciar o WhatsApp para que as alteraÃ§Ãµes do rhpatch tenham efeito.\n\nDeseja reiniciar?</string>
+    <string name="restart_wpp"> necessÃ¡rio reiniciar o WhatsApp para que as alteraÃ§Ãµes do rhpatch tenham efeito.\n\nDeseja reiniciar?</string>
     <string name="version_s_not_listed">A versÃ£o %s nÃ£o estÃ¡ listada nas versÃµes suportadas.\nPor favor, use uma versÃ£o suportada do WhatsApp!</string>
     <string name="media">MÃ­dia</string>
     <string name="show_button_to_send_blue_tick">Exibir botÃ£o para enviar marca azul</string>
@@ -219,7 +219,7 @@
     <string name="toolbar_transparency">TransparÃªncia da barra superior</string>
     <string name="navigation_transparency">TransparÃªncia da barra de navegaÃ§Ã£o</string>
     <string name="show_online_last_seen_in_conversation_list">Mostrar Online/Visto por Ãºltimo vez na guia de conversas</string>
-    <string name="show_online_last_seen_in_conversation_list_sum">Mostra um texto online ou visto por Ãºltimo vez na tela inicial.\n(OBSERVAÃ‡ÃƒO: Ã‰ necessÃ¡rio ativar a opÃ§Ã£o online para todos em ConfiguraÃ§Ãµes &gt; Privacidade &gt; Visto por Ãºltimo e online no WhatsApp)</string>
+    <string name="show_online_last_seen_in_conversation_list_sum">Mostra um texto online ou visto por Ãºltimo vez na tela inicial.\n(OBSERVAO:  necessÃ¡rio ativar a opÃ§Ã£o online para todos em ConfiguraÃ§Ãµes &gt; Privacidade &gt; Visto por Ãºltimo e online no WhatsApp)</string>
     <string name="toast_online">%s estÃ¡ online</string>
     <string name="show_toast_on_contact_online">Mostrar toast para contato online</string>
     <string name="show_toast_on_contact_online_sum">Mostra uma notificaÃ§Ã£o toast quando um contato estiver online</string>
@@ -296,7 +296,7 @@
     <string name="viewed_your_status">%s visualizou seu status</string>
     <string name="viewed_your_message">%s visualizou sua mensagem</string>
     <string name="old_statuses">Status antigo</string>
-    <string name="old_statuses_sum">Mude para a guia de status antiga verticalmente e sem canais (OBSERVAÃ‡ÃƒO: Pode causar lag na interface)</string>
+    <string name="old_statuses_sum">Mude para a guia de status antiga verticalmente e sem canais (OBSERVAO: Pode causar lag na interface)</string>
     <string name="force_english">ForÃ§ar inglÃªs rhpatch</string>
     <string name="select_status_type">Selecione o tipo de status</string>
     <string name="open_camera">Abrir cÃ¢mera</string>
@@ -324,7 +324,7 @@
     <string name="vertical_status">Status verticais</string>
     <string name="vertical_status_sum">Mostre os status no modo vertical na guia AtualizaÃ§Ãµes</string>
     <string name="disable_version_check">Desativar verificaÃ§Ã£o de versÃ£o</string>
-    <string name="disable_version_check_sum">Desativa a verificaÃ§Ã£o da versÃ£o suportada do WhatsApp (OBSERVAÃ‡ÃƒO: Bugs podem ocorrer em versÃµes nÃ£o suportadas)</string>
+    <string name="disable_version_check_sum">Desativa a verificaÃ§Ã£o da versÃ£o suportada do WhatsApp (OBSERVAO: Bugs podem ocorrer em versÃµes nÃ£o suportadas)</string>
     <string name="invalid_zip_file">Arquivo ZIP invÃ¡lido</string>
     <string name="theme_imported_successfully">Tema importado com sucesso!</string>
     <string name="new_theme_name">Nome do novo tema</string>
@@ -407,7 +407,7 @@
     <string name="show_contact_info_menu">Mostrar no menu de informaÃ§Ãµes de contato</string>
     <string name="block_call">Bloquear chamadas</string>
     <string name="always_online">Sempre online</string>
-    <string name="always_online_sum">Fique sempre online mesmo que vocÃª minimize o WhatsApp. (OBSERVAÃ‡ÃƒO: NÃ£o funciona se removÃª-lo dos recentes)</string>
+    <string name="always_online_sum">Fique sempre online mesmo que vocÃª minimize o WhatsApp. (OBSERVAO: NÃ£o funciona se removÃª-lo dos recentes)</string>
     <string name="additional_call_information">InformaÃ§Ãµes adicionais de chamada</string>
     <string name="additional_call_information_sum">Receba uma notificaÃ§Ã£o com informaÃ§Ãµes adicionais apÃ³s o tÃ©rmino da chamada.</string>
     <string name="contact_s">Contato: %s</string>
@@ -422,7 +422,7 @@
     <string name="update_available">AtualizaÃ§Ã£o disponÃ­vel</string>
     <string name="update_available_summary">Nova versÃ£o %s disponÃ­vel</string>
     <string name="up_to_date">Atualizado</string>
-    <string name="checking_for_updates">Verificando atualizaÃ§Ãµesâ€¦</string>
+    <string name="checking_for_updates">Verificando atualizaÃ§Ãµes</string>
     <string name="update_check_failed">NÃ£o foi possÃ­vel verificar se hÃ¡ atualizaÃ§Ãµes</string>
     <string name="update_check_failed_summary">NÃ£o foi possÃ­vel encontrar o servidor de atualizaÃ§Ã£o</string>
     <string name="current_version_s">VersÃ£o atual: %s</string>
@@ -487,9 +487,9 @@
     <string name="jump_first_message_sum">Adicione uma opÃ§Ã£o para ir ao topo de uma conversa</string>
     <string name="copy_selection_message_title">Copiar seleÃ§Ã£o de mensagem</string>
     <string name="copy_selection_message_sum">Adiciona um botÃ£o para selecionar e copiar uma parte especÃ­fica de uma mensagem</string>
-    <string name="copy_selection_action">âœ‚ Copiar seleÃ§Ã£o</string>
+    <string name="copy_selection_action"> Copiar seleÃ§Ã£o</string>
     <string name="copy_selection_dialog_title">Copiar texto</string>
-    <string name="picker_loading_contacts">Carregando contatosâ€¦</string>
+    <string name="picker_loading_contacts">Carregando contatos</string>
     <string name="mode_all">Todos</string>
     <string name="picker_contacts">Contatos</string>
     <string name="groups">Grupos</string>
@@ -499,7 +499,7 @@
     <string name="converting_audio">Convertendo Ã¡udio, aguarde alguns minutos atÃ© concluir...</string>
     <string name="preview_image">PrÃ©-visualizar imagem</string>
     <string name="preview_video">PrÃ©-visualizar vÃ­deo</string>
-    <string name="downloading">Baixandoâ€¦</string>
+    <string name="downloading">Baixando</string>
     <string name="decrypting">Descriptografando...</string>
     <string name="configui">Novo estilo de configuraÃ§Ãµes</string>
     <string name="configui_sum">Ativar novo estilo de configuraÃ§Ãµes, com foto de perfil na tela inicial.</string>

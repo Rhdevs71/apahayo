@@ -93,9 +93,9 @@ Oturum açmak için, devam et butonuna basın."</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Başarıyla oturum açıldı</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Kimlik doğrulama kaydedildi
 
-• Morphe ayarlarınız, Android VR kimlik doğrulamasını içe/dışa aktarmaz 
-• Bu uygulama 6 ay boyunca kullanılmazsa Google bu kimlik doğrulamasını kaldıracaktır 
-• Google şifrenizi değiştirirseniz veya bu cihazı Google ayarlarınızdan kaldırırsanız tekrar oturum açmanız gerekir"</string>
+ Morphe ayarlarınız, Android VR kimlik doğrulamasını içe/dışa aktarmaz 
+ Bu uygulama 6 ay boyunca kullanılmazsa Google bu kimlik doğrulamasını kaldıracaktır 
+ Google şifrenizi değiştirirseniz veya bu cihazı Google ayarlarınızdan kaldırırsanız tekrar oturum açmanız gerekir"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 geçici olarak kullanılamıyor (API zaman aşımına uğradı)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Android VR oturum süresi doldu, VR\'da tekrar oturum açmayı deneyin</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 geçici olarak kullanılamıyor (durum %d)</string>
@@ -107,9 +107,9 @@ Oturum açmak için, devam et butonuna basın."</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Oynatıcı JavaScript güncellemesini devre dışı bırak</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Oynatıcı JavaScript'ini belirli bir sürüme kilitler
 
-• Geçerli bir oynatıcı JavaScript hash'i gereklidir
-• Oynatıcı JavaScript hash'leri yaklaşık bir ay geçerlidir ve eski hash'ler GVS tarafından iptal edilir
-• Hash iptal edilirse oynatma başarısız olur"</string>
+ Geçerli bir oynatıcı JavaScript hash'i gereklidir
+ Oynatıcı JavaScript hash'leri yaklaşık bir ay geçerlidir ve eski hash'ler GVS tarafından iptal edilir
+ Hash iptal edilirse oynatma başarısız olur"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Geçerli bir oynatıcı JavaScript hash'i sağlamanız gerekir.
 
 Oynatıcı JavaScript hash'i güncel değilse oynatma başarısız olur."</string>

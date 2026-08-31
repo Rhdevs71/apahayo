@@ -90,13 +90,13 @@ Second \"item\" text"</string>
   <string name="morphe_sb_settings_ie_summary">Do chumraíocht SponsorBlock JSON is féidir a allmhairiú/a onnmhairiú chuig Morphe agus ardáin SponsorBlock eile</string>
   <string name="morphe_sb_settings_ie_summary_warning">"Do chumraíocht SponsorBlock JSON is féidir a allmhairiú/a onnmhairiú chuig Morphe agus ardáin SponsorBlock eile
 
-Áirítear leis seo d’aitheantas úsáideora príobháideach. Bí cinnte é seo a roinnt go ciallmhar"</string>
+Áirítear leis seo daitheantas úsáideora príobháideach. Bí cinnte é seo a roinnt go ciallmhar"</string>
   <string name="morphe_sb_settings_import_successful">D\'éirigh leis na socruithe a iompórtáil</string>
   <string name="morphe_sb_settings_import_failed">Theip ar iompórtáil: %s</string>
   <string name="morphe_sb_settings_export_failed">Theip ar easpórtáil: %s</string>
   <string name="morphe_sb_settings_morphe_export_user_id_warning">"Tá aitheantas úsáideora príobháideach SponsorBlock i do shocruithe.
 
-Tá d’aitheantas úsáideora cosúil le pasfhocal, agus níor cheart é a roinnt choíche."</string>
+Tá daitheantas úsáideora cosúil le pasfhocal, agus níor cheart é a roinnt choíche."</string>
   <string name="morphe_sb_settings_morphe_export_user_id_warning_dismiss">Ná taispeáin arís</string>
   <string name="morphe_sb_diff_segments_title">Athraigh iompar deighleog</string>
   <string name="morphe_sb_segments_sponsor">Urraitheoir</string>
@@ -108,7 +108,7 @@ Tá d’aitheantas úsáideora cosúil le pasfhocal, agus níor cheart é a roin
   <string name="morphe_sb_segments_highlight">Aibhsigh</string>
   <string name="morphe_sb_segments_highlight_summary">An chuid den fhíseán atá á lorg ag formhór na ndaoine</string>
   <string name="morphe_sb_segments_intro">Beochan Eatramh / Réamhrá</string>
-  <string name="morphe_sb_segments_intro_summary">Eatramh gan ábhar iarbhír. D’fhéadfadh sé a bheith ina sos, ina fhráma statach, nó ina bheochan athchleachtach. Ní áirítear leis aistrithe ina bhfuil faisnéis.</string>
+  <string name="morphe_sb_segments_intro_summary">Eatramh gan ábhar iarbhír. Dfhéadfadh sé a bheith ina sos, ina fhráma statach, nó ina bheochan athchleachtach. Ní áirítear leis aistrithe ina bhfuil faisnéis.</string>
   <string name="morphe_sb_segments_outro">Cártaí Deiridh / Creidmheasanna</string>
   <string name="morphe_sb_segments_outro_summary">Creidmheasanna nó cathain a thaispeántar cártaí deiridh YouTube. Ní le haghaidh conclúidí le faisnéis.</string>
   <string name="morphe_sb_segments_hook">Crúca / Beannachtaí</string>

@@ -95,9 +95,9 @@ Màn hình khóa hoặc thông báo có thể hiển thị trạng thái cũ tro
 
 Tạm dừng hiệu ứng chuyển bài để xem video âm nhạc có thể khiến một số video hiển thị màn hình đen (đặc biệt là những video lấy âm thanh trực tiếp từ chính luồng video). Để tránh lỗi này, hãy dừng hiệu ứng chuyển bài trước khi phát bài hát"</string>
   <string name="morphe_music_crossfade_about_unsupported_title">Không hoạt động chút nào</string>
-  <string name="morphe_music_crossfade_about_unsupported_summary">"Truyền hoặc chiếu âm thanh (Chromecast, chiếu màn hình hoặc âm thanh) – hiệu ứng chuyển tiếp sẽ tạm dừng vì nó không ổn định trong trường hợp này và có thể không bao giờ được khắc phục hoàn toàn.
+  <string name="morphe_music_crossfade_about_unsupported_summary">"Truyền hoặc chiếu âm thanh (Chromecast, chiếu màn hình hoặc âm thanh)  hiệu ứng chuyển tiếp sẽ tạm dừng vì nó không ổn định trong trường hợp này và có thể không bao giờ được khắc phục hoàn toàn.
 
-YouTube Music 8.x – hiệu ứng chuyển tiếp chỉ chạy trên 9.x trở lên"</string>
+YouTube Music 8.x  hiệu ứng chuyển tiếp chỉ chạy trên 9.x trở lên"</string>
   <string name="morphe_music_crossfade_about_credit_title">Đóng góp</string>
   <string name="morphe_music_crossfade_about_credit_summary">Hiệu ứng chuyển bài do VazerOG phát triển</string>
   <!-- interaction.permanentrepeat.permanentRepeatPatch -->

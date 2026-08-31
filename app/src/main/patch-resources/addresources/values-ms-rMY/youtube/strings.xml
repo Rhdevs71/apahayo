@@ -41,12 +41,12 @@ Second \"item\" text"</string>
 Beberapa tataletak sisi pelayan mungkin tidak kembali.
 
 Perubahan termasuk:
-• Komponen di menu terbang keluar pemain (atau tetapan berkaitan) mungkin tidak berfungsi.
-• Nombor yang berpusing tidak dianimasikan.
-• Tab Pustaka ditunjukkan.
-• Bahagian muzik bagi perihalan video mungkin tidak berfungsi.
-• Item menu terbang keluar pemain tidak dapat disorokkan.
-• Butang penukaran akaun mungkin tidak muncul di tab Pustaka."</string>
+ Komponen di menu terbang keluar pemain (atau tetapan berkaitan) mungkin tidak berfungsi.
+ Nombor yang berpusing tidak dianimasikan.
+ Tab Pustaka ditunjukkan.
+ Bahagian muzik bagi perihalan video mungkin tidak berfungsi.
+ Item menu terbang keluar pemain tidak dapat disorokkan.
+ Butang penukaran akaun mungkin tidak muncul di tab Pustaka."</string>
   <!-- layout.hide.general.hideLayoutComponentsPatch -->
   <string name="morphe_hide_feed_flyout_menu_title">Dayakan penapis menu terbang keluar suapan</string>
   <string name="morphe_hide_feed_flyout_menu_filter_strings_title">Penapis menu terbang keluar suapan</string>
@@ -104,9 +104,9 @@ Perubahan termasuk:
   <!-- 'Join' should be translated using the same localized wording YouTube displays for the button. -->
   <!-- 'Store' should be translated using the same localized wording YouTube displays for the button. -->
   <!-- 'Subscribe' should be translated using the same localized wording YouTube displays for the button. -->
-  <string name="morphe_hide_comments_carousel_summary">"• Sila pastikan nama yang tepat dimasukkan untuk item karusel (contohnya Tanya, Naikkan video ini, Dengarkan di YouTube Music dan sebagainya)
-• Menyorokkan item karusel mungkin mempunyai kesan sampingan yang tidak diingini
-• Jika semua item karusel disorokkan, keseluruhan bahagian komen juga akan disembunyikan"</string>
+  <string name="morphe_hide_comments_carousel_summary">" Sila pastikan nama yang tepat dimasukkan untuk item karusel (contohnya Tanya, Naikkan video ini, Dengarkan di YouTube Music dan sebagainya)
+ Menyorokkan item karusel mungkin mempunyai kesan sampingan yang tidak diingini
+ Jika semua item karusel disorokkan, keseluruhan bahagian komen juga akan disembunyikan"</string>
   <!-- For localization, it is preferred, but not required, if 'LeBlanc' is replaced with a localized name or a familiar word that has upper case letters in the middle of the word.
          This is because keywords can be in any language, and showing an example in the localized script helps convey this. -->
   <!-- Translations must use a localized example. For languages that do not use spaces between words (Chinese, Japanese, etc.) the English AI example should be used since no localized examples exist. Or if using machine translations, or if nobody wants to think of a localized example, then the English 'ai' example should be left as-is. -->
@@ -267,17 +267,17 @@ Catatan: Jika 'Perdaya strim video' dilumpuhkan, mendayakannya mungkin menyebabk
   <string name="morphe_change_form_factor_user_dialog_message">"Perubahan termasuklah:
 
 Tataletak tablet
-• Siaran komuniti disorokkan
-• Tetapan main balik dalam suapan tidak tersedia
-• Butang Adun semula dan Bunyi tidak tersedia dalam Shorts
-• Bar tindakan video lama yang tidak runtuh ditunjukkan
+ Siaran komuniti disorokkan
+ Tetapan main balik dalam suapan tidak tersedia
+ Butang Adun semula dan Bunyi tidak tersedia dalam Shorts
+ Bar tindakan video lama yang tidak runtuh ditunjukkan
 
 Tataletak automotif
-• Suapan disusun mengikut topik dan saluran
-• Tetapan main balik dalam suapan tidak tersedia
-• Butang Adun semula dan Bunyi tidak tersedia dalam Shorts
-• Shorts dibuka dalam pemain biasa
-• Bar tindakan video lama yang tidak runtuh ditunjukkan"</string>
+ Suapan disusun mengikut topik dan saluran
+ Tetapan main balik dalam suapan tidak tersedia
+ Butang Adun semula dan Bunyi tidak tersedia dalam Shorts
+ Shorts dibuka dalam pemain biasa
+ Bar tindakan video lama yang tidak runtuh ditunjukkan"</string>
   <string name="morphe_tablet_layout_in_player_title">Dayakan tata letak tablet di pemain</string>
   <!-- "Restore old video action bar" must be translated the same as morphe_restore_old_video_action_bar_title -->
   <!-- layout.spoofappversion.spoofAppVersionPatch -->

@@ -93,9 +93,9 @@ Da bi se prijavili, pritisnite nastavi ispod"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Uspješno prijavljen</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Autentikacija sačuvana
 
-• Vaša Morphe postavka neće uvoziti/izvoziti autentikaciju za Android VR
-• Ako aplikacija nije korišćena u roku od 6 meseci, Google će ukloniti ovu autentikaciju
-• Ako promijenite lozinku za Google ili uklonite ovaj uređaj iz postavki Google, trebate ponovno prijaviti"</string>
+ Vaša Morphe postavka neće uvoziti/izvoziti autentikaciju za Android VR
+ Ako aplikacija nije korišćena u roku od 6 meseci, Google će ukloniti ovu autentikaciju
+ Ako promijenite lozinku za Google ili uklonite ovaj uređaj iz postavki Google, trebate ponovno prijaviti"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 privremeno nije dostupan (API istekao)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Prijavljivanje na Android VR je isteklo, pokušajte ponovo da se prijavite na VR</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 privremeno nije dostupan (status %d)</string>
@@ -107,9 +107,9 @@ Da bi se prijavili, pritisnite nastavi ispod"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Искукључите ажурирање JavaScript плеера</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Blokira JavaScript plejera na odreƁenu verziju
 
-• Zahteva vaƁan heš kőda JavaScript plejera
-• Heš kődovi JavaScript plejera vaƁe oko mesec dana, a istekli heš kődovi će biti opozvani od strane GVS-a
-• Reprodukcija će neuspešno ako je heš kőd opozvan"</string>
+ Zahteva vaƁan heš kőda JavaScript plejera
+ Heš kődovi JavaScript plejera vaƁe oko mesec dana, a istekli heš kődovi će biti opozvani od strane GVS-a
+ Reprodukcija će neuspešno ako je heš kőd opozvan"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Morate uneti vaƁan heš kőd JavaScript plejera.
 
 Reprodukcija će neće uspeti ako je heš kőd JavaScript plejera zastareo."</string>

@@ -93,9 +93,9 @@ Trykk på Fortsett nedenfor for å logge på"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Logget inn</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Autentisering lagret
 
-• Dine Morphe-innstillinger vil ikke importere/eksportere Android VR-autentisering
-• Hvis denne appen ikke brukes på 6 måneder, vil Google fjerne denne autentiseringen
-• Du må logge inn igjen hvis du endrer Google-passordet ditt eller avregistrerer denne enheten fra Google-innstillingene dine"</string>
+ Dine Morphe-innstillinger vil ikke importere/eksportere Android VR-autentisering
+ Hvis denne appen ikke brukes på 6 måneder, vil Google fjerne denne autentiseringen
+ Du må logge inn igjen hvis du endrer Google-passordet ditt eller avregistrerer denne enheten fra Google-innstillingene dine"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 er midlertidig ikke tilgjengelig (API-utløp)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Android VR-påloggingen har utløpt, prøv å logge inn på VR igjen</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 er midlertidig ikke tilgjengelig (status %d)</string>
@@ -107,9 +107,9 @@ Trykk på Fortsett nedenfor for å logge på"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Deaktiver oppdatering av spiller JavaScript</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Låser JavaScript-koden for avspilleren til en bestemt versjon
 
-• En gyldig hash for JavaScript-koden til avspilleren kreves
-• Hash-verdier for JavaScript-koden til avspilleren er gyldige i omtrent én måned, og utdaterte hash-verdier vil bli tilbakekalt av GVS
-• Avspillingen vil mislykkes hvis hash-verdien er tilbakekalt"</string>
+ En gyldig hash for JavaScript-koden til avspilleren kreves
+ Hash-verdier for JavaScript-koden til avspilleren er gyldige i omtrent én måned, og utdaterte hash-verdier vil bli tilbakekalt av GVS
+ Avspillingen vil mislykkes hvis hash-verdien er tilbakekalt"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Du må oppgi en gyldig hash for JavaScript-koden til avspilleren.
 
 Avspillingen vil mislykkes hvis hash-verdien for JavaScript-koden til avspilleren er utdatert."</string>

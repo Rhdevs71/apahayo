@@ -74,16 +74,16 @@ Second \"item\" text"</string>
   <string name="morphe_music_crossfade_video_mode_disabled_toast">Videotilstand er ikke tilgængelig, når crossfade er aktiveret</string>
   <string name="morphe_music_crossfade_cast_unstable_toast">Crossfade er sat på pause under casting eller afspilning via skærmdeling. Crossfade over casting/skærmdeling er ustabil og kan muligvis aldrig blive rettet.</string>
   <string name="morphe_music_crossfade_about_title">Om</string>
-  <string name="morphe_music_crossfade_about_summary">Sådan fungerer crossfade – og hvornår det ikke gør det</string>
+  <string name="morphe_music_crossfade_about_summary">Sådan fungerer crossfade  og hvornår det ikke gør det</string>
   <!-- Banner row has no text; it shows a full-width graphic via a custom layout. -->
   <string name="morphe_music_crossfade_about_how_title">Sådan fungerer det</string>
   <string name="morphe_music_crossfade_about_how_summary">"Crossfade overlapper slutningen af en sang med starten af den næste, og dæmper den ene ned, mens den anden tones op over den valgte varighed og kurve.
 
-Det kører på auto-avance (når en sang slutter af sig selv) og på manuelle spring – hver har sin egen kontakt øverst. Ved auto-avance starter overgangen et par sekunder før sangen slutter.
+Det kører på auto-avance (når en sang slutter af sig selv) og på manuelle spring  hver har sin egen kontakt øverst. Ved auto-avance starter overgangen et par sekunder før sangen slutter.
 
 Kræver YouTube Music 9.x eller nyere."</string>
   <string name="morphe_music_crossfade_about_best_title">Fungerer bedst med</string>
-  <string name="morphe_music_crossfade_about_best_summary">Normal sang-til-sang afspilning og auto-avance, gentag én (sangen crossfades ind i sig selv), og lokal lyd – telefonhøjttaler, kablede hovedtelefoner, Bluetooth eller USB.</string>
+  <string name="morphe_music_crossfade_about_best_summary">Normal sang-til-sang afspilning og auto-avance, gentag én (sangen crossfades ind i sig selv), og lokal lyd  telefonhøjttaler, kablede hovedtelefoner, Bluetooth eller USB.</string>
   <string name="morphe_music_crossfade_about_quirks_title">Fungerer ikke helt som den skal</string>
   <string name="morphe_music_crossfade_about_quirks_summary">"Musikvideoer afspilles kun med lyd, når crossfade er aktiveret (hold lang tryk på afspilningslisten for at pause, hvis du vil se videoen)
 
@@ -91,13 +91,13 @@ Sange, der er kortere end din fade-varighed, springer muligvis fadet over
 
 Låseskærmen eller notifikationen kan kortvarigt vise en forældet status under overgangen"</string>
   <string name="morphe_music_crossfade_about_known_title">Kendte problemer</string>
-  <string name="morphe_music_crossfade_about_known_summary">"En musikvideo, der er indstillet som den første sang – eller en, der er startet uden for den aktuelle kø – kan kortvarigt vises som video, før lyd-kun-tilstanden træder i kraft
+  <string name="morphe_music_crossfade_about_known_summary">"En musikvideo, der er indstillet som den første sang  eller en, der er startet uden for den aktuelle kø  kan kortvarigt vises som video, før lyd-kun-tilstanden træder i kraft
 
 Pausning af crossfade for at se en musikvideo kan efterlade nogle videoer sorte (dem, hvis lyd kommer fra videoen selv). Pausning af crossfade, før du vælger sangen, undgår dette"</string>
   <string name="morphe_music_crossfade_about_unsupported_title">Fungerer slet ikke</string>
-  <string name="morphe_music_crossfade_about_unsupported_summary">"Casting eller mirroring af lyd (Chromecast, skærm eller lydmirroring) – crossfade pauseres, fordi det er ustabilt og muligvis aldrig kan rettes.
+  <string name="morphe_music_crossfade_about_unsupported_summary">"Casting eller mirroring af lyd (Chromecast, skærm eller lydmirroring)  crossfade pauseres, fordi det er ustabilt og muligvis aldrig kan rettes.
 
-YouTube Music 8.x – crossfade kører kun på 9.x og nyere"</string>
+YouTube Music 8.x  crossfade kører kun på 9.x og nyere"</string>
   <string name="morphe_music_crossfade_about_credit_title">Kreditering</string>
   <string name="morphe_music_crossfade_about_credit_summary">Crossfade-funktionen er lavet af VazerOG</string>
   <!-- interaction.permanentrepeat.permanentRepeatPatch -->
@@ -136,34 +136,34 @@ YouTube Music 8.x – crossfade kører kun på 9.x og nyere"</string>
   <string name="morphe_music_hide_flyout_menu_add_to_listen_later_title">Skjul menuen \'Tilføj til \'Lyt senere\'-playliste\'</string>
   <string name="morphe_music_hide_flyout_menu_add_to_queue_title">Skjul menuen \'Tilføj til kø\'</string>
   <string name="morphe_music_hide_flyout_menu_captions_title">Skjul Undertekster-menuen</string>
-  <string name="morphe_music_hide_flyout_menu_delete_playlist_title">Skjul ‘Slet playliste’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_dismiss_queue_title">Skjul ‘Afvis kø’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_dont_recommend_artist_title">Skjul ‘Anbefal ikke denne kunstner’ menu</string>
+  <string name="morphe_music_hide_flyout_menu_delete_playlist_title">Skjul Slet playliste menu</string>
+  <string name="morphe_music_hide_flyout_menu_dismiss_queue_title">Skjul Afvis kø menu</string>
+  <string name="morphe_music_hide_flyout_menu_dont_recommend_artist_title">Skjul Anbefal ikke denne kunstner menu</string>
   <string name="morphe_music_hide_flyout_menu_download_title">Skjul Download-menuen</string>
-  <string name="morphe_music_hide_flyout_menu_edit_playlist_title">Skjul ‘Rediger playliste’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_go_to_album_title">Skjul ‘Gå til album’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_go_to_artist_title">Skjul ‘Gå til kunstner’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_go_to_episode_title">Skjul ‘Gå til episode’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_go_to_podcast_title">Skjul ‘Gå til podcast’ menu</string>
+  <string name="morphe_music_hide_flyout_menu_edit_playlist_title">Skjul Rediger playliste menu</string>
+  <string name="morphe_music_hide_flyout_menu_go_to_album_title">Skjul Gå til album menu</string>
+  <string name="morphe_music_hide_flyout_menu_go_to_artist_title">Skjul Gå til kunstner menu</string>
+  <string name="morphe_music_hide_flyout_menu_go_to_episode_title">Skjul Gå til episode menu</string>
+  <string name="morphe_music_hide_flyout_menu_go_to_podcast_title">Skjul Gå til podcast menu</string>
   <string name="morphe_music_hide_flyout_menu_help_title">Skjul Hjælp-menuen</string>
-  <string name="morphe_music_hide_flyout_menu_mark_episode_as_played_title">Skjul ‘Marker episode som afspillet’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_not_interested_title">Skjul ‘Ikke interesseret’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_pin_to_speed_dial_title">Skjul ‘Fastgør til hurtigopkald’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_play_next_title">Skjul ‘Afspil næste’ menu</string>
+  <string name="morphe_music_hide_flyout_menu_mark_episode_as_played_title">Skjul Marker episode som afspillet menu</string>
+  <string name="morphe_music_hide_flyout_menu_not_interested_title">Skjul Ikke interesseret menu</string>
+  <string name="morphe_music_hide_flyout_menu_pin_to_speed_dial_title">Skjul Fastgør til hurtigopkald menu</string>
+  <string name="morphe_music_hide_flyout_menu_play_next_title">Skjul Afspil næste menu</string>
   <string name="morphe_music_hide_flyout_menu_quality_title">Skjul Kvalitet-menuen</string>
-  <string name="morphe_music_hide_flyout_menu_remove_from_library_title">Skjul ‘Fjern fra bibliotek’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_remove_from_playlist_title">Skjul ‘Fjern fra playliste’ menu</string>
+  <string name="morphe_music_hide_flyout_menu_remove_from_library_title">Skjul Fjern fra bibliotek menu</string>
+  <string name="morphe_music_hide_flyout_menu_remove_from_playlist_title">Skjul Fjern fra playliste menu</string>
   <string name="morphe_music_hide_flyout_menu_report_title">Skjul Rapportér-menuen</string>
-  <string name="morphe_music_hide_flyout_menu_save_episode_for_later_save_to_library_title">Skjul ‘Gem episode til senere’ / ‘Gem til bibliotek’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_save_to_playlist_title">Skjul ‘Gem til playliste’ menu</string>
+  <string name="morphe_music_hide_flyout_menu_save_episode_for_later_save_to_library_title">Skjul Gem episode til senere / Gem til bibliotek menu</string>
+  <string name="morphe_music_hide_flyout_menu_save_to_playlist_title">Skjul Gem til playliste menu</string>
   <string name="morphe_music_hide_flyout_menu_share_title">Skjul Del-menuen</string>
-  <string name="morphe_music_hide_flyout_menu_shuffle_play_title">Skjul ‘Shuffle afspilning’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_sleep_timer_title">Skjul ‘Sleep timer’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_start_radio_title">Skjul ‘Start radio’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_stats_for_nerds_title">Skjul ‘Stats for nerds’ menu</string>
+  <string name="morphe_music_hide_flyout_menu_shuffle_play_title">Skjul Shuffle afspilning menu</string>
+  <string name="morphe_music_hide_flyout_menu_sleep_timer_title">Skjul Sleep timer menu</string>
+  <string name="morphe_music_hide_flyout_menu_start_radio_title">Skjul Start radio menu</string>
+  <string name="morphe_music_hide_flyout_menu_stats_for_nerds_title">Skjul Stats for nerds menu</string>
   <string name="morphe_music_hide_flyout_menu_subscribe_title">Skjul Abonner-menuen</string>
-  <string name="morphe_music_hide_flyout_menu_unpin_from_speed_dial_title">Skjul ‘Fjern fastgørelse fra hurtigopkald’ menu</string>
-  <string name="morphe_music_hide_flyout_menu_view_song_credit_title">Skjul ‘Vis sangkreditter’ menu</string>
+  <string name="morphe_music_hide_flyout_menu_unpin_from_speed_dial_title">Skjul Fjern fastgørelse fra hurtigopkald menu</string>
+  <string name="morphe_music_hide_flyout_menu_view_song_credit_title">Skjul Vis sangkreditter menu</string>
   <!-- layout.startpage.changeStartPagePatch -->
   <string name="morphe_change_start_page_title">Startside</string>
   <string name="morphe_change_start_page_entry_default">Standard</string>

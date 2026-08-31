@@ -64,7 +64,7 @@ Wenn Sie ein YouTube Premium-Nutzer sind, ist diese Einstellung möglicherweise 
   <string name="morphe_spoof_video_streams_user_dialog_message">Das Deaktivieren dieser Einstellung kann Wiedergabeprobleme verursachen.</string>
   <!-- "Spoof video streams" must use the same translation as morphe_spoof_video_streams_title.
          "Sign in to Android VR" must use the same translation as morphe_spoof_video_streams_sign_in_android_vr_about_title -->
-  <string name="morphe_spoof_video_streams_no_clients_suggest_vr_toast">Versuch, dies zu aktivieren: „Video-Streams spoofen“ &gt; Android VR Anmeldung</string>
+  <string name="morphe_spoof_video_streams_no_clients_suggest_vr_toast">Versuch, dies zu aktivieren: Video-Streams spoofen &gt; Android VR Anmeldung</string>
   <string name="morphe_spoof_video_streams_client_type_title">Standard-Client</string>
   <!-- Ensure this translation matches the translation of morphe_spoof_video_streams_no_clients_suggest_vr_toast -->
   <string name="morphe_spoof_video_streams_sign_in_android_vr_about_title">Android VR Anmeldung</string>
@@ -93,9 +93,9 @@ Um sich anzumelden, drücken Sie unten auf \"Weiter\""</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Erfolgreich angemeldet</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Authentifizierung gespeichert
 
-• Ihre Morphe-Einstellungen importieren/-exportieren keine Android VR-Authentifizierung
-• Wenn diese App 6 Monate lang nicht genutzt wird, entfernt Google diese Authentifizierung
-• Wenn Sie Ihr Google-Kennwort ändern oder dieses Gerät von Ihren Google-Einstellungen deregistrieren, müssen Sie sich erneut anmelden"</string>
+ Ihre Morphe-Einstellungen importieren/-exportieren keine Android VR-Authentifizierung
+ Wenn diese App 6 Monate lang nicht genutzt wird, entfernt Google diese Authentifizierung
+ Wenn Sie Ihr Google-Kennwort ändern oder dieses Gerät von Ihren Google-Einstellungen deregistrieren, müssen Sie sich erneut anmelden"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 ist vorübergehend nicht verfügbar (API Timeout)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Android VR-Anmeldung abgelaufen, versuchen Sie erneut sich bei VR anzumelden</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 ist vorübergehend nicht verfügbar (Status %d)</string>
@@ -107,9 +107,9 @@ Um sich anzumelden, drücken Sie unten auf \"Weiter\""</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">JavaScript-Update des Players deaktivieren</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Sperrt das Player JavaScript auf eine bestimmte Version fest.
 
-• Es ist ein gültiger Hash des Player JavaScript erforderlich.
-• Player JavaScript Hashes sind etwa einen Monat gültig. Veraltete Hashes werden von GVS widerrufen.
-• Die Wiedergabe schlägt fehl, wenn der Hash widerrufen wurde."</string>
+ Es ist ein gültiger Hash des Player JavaScript erforderlich.
+ Player JavaScript Hashes sind etwa einen Monat gültig. Veraltete Hashes werden von GVS widerrufen.
+ Die Wiedergabe schlägt fehl, wenn der Hash widerrufen wurde."</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Sie müssen einen gültigen Player JavaScript Hash angeben.
 
 Die Wiedergabe schlägt fehl, wenn der Player JavaScript Hash veraltet ist."</string>

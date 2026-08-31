@@ -16,7 +16,7 @@ Second \"item\" text"</string>
 -->
 <resources>
   <string name="morphe_sb_enabled_title">Включить SponsorBlock</string>
-  <string name="morphe_sb_enabled_summary">SponsorBlock – это краудсорсинговая система для пропуска раздражающих фрагментов видео YouTube</string>
+  <string name="morphe_sb_enabled_summary">SponsorBlock  это краудсорсинговая система для пропуска раздражающих фрагментов видео YouTube</string>
   <string name="morphe_sb_appearance_category_title">Внешний вид</string>
   <string name="morphe_sb_voting_button_title">Показать кнопку голосования за сегмент</string>
   <string name="morphe_sb_voting_button_summary">Добавляет кнопку для голосования за или против сегментов</string>

@@ -92,9 +92,9 @@ Second \"item\" text"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">सक्सेसफुली साइन इन झाले</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"ऑथेंटिकेशन सेव्ह झाले
 
-• तुमचे Morphe सेटिंग्ज Android VR ऑथेंटिकेशन इम्पोर्ट/एक्सपोर्ट करणार नाहीत
-• जर हे ॲप 6 महिन्यांसाठी वापरले नसेल, तर Google हे ऑथेंटिकेशन काढून टाकेल
-• तुम्ही तुमचे Google पासवर्ड बदलल्यास किंवा तुमच्या Google सेटिंग्जमधून हे डिव्हाइस अनरजिस्टर केल्यास तुम्हाला पुन्हा साइन इन करावे लागेल"</string>
+ तुमचे Morphe सेटिंग्ज Android VR ऑथेंटिकेशन इम्पोर्ट/एक्सपोर्ट करणार नाहीत
+ जर हे ॲप 6 महिन्यांसाठी वापरले नसेल, तर Google हे ऑथेंटिकेशन काढून टाकेल
+ तुम्ही तुमचे Google पासवर्ड बदलल्यास किंवा तुमच्या Google सेटिंग्जमधून हे डिव्हाइस अनरजिस्टर केल्यास तुम्हाला पुन्हा साइन इन करावे लागेल"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 तात्पुरते उपलब्ध नाही (API टाइम आउट)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Android VR साइन इन एक्सपायर झाले, VR मध्ये पुन्हा साइन इन करण्याचा प्रयत्न करा</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 तात्पुरते उपलब्ध नाही (स्टेटस %d)</string>
@@ -106,9 +106,9 @@ Second \"item\" text"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Player JavaScript अपडेट अक्षम करा</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"प्लेअर JavaScript चा विशिष्ट आवृत्तीवर लॉक करा
 
-• वैध प्लेअर JavaScript हॅश आवश्यक आहे
-• प्लेअर JavaScript हॅश अंदाजे एका महिन्यासाठी वैध असतात आणि कालबाह्य झालेले हॅश GVS द्वारे रद्द केले जातील
-• हॅश रद्द झाल्यास प्लेबॅक अयशस्वी होईल"</string>
+ वैध प्लेअर JavaScript हॅश आवश्यक आहे
+ प्लेअर JavaScript हॅश अंदाजे एका महिन्यासाठी वैध असतात आणि कालबाह्य झालेले हॅश GVS द्वारे रद्द केले जातील
+ हॅश रद्द झाल्यास प्लेबॅक अयशस्वी होईल"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"तुम्हाला वैध प्लेअर JavaScript हॅश प्रदान करणे आवश्यक आहे.
 
 प्लेअर JavaScript हॅश कालबाह्य झाल्यास प्लेबॅक अयशस्वी होईल."</string>

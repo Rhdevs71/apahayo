@@ -214,7 +214,7 @@ Kung hindi ka nagsumite ng highlight, pindutin ang Kanselahin at markahan ang pa
   <string name="morphe_sb_stats_title">Stats</string>
   <!-- Shown in the settings preferences, and translations can be any text length. -->
   <string name="morphe_sb_stats_connection_failure">Pansamantalang hindi magagamit ang stats (pababa ang API)</string>
-  <string name="morphe_sb_stats_loading">Naglo-load…</string>
+  <string name="morphe_sb_stats_loading">Naglo-load</string>
   <string name="morphe_sb_stats_sb_disabled">Ang SponsorBlock ay hindi gumagana</string>
   <string name="morphe_sb_stats_username">Ang iyong username: <b>%s</b></string>
   <string name="morphe_sb_stats_username_change">I-tap dito para baguhin ang iyong username</string>

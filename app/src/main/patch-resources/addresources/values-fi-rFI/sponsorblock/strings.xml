@@ -46,7 +46,7 @@ Second \"item\" text"</string>
   <string name="morphe_sb_video_length_without_segments_title">Näytä videon pituus ilman osioita</string>
   <string name="morphe_sb_video_length_without_segments_summary">Vähentää kaikkien segmenttien keston kokonaisvideon pituudesta, joka näkyy palkissa</string>
   <string name="morphe_sb_create_segment_category_title">Uusien osioiden luominen</string>
-  <string name="morphe_sb_create_new_segment_title">Näytä ”Luo uusi segmentti” -painike</string>
+  <string name="morphe_sb_create_new_segment_title">Näytä Luo uusi segmentti -painike</string>
   <string name="morphe_sb_create_new_segment_summary">Lisää videon toistajaan painike, jonka avulla voit lähettää uusia SponsorBlock-segmenttejä</string>
   <string name="morphe_sb_create_new_segment_step_title">Ajan säätämisen askel</string>
   <string name="morphe_sb_create_new_segment_step_summary">Ajan säätämisen painikkeiden etsimismäärä (millisekunneissa)</string>
@@ -176,7 +176,7 @@ On jo olemassa"</string>
   <string name="morphe_sb_vote_category">Muuta kategoriaa</string>
   <string name="morphe_sb_vote_no_segments">Äänestettäviä osioita ei ole</string>
   <!-- A segment start and end time, such as "02:10 to 03:40". -->
-  <string name="morphe_sb_vote_segment_time_to_from">%1$s–%2$s</string>
+  <string name="morphe_sb_vote_segment_time_to_from">%1$s%2$s</string>
   <string name="morphe_sb_new_segment_choose_category">Valitse osion kategoria</string>
   <string name="morphe_sb_new_segment_disabled_category">Kategoria on poistettu käytöstä asetuksissa. Salli kategoria lähettääksesi.</string>
   <string name="morphe_sb_new_segment_title">Uusi SponsorBlock-osio</string>

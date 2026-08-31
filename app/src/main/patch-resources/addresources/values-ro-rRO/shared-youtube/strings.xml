@@ -93,9 +93,9 @@ Pentru a te apăsa, apăsă butonul Continu de mai jos"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Autentificare cu succes</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Autentificare salvată
 
-• Configurațiile Morphe nu vor importa/exporta autentificarea Android VR
-• Dacă această aplicație nu este folosită timp de 6 luni, Google va șterge această autentificare
-• Dacă schimbi parola Google sau deblochezi acest dispozitiv din setări Google, vei avea nevoie să te autentifici din nou"</string>
+ Configurațiile Morphe nu vor importa/exporta autentificarea Android VR
+ Dacă această aplicație nu este folosită timp de 6 luni, Google va șterge această autentificare
+ Dacă schimbi parola Google sau deblochezi acest dispozitiv din setări Google, vei avea nevoie să te autentifici din nou"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 este momentan indisponibil (API a expirat)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Apărarea la Android VR a expirat, încearcă din nou</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 este momentan indisponibil (status %d)</string>
@@ -107,9 +107,9 @@ Pentru a te apăsa, apăsă butonul Continu de mai jos"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Dezactivează actualizarea JavaScript a player-ului</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Blochează scriptul JavaScript al playerului la o versiune specifică
 
-• Este necesar un hash valid al scriptului JavaScript al playerului
-• Hash-urile scriptului JavaScript al playerului sunt valide timp de aproximativ o lună, iar hash-urile depășite vor fi revocate de GVS
-• Redarea eșuează dacă hash-ul este revocat"</string>
+ Este necesar un hash valid al scriptului JavaScript al playerului
+ Hash-urile scriptului JavaScript al playerului sunt valide timp de aproximativ o lună, iar hash-urile depășite vor fi revocate de GVS
+ Redarea eșuează dacă hash-ul este revocat"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Trebuie să furnizați un hash valid al scriptului JavaScript al playerului.
 
 Redarea va eșua dacă hash-ul scriptului JavaScript al playerului este depășit."</string>

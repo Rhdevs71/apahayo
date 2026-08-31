@@ -93,9 +93,9 @@ Til að skrá þig inn ýttu á halda áfram hér að neðan"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Skráning tókst</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Staðfesting vistað
 
-• Morphe stillingar munu ekki flytja / flytja Android VR staðfestingu
-• Ef þetta forrit er ekki notað í 6 mánuði mun Google fjarlægja þessa staðfestingu
-• Þú þarft að skrá þig inn aftur ef þú breytir Google lykilorðinu þínu eða hættir þessu tæki úr Google stillingum þínum"</string>
+ Morphe stillingar munu ekki flytja / flytja Android VR staðfestingu
+ Ef þetta forrit er ekki notað í 6 mánuði mun Google fjarlægja þessa staðfestingu
+ Þú þarft að skrá þig inn aftur ef þú breytir Google lykilorðinu þínu eða hættir þessu tæki úr Google stillingum þínum"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 er tímabundið ekki í boði (API tímdi út)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Android VR innskráning er runnin út, prófaðu að skrá þig inn á VR aftur</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 er tímabundið ekki í boði (staða %d)</string>
@@ -107,9 +107,9 @@ Til að skrá þig inn ýttu á halda áfram hér að neðan"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Óvirkjaðu uppfærslu JavaScript fyrir spilara</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Læsir JavaScript spilara í ákveðna útgáfu
 
-• Er þarf að veita gilda JavaScript hash spilara
-• JavaScript hash spilara er gildir í um það bil mánuði og úrelt hash verður afnumin af GVS
-• Spilun mun bregðast ef hash er afnumin"</string>
+ Er þarf að veita gilda JavaScript hash spilara
+ JavaScript hash spilara er gildir í um það bil mánuði og úrelt hash verður afnumin af GVS
+ Spilun mun bregðast ef hash er afnumin"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Þú þarft að veita gilda JavaScript hash spilara.
 
 Spilun mun bregðast ef Player JavaScript hash er úrelt."</string>

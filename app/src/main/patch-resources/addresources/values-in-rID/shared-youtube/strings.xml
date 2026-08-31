@@ -93,9 +93,9 @@ Untuk masuk, tekan lanjutkan di bawah ini"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Berhasil masuk</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Autentikasi disimpan
 
-• Pengaturan Morphe Anda tidak akan mengimpor/mengekspor autentikasi Android VR
-• Jika aplikasi ini tidak digunakan selama 6 bulan, Google akan menghapus autentikasi ini
-• Anda perlu masuk kembali jika Anda mengubah kata sandi Google Anda atau menghapus pendaftaran perangkat ini dari pengaturan Google Anda"</string>
+ Pengaturan Morphe Anda tidak akan mengimpor/mengekspor autentikasi Android VR
+ Jika aplikasi ini tidak digunakan selama 6 bulan, Google akan menghapus autentikasi ini
+ Anda perlu masuk kembali jika Anda mengubah kata sandi Google Anda atau menghapus pendaftaran perangkat ini dari pengaturan Google Anda"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 sementara tidak tersedia (API kehabisan waktu)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Masuk ke Android VR telah kadaluwarsa, coba masuk ke VR lagi</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 sementara tidak tersedia (status %d)</string>
@@ -107,9 +107,9 @@ Untuk masuk, tekan lanjutkan di bawah ini"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Nonaktifkan pembaruan pemutar JavaScript</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Mengunci JavaScript pemain ke versi tertentu
 
-• Hash JavaScript pemain yang valid diperlukan
-• Hash JavaScript pemain berlaku selama sekitar satu bulan, dan hash yang kedaluwarsa akan dicabut oleh GVS
-• Pemutaran gagal jika hash dicabut"</string>
+ Hash JavaScript pemain yang valid diperlukan
+ Hash JavaScript pemain berlaku selama sekitar satu bulan, dan hash yang kedaluwarsa akan dicabut oleh GVS
+ Pemutaran gagal jika hash dicabut"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Anda harus memberikan hash pemutar JavaScript yang sah.
 
 Pemutaran akan gagal jika hash pemutar JavaScript sudah kedaluwarsa."</string>

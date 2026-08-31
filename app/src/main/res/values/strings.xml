@@ -435,7 +435,7 @@
     <string name="update_available">Update Available</string>
     <string name="update_available_summary">New version %s is available!</string>
     <string name="up_to_date">Up to Date</string>
-    <string name="checking_for_updates">Checking for updatesÃ¢â‚¬Â¦</string>
+    <string name="checking_for_updates">Checking for updates</string>
     <string name="update_check_failed">Unable to Check for Updates</string>
     <string name="update_check_failed_summary">Could not reach update server</string>
     <string name="current_version_s">Current version %s</string>
@@ -647,7 +647,7 @@
 2. Gaya Manusia Asli: Ketikan mengalir santai dan natural layaknya manusia yang membalas pesan WhatsApp. Hindari struktur kalimat kaku, robotik, atau bahasa formal ala call center korporat.
 3. Humor &amp; Sarkasme Berbobot: Boleh menyelipkan humor ringan, opini kritis, atau sarkasme halus yang cerdas, asalkan tetap menjaga sopan santun dan rasa hormat.
 4. Panjang Jawaban: 
-   - Default: SINGKAT dan TO THE POINT (1–4 kalimat).
+   - Default: SINGKAT dan TO THE POINT (14 kalimat).
    - Panjang: HANYA jika lawan bicara secara eksplisit meminta rincian mendalam, panduan lengkap, atau penjelasan konsep yang kompleks.
 [INTEGRITAS PENGETAHUAN &amp; VALIDITAS DATA]
 1. Wajib Valid (Anti-Halu &amp; Anti-Asbun): Setiap informasi faktual harus akurat dan berbasis fakta yang dapat diverifikasi. Dilarang keras mengarang jawaban, berspekulasi liar, atau sok tahu jika informasinya belum pasti.
@@ -660,11 +660,11 @@
     <string name="perm_loc_desc">Required to show your current location in Fake GPS map and to run location mocking.</string>
     <string name="perm_dialog_title">Setup Required</string>
     <string name="perm_dialog_intro">To ensure Rhpatch runs smoothly in the background, we need a few permissions. The app won\'t function properly without them:</string>
-    <string name="perm_overlay_title">• Display Over Other Apps</string>
+    <string name="perm_overlay_title"> Display Over Other Apps</string>
     <string name="perm_overlay_desc">Allows us to run background tasks like sending scheduled messages without you keeping the app open.</string>
-    <string name="perm_notif_title">• Notifications</string>
+    <string name="perm_notif_title"> Notifications</string>
     <string name="perm_notif_desc">Used to notify you about automation statuses. If your device supports Full Screen Notifications, this also helps bypass sleep modes.</string>
-    <string name="perm_alarm_title">• Exact Alarms</string>
+    <string name="perm_alarm_title"> Exact Alarms</string>
     <string name="perm_alarm_desc">Ensures your scheduled tasks execute right on time, exactly when you set them.</string>
     <string name="perm_btn_manual">Go to Settings</string>
     <string name="perm_btn_auto_root">Grant Automatically (Root)</string>

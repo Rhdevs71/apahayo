@@ -91,13 +91,13 @@ Lög sem eru styttri en fade tími þinn gætu sleppt fade
 
 Loka skjárinn eða tilkynningin geta stutt sýnt áfram gamlan ástandi á milli ábreiða"</string>
   <string name="morphe_music_crossfade_about_known_title">Þekktir vandamál</string>
-  <string name="morphe_music_crossfade_about_known_summary">"Tónlistarvídeó sem er stillt sem fyrsta lagið — eða eitt sem er byrjað utan núverandi biðlista — gæti stuttlega sýnt mynd áður en aðeins hljóðstillingu er krafist
+  <string name="morphe_music_crossfade_about_known_summary">"Tónlistarvídeó sem er stillt sem fyrsta lagið  eða eitt sem er byrjað utan núverandi biðlista  gæti stuttlega sýnt mynd áður en aðeins hljóðstillingu er krafist
 
 Pausa crossfade til að horfa á tónlistarvídeó getur skilið sum vídeó svört (þau sem hljóðið kemur frá myndinni sjálfri). Pausa crossfade áður en þú velur lagið forðast það"</string>
   <string name="morphe_music_crossfade_about_unsupported_title">Virkar alls ekki</string>
-  <string name="morphe_music_crossfade_about_unsupported_summary">"Sending eða speglun hljóðs (Chromecast, skjá- eða hljóðspeglun) — crossfade fer í pausa því það er óstöðugt þar og gæti aldrei verið lagað.
+  <string name="morphe_music_crossfade_about_unsupported_summary">"Sending eða speglun hljóðs (Chromecast, skjá- eða hljóðspeglun)  crossfade fer í pausa því það er óstöðugt þar og gæti aldrei verið lagað.
 
-YouTube Music 8.x — crossfade virkar bara á 9.x og nýrri útgáfum"</string>
+YouTube Music 8.x  crossfade virkar bara á 9.x og nýrri útgáfum"</string>
   <string name="morphe_music_crossfade_about_credit_title">Kredit</string>
   <string name="morphe_music_crossfade_about_credit_summary">Crossfade virkni af VazerOG</string>
   <!-- interaction.permanentrepeat.permanentRepeatPatch -->

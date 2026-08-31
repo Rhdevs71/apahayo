@@ -87,9 +87,9 @@ Om in te loggen, druk je op 'doorgaan' onderaan"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Succesvol ingelogd</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Authenticatie is opgeslagen
 
-• Uw Morphe-instellingen kunnen Android VR-authenticatie niet importeren/uitvoeren
-• Als deze app ongebruikt is gedurende 6 maanden, dan zal Google deze authenticatie verwijderen
-• U moet opnieuw inloggen als u uw Google-wachtwoord wijzigt of deze apparaat deregistreert bij uw Google-instellingen"</string>
+ Uw Morphe-instellingen kunnen Android VR-authenticatie niet importeren/uitvoeren
+ Als deze app ongebruikt is gedurende 6 maanden, dan zal Google deze authenticatie verwijderen
+ U moet opnieuw inloggen als u uw Google-wachtwoord wijzigt of deze apparaat deregistreert bij uw Google-instellingen"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 is tijdelijk niet beschikbaar (API heeft time-out)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Android VR inloggen is verlopen, probeer het nog eens</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 is tijdelijk niet beschikbaar (status %d)</string>
@@ -101,9 +101,9 @@ Om in te loggen, druk je op 'doorgaan' onderaan"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Speler JavaScript-update uitschakelen</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Blokkeert de player JavaScript op een specifieke versie
 
-• Er is een geldige player JavaScript hash vereist
-• Player JavaScript hashes zijn ongeveer een maand geldig, en verouderde hashes worden ingetrokken door GVS
-• Het afspelen mislukt als de hash is ingetrokken"</string>
+ Er is een geldige player JavaScript hash vereist
+ Player JavaScript hashes zijn ongeveer een maand geldig, en verouderde hashes worden ingetrokken door GVS
+ Het afspelen mislukt als de hash is ingetrokken"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"U moet een geldige player JavaScript hash opgeven.
 
 Het afspelen mislukt als de Player JavaScript hash verouderd is."</string>

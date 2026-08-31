@@ -93,9 +93,9 @@ Daxil olmaq üçün aşağıda davam et-i vurun"</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_title">Uğurla daxil olundu</string>
   <string name="morphe_spoof_video_streams_sign_in_android_vr_success_dialog_message">"Təsdiqlənmə saxlanıldı
 
-• Morphe tənzimləmələriniz Android VR təsdiqlənməsini idxal/ixrac etməyəcək
-• Bu tətbiq 6 ay ərzində istifadə olunmazsa, Google bu təsdiqlənməni siləcək
-• Google parolunuzu dəyişdirsəniz və ya bu cihazı Google tənzimləmələrinizdən çıxarsanız, təkrar daxil olmalı olacaqsınız"</string>
+ Morphe tənzimləmələriniz Android VR təsdiqlənməsini idxal/ixrac etməyəcək
+ Bu tətbiq 6 ay ərzində istifadə olunmazsa, Google bu təsdiqlənməni siləcək
+ Google parolunuzu dəyişdirsəniz və ya bu cihazı Google tənzimləmələrinizdən çıxarsanız, təkrar daxil olmalı olacaqsınız"</string>
   <string name="morphe_oauth2_connection_failure_timeout">OAuth2 keçici olaraq əlçatan deyil (API vaxtı bitdi)</string>
   <string name="morphe_oauth2_connection_failure_status_400">Android VR girişi sonlandı, VR-a təkrar daxil olmağa cəhd et</string>
   <string name="morphe_oauth2_connection_failure_status">OAuth2 keçici olaraq əlçatan deyil (vəziyyət %d)</string>
@@ -107,9 +107,9 @@ Daxil olmaq üçün aşağıda davam et-i vurun"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_title">Oynadıcı JavaScript yenilənməsini qapat</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_summary">"Oynadıcının JavaScript-ini xüsusi versiyaya bağlayır
 
-• Etibarlı oynadıcı JavaScript hash-i tələb olunur
-• Oynadıcı JavaScript hash-ləri təqribən bir ay müddətində qüvvədədir və köhnəlmiş hash-lər GVS tərəfindən ləğv ediləcək
-• Hash ləğv edilərsə, oynatma uğursuz olur"</string>
+ Etibarlı oynadıcı JavaScript hash-i tələb olunur
+ Oynadıcı JavaScript hash-ləri təqribən bir ay müddətində qüvvədədir və köhnəlmiş hash-lər GVS tərəfindən ləğv ediləcək
+ Hash ləğv edilərsə, oynatma uğursuz olur"</string>
   <string name="morphe_spoof_video_streams_disable_player_js_update_user_dialog_message">"Etibarlı oynadıcı JavaScript hash-i təmin etməlisiniz.
 
 Oynadıcı JavaScript hash-i köhnədirsə, oynatma uğursuz olacaq."</string>
