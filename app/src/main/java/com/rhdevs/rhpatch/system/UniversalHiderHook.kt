@@ -1,4 +1,4 @@
-package com.rhdevs.rhpatch.system
+﻿package com.rhdevs.rhpatch.system
 
 import android.app.Application
 import android.view.View
@@ -49,10 +49,15 @@ object UniversalHiderHook {
                             }
                         }
 
-                        if (resolvedIds.isEmpty()) return
+                        if (resolvedIds.isEmpty()) {
+                            XposedBridge.log("Rhpatch: UniversalHider IDs not found in resources for " + lpparam.packageName)
+                            return
+                        }
 
                         if (!hasHookedView) {
                             hasHookedView = true
+                            
+                            // Hook 1: Ensure it's GONE when attached
                             XposedHelpers.findAndHookMethod(
                                 View::class.java,
                                 "onAttachedToWindow",
@@ -60,9 +65,40 @@ object UniversalHiderHook {
                                     override fun afterHookedMethod(viewParam: MethodHookParam) {
                                         val view = viewParam.thisObject as View
                                         if (resolvedIds.contains(view.id)) {
-                                            if (view.visibility != View.GONE) {
-                                                view.visibility = View.GONE
-                                            }
+                                            view.visibility = View.GONE
+                                            view.layoutParams?.width = 0
+                                            view.layoutParams?.height = 0
+                                        }
+                                    }
+                                }
+                            )
+                            
+                            // Hook 2: Prevent the app from making it visible again
+                            XposedHelpers.findAndHookMethod(
+                                View::class.java,
+                                "setVisibility",
+                                Int::class.javaPrimitiveType,
+                                object : XC_MethodHook() {
+                                    override fun beforeHookedMethod(viewParam: MethodHookParam) {
+                                        val view = viewParam.thisObject as View
+                                        if (resolvedIds.contains(view.id)) {
+                                            viewParam.args[0] = View.GONE
+                                        }
+                                    }
+                                }
+                            )
+                            
+                            // Hook 3: Force dimensions to 0 to collapse the space
+                            XposedHelpers.findAndHookMethod(
+                                View::class.java,
+                                "onMeasure",
+                                Int::class.javaPrimitiveType,
+                                Int::class.javaPrimitiveType,
+                                object : XC_MethodHook() {
+                                    override fun afterHookedMethod(viewParam: MethodHookParam) {
+                                        val view = viewParam.thisObject as View
+                                        if (resolvedIds.contains(view.id)) {
+                                            XposedHelpers.callMethod(view, "setMeasuredDimension", 0, 0)
                                         }
                                     }
                                 }

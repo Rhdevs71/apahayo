@@ -52,12 +52,9 @@ class ThemeStudioActivity : AppCompatActivity() {
         if (isHomeView) {
             setupClickListener(mockView, R.id.toolbar, "#toolbar")
             setupClickListener(mockView, R.id.menuitem_camera, "#menuitem_camera")
-            setupClickListener(mockView, R.id.menuitem_search, "#menuitem_search")
             setupClickListener(mockView, R.id.chat_list, "#chat_list")
             setupClickListener(mockView, R.id.main_layout, "#main_layout")
             setupClickListener(mockView, R.id.bottom_nav, "#bottom_nav")
-            setupClickListener(mockView, R.id.pin_indicator, "#pin_indicator")
-            setupClickListener(mockView, R.id.mute_indicator, "#mute_indicator")
         } else {
             setupClickListener(mockView, R.id.chat_toolbar, "#chat_toolbar")
             setupClickListener(mockView, R.id.chat_background, "#conversation_background")

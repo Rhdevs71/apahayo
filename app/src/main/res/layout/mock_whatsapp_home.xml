@@ -16,7 +16,6 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:background="#1f2c34"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="16dp">
@@ -25,22 +24,15 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="WhatsApp"
-                android:textColor="#e9edef"
-                android:textSize="22sp"
+                android:textColor="#ffffff"
+                android:textSize="24sp"
                 android:textStyle="bold" />
             <ImageView
                 android:id="@+id/menuitem_camera"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginEnd="20dp"
-                android:src="@android:drawable/ic_menu_camera"
-                app:tint="#e9edef" />
-            <ImageView
-                android:id="@+id/menuitem_search"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
-                android:src="@android:drawable/ic_search_category_default"
+                android:src="@android:drawable/ic_menu_camera"
                 app:tint="#e9edef" />
             <ImageView
                 android:layout_width="24dp"
@@ -48,6 +40,84 @@
                 android:src="@android:drawable/ic_menu_more"
                 app:tint="#e9edef" />
         </LinearLayout>
+
+        <!-- Meta AI Search Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_entry"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
+            
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="#53bdeb" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:text="Tanya Meta AI atau Pencarian"
+                android:textColor="#8696a0"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <!-- Filter Chips -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:paddingHorizontal="12dp"
+            android:paddingBottom="12dp">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_mic"
+                    android:backgroundTint="#202c33"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:text="Semua"
+                    android:textColor="#00a884"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+                    
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_mic"
+                    android:backgroundTint="#202c33"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:text="Belum dibaca"
+                    android:textColor="#8696a0"
+                    android:textSize="14sp" />
+                    
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_mic"
+                    android:backgroundTint="#202c33"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:text="Grup"
+                    android:textColor="#8696a0"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </HorizontalScrollView>
 
         <!-- Chats List -->
         <LinearLayout
@@ -86,15 +156,15 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="John Doe"
+                            android:text="Joni Malik"
                             android:textColor="#e9edef"
                             android:textSize="17sp"
                             android:textStyle="bold" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="10:30"
-                            android:textColor="#8696a0"
+                            android:text="09.28"
+                            android:textColor="#00a884"
                             android:textSize="12sp" />
                     </LinearLayout>
                     
@@ -105,38 +175,35 @@
                         android:layout_marginTop="2dp"
                         android:gravity="center_vertical">
                         
-                        <!-- Double Blue Ticks -->
+                        <!-- Read Receipt / Type icon -->
                         <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
                             android:layout_marginEnd="4dp"
-                            android:src="@android:drawable/checkbox_on_background"
-                            app:tint="#53bdeb" />
+                            android:src="@android:drawable/ic_menu_gallery"
+                            app:tint="#8696a0" />
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Hello, how are you?"
+                            android:text="Stiker"
                             android:textColor="#8696a0"
                             android:textSize="15sp"
                             android:maxLines="1"
                             android:ellipsize="end"/>
                         
-                        <ImageView
-                            android:id="@+id/mute_indicator"
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
+                        <!-- Unread Badge -->
+                        <TextView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
                             android:layout_marginStart="6dp"
-                            android:src="@android:drawable/ic_lock_silent_mode_off"
-                            app:tint="#8696a0" />
-                        <ImageView
-                            android:id="@+id/pin_indicator"
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:layout_marginStart="6dp"
-                            android:src="@android:drawable/ic_menu_mylocation"
-                            app:tint="#8696a0" />
+                            android:background="@drawable/bg_mic"
+                            android:gravity="center"
+                            android:text="4"
+                            android:textColor="#0b141a"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -160,7 +227,7 @@
                 android:gravity="center"
                 android:orientation="vertical">
                 <View android:layout_width="64dp" android:layout_height="32dp" android:background="#103629" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chats" android:textColor="#e9edef" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="-24dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chat" android:textColor="#e9edef" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="-24dp"/>
             </LinearLayout>
 
             <!-- Updates -->
@@ -171,7 +238,7 @@
                 android:gravity="center"
                 android:orientation="vertical">
                 <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_popup_sync" app:tint="#8696a0" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Updates" android:textColor="#8696a0" android:textSize="12sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pembaruan" android:textColor="#8696a0" android:textSize="12sp" />
             </LinearLayout>
             
             <!-- Communities -->
@@ -182,7 +249,7 @@
                 android:gravity="center"
                 android:orientation="vertical">
                 <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_menu_share" app:tint="#8696a0" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Communities" android:textColor="#8696a0" android:textSize="12sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Komunitas" android:textColor="#8696a0" android:textSize="12sp" />
             </LinearLayout>
 
             <!-- Calls -->
@@ -193,9 +260,26 @@
                 android:gravity="center"
                 android:orientation="vertical">
                 <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_menu_call" app:tint="#8696a0" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Calls" android:textColor="#8696a0" android:textSize="12sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Panggilan" android:textColor="#8696a0" android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
+    <!-- FAB (Square rounded) -->
+    <FrameLayout
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="80dp"
+        android:background="@drawable/bg_entry"
+        android:backgroundTint="#00a884"
+        android:elevation="4dp">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@android:drawable/ic_menu_add"
+            app:tint="#0b141a" />
+    </FrameLayout>
 </FrameLayout>
