@@ -1,4 +1,4 @@
-﻿@file:Suppress("DEPRECATION") @file:SuppressLint("WorldReadableFiles")
+@file:Suppress("DEPRECATION") @file:SuppressLint("WorldReadableFiles")
 package com.rhdevs.rhpatch.activity
 
 import android.annotation.SuppressLint
@@ -152,6 +152,10 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.menu_element_hider -> {
+                startActivity(Intent(this, ElementHiderActivity::class.java))
+                true
+            }
             R.id.menu_about -> {
                 aboutPreference.onPreferenceClickListener?.onPreferenceClick(aboutPreference)
                 true

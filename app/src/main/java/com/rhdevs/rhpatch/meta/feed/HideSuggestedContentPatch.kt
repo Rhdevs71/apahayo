@@ -16,12 +16,18 @@ val HideSuggestedContent = patch(
             classLoader,
             String::class.java,
             object : XC_MethodHook() {
+                val trayRegex = Regex("\"tray_type\":\"(suggested_users.*?|discover_people.*?|chaining_suggestions.*?|suggested_top_accounts.*?)\"")
+                val netegoRegex = Regex("\"netego_type\":\"(suggested_users.*?|discover_people.*?|chaining_suggestions.*?|suggested_top_accounts.*?)\"")
+
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     var json = param.args[0] as? String ?: return
-                    if (json.contains("\"tray_type\":\"suggested_users\"") || json.contains("\"netego_type\":\"suggested_users\"")) {
-                        // Change the type so Instagram ignores/drops it safely
-                        json = json.replace("\"tray_type\":\"suggested_users\"", "\"tray_type\":\"unknown_ignored\"")
-                        json = json.replace("\"netego_type\":\"suggested_users\"", "\"netego_type\":\"unknown_ignored\"")
+                    if (json.contains("suggested_users") || 
+                        json.contains("discover_people") || 
+                        json.contains("chaining_suggestions") || 
+                        json.contains("suggested_top_accounts")
+                    ) {
+                        json = trayRegex.replace(json, "\"tray_type\":\"unknown_ignored\"")
+                        json = netegoRegex.replace(json, "\"netego_type\":\"unknown_ignored\"")
                         param.args[0] = json
                     }
                 }
