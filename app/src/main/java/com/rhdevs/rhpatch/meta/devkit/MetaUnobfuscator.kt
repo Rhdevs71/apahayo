@@ -6,7 +6,7 @@ import org.luckypray.dexkit.DexKitBridge
 import java.lang.reflect.Method
 
 object MetaUnobfuscator {
-    private lateinit var bridge: DexKitBridge
+    private val bridges = mutableListOf<DexKitBridge>()
     private var isInitialized = false
 
     fun init(app: Application): Boolean {
@@ -15,45 +15,62 @@ object MetaUnobfuscator {
         try {
             System.loadLibrary("dexkit")
         } catch (e: Throwable) {
-            XposedBridge.log("Rhpatch: MetaUnobfuscator System.loadLibrary('dexkit') failed: ${e.message}")
+            XposedBridge.log("Rhpatch: MetaUnobfuscator System.loadLibrary('dexkit') failed: {e.message}")
             return false
         }
 
         return try {
-            val sourceDir = app.applicationInfo.sourceDir
-            bridge = DexKitBridge.create(sourceDir) ?: return false
-            isInitialized = true
-            true
+            val paths = mutableListOf<String>()
+            paths.add(app.applicationInfo.sourceDir)
+            app.applicationInfo.splitSourceDirs?.let { paths.addAll(it) }
+            
+            for (p in paths) {
+                val b = DexKitBridge.create(p)
+                if (b != null) {
+                    bridges.add(b)
+                }
+            }
+            
+            if (bridges.isNotEmpty()) {
+                isInitialized = true
+                true
+            } else {
+                false
+            }
         } catch (e: Exception) {
-            XposedBridge.log("Rhpatch: MetaUnobfuscator DexKitBridge.create failed: ${e.message}")
+            XposedBridge.log("Rhpatch: MetaUnobfuscator DexKitBridge.create failed: {e.message}")
             false
         }
     }
 
     fun findMethodUsingStrings(vararg strings: String, returnType: String? = null): List<Method> {
         if (!isInitialized) return emptyList()
-        val result = bridge.findMethod {
-            matcher {
-                for (string in strings) {
-                    addUsingString(string)
-                }
-                if (returnType != null) {
-                    returnType(returnType)
+        val results = mutableListOf<org.luckypray.dexkit.result.MethodData>()
+        
+        for (bridge in bridges) {
+            val res = bridge.findMethod {
+                matcher {
+                    for (string in strings) {
+                        addUsingString(string)
+                    }
+                    if (returnType != null) {
+                        returnType(returnType)
+                    }
                 }
             }
+            results.addAll(res)
         }
+        
         val loader = Thread.currentThread().contextClassLoader ?: return emptyList()
-        return result.mapNotNull { methodData ->
+        return results.mapNotNull { methodData ->
             try {
                 val method = methodData.getMethodInstance(loader)
-                // Filter out abstract methods to prevent Xposed hook crashes
                 if (java.lang.reflect.Modifier.isAbstract(method.modifiers)) {
                     null
                 } else {
                     method
                 }
             } catch (e: Exception) {
-                // Ignore <clinit> or other methods that fail to resolve
                 null
             }
         }
