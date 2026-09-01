@@ -12,21 +12,21 @@ val UnlockPlusBenefitsPatch = patch(
         if (!com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.init(appContext)) return@runCatching
 
         // Coba cari metode dengan berbagai kemungkinan string terkait IG Plus / Verified
-        val targetStrings = listOf("is_benefit_active", "is_ig_creator_plus_unlocked")
+        val targetStrings = listOf("is_benefit_active", "is_ig_creator_plus_unlocked", "get_is_ig_creator_plus_unlocked")
         
         var methods = emptyList<java.lang.reflect.Method>()
         for (str in targetStrings) {
-            // Hilangkan filter returnType di DexKit untuk memperlebar pencarian
-            methods = com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.findMethodUsingStrings(str)
-            
-            // Filter manual untuk mencocokkan persis metode return Boolean dengan 1 parameter String
-            methods = methods.filter { method ->
-                (method.returnType == Boolean::class.javaPrimitiveType || method.returnType == java.lang.Boolean::class.java) &&
-                method.parameterTypes.size == 1 &&
-                method.parameterTypes[0] == String::class.java
+            val found = com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.findMethodUsingStrings(str)
+            methods = found.filter { method ->
+                (method.returnType == Boolean::class.javaPrimitiveType || method.returnType == java.lang.Boolean::class.java)
             }
-            if (methods.isNotEmpty()) break
+            if (methods.isNotEmpty()) {
+                // If we found something that returns boolean, let's keep it.
+                // We'll hook ALL of them that match the string and return boolean.
+                break
+            }
         }
+
 
         var hooked = false
         for (method in methods) {

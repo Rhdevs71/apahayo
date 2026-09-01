@@ -94,6 +94,18 @@ object RhpatchSettingsDialog {
         layout.addView(createSwitch("Disable Stories Audio Autoplay", "Mematikan audio otomatis di Story", "pref_disable_stories_audio"))
         layout.addView(createSwitch("Unlock IG Plus", "Membuka kunci fitur berlangganan Creator Plus", "pref_ig_plus"))
         layout.addView(createSwitch("Disable Double Tap Like", "Matikan fungsi 2 kali ketuk untuk like", "pref_disable_double_tap_like"))
+        
+        // FITUR BARU FASE 2
+        layout.addView(createSwitch("Tema AMOLED (Pitch Black)", "Tampilan gelap menjadi benar-benar hitam pekat", "pref_theme_amoled"))
+        layout.addView(createSwitch("Buka Tautan Secara Eksternal", "Buka link web langsung di browser sistem (Chrome/dll)", "pref_open_links_externally"))
+        layout.addView(createSwitch("Aktifkan Mode Pengembang", "Tampilkan opsi Developer IG", "pref_enable_dev_options"))
+        layout.addView(createSwitch("Hapus Ruang Kosong Bawah", "Hilangkan space kosong di bawah layar (opsional)", "pref_remove_empty_bottom"))
+        layout.addView(createSwitch("Ubah Animasi Suka (Rings)", "Ganti animasi love standar dengan animasi ala Threads/Rings", "pref_like_animation"))
+        layout.addView(createSwitch("Indikator Pertemanan Berwarna", "Beri warna pada tombol Follow, Following, dan Follow Back di profil", "pref_colored_friendship"))
+        layout.addView(createSwitch("Anti-Delete DM", "Cegah orang lain menghapus (unsend) pesan di DM Anda", "pref_anti_delete"))
+        layout.addView(createSwitch("Tandai Sebagai Dibaca", "Tambahkan opsi manual untuk menandai DM terbaca saat Ghost Mode aktif", "pref_mark_as_read"))
+        layout.addView(createSwitch("Simpan Komentar Media", "Izinkan penyimpanan GIF dan stiker gambar dari komentar", "pref_media_comments"))
+
 
         // --- SECTION: DEBUG & FALLBACKS ---
         val debugTitle = TextView(context).apply {
