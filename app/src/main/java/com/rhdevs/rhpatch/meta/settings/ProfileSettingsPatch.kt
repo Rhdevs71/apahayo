@@ -58,6 +58,38 @@ val ProfileSettingsPatch = patch(
                                 parent.addView(fab)
                             }
                         }
+                        
+                        // [FRIENDSHIP STATUS COLORED]
+                        // Warnai tombol Follow / Following
+                        try {
+                            val prefs = context.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
+                            if (prefs.getBoolean("pref_colored_friendship", true)) {
+                                val allViews = arrayListOf<View>()
+                                fun findAllViews(v: View) {
+                                    allViews.add(v)
+                                    if (v is ViewGroup) {
+                                        for (i in 0 until v.childCount) {
+                                            findAllViews(v.getChildAt(i))
+                                        }
+                                    }
+                                }
+                                findAllViews(view)
+                                
+                                for (v in allViews) {
+                                    if (v is android.widget.TextView) {
+                                        val text = v.text.toString()
+                                        if (text.equals("Following", true) || text.equals("Mengikuti", true)) {
+                                            v.setTextColor(Color.parseColor("#4CAF50")) // Green
+                                        } else if (text.equals("Follow Back", true) || text.equals("Ikuti Balik", true)) {
+                                            v.setTextColor(Color.parseColor("#FF9800")) // Orange
+                                        } else if (text.equals("Follow", true) || text.equals("Ikuti", true)) {
+                                            v.setTextColor(Color.parseColor("#2196F3")) // Blue
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {}
+                        
                     } catch (e: Exception) {
                         XposedBridge.log("Rhpatch: [Settings] Gagal menyuntikkan tombol: $e")
                     }

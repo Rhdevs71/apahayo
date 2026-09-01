@@ -68,6 +68,13 @@ val GhostModePatch = patch(
                                             param.throwable = java.io.IOException("Rhpatch: Blocked Typing Status request")
                                             XposedBridge.log("Rhpatch: [GhostMode] Intercepted and blocked Typing Status")
                                         }
+                                    } else if (urlStr.contains("thread_item_delete") || urlStr.contains("direct_v2/threads/broadcast/unsend/")) {
+                                        if (prefs.getBoolean("pref_anti_delete", true)) {
+                                            param.throwable = java.io.IOException("Rhpatch: Blocked Unsend (Anti-Delete DM)")
+                                            XposedBridge.log("Rhpatch: [GhostMode] Anti-Delete DM: Mencegah pesan dihapus dari tampilan Anda")
+                                        }
+                                    } else if (urlStr.contains("mark_thread_seen")) {
+                                        // "Tandai sudah dibaca" logic intercept for manual trigger
                                     }
                                 }
                             }
@@ -78,7 +85,7 @@ val GhostModePatch = patch(
                         for (arg in args) {
                             if (arg == null) continue
                             val str = arg.toString()
-                            if (str.contains("media/seen") || str.contains("typing_status")) return str
+                            if (str.contains("media/seen") || str.contains("typing_status") || str.contains("unsend")) return str
                             try {
                                 val fields = arg.javaClass.declaredFields
                                 for (field in fields) {
