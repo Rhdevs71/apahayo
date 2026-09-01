@@ -110,4 +110,63 @@ val DisableStoryFlipping = patch(
     }.onFailure { XposedBridge.log("Rhpatch: [DisableStoryFlipping] Patch failed: $it") }
 }
 
-val MiscPatches = arrayOf(DisableBuildExpiredPopup, SanitizeShareLinks, CopyCommentsPatch, DisableStoryFlipping)
+
+val OpenLinksExternally = patch(
+    name = "Buka tautan secara eksternal",
+    description = "Memaksa semua tautan web dibuka di browser eksternal bawaan perangkat."
+) {
+    runCatching {
+        // Hooking Instagram's internal browser activity start
+        XposedBridge.hookAllMethods(android.app.Activity::class.java, "startActivity", object : de.robv.android.xposed.XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val intent = param.args.firstOrNull() as? android.content.Intent ?: return
+                val context = param.thisObject as? android.content.Context ?: return
+                
+                // If it's starting IG's internal browser, intercept it!
+                if (intent.component?.className?.contains("browser") == true || intent.component?.className?.contains("inapp") == true) {
+                    val urlStr = intent.getStringExtra("BrowserLiteIntent.EXTRA_URL") ?: intent.data?.toString()
+                    if (urlStr != null) {
+                        try {
+                            val prefs = de.robv.android.xposed.XSharedPreferences("com.rhdevs.rhpatch", "com.instagram.android")
+                            prefs.makeWorldReadable()
+                            if (prefs.getBoolean("Buka tautan secara eksternal", true)) {
+                                val externalIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(urlStr))
+                                externalIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                context.startActivity(externalIntent)
+                                param.result = null // Cancel the internal browser launch
+                            }
+                        } catch (e: Exception) {}
+                    }
+                }
+            }
+        })
+    }.onFailure { XposedBridge.log("Rhpatch: [OpenLinksExternally] Patch failed: it") }
+}
+
+val EnableDeveloperOptions = patch(
+    name = "Aktifkan Pilihan Pengembang",
+    description = "Mengaktifkan menu Developer (Internal) Instagram secara paksa."
+) {
+    runCatching {
+        if (!MetaUnobfuscator.init(appContext)) return@runCatching
+        // Hook is_employee or developer options check
+        val methods = MetaUnobfuscator.findMethodUsingStrings("is_employee", "developer_options")
+        for (m in methods) {
+            if (m.returnType == Boolean::class.javaPrimitiveType || m.returnType == java.lang.Boolean::class.java) {
+                XposedBridge.hookMethod(m, object : de.robv.android.xposed.XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        try {
+                            val prefs = de.robv.android.xposed.XSharedPreferences("com.rhdevs.rhpatch", "com.instagram.android")
+                            prefs.makeWorldReadable()
+                            if (prefs.getBoolean("Aktifkan Pilihan Pengembang", true)) {
+                                param.result = true
+                            }
+                        } catch (e: Exception) {}
+                    }
+                })
+            }
+        }
+    }.onFailure { XposedBridge.log("Rhpatch: [EnableDevOptions] Patch failed: it") }
+}
+
+val MiscPatches = arrayOf(ThemeAMOLED, OpenLinksExternally, EnableDeveloperOptions, DisableBuildExpiredPopup, SanitizeShareLinks, CopyCommentsPatch, DisableStoryFlipping)

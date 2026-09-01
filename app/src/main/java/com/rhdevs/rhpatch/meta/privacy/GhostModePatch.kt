@@ -59,9 +59,16 @@ val GhostModePatch = patch(
                             if (prefs?.getBoolean("pref_ghost_mode", true) == true) {
                                 // Ekstrak URL dari argumen (TigonRequest)
                                 val urlStr = extractUrlFromTigon(param.args)
-                                if (urlStr != null && (urlStr.contains("/api/v2/media/seen/") || urlStr.contains("/api/v1/media/seen/"))) {
-                                    param.throwable = java.io.IOException("Rhpatch: Blocked Story Seen request")
-                                    XposedBridge.log("Rhpatch: [GhostMode] Intercepted and blocked Story Seen on Tigon Layer")
+                                if (urlStr != null) {
+                                    if (urlStr.contains("/api/v2/media/seen/") || urlStr.contains("/api/v1/media/seen/")) {
+                                        param.throwable = java.io.IOException("Rhpatch: Blocked Story Seen request")
+                                        XposedBridge.log("Rhpatch: [GhostMode] Intercepted and blocked Story Seen on Tigon Layer")
+                                    } else if (urlStr.contains("typing_status") || urlStr.contains("send_direct_typing")) {
+                                        if (prefs.getBoolean("pref_disable_typing", true)) {
+                                            param.throwable = java.io.IOException("Rhpatch: Blocked Typing Status request")
+                                            XposedBridge.log("Rhpatch: [GhostMode] Intercepted and blocked Typing Status")
+                                        }
+                                    }
                                 }
                             }
                         } catch (e: Exception) {}
@@ -71,7 +78,7 @@ val GhostModePatch = patch(
                         for (arg in args) {
                             if (arg == null) continue
                             val str = arg.toString()
-                            if (str.contains("api/v2/media/seen") || str.contains("api/v1/media/seen")) return str
+                            if (str.contains("media/seen") || str.contains("typing_status")) return str
                             try {
                                 val fields = arg.javaClass.declaredFields
                                 for (field in fields) {

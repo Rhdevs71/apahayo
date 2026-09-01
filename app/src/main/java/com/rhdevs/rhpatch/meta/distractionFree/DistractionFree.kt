@@ -208,4 +208,31 @@ val HideSuggestedUsersPatch = patch(
     }.onFailure { XposedBridge.log("Rhpatch: [HideSuggestedUsers] Patch failed: $it") }
 }
 
-val DistractionFreePatches = arrayOf(HideNotesTray, DisableScreenshotDetection, DisableSwipeToCreate, DisableVideoAutoplayPatch, DisableStoriesAudioAutoplayPatch, DisableDoubleTapLikePatch, HideSuggestedUsersPatch)
+
+val RemoveEmptyBottomSpace = patch(
+    name = "Hapus ruang kosong di bagian bawah",
+    description = "Removes empty space below bottom navigation bar."
+) {
+    runCatching {
+        if (!MetaUnobfuscator.init(appContext)) return@runCatching
+        val methods = MetaUnobfuscator.findMethodUsingStrings("config_showNavigationBar", "_hasNavigationBar_notFound")
+        
+        for (method in methods) {
+            if (method.returnType == Boolean::class.javaPrimitiveType || method.returnType == java.lang.Boolean::class.java) {
+                XposedBridge.hookMethod(method, object : de.robv.android.xposed.XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        try {
+                            val context = android.app.AndroidAppHelper.currentApplication()
+                            val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
+                            if (prefs?.getBoolean("pref_remove_bottom_space", true) == true) {
+                                param.result = false
+                            }
+                        } catch (e: Exception) {}
+                    }
+                })
+            }
+        }
+    }.onFailure { de.robv.android.xposed.XposedBridge.log("Rhpatch: [RemoveEmptyBottomSpace] Patch failed: it") }
+}
+
+val DistractionFreePatches = arrayOf(RemoveEmptyBottomSpace, HideNotesTray, DisableScreenshotDetection, DisableSwipeToCreate, DisableVideoAutoplayPatch, DisableStoriesAudioAutoplayPatch, DisableDoubleTapLikePatch, HideSuggestedUsersPatch)
