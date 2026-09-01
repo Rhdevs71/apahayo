@@ -19,8 +19,12 @@ val UnlockPlusBenefitsPatch = patch(
             // Hilangkan filter returnType di DexKit untuk memperlebar pencarian
             methods = com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.findMethodUsingStrings(str)
             
-            // Filter manual di Kotlin untuk mencari metode yang mereturn boolean
-            methods = methods.filter { it.returnType == Boolean::class.javaPrimitiveType || it.returnType == java.lang.Boolean::class.java }
+            // Filter manual untuk mencocokkan persis metode return Boolean dengan 1 parameter String
+            methods = methods.filter { method ->
+                (method.returnType == Boolean::class.javaPrimitiveType || method.returnType == java.lang.Boolean::class.java) &&
+                method.parameterTypes.size == 1 &&
+                method.parameterTypes[0] == String::class.java
+            }
             if (methods.isNotEmpty()) break
         }
 
@@ -30,9 +34,9 @@ val UnlockPlusBenefitsPatch = patch(
             XposedBridge.hookMethod(method, object : de.robv.android.xposed.XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     try {
-                        val context = android.app.AndroidAppHelper.currentApplication()
-                        val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
-                        if (prefs?.getBoolean("pref_ig_plus", true) == true) {
+                        val prefs = de.robv.android.xposed.XSharedPreferences("com.rhdevs.rhpatch", "com.instagram.android")
+                        prefs.makeWorldReadable()
+                        if (prefs.getBoolean("Unlock IG Plus", true)) {
                             param.result = true
                         }
                     } catch (e: Exception) {}

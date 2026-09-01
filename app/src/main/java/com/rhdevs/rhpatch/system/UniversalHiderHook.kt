@@ -14,11 +14,10 @@ object UniversalHiderHook {
     private var hasHookedView = false
 
     fun handleLoadPackage(lpparam: LoadPackageParam) {
-        val hiderFile = File("/storage/emulated/0/Android/data/com.rhdevs.rhpatch/files/universal_hider.json")
-        if (!hiderFile.exists()) return
-
         try {
-            val jsonText = hiderFile.readText()
+            val prefs = de.robv.android.xposed.XSharedPreferences("com.rhdevs.rhpatch", "universal_hider")
+            prefs.makeWorldReadable()
+            val jsonText = prefs.getString("hider_data", "{}") ?: "{}"
             val json = JSONObject(jsonText)
             
             if (!json.has(lpparam.packageName)) return
