@@ -17,11 +17,15 @@ val LikeAnimationPatch = patch(
                     try {
                         val context = android.app.AndroidAppHelper.currentApplication()
                         val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
-                        if (prefs?.getBoolean("pref_like_animation", true) == true) {
+                        val likeTypeIndex = prefs?.getInt("pref_like_animation_type", 0) ?: 0
+                        val likeTypes = arrayOf("DEFAULT", "RINGS", "PRIDE", "SPARKLES")
+                        val selectedType = likeTypes.getOrElse(likeTypeIndex) { "DEFAULT" }
+                        
+                        if (selectedType != "DEFAULT") {
                             val animEnum = param.args.firstOrNull()
                             if (animEnum != null && animEnum.javaClass.isEnum) {
                                 val enumValues = animEnum.javaClass.enumConstants
-                                val ringsEnum = enumValues?.find { it.toString().contains("RINGS", ignoreCase = true) }
+                                val ringsEnum = enumValues?.find { it.toString().contains(selectedType, ignoreCase = true) }
                                 if (ringsEnum != null) {
                                     param.args[0] = ringsEnum
                                 }
