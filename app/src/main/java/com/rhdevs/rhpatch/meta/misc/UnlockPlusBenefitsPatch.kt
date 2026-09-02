@@ -25,9 +25,9 @@ val UnlockPlusBenefitsPatch = patch(
             XposedBridge.hookMethod(method, object : de.robv.android.xposed.XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     try {
-                        val prefs = de.robv.android.xposed.XSharedPreferences("com.rhdevs.rhpatch", "com.instagram.android")
-                        prefs.makeWorldReadable()
-                        if (prefs.getBoolean("pref_ig_plus", true)) {
+                        val context = android.app.AndroidAppHelper.currentApplication()
+                        val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
+                        if (prefs?.getBoolean("pref_ig_plus", true) == true) {
                             param.result = true
                         }
                     } catch (e: Exception) {}
