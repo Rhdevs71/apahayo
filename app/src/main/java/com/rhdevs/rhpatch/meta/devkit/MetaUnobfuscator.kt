@@ -65,6 +65,8 @@ object MetaUnobfuscator {
         }
         
         val loader = appClassLoader ?: Thread.currentThread().contextClassLoader ?: return emptyList()
+        XposedBridge.log("Rhpatch: [MetaUnobfuscator] Found ${results.size} raw DexKit results for strings: ${strings.joinToString()}")
+        
         return results.mapNotNull { methodData ->
             try {
                 val method = methodData.getMethodInstance(loader)
@@ -74,6 +76,7 @@ object MetaUnobfuscator {
                     method
                 }
             } catch (e: Exception) {
+                XposedBridge.log("Rhpatch: [MetaUnobfuscator] getMethodInstance error: ${e.message}")
                 null
             }
         }
@@ -96,3 +99,4 @@ object MetaUnobfuscator {
         return results.firstOrNull()?.getMethodInstance(loader)
     }
 }
+

@@ -15,8 +15,12 @@ val UnlockPlusBenefitsPatch = patch(
         
         var methods = emptyList<java.lang.reflect.Method>()
         for (str in targetStrings) {
-            methods = com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.findMethodUsingStrings(str)
-            methods = methods.filter { it.returnType == Boolean::class.javaPrimitiveType || it.returnType == java.lang.Boolean::class.java }
+            val rawMethods = com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.findMethodUsingStrings(str)
+            XposedBridge.log("Rhpatch: [UnlockPlus] '$str' -> ${rawMethods.size} valid methods before filter")
+            
+            methods = rawMethods.filter { it.returnType == Boolean::class.javaPrimitiveType || it.returnType == java.lang.Boolean::class.java }
+            XposedBridge.log("Rhpatch: [UnlockPlus] '$str' -> ${methods.size} valid methods after boolean filter")
+            
             if (methods.isNotEmpty()) break
         }
         
