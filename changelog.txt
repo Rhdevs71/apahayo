@@ -1,3 +1,4 @@
 ﻿- [WA] Perbaikan mutlak bug (Crash) WA saat reload UI Theme Store (String Resource ID error).
 - [WA] Penambahan mekanisme dasar latar belakang & UI switch untuk fitur 'Unlock WA Plus & Premium'.
 - [IG] Perbaikan target pencarian string untuk fitur 'Unlock Plus' agar dapat dideteksi pada versi Instagram terbaru.
+- [IG] Menambahkan sistem pelacakan (Logger) internal DexKit untuk mendiagnosis kegagalan filter tipe data pada fitur Unlock Plus.
