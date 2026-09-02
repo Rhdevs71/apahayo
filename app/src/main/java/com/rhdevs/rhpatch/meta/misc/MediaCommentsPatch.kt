@@ -1,4 +1,4 @@
-package com.rhdevs.rhpatch.meta.misc
+﻿package com.rhdevs.rhpatch.meta.misc
 
 import com.rhdevs.rhpatch.patch
 import de.robv.android.xposed.XC_MethodHook

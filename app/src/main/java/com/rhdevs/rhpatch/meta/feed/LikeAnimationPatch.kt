@@ -10,24 +10,31 @@ val LikeAnimationPatch = patch(
     description = "Mengganti animasi Like standar menjadi Rings atau gaya lain."
 ) {
     runCatching {
+        if (!com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.init(appContext)) return@runCatching
+
         val metadataClass = XposedHelpers.findClassIfExists("com.instagram.api.schemas.XDTUserActivationMetadataImpl", classLoader)
         if (metadataClass != null) {
             XposedBridge.hookAllConstructors(metadataClass, object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     try {
-                        val context = android.app.AndroidAppHelper.currentApplication()
-                        val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
-                        val likeTypeIndex = prefs?.getInt("pref_like_animation_type", 0) ?: 0
-                        val likeTypes = arrayOf("DEFAULT", "RINGS", "PRIDE", "SPARKLES")
-                        val selectedType = likeTypes.getOrElse(likeTypeIndex) { "DEFAULT" }
+                        val prefs = de.robv.android.xposed.XSharedPreferences("com.rhdevs.rhpatch", "com.instagram.android")
+                        prefs.makeWorldReadable()
+                        val likeTypeIndex = prefs.getInt("pref_like_animation_type", 0)
                         
-                        if (selectedType != "DEFAULT") {
-                            val animEnum = param.args.firstOrNull()
-                            if (animEnum != null && animEnum.javaClass.isEnum) {
-                                val enumValues = animEnum.javaClass.enumConstants
-                                val ringsEnum = enumValues?.find { it.toString().contains(selectedType, ignoreCase = true) }
-                                if (ringsEnum != null) {
-                                    param.args[0] = ringsEnum
+                        val mappedType = when (likeTypeIndex) {
+                            1 -> "RINGS_LIKE_ADRIAN"
+                            2 -> "RINGS_LIKE_GABRIEL" // For PRIDE
+                            3 -> "RINGS_LIKE_SEB"     // For SPARKLES
+                            else -> return // DEFAULT
+                        }
+                        
+                        if (param.args.isNotEmpty() && param.args[0] != null) {
+                            val animEnumObj = param.args[0]
+                            if (animEnumObj.javaClass.isEnum) {
+                                val enumValues = animEnumObj.javaClass.enumConstants
+                                val selectedEnum = enumValues?.find { it.toString() == mappedType }
+                                if (selectedEnum != null) {
+                                    param.args[0] = selectedEnum
                                 }
                             }
                         }

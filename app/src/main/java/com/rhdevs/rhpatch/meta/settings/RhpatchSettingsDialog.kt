@@ -180,7 +180,7 @@ object RhpatchSettingsDialog {
         val likeAnimations = arrayOf("DEFAULT", "RINGS", "PRIDE", "SPARKLES")
         layout.addView(createOptionSelector("Ubah Animasi Suka", "Pilih animasi love kustom", "pref_like_animation_type", likeAnimations, 0))
         layout.addView(createSwitch("Indikator Pertemanan Berwarna", "Beri warna pada tombol Follow, Following, dan Follow Back di profil", "pref_colored_friendship"))
-        layout.addView(createSwitch("Anti-Delete DM", "Cegah orang lain menghapus (unsend) pesan di DM Anda", "pref_anti_delete"))
+
         layout.addView(createSwitch("Tandai Sebagai Dibaca", "Tambahkan opsi manual untuk menandai DM terbaca saat Ghost Mode aktif", "pref_mark_as_read"))
         layout.addView(createSwitch("Simpan Komentar Media", "Izinkan penyimpanan GIF dan stiker gambar dari komentar", "pref_media_comments"))
 

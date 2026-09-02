@@ -8,14 +8,17 @@ import java.lang.reflect.Method
 object MetaUnobfuscator {
     private val bridges = mutableListOf<DexKitBridge>()
     private var isInitialized = false
+    private var appClassLoader: ClassLoader? = null
 
     fun init(app: Application): Boolean {
         if (isInitialized) return true
         
+        appClassLoader = app.classLoader
+
         try {
             System.loadLibrary("dexkit")
         } catch (e: Throwable) {
-            XposedBridge.log("Rhpatch: MetaUnobfuscator System.loadLibrary('dexkit') failed: {e.message}")
+            XposedBridge.log("Rhpatch: MetaUnobfuscator System.loadLibrary('dexkit') failed: ${e.message}")
             return false
         }
 
@@ -38,7 +41,7 @@ object MetaUnobfuscator {
                 false
             }
         } catch (e: Exception) {
-            XposedBridge.log("Rhpatch: MetaUnobfuscator DexKitBridge.create failed: {e.message}")
+            XposedBridge.log("Rhpatch: MetaUnobfuscator DexKitBridge.create failed: ${e.message}")
             false
         }
     }
@@ -61,7 +64,7 @@ object MetaUnobfuscator {
             results.addAll(res)
         }
         
-        val loader = Thread.currentThread().contextClassLoader ?: return emptyList()
+        val loader = appClassLoader ?: Thread.currentThread().contextClassLoader ?: return emptyList()
         return results.mapNotNull { methodData ->
             try {
                 val method = methodData.getMethodInstance(loader)
@@ -74,5 +77,22 @@ object MetaUnobfuscator {
                 null
             }
         }
+    }
+
+    fun getFriendshipMapMethod(): Method? {
+        if (!isInitialized) return null
+        val results = mutableListOf<org.luckypray.dexkit.result.MethodData>()
+        for (bridge in bridges) {
+            val res = bridge.findMethod {
+                matcher {
+                    returnType("java.util.Map")
+                    paramTypes("com.instagram.user.model.FriendshipStatus")
+                    modifiers(java.lang.reflect.Modifier.STATIC or java.lang.reflect.Modifier.PUBLIC)
+                }
+            }
+            results.addAll(res)
+        }
+        val loader = appClassLoader ?: Thread.currentThread().contextClassLoader ?: return null
+        return results.firstOrNull()?.getMethodInstance(loader)
     }
 }

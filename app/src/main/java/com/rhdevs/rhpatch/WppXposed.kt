@@ -1,4 +1,4 @@
-﻿package com.rhdevs.rhpatch
+package com.rhdevs.rhpatch
 
 import android.annotation.SuppressLint
 import android.content.ContextWrapper
@@ -100,6 +100,22 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
     @Throws(Throwable::class)
         override fun handleInitPackageResources(resparam: InitPackageResourcesParam) {
         val packageName = resparam.packageName
+
+        if (packageName == "com.instagram.android") {
+            try {
+                val prefs = de.robv.android.xposed.XSharedPreferences("com.rhdevs.rhpatch", "com.instagram.android")
+                prefs.makeWorldReadable()
+                if (prefs.getBoolean("pref_theme_amoled", false)) {
+                    val black = 0xFF000000.toInt()
+                    resparam.res.setReplacement("com.instagram.android", "color", "igds_color_primary_background", black)
+                    resparam.res.setReplacement("com.instagram.android", "color", "igds_color_primary_background_dark", black)
+                    resparam.res.setReplacement("com.instagram.android", "color", "igds_color_secondary_background", black)
+                    resparam.res.setReplacement("com.instagram.android", "color", "igds_color_elevated_background", black)
+                }
+            } catch (e: Throwable) {
+                de.robv.android.xposed.XposedBridge.log("Rhpatch: AMOLED Theme failed: " + e.message)
+            }
+        }
 
         if (packageName != FeatureLoader.PACKAGE_WPP && packageName != FeatureLoader.PACKAGE_BUSINESS) {
             return

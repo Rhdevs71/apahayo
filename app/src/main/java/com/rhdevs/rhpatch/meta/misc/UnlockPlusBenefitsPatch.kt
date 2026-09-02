@@ -1,4 +1,4 @@
-package com.rhdevs.rhpatch.meta.misc
+﻿package com.rhdevs.rhpatch.meta.misc
 
 import com.rhdevs.rhpatch.patch
 import de.robv.android.xposed.XC_MethodHook
@@ -10,6 +10,9 @@ val UnlockPlusBenefitsPatch = patch(
     description = "Unlocks Plus subscription benefits that are checked locally"
 ) {
     runCatching {
+        val processName = android.app.Application.getProcessName()
+        if (processName != appContext.packageName) return@runCatching
+
         if (!com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.init(appContext)) return@runCatching
 
         // Fokus HANYA pada string yang dipakai Piko

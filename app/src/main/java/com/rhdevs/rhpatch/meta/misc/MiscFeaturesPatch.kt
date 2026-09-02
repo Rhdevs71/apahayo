@@ -1,4 +1,4 @@
-package com.rhdevs.rhpatch.meta.misc
+﻿package com.rhdevs.rhpatch.meta.misc
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -169,4 +169,4 @@ val EnableDeveloperOptions = patch(
     }.onFailure { XposedBridge.log("Rhpatch: [EnableDevOptions] Patch failed: it") }
 }
 
-val MiscPatches = arrayOf(MediaCommentsPatch, ThemeAMOLED, OpenLinksExternally, EnableDeveloperOptions, DisableBuildExpiredPopup, SanitizeShareLinks, CopyCommentsPatch, DisableStoryFlipping)
+val MiscPatches = arrayOf(MediaCommentsPatch, ThemeAMOLED, OpenLinksExternally, EnableDeveloperOptions, DisableBuildExpiredPopup, SanitizeShareLinks, CopyCommentsPatch, DisableStoryFlipping, RemoveEmptyBottomSpacePatch, DisableDoubleTapLikePatch, FriendshipStatusIndicatorPatch)
