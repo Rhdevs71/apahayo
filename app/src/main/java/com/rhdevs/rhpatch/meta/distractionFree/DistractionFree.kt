@@ -238,3 +238,5 @@ val RemoveEmptyBottomSpace = patch(
 val DistractionFreePatches = arrayOf(RemoveEmptyBottomSpace, HideNotesTray, DisableScreenshotDetection, DisableSwipeToCreate, DisableVideoAutoplayPatch, DisableStoriesAudioAutoplayPatch, DisableDoubleTapLikePatch, HideSuggestedUsersPatch)
 
 
+
+
