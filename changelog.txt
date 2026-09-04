@@ -6,3 +6,5 @@
 - [IG] Merombak total UI Menu Rhpatch dengan Dynamic Theme (Light/Dark), corner radius, dan pewarnaan komponen sesuai skema warna Rhpatch App.
 - [IG] Upgrade Indikator Pertemanan menjadi badge interaktif (bisa diklik) yang menampilkan popup detail status (blocking, following, dll) layaknya InstaPro.
 - [IG] Memulihkan logika pemindaian DexKit khusus pada base APK untuk menuntaskan pencarian metode Unlock Plus.
+- [IG] HOTFIX: Memulihkan pemindaian DexKit pada semua Split APK agar fungsi Indikator Pertemanan tidak error 'missing methods'.
+- [IG] HOTFIX: Memusnahkan filter tipe data (Boolean) pada Unlock Plus untuk memaksa aktivasi fitur terlepas dari perubahan tipe nilai kembalian oleh Meta.

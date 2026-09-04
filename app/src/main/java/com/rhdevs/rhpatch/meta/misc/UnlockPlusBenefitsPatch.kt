@@ -17,9 +17,12 @@ val UnlockPlusBenefitsPatch = patch(
         for (str in targetStrings) {
             val rawMethods = com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.findMethodUsingStrings(str)
             XposedBridge.log("Rhpatch: [UnlockPlus] '$str' -> ${rawMethods.size} valid methods before filter")
+            for (rm in rawMethods) {
+                XposedBridge.log("Rhpatch: [UnlockPlus] Raw Method: ${rm.declaringClass.name}.${rm.name} returns ${rm.returnType.name}")
+            }
             
-            methods = rawMethods.filter { it.returnType == Boolean::class.javaPrimitiveType || it.returnType == java.lang.Boolean::class.java }
-            XposedBridge.log("Rhpatch: [UnlockPlus] '$str' -> ${methods.size} valid methods after boolean filter")
+            methods = rawMethods
+            XposedBridge.log("Rhpatch: [UnlockPlus] '$str' -> ${methods.size} valid methods found (No Filter)")
             
             if (methods.isNotEmpty()) break
         }
@@ -32,7 +35,14 @@ val UnlockPlusBenefitsPatch = patch(
                         val context = android.app.AndroidAppHelper.currentApplication()
                         val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
                         if (prefs?.getBoolean("pref_ig_plus", true) == true) {
-                            param.result = true
+                            val retType = method.returnType
+                            if (retType == Int::class.javaPrimitiveType || retType == java.lang.Integer::class.java) {
+                                param.result = 1
+                            } else if (retType == Long::class.javaPrimitiveType || retType == java.lang.Long::class.java) {
+                                param.result = 1L
+                            } else {
+                                param.result = true
+                            }
                         }
                     } catch (e: Exception) {}
                 }
