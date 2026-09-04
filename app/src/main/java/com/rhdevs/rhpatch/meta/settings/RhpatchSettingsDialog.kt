@@ -157,11 +157,13 @@ object RhpatchSettingsDialog {
             return itemLayout
         }
 
-        layout.addView(createSwitch("Ghost Mode", "Sembunyikan status dilihat pada DM dan Stories", "pref_ghost_mode"))
+        layout.addView(createSwitch("Ghost Mode", "Sembunyikan status dilihat pada DM dan Story", "pref_ghost_mode"))
+          layout.addView(createSwitch("Tandai Sebagai Dibaca", "Tambahkan tombol di header DM untuk menandai obrolan telah dibaca (Ghost Mode)", "pref_mark_as_read"))
         layout.addView(createSwitch("Disable Typing Status", "Sembunyikan status sedang mengetik di DM", "pref_disable_typing"))
         layout.addView(createSwitch("Make Ephemeral Permanent", "Ubah pesan View Once menjadi permanen", "pref_ephemeral"))
         layout.addView(createSwitch("View Live Anonymously", "Tonton Live tanpa diketahui host atau penonton lain", "pref_view_live_anon"))
         layout.addView(createSwitch("Media Downloader", "Aktifkan tombol download pada Feed, Reels, dan Stories", "pref_downloader"))
+          layout.addView(createSwitch("Salin Komentar (Global)", "Ketuk lama pada komentar untuk menyalin teks", "pref_copy_comments"))
                 layout.addView(createSwitch("Disable Swipe To Create", "Mencegah buka kamera saat swipe kanan di Beranda", "pref_disable_swipe"))
         layout.addView(createSwitch("Disable Video Autoplay", "Mematikan putar otomatis video di Feed", "pref_disable_video_autoplay"))
         layout.addView(createSwitch("Disable Stories Audio Autoplay", "Mematikan audio otomatis di Story", "pref_disable_stories_audio"))
@@ -200,4 +202,5 @@ object RhpatchSettingsDialog {
             .show()
     }
 }
+
 

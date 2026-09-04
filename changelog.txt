@@ -12,3 +12,7 @@
 - [IG] Membersihkan fitur usang (AMOLED, Copy Comments, Tandai Dibaca) dari menu UI karena keterbatasan teknis/tidak fungsional.
 - [IG] Memperbaiki hook Mode Pengembang dengan menggunakan key konfigurasi yang benar.
 - [IG] Memperbarui string target untuk hook Disable Video Autoplay agar kompatibel dengan versi IG terbaru.
+- [IG] HOTFIX: Memperbaiki performa Media Downloader yang lambat dengan membatalkan ekstraksi DexKit pada split APK (kembali ke base APK).
+- [IG] Menulis ulang fitur Copy Comments menggunakan interceptor sentuhan global untuk menghindari konflik UI bawaan.
+- [IG] Menulis ulang fitur Tandai Dibaca (Ghost Mode) dengan menyuntikkan tombol langsung ke dalam header obrolan DM (direct_thread_header).
+- [IG] Memperbarui metode Bypass IG Plus menggunakan Hook Objek User sebagai eksperimen baru untuk melewati deteksi Meta.

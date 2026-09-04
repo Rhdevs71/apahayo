@@ -129,4 +129,5 @@ val EnableDeveloperOptions = patch(
     }.onFailure { XposedBridge.log("Rhpatch: [EnableDevOptions] Patch failed: $it") }
 }
 
-val MiscPatches = arrayOf(MediaCommentsPatch, OpenLinksExternally, EnableDeveloperOptions, DisableBuildExpiredPopup, SanitizeShareLinks, DisableStoryFlipping, RemoveEmptyBottomSpacePatch, DisableDoubleTapLikePatch, FriendshipStatusIndicatorPatch)
+val MiscPatches = arrayOf(CopyCommentsPatch, MediaCommentsPatch, OpenLinksExternally, EnableDeveloperOptions, DisableBuildExpiredPopup, SanitizeShareLinks, DisableStoryFlipping, RemoveEmptyBottomSpacePatch, DisableDoubleTapLikePatch, FriendshipStatusIndicatorPatch)
+
