@@ -8,3 +8,7 @@
 - [IG] Memulihkan logika pemindaian DexKit khusus pada base APK untuk menuntaskan pencarian metode Unlock Plus.
 - [IG] HOTFIX: Memulihkan pemindaian DexKit pada semua Split APK agar fungsi Indikator Pertemanan tidak error 'missing methods'.
 - [IG] HOTFIX: Memusnahkan filter tipe data (Boolean) pada Unlock Plus untuk memaksa aktivasi fitur terlepas dari perubahan tipe nilai kembalian oleh Meta.
+- [IG] HOTFIX: Menulis ulang ekstraksi Indikator Pertemanan menggunakan Reflection untuk melewati batas obfuscation DexKit.
+- [IG] Membersihkan fitur usang (AMOLED, Copy Comments, Tandai Dibaca) dari menu UI karena keterbatasan teknis/tidak fungsional.
+- [IG] Memperbaiki hook Mode Pengembang dengan menggunakan key konfigurasi yang benar.
+- [IG] Memperbarui string target untuk hook Disable Video Autoplay agar kompatibel dengan versi IG terbaru.

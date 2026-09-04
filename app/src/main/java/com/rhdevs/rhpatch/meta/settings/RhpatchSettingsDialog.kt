@@ -1,4 +1,4 @@
-package com.rhdevs.rhpatch.meta.settings
+﻿package com.rhdevs.rhpatch.meta.settings
 
 import android.app.AlertDialog
 import android.content.Context
@@ -162,15 +162,13 @@ object RhpatchSettingsDialog {
         layout.addView(createSwitch("Make Ephemeral Permanent", "Ubah pesan View Once menjadi permanen", "pref_ephemeral"))
         layout.addView(createSwitch("View Live Anonymously", "Tonton Live tanpa diketahui host atau penonton lain", "pref_view_live_anon"))
         layout.addView(createSwitch("Media Downloader", "Aktifkan tombol download pada Feed, Reels, dan Stories", "pref_downloader"))
-        layout.addView(createSwitch("Copy Comments", "Tahan lama (Long Press) komentar untuk menyalin", "pref_copy_comments"))
-        layout.addView(createSwitch("Disable Swipe To Create", "Mencegah buka kamera saat swipe kanan di Beranda", "pref_disable_swipe"))
+                layout.addView(createSwitch("Disable Swipe To Create", "Mencegah buka kamera saat swipe kanan di Beranda", "pref_disable_swipe"))
         layout.addView(createSwitch("Disable Video Autoplay", "Mematikan putar otomatis video di Feed", "pref_disable_video_autoplay"))
         layout.addView(createSwitch("Disable Stories Audio Autoplay", "Mematikan audio otomatis di Story", "pref_disable_stories_audio"))
         layout.addView(createSwitch("Unlock IG Plus", "Membuka kunci fitur berlangganan Creator Plus", "pref_ig_plus"))
         layout.addView(createSwitch("Disable Double Tap Like", "Matikan fungsi 2 kali ketuk untuk like", "pref_disable_double_tap_like"))
         
-        layout.addView(createSwitch("Tema AMOLED (Pitch Black)", "Tampilan gelap menjadi benar-benar hitam pekat", "pref_theme_amoled"))
-        layout.addView(createSwitch("Buka Tautan Secara Eksternal", "Buka link web langsung di browser sistem (Chrome/dll)", "pref_open_links_externally"))
+                layout.addView(createSwitch("Buka Tautan Secara Eksternal", "Buka link web langsung di browser sistem (Chrome/dll)", "pref_open_links_externally"))
         layout.addView(createSwitch("Aktifkan Mode Pengembang", "Tampilkan opsi Developer IG", "pref_enable_dev_options"))
         layout.addView(createSwitch("Hapus Ruang Kosong Bawah", "Hilangkan space kosong di bawah layar (opsional)", "pref_remove_empty_bottom"))
                 
@@ -178,8 +176,7 @@ object RhpatchSettingsDialog {
         layout.addView(createOptionSelector("Ubah Animasi Suka", "Pilih animasi love kustom", "pref_like_animation_type", likeAnimations, 0))
         layout.addView(createSwitch("Indikator Pertemanan Berwarna", "Beri warna pada tombol Follow, Following, dan Follow Back di profil", "pref_colored_friendship"))
 
-        layout.addView(createSwitch("Tandai Sebagai Dibaca", "Tambahkan opsi manual untuk menandai DM terbaca saat Ghost Mode aktif", "pref_mark_as_read"))
-        layout.addView(createSwitch("Simpan Komentar Media", "Izinkan penyimpanan GIF dan stiker gambar dari komentar", "pref_media_comments"))
+                layout.addView(createSwitch("Simpan Komentar Media", "Izinkan penyimpanan GIF dan stiker gambar dari komentar", "pref_media_comments"))
 
         val debugTitle = TextView(context).apply {
             text = "Pelacak Hook & Fallbacks"
@@ -203,3 +200,4 @@ object RhpatchSettingsDialog {
             .show()
     }
 }
+

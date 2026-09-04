@@ -1,30 +1,29 @@
-package com.rhdevs.rhpatch.meta.misc
+﻿package com.rhdevs.rhpatch.meta.misc
 
 import com.rhdevs.rhpatch.patch
-import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 
 val UnlockPlusBenefitsPatch = patch(
-    name = "Unlock IG Plus",
-    description = "Unlocks Plus subscription benefits that are checked locally"
+    name = "Unlock Creator Plus",
+    description = "Mengaktifkan fitur eksklusif berlangganan Creator Plus."
 ) {
     runCatching {
         if (!com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.init(appContext)) return@runCatching
 
-        val targetStrings = listOf("is_benefit_active", "is_ig_creator_plus_unlocked")
-        
+        val stringsToFind = listOf("is_creator_plus", "has_creator_plus", "is_subscriber", "is_ig_creator_plus_unlocked", "is_benefit_active")
         var methods = emptyList<java.lang.reflect.Method>()
-        for (str in targetStrings) {
+        
+        for (str in stringsToFind) {
             val rawMethods = com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.findMethodUsingStrings(str)
-            XposedBridge.log("Rhpatch: [UnlockPlus] '$str' -> ${rawMethods.size} valid methods before filter")
-            for (rm in rawMethods) {
-                XposedBridge.log("Rhpatch: [UnlockPlus] Raw Method: ${rm.declaringClass.name}.${rm.name} returns ${rm.returnType.name}")
+            
+            methods = rawMethods.filter { 
+                it.returnType == Boolean::class.javaPrimitiveType || it.returnType == java.lang.Boolean::class.java 
             }
             
-            methods = rawMethods
-            XposedBridge.log("Rhpatch: [UnlockPlus] '$str' -> ${methods.size} valid methods found (No Filter)")
-            
-            if (methods.isNotEmpty()) break
+            if (methods.isNotEmpty()) {
+                XposedBridge.log("Rhpatch: [UnlockPlus] '$str' -> ${methods.size} valid boolean methods found")
+                break
+            }
         }
         
         var hooked = false
@@ -35,14 +34,7 @@ val UnlockPlusBenefitsPatch = patch(
                         val context = android.app.AndroidAppHelper.currentApplication()
                         val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
                         if (prefs?.getBoolean("pref_ig_plus", true) == true) {
-                            val retType = method.returnType
-                            if (retType == Int::class.javaPrimitiveType || retType == java.lang.Integer::class.java) {
-                                param.result = 1
-                            } else if (retType == Long::class.javaPrimitiveType || retType == java.lang.Long::class.java) {
-                                param.result = 1L
-                            } else {
-                                param.result = true
-                            }
+                            param.result = true
                         }
                     } catch (e: Exception) {}
                 }
@@ -52,8 +44,7 @@ val UnlockPlusBenefitsPatch = patch(
         }
         
         if (!hooked) {
-            XposedBridge.log("Rhpatch: [UnlockPlus] Failed to find benefit checker method.")
+            XposedBridge.log("Rhpatch: [UnlockPlus] Failed to find boolean benefit checker method.")
         }
     }.onFailure { XposedBridge.log("Rhpatch: [UnlockPlus] Patch failed: $it") }
 }
-

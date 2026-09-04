@@ -1,4 +1,4 @@
-package com.rhdevs.rhpatch.meta.distractionFree
+﻿package com.rhdevs.rhpatch.meta.distractionFree
 
 import com.rhdevs.rhpatch.patch
 import com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator
@@ -91,7 +91,7 @@ val DisableVideoAutoplayPatch = patch(
 ) {
     runCatching {
         if (!MetaUnobfuscator.init(appContext)) return@runCatching
-        val methods = MetaUnobfuscator.findMethodUsingStrings("ig_olympus_disable_video_autoplay", "ig_disable_video_autoplay", "ig_video_setting")
+        val methods = MetaUnobfuscator.findMethodUsingStrings("autoplay_disabled", "is_autoplay_enabled", "video_autoplay", "autoplay", "ig_olympus_disable_video_autoplay")
         methods.forEach { method ->
             if (method.returnType == Boolean::class.javaPrimitiveType || method.returnType == java.lang.Boolean::class.java) {
                 XposedBridge.hookMethod(method, object : XC_MethodHook() {
@@ -236,3 +236,5 @@ val RemoveEmptyBottomSpace = patch(
 }
 
 val DistractionFreePatches = arrayOf(RemoveEmptyBottomSpace, HideNotesTray, DisableScreenshotDetection, DisableSwipeToCreate, DisableVideoAutoplayPatch, DisableStoriesAudioAutoplayPatch, DisableDoubleTapLikePatch, HideSuggestedUsersPatch)
+
+

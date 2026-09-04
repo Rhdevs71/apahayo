@@ -20,9 +20,8 @@ val FriendshipStatusIndicatorPatch = patch(
         if (!com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.init(appContext)) return@runCatching
 
         val bindInternalBadges = com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.findMethodUsingStrings("bindInternalBadges")
-        val getMapMethod = com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.getFriendshipMapMethod()
 
-        if (bindInternalBadges.isNotEmpty() && getMapMethod != null) {
+        if (bindInternalBadges.isNotEmpty()) {
             XposedBridge.hookMethod(bindInternalBadges.first(), object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     try {
@@ -37,13 +36,22 @@ val FriendshipStatusIndicatorPatch = patch(
                         val userDataMethod = profileInfo.javaClass.methods.firstOrNull { it.returnType.name.contains("UserData", ignoreCase = true) } ?: return
                         val userData = userDataMethod.invoke(profileInfo) ?: return
 
-                        val friendshipMethod = userData.javaClass.methods.firstOrNull { it.returnType.name == "com.instagram.user.model.FriendshipStatus" } ?: return
+                        val friendshipMethod = userData.javaClass.methods.firstOrNull { it.returnType.name.contains("FriendshipStatus", ignoreCase = true) } ?: return
                         val friendshipStatus = friendshipMethod.invoke(userData) ?: return
 
-                        val map = getMapMethod.invoke(null, friendshipStatus) as? Map<String, Boolean> ?: return
+                        // Extract all boolean fields using Reflection
+                        val friendshipFields = friendshipStatus.javaClass.declaredFields.filter { 
+                            it.type == Boolean::class.javaPrimitiveType || it.type == java.lang.Boolean::class.java 
+                        }
                         
-                        val followedBy = map["is_follower"] == true || map["is_following_me"] == true || map["followed_by"] == true
-                        val following = map["following"] == true
+                        val map = mutableMapOf<String, Boolean>()
+                        for (field in friendshipFields) {
+                            field.isAccessible = true
+                            map[field.name] = field.getBoolean(friendshipStatus)
+                        }
+                        
+                        val followedBy = map.entries.any { (k, v) -> (k.contains("follower", ignoreCase = true) || k.contains("followed_by", ignoreCase = true) || k.contains("following_me", ignoreCase = true)) && v }
+                        val following = map.entries.any { (k, v) -> k.equals("following", ignoreCase = true) && v }
 
                         val parent = view.parent as? ViewGroup ?: return
                         if (parent.findViewWithTag<View>("rhpatch_friendship") != null) return
@@ -97,5 +105,5 @@ val FriendshipStatusIndicatorPatch = patch(
         } else {
             XposedBridge.log("Rhpatch: FriendshipStatusIndicator missing methods")
         }
-    }.onFailure { XposedBridge.log("Rhpatch: [FriendshipStatusIndicator] Patch failed: it") }
+    }.onFailure { XposedBridge.log("Rhpatch: [FriendshipStatusIndicator] Patch failed: $it") }
 }
