@@ -2,3 +2,7 @@
 - [WA] Penambahan mekanisme dasar latar belakang & UI switch untuk fitur 'Unlock WA Plus & Premium'.
 - [IG] Perbaikan target pencarian string untuk fitur 'Unlock Plus' agar dapat dideteksi pada versi Instagram terbaru.
 - [IG] Menambahkan sistem pelacakan (Logger) internal DexKit untuk mendiagnosis kegagalan filter tipe data pada fitur Unlock Plus.
+- [WA] Perbaikan tuntas crash (NotFoundException) di Media Preview dengan menggunakan static string.
+- [IG] Merombak total UI Menu Rhpatch dengan Dynamic Theme (Light/Dark), corner radius, dan pewarnaan komponen sesuai skema warna Rhpatch App.
+- [IG] Upgrade Indikator Pertemanan menjadi badge interaktif (bisa diklik) yang menampilkan popup detail status (blocking, following, dll) layaknya InstaPro.
+- [IG] Memulihkan logika pemindaian DexKit khusus pada base APK untuk menuntaskan pencarian metode Unlock Plus.

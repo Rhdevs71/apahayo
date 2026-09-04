@@ -1,85 +1,83 @@
 package com.rhdevs.rhpatch.meta.settings
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
-import android.graphics.Color
-import android.view.Gravity
 import android.widget.Toast
-import android.app.AlertDialog
-import android.view.ViewGroup
+import de.robv.android.xposed.XposedBridge
 
 object RhpatchSettingsDialog {
-
     fun showSettingsDialog(context: Context) {
         val dp = context.resources.displayMetrics.density
-        
+
+        val isDarkMode = (context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+
+        val bgColor = if (isDarkMode) Color.parseColor("#0F172A") else Color.parseColor("#F8FAFC")
+        val textColor = if (isDarkMode) Color.parseColor("#F8FAFC") else Color.parseColor("#0F172A")
+        val subTextColor = if (isDarkMode) Color.parseColor("#94A3B8") else Color.parseColor("#475569")
+        val primaryColor = Color.parseColor("#0D9488") 
+
         val scrollView = ScrollView(context).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            setBackgroundColor(Color.parseColor("#121212")) // Dark mode IG
+            setPadding(0, 0, 0, 0)
         }
 
         val layout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding((16 * dp).toInt(), (16 * dp).toInt(), (16 * dp).toInt(), (16 * dp).toInt())
+            setPadding((24 * dp).toInt(), (24 * dp).toInt(), (24 * dp).toInt(), (24 * dp).toInt())
+            background = GradientDrawable().apply {
+                setColor(bgColor)
+                cornerRadius = 24f * dp
+            }
         }
 
-        // Title
         val title = TextView(context).apply {
-            text = "✨ Rhpatch Settings (Rhpatch Port)"
+            text = "Rhpatch Menu"
             textSize = 22f
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
-            setPadding(0, 0, 0, (24 * dp).toInt())
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(primaryColor)
+            setPadding(0, 0, 0, (20 * dp).toInt())
+            gravity = Gravity.CENTER_HORIZONTAL
         }
         layout.addView(title)
 
         val prefs = context.getSharedPreferences("rhpatch_settings", Context.MODE_PRIVATE)
 
-        fun createSwitch(titleStr: String, descStr: String, key: String, defaultVal: Boolean = true): LinearLayout {
+        fun createSwitch(titleStr: String, descStr: String, key: String, defaultVal: Boolean = false): LinearLayout {
             val itemLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 setPadding(0, (12 * dp).toInt(), 0, (12 * dp).toInt())
                 gravity = Gravity.CENTER_VERTICAL
             }
-
             val textLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             }
-
-            val itemTitle = TextView(context).apply {
-                text = titleStr
-                textSize = 18f
-                setTextColor(Color.WHITE)
-            }
-            
-            val itemDesc = TextView(context).apply {
-                text = descStr
-                textSize = 14f
-                setTextColor(Color.parseColor("#A0A0A0"))
-                setPadding(0, (4 * dp).toInt(), 0, 0)
-            }
-
+            val itemTitle = TextView(context).apply { text = titleStr; textSize = 16f; setTextColor(textColor); setTypeface(null, android.graphics.Typeface.BOLD) }
+            val itemDesc = TextView(context).apply { text = descStr; textSize = 13f; setTextColor(subTextColor); setPadding(0, (4 * dp).toInt(), 0, 0) }
             textLayout.addView(itemTitle)
             textLayout.addView(itemDesc)
 
-            val toggle = Switch(context).apply {
+            val switch = Switch(context).apply {
                 isChecked = prefs.getBoolean(key, defaultVal)
+                val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf(-android.R.attr.state_checked))
+                val trackColors = intArrayOf(primaryColor, Color.parseColor("#CBD5E1"))
+                val thumbColors = intArrayOf(Color.WHITE, Color.parseColor("#94A3B8"))
+                trackTintList = ColorStateList(states, trackColors)
+                thumbTintList = ColorStateList(states, thumbColors)
+
                 setOnCheckedChangeListener { _, isChecked ->
                     prefs.edit().putBoolean(key, isChecked).apply()
-                    Toast.makeText(context, "$titleStr ${if(isChecked) "Diaktifkan" else "Dimatikan"}\nRestart IG untuk menerapkan", Toast.LENGTH_SHORT).show()
                 }
             }
-
             itemLayout.addView(textLayout)
-            itemLayout.addView(toggle)
-            
+            itemLayout.addView(switch)
             return itemLayout
         }
 
@@ -93,11 +91,11 @@ object RhpatchSettingsDialog {
                 orientation = LinearLayout.VERTICAL
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             }
-            val itemTitle = TextView(context).apply { text = titleStr; textSize = 18f; setTextColor(Color.WHITE) }
+            val itemTitle = TextView(context).apply { text = titleStr; textSize = 16f; setTextColor(textColor); setTypeface(null, android.graphics.Typeface.BOLD) }
             val itemDesc = TextView(context).apply {
                 val currentIndex = prefs.getInt(key, defaultIndex)
                 text = "$descStr\nSaat ini: ${options.getOrElse(currentIndex) { options[0] }}"
-                textSize = 14f; setTextColor(Color.parseColor("#A0A0A0")); setPadding(0, (4 * dp).toInt(), 0, 0)
+                textSize = 13f; setTextColor(subTextColor); setPadding(0, (4 * dp).toInt(), 0, 0)
             }
             textLayout.addView(itemTitle)
             textLayout.addView(itemDesc)
@@ -106,7 +104,7 @@ object RhpatchSettingsDialog {
             itemLayout.setOnClickListener {
                 val currentIndex = prefs.getInt(key, defaultIndex)
                 AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                    .setTitle("Pilih $titleStr")
+                    .setTitle(titleStr)
                     .setSingleChoiceItems(options, currentIndex) { dialog, which ->
                         prefs.edit().putInt(key, which).apply()
                         itemDesc.text = "$descStr\nSaat ini: ${options[which]}"
@@ -128,11 +126,11 @@ object RhpatchSettingsDialog {
                 orientation = LinearLayout.VERTICAL
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             }
-            val itemTitle = TextView(context).apply { text = titleStr; textSize = 18f; setTextColor(Color.WHITE) }
+            val itemTitle = TextView(context).apply { text = titleStr; textSize = 16f; setTextColor(textColor); setTypeface(null, android.graphics.Typeface.BOLD) }
             val itemDesc = TextView(context).apply {
                 val currentVal = prefs.getString(key, defaultVal)
                 text = "$descStr\nSaat ini: $currentVal"
-                textSize = 14f; setTextColor(Color.parseColor("#A0A0A0")); setPadding(0, (4 * dp).toInt(), 0, 0)
+                textSize = 13f; setTextColor(subTextColor); setPadding(0, (4 * dp).toInt(), 0, 0)
             }
             textLayout.addView(itemTitle)
             textLayout.addView(itemDesc)
@@ -142,10 +140,10 @@ object RhpatchSettingsDialog {
                 val currentVal = prefs.getString(key, defaultVal)
                 val input = android.widget.EditText(context).apply {
                     setText(currentVal)
-                    setTextColor(Color.WHITE)
+                    setTextColor(textColor)
                 }
                 AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                    .setTitle("Atur $titleStr")
+                    .setTitle(titleStr)
                     .setView(input)
                     .setPositiveButton("Simpan") { dialog, _ ->
                         val newVal = input.text.toString()
@@ -171,7 +169,6 @@ object RhpatchSettingsDialog {
         layout.addView(createSwitch("Unlock IG Plus", "Membuka kunci fitur berlangganan Creator Plus", "pref_ig_plus"))
         layout.addView(createSwitch("Disable Double Tap Like", "Matikan fungsi 2 kali ketuk untuk like", "pref_disable_double_tap_like"))
         
-        // FITUR BARU FASE 2
         layout.addView(createSwitch("Tema AMOLED (Pitch Black)", "Tampilan gelap menjadi benar-benar hitam pekat", "pref_theme_amoled"))
         layout.addView(createSwitch("Buka Tautan Secara Eksternal", "Buka link web langsung di browser sistem (Chrome/dll)", "pref_open_links_externally"))
         layout.addView(createSwitch("Aktifkan Mode Pengembang", "Tampilkan opsi Developer IG", "pref_enable_dev_options"))
@@ -184,22 +181,18 @@ object RhpatchSettingsDialog {
         layout.addView(createSwitch("Tandai Sebagai Dibaca", "Tambahkan opsi manual untuk menandai DM terbaca saat Ghost Mode aktif", "pref_mark_as_read"))
         layout.addView(createSwitch("Simpan Komentar Media", "Izinkan penyimpanan GIF dan stiker gambar dari komentar", "pref_media_comments"))
 
-
-        // --- SECTION: DEBUG & FALLBACKS ---
         val debugTitle = TextView(context).apply {
-            text = "🔬 Pelacak Hook & Fallbacks"
-            textSize = 18f
-            setTextColor(Color.parseColor("#FFD700"))
+            text = "Pelacak Hook & Fallbacks"
+            textSize = 16f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#F59E0B"))
             setPadding(0, (24 * dp).toInt(), 0, (8 * dp).toInt())
         }
         layout.addView(debugTitle)
 
-
-
         layout.addView(createTextInputOption("Download Path", "Lokasi folder penyimpanan (dalam folder Download)", "pref_download_path", "Rhpatch"))
         layout.addView(createSwitch("Hook Tracker (Toast)", "Munculkan peringatan Toast saat fungsi disadap. Berguna untuk mencari tahu hook mana yang jalan.", "pref_hook_tracker", false))
         layout.addView(createSwitch("Ghost Mode: Saluran OFF", "Matikan Ghost Mode pada Broadcast Channels untuk menghindari bug joining", "pref_ghost_mode_channels_off", true))
-        
         layout.addView(createSwitch("Hide Suggested Users", "Sembunyikan deretan akun/profil yang disarankan (Mungkin Anda Kenal) di feed", "pref_hide_suggested_users", true))
         
         scrollView.addView(layout)

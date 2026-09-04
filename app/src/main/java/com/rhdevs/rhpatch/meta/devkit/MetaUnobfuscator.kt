@@ -23,23 +23,12 @@ object MetaUnobfuscator {
         }
 
         return try {
-            val paths = mutableListOf<String>()
-            paths.add(app.applicationInfo.sourceDir)
-            app.applicationInfo.splitSourceDirs?.let { paths.addAll(it) }
-            
-            for (p in paths) {
-                val b = DexKitBridge.create(p)
-                if (b != null) {
-                    bridges.add(b)
-                }
-            }
-            
-            if (bridges.isNotEmpty()) {
-                isInitialized = true
-                true
-            } else {
-                false
-            }
+            val sourceDir = app.applicationInfo.sourceDir
+            val b = DexKitBridge.create(sourceDir) ?: return false
+            bridges.clear()
+            bridges.add(b)
+            isInitialized = true
+            true
         } catch (e: Exception) {
             XposedBridge.log("Rhpatch: MetaUnobfuscator DexKitBridge.create failed: ${e.message}")
             false
