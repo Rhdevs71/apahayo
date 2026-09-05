@@ -3,3 +3,4 @@
 - Fix Disable Autoplay Video
 - Fix Copy Comments & Mark as Read DM
 - Restore Media Downloader Speed
+- [IG] HOTFIX v4.3: Perbaikan final metode pencarian Unlock Plus. Memindai semua method dalam Class Induk yang mengandung string 'is_benefit_active' (teknik Piko yang akurat).

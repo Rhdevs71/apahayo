@@ -3,6 +3,7 @@
 import com.rhdevs.rhpatch.patch
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
+import java.lang.reflect.Method
 
 val UnlockPlusBenefitsPatch = patch(
     name = "Unlock Creator Plus",
@@ -11,19 +12,27 @@ val UnlockPlusBenefitsPatch = patch(
     runCatching {
         if (!com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.init(appContext)) return@runCatching
         
-        // Find method using the exact fingerprint from piko:
-        // class contains string "is_benefit_active"
-        // method parameters: Ljava/lang/String;
-        // return type: Z (Boolean)
-        // Access flag: PUBLIC
+        // Find methods containing the string "is_benefit_active"
+        val methodsUsingString = com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.findMethodUsingStrings("is_benefit_active")
         
-        val methods = com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator.findMethodUsingStrings("is_benefit_active")
-        val targetMethods = methods.filter { method ->
-            val isPublic = java.lang.reflect.Modifier.isPublic(method.modifiers)
-            val returnsBoolean = method.returnType == Boolean::class.javaPrimitiveType || method.returnType == java.lang.Boolean::class.java
-            val paramTypes = method.parameterTypes
+        val targetMethods = mutableListOf<Method>()
+        
+        // Piko's logic searches for the CLASS containing the string, then finds a public method returning Boolean with 1 String arg.
+        for (method in methodsUsingString) {
+            val declaringClass = method.declaringClass
+            val classMethods = declaringClass.declaredMethods
             
-            isPublic && returnsBoolean && paramTypes.size == 1 && paramTypes[0] == String::class.java
+            for (classMethod in classMethods) {
+                val isPublic = java.lang.reflect.Modifier.isPublic(classMethod.modifiers)
+                val returnsBoolean = classMethod.returnType == Boolean::class.javaPrimitiveType || classMethod.returnType == java.lang.Boolean::class.java
+                val paramTypes = classMethod.parameterTypes
+                
+                if (isPublic && returnsBoolean && paramTypes.size == 1 && paramTypes[0] == String::class.java) {
+                    if (!targetMethods.contains(classMethod)) {
+                        targetMethods.add(classMethod)
+                    }
+                }
+            }
         }
 
         if (targetMethods.isNotEmpty()) {
@@ -40,6 +49,7 @@ val UnlockPlusBenefitsPatch = patch(
                     }
                 })
             }
+            XposedBridge.log("Rhpatch: [UnlockPlus] Berhasil nge-hook ${targetMethods.size} method via class reference.")
         } else {
             XposedBridge.log("Rhpatch: [UnlockPlus] Method with signature (String)Z in class with 'is_benefit_active' not found.")
         }
