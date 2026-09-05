@@ -17,3 +17,4 @@
 - [IG] Menulis ulang fitur Tandai Dibaca (Ghost Mode) dengan menyuntikkan tombol langsung ke dalam header obrolan DM (direct_thread_header).
 - [IG] Memperbarui metode Bypass IG Plus menggunakan Hook Objek User sebagai eksperimen baru untuk melewati deteksi Meta.
 - [IG] HOTFIX v4.1: Menulis ulang fitur Disable Video Autoplay menggunakan Hook SharedPreferencesImpl karena kunci (keys) seperti ig_disable_video_autoplay ternyata adalah konfigurasi lokal (QuickExperiment/Prefs).
+- [IG] HOTFIX v4.2: Memperbaiki Unlock Plus dengan menggunakan signature method yang tepat (String) -> Boolean berdasarkan referensi dari Piko.
