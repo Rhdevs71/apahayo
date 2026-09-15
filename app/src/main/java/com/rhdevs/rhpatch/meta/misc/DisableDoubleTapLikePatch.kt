@@ -26,7 +26,7 @@ val DisableDoubleTapLikePatch = patch(
                 XposedBridge.hookMethod(onDoubleTap, object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         try {
-                            val prefs = de.robv.android.xposed.XSharedPreferences("com.rhdevs.rhpatch", "com.instagram.android")
+                            val prefs = de.robv.android.xposed.XSharedPreferences("com.instagram.android", "rhpatch_settings")
                             prefs.makeWorldReadable()
                             if (prefs.getBoolean("pref_disable_double_tap_like", false)) {
                                 param.result = true // Consumed, ignore tap
@@ -38,3 +38,4 @@ val DisableDoubleTapLikePatch = patch(
         }
     }.onFailure { XposedBridge.log("Rhpatch: [DisableDoubleTapLike] Patch failed: it") }
 }
+

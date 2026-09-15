@@ -1,4 +1,4 @@
-package com.rhdevs.rhpatch.meta.privacy
+﻿package com.rhdevs.rhpatch.meta.privacy
 
 import com.rhdevs.rhpatch.patch
 import de.robv.android.xposed.XC_MethodHook
@@ -62,3 +62,4 @@ val EphemeralMediaPatch = patch(
         }
     }.onFailure { XposedBridge.log("Rhpatch: [EphemeralMedia] Patch failed: $it") }
 }
+

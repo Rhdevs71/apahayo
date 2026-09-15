@@ -39,6 +39,32 @@ val GhostModePatch = patch(
                                 val context = android.app.AndroidAppHelper.currentApplication() ?: return
                                 val prefs = context.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
                                 if (prefs.getBoolean("pref_ghost_mode", true)) {
+                                    val excludeChannels = prefs.getBoolean("pref_ghost_mode_channels_off", true)
+                                    if (excludeChannels) {
+                                        val threadArg = if (param.args.size > 1) param.args[1] else null
+                                        if (threadArg != null) {
+                                            var threadId: String? = null
+                                            var isGroupFlag: Boolean? = null
+                                            for (f in threadArg.javaClass.declaredFields) {
+                                                try {
+                                                    f.isAccessible = true
+                                                    val v = f.get(threadArg)
+                                                    if (v is Boolean) {
+                                                        isGroupFlag = v
+                                                    } else if (v is String && threadId == null) {
+                                                        threadId = v
+                                                    }
+                                                } catch (_: Throwable) {}
+                                            }
+                                            // Non-1v1 chats (broadcast channels & groups) either have isGroupFlag=true OR threadId without a ":" (not user1:user2)
+                                            val isChannelOrGroup = isGroupFlag == true || (threadId != null && !threadId.contains(":") && threadId.length > 5)
+                                            if (isChannelOrGroup) {
+                                                // Exclude broadcast channel / group from being blocked so membership & sync stay intact!
+                                                return
+                                            }
+                                        }
+                                    }
+
                                     // Save the attempt before blocking it
                                     GhostModeState.lastMarkSeenMethod = param.method as? Method
                                     GhostModeState.lastMarkSeenArgs = param.args
@@ -58,6 +84,25 @@ val GhostModePatch = patch(
             }
         }
     }.onFailure { XposedBridge.log("Rhpatch: [GhostMode] DMSeen hook failed: $it") }
+
+    // Auto-confirm Join on Broadcast Channel Join Sheet (LX.0IFg / follow_to_join_chat_sheet)
+    runCatching {
+        val joinFragClass = XposedHelpers.findClassIfExists("LX.0IFg", classLoader)
+        if (joinFragClass != null) {
+            XposedBridge.hookAllMethods(joinFragClass, "onViewCreated", object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    try {
+                        val frag = param.thisObject ?: return
+                        val joinBtn = runCatching { XposedHelpers.getObjectField(frag, "A0F") as? android.view.View }.getOrNull()
+                        joinBtn?.post {
+                            joinBtn.performClick()
+                            XposedBridge.log("Rhpatch: [GhostMode] Auto-confirmed join on follow_to_join_chat_sheet")
+                        }
+                    } catch (_: Throwable) {}
+                }
+            })
+        }
+    }
 
     // Story Seen Hook (Layer 1)
     runCatching {

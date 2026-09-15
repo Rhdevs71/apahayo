@@ -563,7 +563,7 @@ class MediaPreview(
         }
         inputStream.close()
 
-        mainHandler.post { progressText.setText(R.string.decrypting) }
+        mainHandler.post { progressText.text = Utils.getString(R.string.decrypting) ?: "Decrypting..." }
 
         val decryptedData = decryptMedia(encryptedData, mediaKey, mimeType)
 

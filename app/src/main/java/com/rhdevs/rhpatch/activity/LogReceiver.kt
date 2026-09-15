@@ -7,10 +7,11 @@ import android.util.Log
 
 class LogReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == "com.rhdevs.rhpatch.ACTION_SAVE_LOG") {
+        val action = intent.action
+        if (action == "com.rhdevs.rhpatch.LOG_SPAM" || action == "com.rhdevs.rhpatch.ACTION_SAVE_LOG") {
             try {
                 val message = intent.getStringExtra("message") ?: return
-                val type = intent.getStringExtra("type") ?: return
+                val type = intent.getStringExtra("type") ?: "Spam"
                 
                 val sharedPrefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
                 val currentLogs = sharedPrefs.getString("antispam_logs", "[]") ?: "[]"
@@ -23,9 +24,9 @@ class LogReceiver : BroadcastReceiver() {
                 
                 jsonArray.put(logObj)
                 
-                // Keep only last 50 logs
+                // Keep only last 100 logs
                 val trimmedArray = org.json.JSONArray()
-                val startIdx = if (jsonArray.length() > 50) jsonArray.length() - 50 else 0
+                val startIdx = if (jsonArray.length() > 100) jsonArray.length() - 100 else 0
                 for (i in startIdx until jsonArray.length()) {
                     trimmedArray.put(jsonArray.getJSONObject(i))
                 }

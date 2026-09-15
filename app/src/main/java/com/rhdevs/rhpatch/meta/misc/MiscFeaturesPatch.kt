@@ -104,30 +104,128 @@ val OpenLinksExternally = patch(
     }.onFailure { XposedBridge.log("Rhpatch: [OpenLinksExternally] Patch failed: $it") }
 }
 
+fun launchInstagramDeveloperOptions(activity: android.app.Activity): Boolean {
+    return try {
+        val fragmentAct = activity as? androidx.fragment.app.FragmentActivity
+        val classLoader = activity.classLoader
+
+        // 1. Try launching QuickExperimentCategoriesFragment directly
+        val qeClass = de.robv.android.xposed.XposedHelpers.findClassIfExists(
+            "com.instagram.debug.quickexperiment.QuickExperimentCategoriesFragment",
+            classLoader
+        )
+
+        if (qeClass != null && fragmentAct != null) {
+            // Find UserSession from Activity
+            var userSession: Any? = null
+            for (m in activity.javaClass.methods) {
+                if (m.parameterTypes.isEmpty() && m.returnType.name.contains("UserSession")) {
+                    userSession = runCatching { m.invoke(activity) }.getOrNull()
+                    if (userSession != null) break
+                }
+            }
+
+            val fragment = qeClass.newInstance() as androidx.fragment.app.Fragment
+            if (userSession != null) {
+                for (f in qeClass.declaredFields) {
+                    if (f.type.name.contains("UserSession")) {
+                        f.isAccessible = true
+                        f.set(fragment, userSession)
+                        break
+                    }
+                }
+            }
+
+            val containerId = fragmentAct.resources.getIdentifier("layout_container_main", "id", fragmentAct.packageName).let {
+                if (it != 0) it else android.R.id.content
+            }
+
+            fragmentAct.supportFragmentManager.beginTransaction()
+                .replace(containerId, fragment)
+                .addToBackStack("developer_options")
+                .commit()
+
+            android.widget.Toast.makeText(activity, "Membuka Developer Options...", android.widget.Toast.LENGTH_SHORT).show()
+            return true
+        }
+
+        // 2. Fallback to LX.0MRL launcher methods
+        val launcherClass = de.robv.android.xposed.XposedHelpers.findClassIfExists("LX.0MRL", classLoader)
+        if (launcherClass != null && fragmentAct != null) {
+            var userSession: Any? = null
+            for (m in activity.javaClass.methods) {
+                if (m.parameterTypes.isEmpty() && m.returnType.name.contains("UserSession")) {
+                    userSession = runCatching { m.invoke(activity) }.getOrNull()
+                    if (userSession != null) break
+                }
+            }
+
+            for (m in launcherClass.declaredMethods) {
+                if (java.lang.reflect.Modifier.isStatic(m.modifiers) && m.parameterTypes.size == 3) {
+                    m.isAccessible = true
+                    m.invoke(null, activity, activity, userSession)
+                    android.widget.Toast.makeText(activity, "Membuka Developer Options...", android.widget.Toast.LENGTH_SHORT).show()
+                    return true
+                }
+            }
+        }
+        false
+    } catch (t: Throwable) {
+        de.robv.android.xposed.XposedBridge.log("Rhpatch: [EnableDevOptions] Error launching dev options: ${t.message}")
+        false
+    }
+}
+
 val EnableDeveloperOptions = patch(
     name = "Aktifkan Pilihan Pengembang",
-    description = "Mengaktifkan menu Developer (Internal) Instagram secara paksa."
+    description = "Mengaktifkan menu Developer (Internal) Instagram via ketuk lama Home icon atau tombol Rhpatch."
 ) {
     runCatching {
         if (!MetaUnobfuscator.init(appContext)) return@runCatching
-        val methods = MetaUnobfuscator.findMethodUsingStrings("is_employee", "developer_options")
-        for (m in methods) {
-            if (m.returnType == Boolean::class.javaPrimitiveType || m.returnType == java.lang.Boolean::class.java) {
-                XposedBridge.hookMethod(m, object : de.robv.android.xposed.XC_MethodHook() {
+
+        // Hook onLongClick for Home navigation button (HomeIconOnClickListener)
+        val homeClickListenerMethods = MetaUnobfuscator.findMethodUsingStrings("click", "activity")
+        for (m in homeClickListenerMethods) {
+            if (m.name == "onLongClick") {
+                de.robv.android.xposed.XposedBridge.hookMethod(m, object : de.robv.android.xposed.XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         try {
-                            val context = android.app.AndroidAppHelper.currentApplication()
-                            val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
-                            if (prefs?.getBoolean("pref_enable_dev_options", true) == true) {
+                            val context = android.app.AndroidAppHelper.currentApplication() ?: appContext
+                            val prefs = context.getSharedPreferences("rhpatch_settings", Context.MODE_PRIVATE)
+                            if (!prefs.getBoolean("pref_enable_dev_options", true)) return
+
+                            val view = param.args.firstOrNull { it is android.view.View } as? android.view.View
+                            val act = (view?.context as? android.app.Activity)
+                                ?: (param.thisObject as? android.app.Activity)
+                                ?: return
+
+                            if (launchInstagramDeveloperOptions(act)) {
                                 param.result = true
                             }
-                        } catch (e: Exception) {}
+                        } catch (_: Throwable) {}
                     }
                 })
             }
         }
-    }.onFailure { XposedBridge.log("Rhpatch: [EnableDevOptions] Patch failed: $it") }
+
+        // Also hook is_employee methods
+        val methods = MetaUnobfuscator.findMethodUsingStrings("is_employee")
+        for (m in methods) {
+            if (m.returnType == Boolean::class.javaPrimitiveType || m.returnType == java.lang.Boolean::class.java) {
+                de.robv.android.xposed.XposedBridge.hookMethod(m, object : de.robv.android.xposed.XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        try {
+                            val context = android.app.AndroidAppHelper.currentApplication() ?: appContext
+                            val prefs = context.getSharedPreferences("rhpatch_settings", Context.MODE_PRIVATE)
+                            if (prefs.getBoolean("pref_enable_dev_options", true)) {
+                                param.result = true
+                            }
+                        } catch (_: Throwable) {}
+                    }
+                })
+            }
+        }
+    }.onFailure { de.robv.android.xposed.XposedBridge.log("Rhpatch: [EnableDevOptions] Patch failed: $it") }
 }
 
-val MiscPatches = arrayOf(CopyCommentsPatch, MediaCommentsPatch, OpenLinksExternally, EnableDeveloperOptions, DisableBuildExpiredPopup, SanitizeShareLinks, DisableStoryFlipping, RemoveEmptyBottomSpacePatch, DisableDoubleTapLikePatch, FriendshipStatusIndicatorPatch)
-
+val MiscPatches = arrayOf(OpenLinksExternally, EnableDeveloperOptions, DisableBuildExpiredPopup, SanitizeShareLinks, DisableStoryFlipping, DisableDoubleTapLikePatch)

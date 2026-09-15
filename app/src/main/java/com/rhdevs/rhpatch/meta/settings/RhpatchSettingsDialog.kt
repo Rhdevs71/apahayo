@@ -1,4 +1,4 @@
-﻿package com.rhdevs.rhpatch.meta.settings
+package com.rhdevs.rhpatch.meta.settings
 
 import android.app.AlertDialog
 import android.content.Context
@@ -157,28 +157,106 @@ object RhpatchSettingsDialog {
             return itemLayout
         }
 
-        layout.addView(createSwitch("Ghost Mode", "Sembunyikan status dilihat pada DM dan Story", "pref_ghost_mode"))
-          layout.addView(createSwitch("Tandai Sebagai Dibaca", "Tambahkan tombol di header DM untuk menandai obrolan telah dibaca (Ghost Mode)", "pref_mark_as_read"))
-        layout.addView(createSwitch("Disable Typing Status", "Sembunyikan status sedang mengetik di DM", "pref_disable_typing"))
-        layout.addView(createSwitch("Make Ephemeral Permanent", "Ubah pesan View Once menjadi permanen", "pref_ephemeral"))
-        layout.addView(createSwitch("View Live Anonymously", "Tonton Live tanpa diketahui host atau penonton lain", "pref_view_live_anon"))
-        layout.addView(createSwitch("Media Downloader", "Aktifkan tombol download pada Feed, Reels, dan Stories", "pref_downloader"))
-          layout.addView(createSwitch("Salin Komentar (Global)", "Ketuk lama pada komentar untuk menyalin teks", "pref_copy_comments"))
-                layout.addView(createSwitch("Disable Swipe To Create", "Mencegah buka kamera saat swipe kanan di Beranda", "pref_disable_swipe"))
-        layout.addView(createSwitch("Disable Video Autoplay", "Mematikan putar otomatis video di Feed", "pref_disable_video_autoplay"))
-        layout.addView(createSwitch("Disable Stories Audio Autoplay", "Mematikan audio otomatis di Story", "pref_disable_stories_audio"))
-        layout.addView(createSwitch("Unlock IG Plus", "Membuka kunci fitur berlangganan Creator Plus", "pref_ig_plus"))
-        layout.addView(createSwitch("Disable Double Tap Like", "Matikan fungsi 2 kali ketuk untuk like", "pref_disable_double_tap_like"))
+        layout.addView(createSwitch("Ghost Mode", "Sembunyikan status dilihat pada DM dan Story", "pref_ghost_mode", false))
+        layout.addView(createSwitch("Tandai Sebagai Dibaca", "Tambahkan tombol di header DM untuk menandai obrolan telah dibaca (Ghost Mode)", "pref_mark_as_read", false))
+        layout.addView(createSwitch("Disable Typing Status", "Sembunyikan status sedang mengetik di DM", "pref_disable_typing", false))
+        layout.addView(createSwitch("Make Ephemeral Permanent", "Ubah pesan View Once menjadi permanen", "pref_ephemeral", false))
+        layout.addView(createSwitch("View Live Anonymously", "Tonton Live tanpa diketahui host atau penonton lain", "pref_view_live_anon", false))
         
-                layout.addView(createSwitch("Buka Tautan Secara Eksternal", "Buka link web langsung di browser sistem (Chrome/dll)", "pref_open_links_externally"))
-        layout.addView(createSwitch("Aktifkan Mode Pengembang", "Tampilkan opsi Developer IG", "pref_enable_dev_options"))
-        layout.addView(createSwitch("Hapus Ruang Kosong Bawah", "Hilangkan space kosong di bawah layar (opsional)", "pref_remove_empty_bottom"))
+        // Dua toggle mandiri untuk Downloader sesuai instruksi
+        layout.addView(createSwitch("Media Downloader (Feed & Story)", "Aktifkan tombol download pada postingan Feed dan Story", "pref_downloader", true))
+        layout.addView(createSwitch("Reels Downloader (HD)", "Aktifkan tombol download khusus video Reels HD", "pref_reels_downloader", true))
+        
+        layout.addView(createSwitch("Salin Komentar (Global)", "Ketuk lama pada komentar untuk menyalin teks", "pref_copy_comments", false))
+        layout.addView(createSwitch("Disable Swipe To Create", "Mencegah buka kamera saat swipe kanan di Beranda", "pref_disable_swipe", false))
+        layout.addView(createSwitch("Disable Video Autoplay", "Mematikan putar otomatis video di Feed", "pref_disable_video_autoplay", false))
+        layout.addView(createSwitch("Disable Stories Audio Autoplay", "Mematikan audio otomatis di Story", "pref_disable_stories_audio", false))
+        layout.addView(createSwitch("Unlock IG Plus", "Membuka kunci fitur berlangganan Creator Plus", "pref_ig_plus", true))
+        layout.addView(createSwitch("Disable Double Tap Like", "Matikan fungsi 2 kali ketuk untuk like", "pref_disable_double_tap_like", false))
+        
+        layout.addView(createSwitch("Buka Tautan Secara Eksternal", "Buka link web langsung di browser sistem (Chrome/dll)", "pref_open_links_externally", false))
+        layout.addView(createSwitch("Aktifkan Mode Pengembang", "Tampilkan opsi Developer IG (Ketuk lama Home)", "pref_enable_dev_options", false))
+
+        val devOptionsBtn = TextView(context).apply {
+            text = "[Dev] Buka Menu Developer Options Sekarang"
+            textSize = 14f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#3B82F6"))
+            setPadding(0, (8 * dp).toInt(), 0, (12 * dp).toInt())
+            setOnClickListener {
+                val act = context as? android.app.Activity
+                if (act != null) {
+                    com.rhdevs.rhpatch.meta.misc.launchInstagramDeveloperOptions(act)
+                } else {
+                    android.widget.Toast.makeText(context, "Silakan buka dari dalam layar Instagram", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        layout.addView(devOptionsBtn)
+        val changeIconBtn = TextView(context).apply {
+            text = "[Icon] Pilih Ikon Aplikasi Instagram (14 Ikon)"
+            textSize = 14f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#EC4899"))
+            setPadding(0, (8 * dp).toInt(), 0, (12 * dp).toInt())
+            setOnClickListener {
+                val iconNames = arrayOf(
+                    "Default (Standar)",
+                    "Cannes Neon",
+                    "Cannes Flame",
+                    "Cannes Floral",
+                    "Cannes Slime",
+                    "Cannes Metal",
+                    "Cannes K-Pop",
+                    "Haruko",
+                    "Felipe",
+                    "Humberto",
+                    "Zipeng",
+                    "Uzo",
+                    "Ricky",
+                    "Throwback Classic"
+                )
+                val iconAliases = arrayOf(
+                    "com.instagram.android.activity.MainTabActivity",
+                    "com.instagram.android.activity.MainTabActivity.neon",
+                    "com.instagram.android.activity.MainTabActivity.flame",
+                    "com.instagram.android.activity.MainTabActivity.floral",
+                    "com.instagram.android.activity.MainTabActivity.slime",
+                    "com.instagram.android.activity.MainTabActivity.metal",
+                    "com.instagram.android.activity.MainTabActivity.kpop",
+                    "com.instagram.android.activity.MainTabActivity.haruko",
+                    "com.instagram.android.activity.MainTabActivity.felipe",
+                    "com.instagram.android.activity.MainTabActivity.humberto",
+                    "com.instagram.android.activity.MainTabActivity.zipeng",
+                    "com.instagram.android.activity.MainTabActivity.uzo",
+                    "com.instagram.android.activity.MainTabActivity.ricky",
+                    "com.instagram.android.activity.MainTabActivity.throwback"
+                )
+
+                AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                    .setTitle("Pilih Ikon Aplikasi Instagram")
+                    .setItems(iconNames) { _, which ->
+                        val selectedAlias = iconAliases[which]
+                        val name = iconNames[which]
+                        try {
+                            com.rhdevs.rhpatch.meta.misc.applyLauncherIcon(context, selectedAlias)
+                            Toast.makeText(context, "Ikon berhasil diubah ke: $name!\n(Muat ulang launcher HP Anda jika belum berubah)", Toast.LENGTH_LONG).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Gagal mengubah ikon: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    .setNegativeButton("Batal", null)
+                    .show()
+            }
+        }
+        layout.addView(changeIconBtn)
+        layout.addView(createSwitch("Hapus Ruang Kosong Bawah", "Hilangkan space kosong di bawah layar (aktifkan jika belum dipatch di APK)", "pref_remove_empty_bottom", false))
                 
         val likeAnimations = arrayOf("DEFAULT", "RINGS", "PRIDE", "SPARKLES")
         layout.addView(createOptionSelector("Ubah Animasi Suka", "Pilih animasi love kustom", "pref_like_animation_type", likeAnimations, 0))
-        layout.addView(createSwitch("Indikator Pertemanan Berwarna", "Beri warna pada tombol Follow, Following, dan Follow Back di profil", "pref_colored_friendship"))
+        layout.addView(createSwitch("Indikator Pertemanan Berwarna", "Beri warna pada tombol Follow, Following, dan Follow Back di profil", "pref_colored_friendship", false))
 
-                layout.addView(createSwitch("Simpan Komentar Media", "Izinkan penyimpanan GIF dan stiker gambar dari komentar", "pref_media_comments"))
+        layout.addView(createSwitch("Simpan Komentar Media", "Izinkan penyimpanan GIF dan stiker gambar dari komentar", "pref_media_comments", false))
 
         val debugTitle = TextView(context).apply {
             text = "Pelacak Hook & Fallbacks"
@@ -202,5 +280,3 @@ object RhpatchSettingsDialog {
             .show()
     }
 }
-
-

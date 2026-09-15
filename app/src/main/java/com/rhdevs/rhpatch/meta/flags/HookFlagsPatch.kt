@@ -1,4 +1,4 @@
-package com.rhdevs.rhpatch.meta.flags
+﻿package com.rhdevs.rhpatch.meta.flags
 
 import com.rhdevs.rhpatch.patch
 import com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator
@@ -26,3 +26,4 @@ val HookFlagsPatch = patch(
         XposedBridge.log("Rhpatch: [Flags] Hook failed: $it")
     }
 }
+

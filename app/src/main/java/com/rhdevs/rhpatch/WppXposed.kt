@@ -1,4 +1,4 @@
-package com.rhdevs.rhpatch
+﻿package com.rhdevs.rhpatch
 
 import android.annotation.SuppressLint
 import android.content.ContextWrapper
@@ -89,7 +89,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
         if ((packageName == FeatureLoader.PACKAGE_WPP && com.rhdevs.rhpatch.App.isOriginalPackage) || packageName == FeatureLoader.PACKAGE_BUSINESS) {
             if (lpparam.isFirstApplication) {
-                XposedBridge.log("[â€¢] This package: ${lpparam.packageName}")
+                XposedBridge.log("[Ã¢â‚¬Â¢] This package: ${lpparam.packageName}")
                 FeatureLoader.start(classLoader, lpparam.appInfo.sourceDir)
             } else {
                 disableSecureFlag()
@@ -103,8 +103,8 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
         if (packageName == "com.instagram.android") {
             try {
-                val prefs = de.robv.android.xposed.XSharedPreferences("com.rhdevs.rhpatch", "com.instagram.android")
-                prefs.makeWorldReadable()
+                val prefs = de.robv.android.xposed.XSharedPreferences("com.instagram.android", "rhpatch_settings")
+                
                 if (prefs.getBoolean("pref_theme_amoled", false)) {
                     val black = 0xFF000000.toInt()
                     resparam.res.setReplacement("com.instagram.android", "color", "igds_color_primary_background", black)
@@ -134,7 +134,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
         try {
             val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, BuildConfig.APPLICATION_ID + "_preferences")
-            prefs.makeWorldReadable()
+            
             prefs.reload()
             val tickStyle = prefs.getString("pref_tick_style", "default")
             if (tickStyle != "default") {
