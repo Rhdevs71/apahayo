@@ -3,8 +3,12 @@
     <string-array name="scope">
         <item>com.whatsapp</item>
         <item>com.whatsapp.w4b</item>
+        <item>com.whatsapp.pikoo</item>
         <item>android</item>
         <item>com.instagram.android</item>
+        <item>com.instagram.android.pikoo</item>
+        <item>com.spotify.music</item>
+        <item>com.spotify.lite</item>
         <item>com.instagram.barcelona</item>
         <item>com.instagram.lite</item>
         <item>com.discord</item>

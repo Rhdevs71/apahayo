@@ -1,126 +1,262 @@
 ﻿package com.rhdevs.rhpatch.system
 
+import android.content.Context
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import de.robv.android.xposed.XSharedPreferences
+import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.net.DatagramPacket
 import java.net.DatagramSocket
+import java.net.HttpURLConnection
 import java.net.InetAddress
+import java.net.URL
 import java.nio.ByteBuffer
 import java.util.Random
+import java.util.concurrent.ConcurrentHashMap
 
 object DnsBypassHook {
     private val DNS_SERVERS = listOf("8.8.8.8", "1.1.1.1", "208.67.222.222")
     private val random = Random()
+    private val dnsCache = ConcurrentHashMap<String, Array<InetAddress>>()
+    
+    @Volatile private var isWhitelistedCached: Boolean? = null
+    @Volatile private var lastWhitelistCheckTime = 0L
 
-    fun hook(classLoader: ClassLoader, packageName: String, prefs: de.robv.android.xposed.XSharedPreferences) {
+    private fun getAppContext(): Context? {
+        return try {
+            val activityThreadClass = XposedHelpers.findClass("android.app.ActivityThread", null)
+            val currentActivityThread = XposedHelpers.callStaticMethod(activityThreadClass, "currentActivityThread")
+            XposedHelpers.callMethod(currentActivityThread, "getApplication") as? Context
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    private fun isPackageWhitelisted(packageName: String, prefs: XSharedPreferences?): Boolean {
+        val now = android.os.SystemClock.uptimeMillis()
+        if (now - lastWhitelistCheckTime < 2000L && isWhitelistedCached != null) {
+            return isWhitelistedCached!!
+        }
+        lastWhitelistCheckTime = now
+
+        // 1. Cek via XSharedPreferences
         try {
-            prefs.reload()
-            if (!prefs.getBoolean("dns_bypass_enabled", false)) return
-            val whitelist = prefs.getString("dns_bypass_whitelist", "") ?: ""
-            
-            val allowedApps = whitelist.split(",").map { it.trim() }
-            if (!allowedApps.contains(packageName)) return
-            
-            // Hook 1: InetAddress
-            XposedHelpers.findAndHookMethod(
-                InetAddress::class.java,
-                "getAllByName",
-                String::class.java,
-                object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        val host = param.args[0] as? String ?: return
-                        if (host.isEmpty() || host.matches(Regex("^[0-9.]+\$")) || host.contains(":")) return
-                        
-                        try {
-                            val resolved = resolveDnsUdp(host)
-                            if (resolved.isNotEmpty()) {
-                                param.result = resolved.toTypedArray()
-                            }
-                        } catch (e: Throwable) {}
-                    }
+            prefs?.reload()
+            if (prefs != null && prefs.getBoolean("dns_bypass_enabled", false)) {
+                val whitelist = prefs.getString("dns_bypass_whitelist", "") ?: ""
+                val allowed = whitelist.split(",").map { it.trim() }
+                if (allowed.contains(packageName)) {
+                    isWhitelistedCached = true
+                    return true
                 }
-            )
+            }
+        } catch (_: Throwable) {}
 
-            // Hook 2: OkHttp
-            try {
-                val okhttpDnsClass = XposedHelpers.findClassIfExists("okhttp3.Dns", classLoader)
-                if (okhttpDnsClass != null) {
-                    var systemDnsClass = XposedHelpers.findClassIfExists("okhttp3.Dns\$Companion\$SYSTEM\$1", classLoader)
-                    if (systemDnsClass == null) {
-                        systemDnsClass = XposedHelpers.findClassIfExists("okhttp3.Dns\$1", classLoader)
-                    }
-                    if (systemDnsClass != null) {
-                        XposedHelpers.findAndHookMethod(
-                            systemDnsClass,
-                            "lookup",
-                            String::class.java,
-                            object : XC_MethodHook() {
-                                override fun beforeHookedMethod(param: MethodHookParam) {
-                                    val host = param.args[0] as? String ?: return
-                                    if (host.isEmpty() || host.matches(Regex("^[0-9.]+\$")) || host.contains(":")) return
-                                    
-                                    try {
-                                        val resolved = resolveDnsUdp(host)
-                                        if (resolved.isNotEmpty()) {
-                                            param.result = resolved
-                                        }
-                                    } catch (e: Throwable) {}
-                                }
-                            }
-                        )
+        // 2. Cek via RemotePreferences lintas proses (Bypass batasan SELinux Android 10-15)
+        try {
+            val ctx = getAppContext()
+            if (ctx != null) {
+                val remotePrefs = com.crossbowffs.remotepreferences.RemotePreferences(
+                    ctx, "com.rhdevs.rhpatch.preferences", "prefs"
+                )
+                if (remotePrefs.getBoolean("dns_bypass_enabled", false)) {
+                    val whitelist = remotePrefs.getString("dns_bypass_whitelist", "") ?: ""
+                    val allowed = whitelist.split(",").map { it.trim() }
+                    if (allowed.contains(packageName)) {
+                        isWhitelistedCached = true
+                        return true
                     }
                 }
-            } catch (e: Throwable) {}
+            }
+        } catch (_: Throwable) {}
 
-            // Hook 3: DnsResolver
-            try {
-                val dnsResolverClass = XposedHelpers.findClassIfExists("android.net.DnsResolver", classLoader)
-                if (dnsResolverClass != null) {
-                    val networkClass = XposedHelpers.findClassIfExists("android.net.Network", classLoader)
-                    val executorClass = java.util.concurrent.Executor::class.java
-                    val cancellationSignalClass = XposedHelpers.findClassIfExists("android.os.CancellationSignal", classLoader)
-                    val callbackClass = XposedHelpers.findClassIfExists("android.net.DnsResolver\$Callback", classLoader)
-                    
-                    if (networkClass != null && cancellationSignalClass != null && callbackClass != null) {
-                        XposedHelpers.findAndHookMethod(
-                            dnsResolverClass,
-                            "query",
-                            networkClass,
-                            String::class.java,
-                            Int::class.java,
-                            executorClass,
-                            cancellationSignalClass,
-                            callbackClass,
-                            object : XC_MethodHook() {
-                                override fun beforeHookedMethod(param: MethodHookParam) {
-                                    val host = param.args[1] as? String ?: return
-                                    if (host.isEmpty() || host.matches(Regex("^[0-9.]+\$")) || host.contains(":")) return
-                                    
-                                    try {
-                                        val resolved = resolveDnsUdp(host)
-                                        if (resolved.isNotEmpty()) {
-                                            val callback = param.args[5]
-                                            if (callback != null) {
-                                                val onAnswerMethod = callback.javaClass.getMethod("onAnswer", Any::class.java, Int::class.java)
-                                                onAnswerMethod.invoke(callback, resolved, 0)
-                                                param.result = null
-                                            }
-                                        }
-                                    } catch (e: Throwable) {}
-                                }
-                            }
-                        )
+        // 3. Cek via ContentProvider SpamConfigProvider
+        try {
+            val ctx = getAppContext()
+            if (ctx != null) {
+                val uri = android.net.Uri.parse("content://com.rhdevs.rhpatch.spamconfig/dns_bypass_whitelist")
+                ctx.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val whitelist = cursor.getString(1) ?: ""
+                        val allowed = whitelist.split(",").map { it.trim() }
+                        if (allowed.contains(packageName)) {
+                            isWhitelistedCached = true
+                            return true
+                        }
                     }
                 }
-            } catch (e: Throwable) {}
-            
-            XposedBridge.log("Rhpatch: DNS AdGuard/Bypass Engine aktif untuk " + packageName)
+            }
+        } catch (_: Throwable) {}
+
+        isWhitelistedCached = false
+        return false
+    }
+
+    fun hook(classLoader: ClassLoader, packageName: String, prefs: XSharedPreferences) {
+        try {
+            // Hook 1: InetAddress.getAllByName(String) -> Array<InetAddress>
+            runCatching {
+                XposedHelpers.findAndHookMethod(
+                    InetAddress::class.java,
+                    "getAllByName",
+                    String::class.java,
+                    object : XC_MethodHook() {
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            if (!isPackageWhitelisted(packageName, prefs)) return
+                            val host = param.args[0] as? String ?: return
+                            if (host.isEmpty() || host.matches(Regex("^[0-9.]+$")) || host.contains(":") || host == "localhost") return
+
+                            val resolved = resolveHost(host)
+                            if (resolved != null && resolved.isNotEmpty()) {
+                                param.result = resolved
+                            }
+                        }
+                    }
+                )
+            }
+
+            // Hook 1b: InetAddress.getByName(String) -> InetAddress
+            runCatching {
+                XposedHelpers.findAndHookMethod(
+                    InetAddress::class.java,
+                    "getByName",
+                    String::class.java,
+                    object : XC_MethodHook() {
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            if (!isPackageWhitelisted(packageName, prefs)) return
+                            val host = param.args[0] as? String ?: return
+                            if (host.isEmpty() || host.matches(Regex("^[0-9.]+$")) || host.contains(":") || host == "localhost") return
+
+                            val resolved = resolveHost(host)
+                            if (resolved != null && resolved.isNotEmpty()) {
+                                param.result = resolved[0]
+                            }
+                        }
+                    }
+                )
+            }
+
+            // Hook 1c: InetAddress.getAllByNameImpl (Android 10-15 internal method)
+            runCatching {
+                val implMethod = InetAddress::class.java.declaredMethods.firstOrNull { 
+                    it.name == "getAllByNameImpl" && it.parameterTypes.isNotEmpty() && it.parameterTypes[0] == String::class.java 
+                }
+                if (implMethod != null) {
+                    XposedBridge.hookMethod(implMethod, object : XC_MethodHook() {
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            if (!isPackageWhitelisted(packageName, prefs)) return
+                            val host = param.args[0] as? String ?: return
+                            if (host.isEmpty() || host.matches(Regex("^[0-9.]+$")) || host.contains(":") || host == "localhost") return
+
+                            val resolved = resolveHost(host)
+                            if (resolved != null && resolved.isNotEmpty()) {
+                                param.result = resolved
+                            }
+                        }
+                    })
+                }
+            }
+
+            XposedBridge.log("Rhpatch: DNS AdGuard/Bypass Engine terdaftar untuk: " + packageName)
         } catch (e: Throwable) {
             XposedBridge.log("Rhpatch: DNS Bypass gagal dimuat - " + e.message)
         }
+    }
+
+    private fun resolveHost(host: String): Array<InetAddress>? {
+        // Cek In-Memory Cache (0ms response)
+        dnsCache[host]?.let { return it }
+
+        // 1. Coba DNS-over-HTTPS (DoH) via Cloudflare (Port 443 kebal blokir ISP dan AdGuard)
+        try {
+            val dohResult = resolveDohCloudflare(host)
+            if (dohResult.isNotEmpty()) {
+                val array = dohResult.toTypedArray()
+                dnsCache[host] = array
+                return array
+            }
+        } catch (_: Throwable) {}
+
+        // 2. Coba DNS-over-HTTPS (DoH) via Google
+        try {
+            val dohResult = resolveDohGoogle(host)
+            if (dohResult.isNotEmpty()) {
+                val array = dohResult.toTypedArray()
+                dnsCache[host] = array
+                return array
+            }
+        } catch (_: Throwable) {}
+
+        // 3. Fallback ke UDP Port 53
+        try {
+            val udpResult = resolveDnsUdp(host)
+            if (udpResult.isNotEmpty()) {
+                val array = udpResult.toTypedArray()
+                dnsCache[host] = array
+                return array
+            }
+        } catch (_: Throwable) {}
+
+        return null
+    }
+
+    private fun resolveDohCloudflare(host: String): List<InetAddress> {
+        val url = URL("https://1.1.1.1/dns-query?name=" + host + "&type=A")
+        val conn = url.openConnection() as HttpURLConnection
+        conn.requestMethod = "GET"
+        conn.setRequestProperty("Accept", "application/dns-json")
+        conn.connectTimeout = 2000
+        conn.readTimeout = 2000
+
+        if (conn.responseCode == 200) {
+            val response = conn.inputStream.bufferedReader().use { it.readText() }
+            val json = JSONObject(response)
+            val answers = json.optJSONArray("Answer") ?: return emptyList()
+            val list = mutableListOf<InetAddress>()
+            for (i in 0 until answers.length()) {
+                val item = answers.getJSONObject(i)
+                if (item.optInt("type", 0) == 1) { // Type 1 = A record (IPv4)
+                    val ipStr = item.optString("data", "")
+                    if (ipStr.isNotEmpty() && ipStr.matches(Regex("^[0-9.]+$"))) {
+                        val parts = ipStr.split(".").map { it.toInt().toByte() }.toByteArray()
+                        list.add(InetAddress.getByAddress(host, parts))
+                    }
+                }
+            }
+            return list
+        }
+        return emptyList()
+    }
+
+    private fun resolveDohGoogle(host: String): List<InetAddress> {
+        val url = URL("https://dns.google/resolve?name=" + host + "&type=A")
+        val conn = url.openConnection() as HttpURLConnection
+        conn.requestMethod = "GET"
+        conn.setRequestProperty("Accept", "application/json")
+        conn.connectTimeout = 2000
+        conn.readTimeout = 2000
+
+        if (conn.responseCode == 200) {
+            val response = conn.inputStream.bufferedReader().use { it.readText() }
+            val json = JSONObject(response)
+            val answers = json.optJSONArray("Answer") ?: return emptyList()
+            val list = mutableListOf<InetAddress>()
+            for (i in 0 until answers.length()) {
+                val item = answers.getJSONObject(i)
+                if (item.optInt("type", 0) == 1) {
+                    val ipStr = item.optString("data", "")
+                    if (ipStr.isNotEmpty() && ipStr.matches(Regex("^[0-9.]+$"))) {
+                        val parts = ipStr.split(".").map { it.toInt().toByte() }.toByteArray()
+                        list.add(InetAddress.getByAddress(host, parts))
+                    }
+                }
+            }
+            return list
+        }
+        return emptyList()
     }
 
     private fun resolveDnsUdp(host: String): List<InetAddress> {
@@ -166,7 +302,7 @@ object DnsBypassHook {
                     socket.close()
                     return result
                 }
-            } catch (e: Exception) {}
+            } catch (_: Exception) {}
         }
         socket.close()
         return emptyList()

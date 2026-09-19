@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
+import android.widget.RelativeLayout
 import com.rhdevs.rhpatch.patch
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -16,50 +17,66 @@ val ProfileSettingsPatch = patch(
     description = "Menyisipkan tombol pengaturan Rhpatch di halaman profil"
 ) {
     runCatching {
-        // Menggunakan Fragment onViewCreated dari Profile untuk menyuntikkan tombol pengaturan
-        // secara aman tanpa merusak RecyclerView ProfileUserInfoViewBinder
         val userDetailFragmentClass = XposedHelpers.findClassIfExists("com.instagram.profile.fragment.UserDetailFragment", classLoader)
         if (userDetailFragmentClass != null) {
-            XposedBridge.hookAllMethods(userDetailFragmentClass, "onViewCreated", object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    try {
-                        val view = param.args[0] as? ViewGroup ?: return
-                        val context = view.context
-                        
-                        if (view.findViewWithTag<View>("rhp_settings_btn") != null) return
-                        
+            val injectSettingsButton = { root: ViewGroup ->
+                try {
+                    val context = root.context
+                    val targetGroup = (root.parent as? ViewGroup) ?: root
+                    if (targetGroup.findViewWithTag<View>("rhp_settings_btn") == null && root.findViewWithTag<View>("rhp_settings_btn") == null) {
                         val dp = context.resources.displayMetrics.density
-                        
-                        // Membuat Floating Tombol Pengaturan Rhpatch
+                        val size = (40 * dp).toInt()
+
                         val fab = ImageButton(context).apply {
                             tag = "rhp_settings_btn"
                             setImageResource(android.R.drawable.ic_menu_preferences)
-                            setBackgroundColor(Color.parseColor("#80000000")) // Semi-transparan hitam
+                            setBackgroundColor(Color.parseColor("#80000000"))
                             setColorFilter(Color.WHITE)
-                            val size = (40 * dp).toInt()
-                            layoutParams = FrameLayout.LayoutParams(size, size).apply {
-                                gravity = Gravity.TOP or Gravity.START
-                                topMargin = (16 * dp).toInt()
-                                leftMargin = (16 * dp).toInt()
-                            }
                             setOnClickListener {
                                 RhpatchSettingsDialog.showSettingsDialog(context)
                             }
                         }
-                        
-                        // Coba tambahkan ke root view profile
-                        if (view is FrameLayout || view is android.widget.RelativeLayout) {
-                            view.addView(fab)
-                            XposedBridge.log("Rhpatch: [Settings] Berhasil menyuntikkan tombol pengaturan di UserDetailFragment")
-                        } else {
-                            // Jika bukan framelayout, cari induknya
-                            val parent = view.parent as? ViewGroup
-                            if (parent is FrameLayout || parent is android.widget.RelativeLayout) {
-                                parent.addView(fab)
+
+                        val lp: ViewGroup.LayoutParams = when (targetGroup) {
+                            is FrameLayout -> FrameLayout.LayoutParams(size, size).apply {
+                                gravity = Gravity.TOP or Gravity.START
+                                topMargin = (16 * dp).toInt()
+                                leftMargin = (16 * dp).toInt()
+                            }
+                            is RelativeLayout -> RelativeLayout.LayoutParams(size, size).apply {
+                                addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                                addRule(RelativeLayout.ALIGN_PARENT_START)
+                                topMargin = (16 * dp).toInt()
+                                leftMargin = (16 * dp).toInt()
+                            }
+                            else -> ViewGroup.MarginLayoutParams(size, size).apply {
+                                topMargin = (16 * dp).toInt()
+                                leftMargin = (16 * dp).toInt()
                             }
                         }
-                    } catch (e: Exception) {
-                        XposedBridge.log("Rhpatch: [Settings] Gagal menyuntikkan tombol: $e")
+                        targetGroup.addView(fab, lp)
+                        XposedBridge.log("Rhpatch: [Settings] Berhasil menyuntikkan tombol pengaturan di profil")
+                    }
+                } catch (e: Throwable) {
+                    XposedBridge.log("Rhpatch: [Settings] Gagal menyuntikkan tombol: $e")
+                }
+            }
+
+            XposedBridge.hookAllMethods(userDetailFragmentClass, "onViewCreated", object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val view = param.args[0] as? ViewGroup ?: return
+                    view.post {
+                        injectSettingsButton(view)
+                    }
+                }
+            })
+
+            XposedBridge.hookAllMethods(userDetailFragmentClass, "onResume", object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val fragment = param.thisObject as? androidx.fragment.app.Fragment ?: return
+                    val view = fragment.view as? ViewGroup ?: return
+                    view.post {
+                        injectSettingsButton(view)
                     }
                 }
             })

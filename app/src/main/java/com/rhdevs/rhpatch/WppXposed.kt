@@ -22,7 +22,7 @@ import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResourcesParam
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
-class WppXposed : IXposedHookLoadPackage, IXposedHookZygoteInit {
+class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXposedHookZygoteInit {
 
     private var MODULE_PATH: String? = null
 
@@ -89,7 +89,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         if ((packageName == FeatureLoader.PACKAGE_WPP && com.rhdevs.rhpatch.App.isOriginalPackage) || packageName == FeatureLoader.PACKAGE_BUSINESS) {
             if (lpparam.isFirstApplication) {
-                XposedBridge.log("[â€¢] This package: ${lpparam.packageName}")
+                XposedBridge.log("[Ã¢â‚¬Â¢] This package: ${lpparam.packageName}")
                 FeatureLoader.start(classLoader, lpparam.appInfo.sourceDir)
             } else {
                 disableSecureFlag()
@@ -97,7 +97,63 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookZygoteInit {
         }
     }
 
-    // handleInitPackageResources removed for modern LSPosed v2.2.0 compatibility
+    @Throws(Throwable::class)
+        override fun handleInitPackageResources(resparam: InitPackageResourcesParam) {
+        val packageName = resparam.packageName
+
+        if (packageName == "com.instagram.android") {
+            try {
+                val prefs = de.robv.android.xposed.XSharedPreferences("com.instagram.android", "rhpatch_settings")
+                
+                if (prefs.getBoolean("pref_theme_amoled", false)) {
+                    val black = 0xFF000000.toInt()
+                    resparam.res.setReplacement("com.instagram.android", "color", "igds_color_primary_background", black)
+                    resparam.res.setReplacement("com.instagram.android", "color", "igds_color_primary_background_dark", black)
+                    resparam.res.setReplacement("com.instagram.android", "color", "igds_color_secondary_background", black)
+                    resparam.res.setReplacement("com.instagram.android", "color", "igds_color_elevated_background", black)
+                }
+            } catch (e: Throwable) {
+                de.robv.android.xposed.XposedBridge.log("Rhpatch: AMOLED Theme failed: " + e.message)
+            }
+        }
+
+        if (packageName != FeatureLoader.PACKAGE_WPP && packageName != FeatureLoader.PACKAGE_BUSINESS) {
+            return
+        }
+
+        val modRes = XModuleResources.createInstance(MODULE_PATH, resparam.res)
+        ResParam = resparam
+        val resourceClasses = listOf(
+            R.array::class.java,
+            R.string::class.java,
+            R.drawable::class.java
+        )
+        resourceClasses.forEach {
+            injectResources(it, modRes, resparam)
+        }
+
+        try {
+            val prefs = XSharedPreferences(BuildConfig.APPLICATION_ID, BuildConfig.APPLICATION_ID + "_preferences")
+            
+            prefs.reload()
+            val tickStyle = prefs.getString("pref_tick_style", "default")
+            if (tickStyle != "default") {
+                val serverId = modRes.getIdentifier("wae_tick_${tickStyle}_server", "drawable", BuildConfig.APPLICATION_ID)
+                if (serverId != 0) resparam.res.setReplacement(packageName, "drawable", "msg_status_server", modRes.fwd(serverId))
+                if (serverId != 0) resparam.res.setReplacement(packageName, "drawable", "msg_status_client_read_any", modRes.fwd(serverId))
+                
+                val deliveredId = modRes.getIdentifier("wae_tick_${tickStyle}_delivered", "drawable", BuildConfig.APPLICATION_ID)
+                if (deliveredId != 0) resparam.res.setReplacement(packageName, "drawable", "msg_status_client_delivered", modRes.fwd(deliveredId))
+                if (deliveredId != 0) resparam.res.setReplacement(packageName, "drawable", "msg_status_client_read_all", modRes.fwd(deliveredId))
+                
+                val readId = modRes.getIdentifier("wae_tick_${tickStyle}_read", "drawable", BuildConfig.APPLICATION_ID)
+                if (readId != 0) resparam.res.setReplacement(packageName, "drawable", "msg_status_client_read", modRes.fwd(readId))
+            }
+        } catch (e: Throwable) {
+            de.robv.android.xposed.XposedBridge.log("Failed to replace ticks: " + e.message)
+        }
+    }
+
     private fun injectResources(
         clazz: Class<*>,
         modRes: XModuleResources?,

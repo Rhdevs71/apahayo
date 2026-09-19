@@ -1,20 +1,29 @@
 package com.rhdevs.rhpatch.activity
 
+import android.Manifest
 import android.app.Activity
+import android.app.role.RoleManager
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import com.google.android.material.switchmaterial.SwitchMaterial
-import android.widget.Toast
+import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.graphics.Color
-import android.view.View
 import android.widget.TextView
-import android.widget.ScrollView
-import android.content.pm.PackageManager
-import android.Manifest
+import android.widget.Toast
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.rhdevs.rhpatch.activities.base.BaseActivity
+import org.json.JSONArray
+import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AntiSpamActivity : BaseActivity() {
     private val PREFS_NAME = "prefs"
@@ -51,30 +60,43 @@ class AntiSpamActivity : BaseActivity() {
         
         // Listeners
         switchSms.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("antispam_sms_enabled", isChecked).apply()
+            prefs.edit().putBoolean("antispam_sms_enabled", isChecked).commit()
             makeFileReadable()
+            val msg = if (isChecked) "Filter SMS Spam diaktifkan" else "Filter SMS Spam dinonaktifkan"
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
         
         btnSaveSms.setOnClickListener {
-            prefs.edit().putString("antispam_sms_keywords", inputKeywords.text.toString()).apply()
+            prefs.edit().putString("antispam_sms_keywords", inputKeywords.text.toString()).commit()
             makeFileReadable()
             Toast.makeText(this, "Kata Kunci SMS Disimpan!", Toast.LENGTH_SHORT).show()
         }
         
         switchWa.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("message_blocker_enabled", isChecked).apply()
+            prefs.edit().putBoolean("message_blocker_enabled", isChecked).commit()
             makeFileReadable()
         }
         
         btnSaveWa.setOnClickListener {
-            prefs.edit().putString("message_block_keywords", inputWaKeywords.text.toString()).apply()
+            prefs.edit().putString("message_block_keywords", inputWaKeywords.text.toString()).commit()
             makeFileReadable()
             Toast.makeText(this, "Kata Kunci WhatsApp Disimpan!", Toast.LENGTH_SHORT).show()
         }
         
-        switchCallHidden.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("antispam_call_hidden", isChecked).apply()
+        val syncCallMasterState = {
+            val isHidden = switchCallHidden.isChecked
+            val isNonContacts = switchCallNonContacts.isChecked
+            val isCallEnabled = isHidden || isNonContacts
+            prefs.edit().putBoolean("antispam_call_enabled", isCallEnabled).commit()
             makeFileReadable()
+            if (isCallEnabled) {
+                requestCallScreeningRoleIfNeeded()
+            }
+        }
+
+        switchCallHidden.setOnCheckedChangeListener { _, isChecked ->
+            prefs.edit().putBoolean("antispam_call_hidden", isChecked).commit()
+            syncCallMasterState()
         }
         
         switchCallNonContacts.setOnCheckedChangeListener { _, isChecked ->
@@ -82,8 +104,8 @@ class AntiSpamActivity : BaseActivity() {
                 requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), 101)
                 switchCallNonContacts.isChecked = false // Revert until permission granted
             } else {
-                prefs.edit().putBoolean("antispam_call_non_contacts", isChecked).apply()
-                makeFileReadable()
+                prefs.edit().putBoolean("antispam_call_non_contacts", isChecked).commit()
+                syncCallMasterState()
             }
         }
         
@@ -91,23 +113,32 @@ class AntiSpamActivity : BaseActivity() {
             loadSpamHistory()
         }
     }
+
+    private fun requestCallScreeningRoleIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = getSystemService(RoleManager::class.java)
+            if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING)) {
+                if (!roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)) {
+                    val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING)
+                    startActivityForResult(intent, 202)
+                }
+            }
+        }
+    }
     
     private fun loadSpamHistory() {
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val logsSms = prefs.getString("antispam_logs", "[]") ?: "[]"
-        val logsWa = prefs.getString("wa_antispam_logs", "[]") ?: "[]"
+        val logs = prefs.getString("antispam_logs", "[]") ?: "[]"
         val container = findViewById<LinearLayout>(com.rhdevs.rhpatch.R.id.container_spam_history)
         
         container.removeAllViews()
         container.visibility = View.VISIBLE
         
         try {
-            val jsonArraySms = org.json.JSONArray(logsSms)
-            val jsonArrayWa = org.json.JSONArray(logsWa)
+            val jsonArray = JSONArray(logs)
             
-            val allLogs = mutableListOf<org.json.JSONObject>()
-            for (i in 0 until jsonArraySms.length()) allLogs.add(jsonArraySms.getJSONObject(i))
-            for (i in 0 until jsonArrayWa.length()) allLogs.add(jsonArrayWa.getJSONObject(i))
+            val allLogs = mutableListOf<JSONObject>()
+            for (i in 0 until jsonArray.length()) allLogs.add(jsonArray.getJSONObject(i))
             
             if (allLogs.isEmpty()) {
                 Toast.makeText(this, "Riwayat spam masih kosong.", Toast.LENGTH_SHORT).show()
@@ -119,21 +150,25 @@ class AntiSpamActivity : BaseActivity() {
             allLogs.sortByDescending { it.optLong("time", 0) }
             
             for (logObj in allLogs) {
-                val type = logObj.optString("type", "Unknown")
+                val type = logObj.optString("type", "Spam")
                 val message = logObj.optString("message", "")
                 val time = logObj.optLong("time", 0)
                 
-                val dateString = java.text.SimpleDateFormat("dd MMM yyyy, HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(time))
+                val dateString = SimpleDateFormat("dd MMM yyyy, HH:mm:ss", Locale.getDefault()).format(Date(time))
                 
-                val card = android.widget.FrameLayout(this)
+                val card = FrameLayout(this)
                 val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                 params.setMargins(0, 0, 0, 24)
                 card.layoutParams = params
                 
-                val bg = android.graphics.drawable.GradientDrawable()
-                bg.setColor(android.graphics.Color.parseColor("#1A2235"))
+                val bg = GradientDrawable()
+                bg.setColor(Color.parseColor("#1A2235"))
                 bg.cornerRadius = 24f
-                val strokeColor = if (type.contains("WhatsApp", true)) Color.parseColor("#25D366") else Color.parseColor("#3B82F6")
+                val strokeColor = when {
+                    type.contains("WhatsApp", true) -> Color.parseColor("#25D366")
+                    type.contains("Panggilan", true) -> Color.parseColor("#EF4444")
+                    else -> Color.parseColor("#3B82F6")
+                }
                 bg.setStroke(2, strokeColor)
                 card.background = bg
                 card.setPadding(32, 32, 32, 32)
@@ -142,14 +177,13 @@ class AntiSpamActivity : BaseActivity() {
                 textLayout.orientation = LinearLayout.VERTICAL
                 
                 val headerText = TextView(this)
-                val typeLabel = if (type.contains("WhatsApp", true)) " $type" else " $type"
-                headerText.text = "$typeLabel • $dateString"
-                headerText.setTextColor(android.graphics.Color.parseColor("#94A3B8"))
+                headerText.text = "$type • $dateString"
+                headerText.setTextColor(Color.parseColor("#94A3B8"))
                 headerText.textSize = 12f
                 
                 val msgText = TextView(this)
                 msgText.text = message
-                msgText.setTextColor(android.graphics.Color.parseColor("#FFFFFF"))
+                msgText.setTextColor(Color.parseColor("#FFFFFF"))
                 msgText.textSize = 14f
                 msgText.setPadding(0, 8, 0, 0)
                 
@@ -165,11 +199,30 @@ class AntiSpamActivity : BaseActivity() {
     }
     
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 101) {
+            val switchCallNonContacts = findViewById<SwitchMaterial>(com.rhdevs.rhpatch.R.id.switch_call_non_contacts)
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Izin kontak diberikan! Silakan aktifkan opsi kembali.", Toast.LENGTH_SHORT).show()
+                switchCallNonContacts.isChecked = true
+                val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                prefs.edit().putBoolean("antispam_call_non_contacts", true).putBoolean("antispam_call_enabled", true).commit()
+                makeFileReadable()
+                Toast.makeText(this, "Izin kontak diberikan! Blokir non-kontak aktif.", Toast.LENGTH_SHORT).show()
+                requestCallScreeningRoleIfNeeded()
             } else {
-                Toast.makeText(this, "Izin kontak diperlukan untuk fitur ini.", Toast.LENGTH_SHORT).show()
+                switchCallNonContacts.isChecked = false
+                Toast.makeText(this, "Izin kontak diperlukan untuk memfilter nomor non-kontak.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 202) {
+            if (resultCode == Activity.RESULT_OK) {
+                Toast.makeText(this, "Rhpatch berhasil diaktifkan sebagai Penyaring Panggilan!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Penyaring panggilan membutuhkan izin agar dapat memblokir telepon spam.", Toast.LENGTH_LONG).show()
             }
         }
     }
