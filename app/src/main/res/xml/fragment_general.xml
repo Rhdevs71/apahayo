@@ -25,7 +25,7 @@
             app:title="@string/disable_version_check" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:key="pref_wa_premium"
             app:summary="Bypass or unlock WhatsApp Plus/Premium/Verified capabilities locally."
             app:title="Unlock WA Plus &amp; Premium" />
