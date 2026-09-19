@@ -8,93 +8,40 @@ import com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import java.lang.reflect.Modifier
 
 val HideAds = patch(
-    name = "Sembunyikan Iklan & Konten Disarankan",
-    description = "Blokir postingan bersponsor, stories iklan, dan konten/akun yang disarankan di beranda."
+    name = "Hide Ads (Instagram)",
+    description = "Block sponsored posts and stories using Rhpatch-style DexKit fingerprint"
 ) {
+
     runCatching {
+        // Initialize DexKit for Instagram
         if (!MetaUnobfuscator.init(appContext)) {
             XposedBridge.log("Rhpatch: [Ads] Failed to initialize MetaUnobfuscator")
             return@runCatching
         }
 
-        // 1. Sembunyikan Iklan Berbayar: "Is ad pod"
+        // Rhpatch Fingerprint for Disable Ads: "Is ad pod"
         val adMethods = MetaUnobfuscator.findMethodUsingStrings("Is ad pod")
-        if (adMethods.isNotEmpty()) {
+        
+        if (adMethods.isEmpty()) {
+            XposedBridge.log("Rhpatch: [Ads] Could not find method containing 'Is ad pod'")
+        } else {
             adMethods.forEach { method ->
                 XposedBridge.hookMethod(method, object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
+                        // Immediately return true to signify 'is ad disabled' / 'is ad pod'
                         param.result = true
                     }
                 })
             }
-            XposedBridge.log("Rhpatch: [Ads] Hooked " + adMethods.size + " ad methods")
-        }
-
-        // 2. Sembunyikan Konten Disarankan (Suggested Users, Stories, Clips Netego, Channels)
-        val suggestedMethods = MetaUnobfuscator.findMethodUsingStrings(
-            "suggested_businesses",
-            "clips_netego",
-            "stories_netego",
-            "in_feed_survey",
-            "bloks_netego",
-            "suggested_igd_channels",
-            "suggested_top_accounts",
-            "suggested_users"
-        )
-        val parseMethods = suggestedMethods.filter { it.name.lowercase().contains("parsefromjson") }
-        var parserHooked = false
-
-        for (parseMethod in parseMethods) {
-            XposedBridge.hookMethod(parseMethod, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    if (parserHooked) return
-                    val parserObj = param.args.firstOrNull() ?: return
-                    val parserClass = parserObj.javaClass
-                    
-                    synchronized(this) {
-                        if (parserHooked) return
-                        parserHooked = true
-                        
-                        try {
-                            var currentClass: Class<*>? = parserClass
-                            while (currentClass != null && currentClass != Any::class.java) {
-                                val stringMethods = currentClass.declaredMethods.filter { 
-                                    it.returnType == String::class.java && 
-                                    it.parameterTypes.isEmpty() && 
-                                    !Modifier.isAbstract(it.modifiers)
-                                }
-                                
-                                for (m in stringMethods) {
-                                    XposedBridge.hookMethod(m, object : XC_MethodHook() {
-                                        override fun afterHookedMethod(p: MethodHookParam) {
-                                            val res = p.result as? String ?: return
-                                            if (res == "suggested_users" || res == "clips_netego" || 
-                                                res == "stories_netego" || res == "in_feed_survey" || 
-                                                res == "bloks_netego" || res == "suggested_igd_channels" || 
-                                                res == "suggested_top_accounts" || res == "suggested_businesses") {
-                                                p.result = "rhpatch_ignored_suggested"
-                                            }
-                                        }
-                                    })
-                                }
-                                currentClass = currentClass.superclass
-                            }
-                            XposedBridge.log("Rhpatch: [Ads] Successfully hooked IG Suggested Items Parser!")
-                        } catch (e: Exception) {
-                            XposedBridge.log("Rhpatch: [Ads] Failed to hook suggested parser: " + e.message)
-                        }
-                    }
-                }
-            })
+            XposedBridge.log("Rhpatch: [Ads] DexKit 'Is ad pod' hooks installed successfully on ${adMethods.size} methods")
         }
     }.onFailure {
-        XposedBridge.log("Rhpatch: [Ads] DexKit hook failed: " + it)
+        XposedBridge.log("Rhpatch: [Ads] DexKit hook failed: $it")
     }
 
-    // Fallback TextView text detector
+    // ── Strategy 2: Hook TextView.setText for UI fallback (Retained as backup) ──
     runCatching {
         XposedHelpers.findAndHookMethod(
             android.widget.TextView::class.java,
@@ -102,7 +49,8 @@ val HideAds = patch(
             CharSequence::class.java,
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    val text = (param.args[0] as? CharSequence)?.toString()?.trim() ?: return
+                    val text = (param.args[0] as? CharSequence)?.toString()?.trim()
+                        ?: return
                     if (!isSponsoredLabel(text)) return
 
                     val view = param.thisObject as? View ?: return
@@ -112,7 +60,10 @@ val HideAds = patch(
                 }
             }
         )
-    }.onFailure {}
+        XposedBridge.log("Rhpatch: [Ads] TextView.setText fallback hook installed")
+    }.onFailure {
+        XposedBridge.log("Rhpatch: [Ads] TextView.setText hook failed: $it")
+    }
 }
 
 fun isSponsoredLabel(text: String): Boolean =
@@ -120,7 +71,7 @@ fun isSponsoredLabel(text: String): Boolean =
     text.equals("Sponsored", ignoreCase = true) ||
     text.equals("Promoted", ignoreCase = true) ||
     text.equals("Patrocinado", ignoreCase = true) ||
-    text.equals("SponsorisAc", ignoreCase = true) ||
+    text.equals("Sponsorisé", ignoreCase = true) ||
     text.equals("Gesponsert", ignoreCase = true)
 
 fun hideRecyclerItemContaining(child: View) {
@@ -144,3 +95,4 @@ fun hideRecyclerItemContaining(child: View) {
         current = parent as? View
     }
 }
+

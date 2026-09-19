@@ -184,13 +184,13 @@ class FeatureLoader {
                             SharedPreferencesWrapper.hookInit(application.classLoader)
                             ReflectionUtils.initCache(application)
 
-                            val isSupported = (supportedVersions?.any { s ->
+                            val isSupported = supportedVersions?.any { s ->
                                 packageInfo.versionName?.startsWith(s.replace(".xx", "")) ?: false
-                            } ?: false) || (packageInfo.versionName?.startsWith("2.26.") == true)
+                            } ?: false
 
                             if (!isSupported) {
                                 disableExpirationVersion(application.classLoader)
-                                if (!pref.getBoolean("bypass_version_check", true)) {
+                                if (!pref.getBoolean("bypass_version_check", false)) {
                                     val errorMsg = """
                                         Unsupported version: ${packageInfo.versionName}
                                         Only the function of ignoring the expiration of the WhatsApp version has been applied!

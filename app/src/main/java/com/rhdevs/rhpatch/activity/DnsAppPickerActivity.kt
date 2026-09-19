@@ -16,8 +16,8 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.Switch
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rhdevs.rhpatch.activities.base.BaseActivity
@@ -67,10 +67,8 @@ class DnsAppPickerActivity : BaseActivity() {
 
         switchGlobalDns.isChecked = prefs.getBoolean("dns_bypass_enabled", false)
         switchGlobalDns.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("dns_bypass_enabled", isChecked).commit()
+            prefs.edit().putBoolean("dns_bypass_enabled", isChecked).apply()
             makePrefsReadable()
-            val msg = if (isChecked) "Bypass DNS diaktifkan! Aplikasi terpilih akan dapat memuat iklan." else "Bypass DNS dinonaktifkan."
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         }
 
         btnSetAdguardDns.setOnClickListener {
@@ -78,11 +76,11 @@ class DnsAppPickerActivity : BaseActivity() {
                 try {
                     Runtime.getRuntime().exec(arrayOf("su", "-c", "settings put global private_dns_mode hostname && settings put global private_dns_specifier dns.adguard.com"))
                     runOnUiThread {
-                        Toast.makeText(this@DnsAppPickerActivity, "DNS berhasil diatur ke dns.adguard.com", Toast.LENGTH_SHORT).show()
+                        android.widget.Toast.makeText(this@DnsAppPickerActivity, "DNS berhasil diatur ke dns.adguard.com", android.widget.Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
                     runOnUiThread {
-                        Toast.makeText(this@DnsAppPickerActivity, "Gagal mengatur DNS. Pastikan akses Root diberikan.", Toast.LENGTH_SHORT).show()
+                        android.widget.Toast.makeText(this@DnsAppPickerActivity, "Gagal mengatur DNS. Pastikan akses Root diberikan.", android.widget.Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -113,6 +111,7 @@ class DnsAppPickerActivity : BaseActivity() {
             val tempApps = mutableListOf<AppItem>()
 
             for (appInfo in packages) {
+                // Filter out some system apps if desired, but here we show all user apps and essential system apps
                 if (appInfo.packageName == packageName) continue // Skip ourself
                 val name = pm.getApplicationLabel(appInfo).toString()
                 val icon = pm.getApplicationIcon(appInfo)
@@ -152,8 +151,7 @@ class DnsAppPickerActivity : BaseActivity() {
     }
 
     private fun saveWhitelist() {
-        val listStr = selectedPackages.joinToString(",")
-        prefs.edit().putString("dns_bypass_whitelist", listStr).commit()
+        prefs.edit().putString("dns_bypass_whitelist", selectedPackages.joinToString(",")).apply()
         makePrefsReadable()
     }
 
@@ -162,10 +160,6 @@ class DnsAppPickerActivity : BaseActivity() {
             val file = java.io.File(filesDir.parentFile, "shared_prefs/prefs.xml")
             if (file.exists()) {
                 file.setReadable(true, false)
-                file.parentFile?.setExecutable(true, false)
-                file.parentFile?.setReadable(true, false)
-                filesDir.parentFile?.setExecutable(true, false)
-                filesDir.parentFile?.setReadable(true, false)
             }
         }
     }
@@ -185,7 +179,6 @@ class DnsAppPickerActivity : BaseActivity() {
                     val item = filteredApps[adapterPosition]
                     if (isChecked) {
                         selectedPackages.add(item.packageName)
-                        Toast.makeText(this@DnsAppPickerActivity, "${item.name} ditambahkan ke Bypass DNS! (Bisa lihat iklan)", Toast.LENGTH_SHORT).show()
                     } else {
                         selectedPackages.remove(item.packageName)
                     }

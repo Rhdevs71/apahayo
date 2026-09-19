@@ -1,141 +1,44 @@
 package com.rhdevs.rhpatch.meta.distractionFree
 
-import android.app.Activity
-import android.content.Context
-import android.view.View
-import android.view.Window
-import android.view.WindowManager
 import com.rhdevs.rhpatch.patch
 import com.rhdevs.rhpatch.meta.devkit.MetaUnobfuscator
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
+
 val HideNotesTray = patch(
     name = "Sembunyikan Notes",
     description = "Menyembunyikan deretan Notes di pesan masuk (Inbox)."
 ) {
     runCatching {
-        // Universal View Hook for Notes Tray (cf_hub_recycler_view)
-        XposedBridge.hookAllMethods(View::class.java, "onAttachedToWindow", object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                try {
-                    val view = param.thisObject as? View ?: return
-                    val context = view.context ?: return
-                    val prefs = context.getSharedPreferences("rhpatch_settings", Context.MODE_PRIVATE)
-                    if (!prefs.getBoolean("pref_hide_notes", true)) return
-
-                    val res = view.resources ?: return
-                    val id = view.id
-                    if (id != View.NO_ID && runCatching { res.getResourceEntryName(id) }.getOrNull() == "cf_hub_recycler_view") {
-                        view.visibility = View.GONE
-                        val lp = view.layoutParams
-                        if (lp != null) {
-                            lp.height = 0
-                            view.layoutParams = lp
-                        }
-                    }
-                } catch (_: Throwable) {}
-            }
-        })
-    }.onFailure { XposedBridge.log("Rhpatch: [HideNotesTray] Patch failed: $it") }
+        if (!MetaUnobfuscator.init(appContext)) return@runCatching
+        val methods = MetaUnobfuscator.findMethodUsingStrings("MainFeedInboxNotesTrayBinderGroup", "direct_inbox_notes_tray")
+        methods.forEach { method ->
+            XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    param.result = null
+                }
+            })
+        }
+    }
 }
 
 val DisableScreenshotDetection = patch(
     name = "Anti Deteksi Screenshot",
-    description = "Mencegah Instagram memberi tahu jika Anda mengambil screenshot di DM & Buka blokir FLAG_SECURE."
+    description = "Mencegah Instagram memberi tahu jika Anda mengambil screenshot di DM."
 ) {
     runCatching {
-        // 1. Strip FLAG_SECURE from Window.setFlags
-        XposedBridge.hookAllMethods(Window::class.java, "setFlags", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                try {
-                    val flags = param.args[0] as? Int ?: return
-                    val mask = param.args[1] as? Int ?: return
-                    if ((mask and WindowManager.LayoutParams.FLAG_SECURE) != 0) {
-                        param.args[0] = flags and WindowManager.LayoutParams.FLAG_SECURE.inv()
-                    }
-                } catch (_: Throwable) {}
-            }
-        })
-
-        // 2. Strip FLAG_SECURE from Window.addFlags
-        XposedBridge.hookAllMethods(Window::class.java, "addFlags", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                try {
-                    val flags = param.args[0] as? Int ?: return
-                    if ((flags and WindowManager.LayoutParams.FLAG_SECURE) != 0) {
-                        param.args[0] = flags and WindowManager.LayoutParams.FLAG_SECURE.inv()
-                    }
-                } catch (_: Throwable) {}
-            }
-        })
-
-        // 3. Strip FLAG_SECURE from Window.setAttributes (for dialogs & view-once windows)
-        XposedBridge.hookAllMethods(Window::class.java, "setAttributes", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                try {
-                    val lp = param.args[0] as? WindowManager.LayoutParams ?: return
-                    lp.flags = lp.flags and WindowManager.LayoutParams.FLAG_SECURE.inv()
-                } catch (_: Throwable) {}
-            }
-        })
-
-        // 4. Force SurfaceView.setSecure to false (crucial for ephemeral media & video players)
-        XposedBridge.hookAllMethods(android.view.SurfaceView::class.java, "setSecure", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                try {
-                    param.args[0] = false
-                } catch (_: Throwable) {}
-            }
-        })
-
-        // 5. Clear FLAG_SECURE in Activity.onResume and onWindowFocusChanged
-        XposedBridge.hookAllMethods(Activity::class.java, "onResume", object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                try {
-                    val activity = param.thisObject as? Activity ?: return
-                    activity.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                } catch (_: Throwable) {}
-            }
-        })
-        XposedBridge.hookAllMethods(Activity::class.java, "onWindowFocusChanged", object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                try {
-                    val activity = param.thisObject as? Activity ?: return
-                    activity.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                } catch (_: Throwable) {}
-            }
-        })
-
-        // 6. Neutralize Android 14/15 native ScreenCaptureCallback
-        if (android.os.Build.VERSION.SDK_INT >= 34) {
-            runCatching {
-                val m = Activity::class.java.getDeclaredMethod(
-                    "registerScreenCaptureCallback",
-                    java.util.concurrent.Executor::class.java,
-                    Activity.ScreenCaptureCallback::class.java
-                )
-                XposedBridge.hookMethod(m, object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        param.result = null // Block callback registration
-                    }
-                })
-            }
+        if (!MetaUnobfuscator.init(appContext)) return@runCatching
+        val methods = MetaUnobfuscator.findMethodUsingStrings("is_screenshot_detected")
+        methods.forEach { method ->
+            XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    param.result = false
+                }
+            })
         }
-
-        // 7. Hook internal screenshot detection methods
-        if (MetaUnobfuscator.init(appContext)) {
-            val methods = MetaUnobfuscator.findMethodUsingStrings("is_screenshot_detected")
-            methods.forEach { method ->
-                XposedBridge.hookMethod(method, object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        param.result = false
-                    }
-                })
-            }
-        }
-    }.onFailure { XposedBridge.log("Rhpatch: [DisableScreenshotDetection] Patch failed: $it") }
+    }
 }
 
 val DisableSwipeToCreate = patch(
@@ -144,19 +47,40 @@ val DisableSwipeToCreate = patch(
 ) {
     runCatching {
         if (!MetaUnobfuscator.init(appContext)) return@runCatching
+        // Disable swipe to create container
         val methods = MetaUnobfuscator.findMethodUsingStrings("direct_swipe_to_camera_container")
         methods.forEach { method ->
             XposedBridge.hookMethod(method, object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     try {
                         val context = android.app.AndroidAppHelper.currentApplication()
-                        val prefs = context?.getSharedPreferences("rhpatch_settings", Context.MODE_PRIVATE)
-                        if (prefs?.getBoolean("pref_disable_swipe_to_create", true) == true) {
-                            param.result = null
+                        val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
+                        if (prefs?.getBoolean("pref_disable_swipe", true) == true) {
+                            param.result = true // Consumes the touch event so it doesn't swipe
                         }
                     } catch (e: Exception) {}
                 }
             })
+        }
+        
+        // Hide Camera Button View (Rhpatch approach)
+        val cameraButtonClass = XposedHelpers.findClassIfExists("com.instagram.mainactivity.camerabutton.CameraButtonView", classLoader)
+        if (cameraButtonClass != null) {
+            for (method in cameraButtonClass.declaredMethods) {
+                if (method.name == "setVisibility") {
+                    XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            try {
+                                val context = android.app.AndroidAppHelper.currentApplication()
+                                val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
+                                if (prefs?.getBoolean("pref_disable_swipe", true) == true) {
+                                    param.args[0] = android.view.View.GONE
+                                }
+                            } catch (e: Exception) {}
+                        }
+                    })
+                }
+            }
         }
     }
 }
@@ -167,14 +91,14 @@ val DisableVideoAutoplayPatch = patch(
 ) {
     runCatching {
         if (!MetaUnobfuscator.init(appContext)) return@runCatching
-        val methods = MetaUnobfuscator.findMethodUsingStrings("autoplay_disabled", "is_autoplay_enabled", "video_autoplay", "autoplay", "ig_olympus_disable_video_autoplay")
+        val methods = MetaUnobfuscator.findMethodUsingStrings("ig_olympus_disable_video_autoplay", "ig_disable_video_autoplay", "ig_video_setting")
         methods.forEach { method ->
             if (method.returnType == Boolean::class.javaPrimitiveType || method.returnType == java.lang.Boolean::class.java) {
                 XposedBridge.hookMethod(method, object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         try {
                             val context = android.app.AndroidAppHelper.currentApplication()
-                            val prefs = context?.getSharedPreferences("rhpatch_settings", Context.MODE_PRIVATE)
+                            val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
                             if (prefs?.getBoolean("pref_disable_video_autoplay", false) == true) {
                                 param.result = true
                             }
@@ -199,7 +123,7 @@ val DisableStoriesAudioAutoplayPatch = patch(
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         try {
                             val context = android.app.AndroidAppHelper.currentApplication()
-                            val prefs = context?.getSharedPreferences("rhpatch_settings", Context.MODE_PRIVATE)
+                            val prefs = context?.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
                             if (prefs?.getBoolean("pref_disable_stories_audio", true) == true) {
                                 param.result = true
                             }
@@ -247,23 +171,24 @@ val HideSuggestedUsersPatch = patch(
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val text = (param.args[0] as? CharSequence)?.toString()?.trim() ?: return
                     
+                    // Deteksi teks "Suggested for you" atau "Saran untuk Anda"
                     if (text.equals("Suggested for you", ignoreCase = true) || 
                         text.equals("Saran untuk Anda", ignoreCase = true) ||
                         text.equals("Suggested users", ignoreCase = true)) {
                         
-                        val view = param.thisObject as? View ?: return
-                        val prefs = view.context.getSharedPreferences("rhpatch_settings", Context.MODE_PRIVATE)
+                        val view = param.thisObject as? android.view.View ?: return
+                        val prefs = view.context.getSharedPreferences("rhpatch_settings", android.content.Context.MODE_PRIVATE)
                         if (!prefs.getBoolean("pref_hide_suggested_users", true)) return
 
                         android.os.Handler(android.os.Looper.getMainLooper()).post {
                             runCatching { 
-                                var current: View? = view
-                                var candidate: View? = null
+                                var current: android.view.View? = view
+                                var candidate: android.view.View? = null
                                 repeat(20) {
                                     val parent = current?.parent ?: return@repeat
                                     if (parent.javaClass.name.contains("RecyclerView", ignoreCase = true)) {
                                         candidate?.let { item ->
-                                            item.visibility = View.GONE
+                                            item.visibility = android.view.View.GONE
                                             item.layoutParams?.let { lp ->
                                                 lp.height = 0
                                                 item.layoutParams = lp
@@ -272,7 +197,7 @@ val HideSuggestedUsersPatch = patch(
                                         return@post
                                     }
                                     candidate = current
-                                    current = parent as? View
+                                    current = parent as? android.view.View
                                 }
                             }
                         }
@@ -283,13 +208,4 @@ val HideSuggestedUsersPatch = patch(
     }.onFailure { XposedBridge.log("Rhpatch: [HideSuggestedUsers] Patch failed: $it") }
 }
 
-// Consolidated: RemoveEmptyBottomSpace is registered in RemoveEmptyBottomSpacePatch.kt
-val DistractionFreePatches = arrayOf(
-    HideNotesTray,
-    DisableScreenshotDetection,
-    DisableSwipeToCreate,
-    DisableVideoAutoplayPatch,
-    DisableStoriesAudioAutoplayPatch,
-    DisableDoubleTapLikePatch,
-    HideSuggestedUsersPatch
-)
+val DistractionFreePatches = arrayOf(HideNotesTray, DisableScreenshotDetection, DisableSwipeToCreate, DisableVideoAutoplayPatch, DisableStoriesAudioAutoplayPatch, DisableDoubleTapLikePatch, HideSuggestedUsersPatch)

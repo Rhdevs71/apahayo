@@ -1,4 +1,4 @@
-﻿@file:Suppress("UNCHECKED_CAST")
+@file:Suppress("UNCHECKED_CAST")
 
 package com.rhdevs.rhpatch.xposed.features.general
 
@@ -23,7 +23,7 @@ class PinnedLimit(
     @SuppressLint("DiscouragedApi")
     override fun doHook() {
         val pinnedHashSetMethod = Unobfuscator.loadPinnedHashSetMethod(classLoader)
-        if (prefs.getBoolean(PINNED_LIMIT_PREF_KEY, false) || prefs.getBoolean("pref_wa_premium", false)) {
+        if (prefs.getBoolean(PINNED_LIMIT_PREF_KEY, false)) {
             XposedBridge.hookMethod(Unobfuscator.loadPinnedInChatMethod(classLoader),
                 XC_MethodReplacement.returnConstant(PINNED_LIMIT_ENABLED))
 
@@ -108,7 +108,7 @@ class PinnedLimit(
     override fun getPluginName(): String = "Pinned Limit"
 
     private fun getPinnedLimit(): Int {
-        return if (prefs.getBoolean(PINNED_LIMIT_PREF_KEY, false) || prefs.getBoolean("pref_wa_premium", false)) {
+        return if (prefs.getBoolean(PINNED_LIMIT_PREF_KEY, false)) {
             PINNED_LIMIT_ENABLED
         } else {
             PINNED_LIMIT_DEFAULT

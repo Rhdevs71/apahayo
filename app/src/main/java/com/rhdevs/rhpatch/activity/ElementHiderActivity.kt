@@ -46,12 +46,13 @@ class ElementHiderActivity : AppCompatActivity() {
         appSpinner.adapter = adapter
 
         // Load existing json if possible, though handling dynamic switching requires a listener
-        val prefs = getSharedPreferences("universal_hider", android.content.Context.MODE_PRIVATE)
+        val hiderFile = File("/storage/emulated/0/Android/data/com.rhdevs.rhpatch/files/universal_hider.json")
         var currentJson = JSONObject()
-        try {
-            val savedText = prefs.getString("hider_data", "{}") ?: "{}"
-            currentJson = JSONObject(savedText)
-        } catch (e: Exception) {}
+        if (hiderFile.exists()) {
+            try {
+                currentJson = JSONObject(hiderFile.readText())
+            } catch (e: Exception) {}
+        }
 
         appSpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
@@ -74,11 +75,12 @@ class ElementHiderActivity : AppCompatActivity() {
             val pkgName = apps[appNames[appSpinner.selectedItemPosition]]!!
             val rawInput = idInput.text.toString()
             
-            // Re-read prefs to avoid overwriting other apps' data
-            try {
-                val savedText = prefs.getString("hider_data", "{}") ?: "{}"
-                currentJson = JSONObject(savedText)
-            } catch (e: Exception) {}
+            // Re-read file to avoid overwriting other apps' data
+            if (hiderFile.exists()) {
+                try {
+                    currentJson = JSONObject(hiderFile.readText())
+                } catch (e: Exception) {}
+            }
             
             val idsArray = JSONArray()
             rawInput.split(",").map { it.trim() }.filter { it.isNotEmpty() }.forEach {
@@ -88,12 +90,8 @@ class ElementHiderActivity : AppCompatActivity() {
             currentJson.put(pkgName, idsArray)
             
             try {
-                prefs.edit().putString("hider_data", currentJson.toString(4)).apply()
-                // Make world readable for XSharedPreferences
-                val file = java.io.File(filesDir.parentFile, "shared_prefs/universal_hider.xml")
-                if (file.exists()) {
-                    file.setReadable(true, false)
-                }
+                hiderFile.parentFile?.mkdirs()
+                hiderFile.writeText(currentJson.toString(4))
                 Toast.makeText(this, "Berhasil disimpan untuk $pkgName", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Toast.makeText(this, "Gagal menyimpan: ${e.message}", Toast.LENGTH_LONG).show()

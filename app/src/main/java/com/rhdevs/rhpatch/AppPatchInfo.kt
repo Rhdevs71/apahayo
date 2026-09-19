@@ -14,19 +14,16 @@ import com.rhdevs.rhpatch.duolingo.DuolingoPatches
 import com.rhdevs.rhpatch.camscanner.CamScannerPatches
 import com.rhdevs.rhpatch.lightroom.LightroomPatches
 import com.rhdevs.rhpatch.ibispaint.IbisPaintPatches
-import com.rhdevs.rhpatch.spotify.SpotifyPatches
 
 class AppPatchInfo(val appName: String, val packageName: String, val patches: Array<Patch>)
 
 val appPatchConfigurations = listOf(
-    AppPatchInfo("Spotify", "com.spotify.music", SpotifyPatches),
     AppPatchInfo("YouTube", "com.google.android.youtube", YouTubePatches),
     AppPatchInfo("YT Music", "com.google.android.apps.youtube.music", YTMusicPatches),
     AppPatchInfo("Reddit", "com.reddit.frontpage", RedditPatches),
     AppPatchInfo("Google Photos", "com.google.android.apps.photos", GooglePhotosPatches),
     AppPatchInfo("Photomath", "com.microblink.photomath", PhotomathPatches),
     AppPatchInfo("Instagram", "com.instagram.android", MetaPatches),
-    AppPatchInfo("Instagram (Piko Clone)", "com.instagram.android.pikoo", MetaPatches),
     AppPatchInfo("Instagram Lite", "com.instagram.lite", com.rhdevs.rhpatch.metalite.MetaLitePatches),
     AppPatchInfo("Threads", "com.instagram.barcelona", com.rhdevs.rhpatch.meta.ThreadsPatches),
     AppPatchInfo("TikTok", "com.zhiliaoapp.musically", com.rhdevs.rhpatch.tiktok.TikTokPatches),

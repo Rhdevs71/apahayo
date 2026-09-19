@@ -1,4 +1,4 @@
-﻿package com.rhdevs.rhpatch.meta.stories
+package com.rhdevs.rhpatch.meta.stories
 
 import android.view.MotionEvent
 import androidx.viewpager2.widget.ViewPager2
@@ -81,4 +81,3 @@ val DisableStoryFlippingPatch = patch(
 }
 
 val StoriesReelsPatches = arrayOf(DisableReelsScrollingPatch, DisableStoryFlippingPatch)
-

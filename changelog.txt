@@ -1,6 +1,3 @@
-﻿RHPATCH UPDATE
-- Fix IG Plus (Unlock Creator)
-- Fix Disable Autoplay Video
-- Fix Copy Comments & Mark as Read DM
-- Restore Media Downloader Speed
-- [IG] HOTFIX v4.3: Perbaikan final metode pencarian Unlock Plus. Memindai semua method dalam Class Induk yang mengandung string 'is_benefit_active' (teknik Piko yang akurat).
+﻿- [WA] Perbaikan mutlak bug (Crash) WA saat reload UI Theme Store (String Resource ID error).
+- [WA] Penambahan mekanisme dasar latar belakang & UI switch untuk fitur 'Unlock WA Plus & Premium'.
+- [IG] Perbaikan target pencarian string untuk fitur 'Unlock Plus' agar dapat dideteksi pada versi Instagram terbaru.

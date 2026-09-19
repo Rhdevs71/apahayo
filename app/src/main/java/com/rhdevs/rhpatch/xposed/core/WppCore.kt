@@ -211,7 +211,7 @@ object WppCore {
             prefsCacheHooks.edit { putInt("preferredOrder", newPreferredOrder) }
             return
         }
-        throw Exception("Failed to connect to WaEnhancer Bridge. Module is likely killed or not running.")
+        throw Exception("Gagal terhubung ke Rhpatch Bridge. Pastikan aplikasi Rhpatch aktif di latar belakang dan optimasi baterai diatur ke Tidak Dibatasi (Unrestricted).")
     }
 
     @JvmStatic
