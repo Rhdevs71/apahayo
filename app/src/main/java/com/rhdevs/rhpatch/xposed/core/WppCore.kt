@@ -25,6 +25,11 @@ import com.rhdevs.rhpatch.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.luckypray.dexkit.query.enums.StringMatchType
@@ -211,7 +216,15 @@ object WppCore {
             prefsCacheHooks.edit { putInt("preferredOrder", newPreferredOrder) }
             return
         }
-        throw Exception("Gagal terhubung ke Rhpatch Bridge. Pastikan aplikasi Rhpatch aktif di latar belakang dan optimasi baterai diatur ke Tidak Dibatasi (Unrestricted).")
+        // Fallback anggun: Jangan melempar Exception fatal agar seluruh fitur WhatsApp (Anti-Revoke, Privacy, dsb.) tetap aktif 100%
+        client = primaryClient
+        XposedBridge.log("Rhpatch: Bridge belum tersambung seketika saat startup (normal pada cold start). Menjadwalkan koneksi asinkron di latar belakang...")
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+            delay(2000)
+            if (tryConnectBridge(primaryClient)) return@launch
+            delay(3000)
+            tryConnectBridge(fallbackClient)
+        }
     }
 
     @JvmStatic
