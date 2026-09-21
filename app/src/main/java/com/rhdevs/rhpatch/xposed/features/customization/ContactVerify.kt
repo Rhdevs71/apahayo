@@ -143,7 +143,7 @@ class ContactVerify(loader: ClassLoader, preferences:SharedPreferences) :
 
     private fun showChecking(textView: TextView) {
         textView.post {
-            textView.setText(R.string.checking_if_contact_added)
+            textView.text = Utils.getString(R.string.checking_if_contact_added)
             textView.setTextColor(DesignUtils.getPrimaryTextColor())
         }
     }
@@ -151,21 +151,21 @@ class ContactVerify(loader: ClassLoader, preferences:SharedPreferences) :
     private fun showContactAdded(textView: TextView) {
         textView.post {
             textView.setTextColor(Color.GREEN)
-            textView.setText(R.string.contact_added)
+            textView.text = Utils.getString(R.string.contact_added)
         }
     }
 
     private fun showProbablyNotAdded(textView: TextView) {
         textView.post {
             textView.setTextColor(Color.YELLOW)
-            textView.setText(R.string.contact_probably_not_added)
+            textView.text = Utils.getString(R.string.contact_probably_not_added)
         }
     }
 
     private fun showUnavailable(textView: TextView) {
         textView.post {
             textView.setTextColor(DesignUtils.getPrimaryTextColor())
-            textView.setText(R.string.not_available)
+            textView.text = Utils.getString(R.string.not_available)
         }
     }
 

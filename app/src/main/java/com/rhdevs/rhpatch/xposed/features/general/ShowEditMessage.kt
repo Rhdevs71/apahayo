@@ -163,7 +163,7 @@ class ShowEditMessage(loader: ClassLoader, preferences:SharedPreferences) :
             titleView.textSize = 16.0f
             titleView.setTextColor(DesignUtils.getPrimaryTextColor())
             titleView.setTypeface(null, Typeface.BOLD)
-            titleView.setText(R.string.edited_history)
+            titleView.text = Utils.getString(R.string.edited_history)
 
             // List View
             val adapter = MessageAdapter(ctx, messages)

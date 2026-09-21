@@ -592,7 +592,7 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
                 return
             }
             loading = true
-            emptyView.setText(R.string.picker_loading_contacts)
+            emptyView.text = Utils.getString(R.string.picker_loading_contacts)
             emptyView.visibility = View.VISIBLE
             swipeRefreshLayout?.isRefreshing = true
 
@@ -622,7 +622,7 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
                 } catch (throwable: Throwable) {
                     XposedBridge.log(throwable)
                     mainHandler.post {
-                        emptyView.setText(R.string.picker_no_results)
+                        emptyView.text = Utils.getString(R.string.picker_no_results)
                         stopRefreshing()
                     }
                 }
@@ -675,10 +675,10 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
             if (titleView == null || subtitleView == null) return
 
             activity.title = com.rhdevs.rhpatch.xposed.core.FeatureLoader.moduleContext.getString(R.string.select_contacts)
-            titleView?.setText(R.string.select_contacts)
+            titleView?.text = Utils.getString(R.string.select_contacts)
 
             if (selectedJids.isEmpty()) {
-                subtitleView?.setText(R.string.no_contacts_selected)
+                subtitleView?.text = Utils.getString(R.string.no_contacts_selected)
             } else {
                 subtitleView?.text =
                     com.rhdevs.rhpatch.xposed.core.FeatureLoader.moduleContext.getString(R.string.contact_were_selected, selectedJids.size)

@@ -381,9 +381,9 @@ class MediaPreview(
             setTextColor(Color.WHITE)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
             text = if (mimeType.startsWith("image")) {
-                "Preview Image"
+                context.getString(R.string.preview_image)
             } else {
-                "Preview Video"
+                context.getString(R.string.preview_video)
             }
         }
         header.addView(title)
@@ -563,7 +563,7 @@ class MediaPreview(
         }
         inputStream.close()
 
-        mainHandler.post { progressText.text = Utils.getString(R.string.decrypting) ?: "Decrypting..." }
+        mainHandler.post { progressText.text = Utils.getString(R.string.decrypting) }
 
         val decryptedData = decryptMedia(encryptedData, mediaKey, mimeType)
 
