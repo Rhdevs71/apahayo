@@ -209,6 +209,11 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Alat Otomatisasi &amp; Ekstra">
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="pref_wa_developer_mode"
+            app:defaultValue="false"
+            app:title="WhatsApp Developer Diagnostics"
+            app:summary="Tampilkan menu opsi diagnostik internal Meta di menu utama WhatsApp" />
 
         <Preference
             app:key="auto_reply_settings"

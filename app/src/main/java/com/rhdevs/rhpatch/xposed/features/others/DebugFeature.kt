@@ -4,11 +4,9 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Color
 import android.view.Menu
 import android.widget.Toast
 import com.rhdevs.rhpatch.xposed.core.Feature
-import com.rhdevs.rhpatch.xposed.utils.DesignUtils
 import com.rhdevs.rhpatch.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -18,7 +16,7 @@ class DebugFeature(classLoader: ClassLoader, preferences: SharedPreferences) :
     Feature(classLoader, preferences) {
 
     override fun doHook() {
-        val devModeEnabled = prefs.getBoolean("pref_wa_developer_mode", true)
+        val devModeEnabled = prefs.getBoolean("pref_wa_developer_mode", false)
         if (!devModeEnabled) return
 
         // 1. Hook Internal Build / Dogfood check agar WhatsApp mengizinkan akses ke layar diagnostik dan debug Meta
@@ -50,12 +48,7 @@ class DebugFeature(classLoader: ClassLoader, preferences: SharedPreferences) :
     }
 
     private fun insertDevMenuOption(menu: Menu, activity: Activity) {
-        val devItem = menu.add(0, 0, 9998, "🛠️ WhatsApp Dev Diagnostics")
-        val icon = DesignUtils.getDrawableByName("ic_settings")
-        if (icon != null) {
-            icon.setTint(Color.parseColor("#10B981"))
-            devItem.icon = icon
-        }
+        val devItem = menu.add(0, 0, 9998, "WhatsApp Dev Diagnostics")
         devItem.setOnMenuItemClickListener {
             showDevOptionsDialog(activity)
             true
@@ -70,7 +63,7 @@ class DebugFeature(classLoader: ClassLoader, preferences: SharedPreferences) :
             "Buka Info Build dan Internal Flags"
         )
         AlertDialog.Builder(activity)
-            .setTitle("🛠️ Mode Pengembang WhatsApp (Rhpatch)")
+            .setTitle("Mode Pengembang WhatsApp (Rhpatch)")
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> launchActivitySafe(activity, "com.whatsapp.dogfood.DogfooderDiagnosticsActivity")
