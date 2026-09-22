@@ -380,10 +380,14 @@ class MediaPreview(
             layoutParams = titleParams
             setTextColor(Color.WHITE)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-            text = if (mimeType.startsWith("image")) {
-                context.getString(R.string.preview_image)
-            } else {
-                context.getString(R.string.preview_video)
+            text = try {
+                if (mimeType.startsWith("image")) {
+                    Utils.getString(R.string.preview_image)
+                } else {
+                    Utils.getString(R.string.preview_video)
+                }
+            } catch (e: Throwable) {
+                if (mimeType.startsWith("image")) "Preview Image" else "Preview Video"
             }
         }
         header.addView(title)
