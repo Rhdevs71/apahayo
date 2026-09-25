@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
 import android.util.AttributeSet;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.PickVisualMediaRequest;
@@ -107,21 +108,91 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
     }
 
     private void showSelectDirectoryDialog() {
+        String currentPath = getSharedPreferences().getString(getKey(), Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
 
+        String[] options = new String[]{
+                "Pilih / Buat Folder Baru (File Manager Sistem)",
+                "Ketik Path Folder Manual (Bisa Buat Baru)",
+                "Gunakan Folder Downloads Default",
+                "Penjelajah Berkas Internal"
+        };
+
+        new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Pilih Lokasi Penyimpanan")
+                .setItems(options, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            // Buka SAF resmi Android yang mendukung tombol Buat Folder Baru
+                            FilePicker.setOnFilePickedListener(this);
+                            try {
+                                FilePicker.directoryCapture.launch(null);
+                            } catch (Exception e) {
+                                openLegacyFilePicker();
+                            }
+                            break;
+                        case 1:
+                            // Dialog ketik manual
+                            showManualPathDialog(currentPath);
+                            break;
+                        case 2:
+                            // Reset ke Downloads default
+                            File defaultDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                            if (!defaultDir.exists()) defaultDir.mkdirs();
+                            getSharedPreferences().edit().putString(getKey(), defaultDir.getAbsolutePath()).apply();
+                            setSummary(defaultDir.getAbsolutePath());
+                            Toast.makeText(getContext(), "Lokasi diatur ke: " + defaultDir.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                            break;
+                        case 3:
+                            // Buka legacy picker
+                            openLegacyFilePicker();
+                            break;
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showManualPathDialog(String currentPath) {
+        final EditText input = new EditText(getContext());
+        input.setText(currentPath);
+        input.setSelection(input.getText().length());
+
+        new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Ketik Lokasi Folder")
+                .setMessage("Masukkan path folder penyimpanan. Folder akan dibuat otomatis jika belum ada:")
+                .setView(input)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    String path = input.getText().toString().trim();
+                    if (!path.isEmpty()) {
+                        File dir = new File(path);
+                        if (!dir.exists()) {
+                            dir.mkdirs();
+                        }
+                        getSharedPreferences().edit().putString(getKey(), dir.getAbsolutePath()).apply();
+                        setSummary(dir.getAbsolutePath());
+                        Toast.makeText(getContext(), "Lokasi disimpan: " + dir.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void openLegacyFilePicker() {
         DialogProperties properties = new DialogProperties();
         properties.selection_mode = DialogConfigs.SINGLE_MODE;
         properties.selection_type = DialogConfigs.DIR_SELECT;
-        properties.root = new File(DialogConfigs.DEFAULT_DIR);
-        properties.error_dir = new File(DialogConfigs.DEFAULT_DIR);
-        properties.offset = new File(DialogConfigs.DEFAULT_DIR);
+        properties.root = Environment.getExternalStorageDirectory();
+        properties.error_dir = Environment.getExternalStorageDirectory();
+        properties.offset = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         FilePickerDialog dialog = new FilePickerDialog(getContext(), properties);
-        dialog.setTitle("Select a local to download");
+        dialog.setTitle("Pilih Folder");
         dialog.setDialogSelectionListener((selectionPaths) -> {
-            getSharedPreferences().edit().putString(getKey(), selectionPaths[0]).apply();
-            setSummary(selectionPaths[0]);
+            if (selectionPaths != null && selectionPaths.length > 0) {
+                getSharedPreferences().edit().putString(getKey(), selectionPaths[0]).apply();
+                setSummary(selectionPaths[0]);
+            }
         });
         dialog.show();
-        Utils.showToast("Select a local to download", Toast.LENGTH_SHORT);
     }
 
     @Override

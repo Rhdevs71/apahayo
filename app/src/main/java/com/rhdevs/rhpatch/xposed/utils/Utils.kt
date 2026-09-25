@@ -240,8 +240,16 @@ object Utils {
 
     fun getDestination(name: String): String {
         val baseFolder = resolveDownloadFolder()
-        val waFolder = File(baseFolder, "WhatsApp")
-        val filePath = File(waFolder, name)
+        val configuredPath = if (::xprefs.isInitialized) xprefs.getString("download_local", null) else null
+
+        val filePath = if (!configuredPath.isNullOrBlank() && File(configuredPath).exists() &&
+            !configuredPath.endsWith("/Download") && !configuredPath.endsWith("/Downloads") && !configuredPath.endsWith("/downloads")) {
+            File(baseFolder, name)
+        } else {
+            val waFolder = File(baseFolder, "WhatsApp")
+            File(waFolder, name)
+        }
+
         try {
             getClientBridge()?.createDir(filePath.absolutePath)
         } catch (_: Exception) {

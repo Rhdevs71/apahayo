@@ -19,21 +19,29 @@ import com.rhdevs.rhpatch.xposed.utils.MimeTypeUtils
 import com.rhdevs.rhpatch.xposed.utils.Utils
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
+import de.robv.android.xposed.XSharedPreferences
 
 class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun doHook() {
-        if (!prefs.getBoolean("downloadstatus", false)) return
-
         val downloadStatus = object : MenuStatusListener.OnMenuItemStatusListener() {
             override fun addMenu(menu: Menu, statusData: MenuStatusListener.StatusData): MenuItem? {
-                if (menu.findItem(R.string.download) != null) return null
+                (prefs as? XSharedPreferences)?.reload()
+                if (!prefs.getBoolean("downloadstatus", false)) return null
                 val item = statusData.currentItem
                 if (item.isFromMe) return null
                 if (!item.isMediaFile) return null
-                return menu.add(0, R.string.download, 0, R.string.download)
+
+                val title = Utils.getString(R.string.download)
+                for (i in 0 until menu.size()) {
+                    if (menu.getItem(i).title == title) return null
+                }
+
+                val menuItem = menu.add(0, 10010, 0, title)
+                Utils.getDrawable(R.drawable.download)?.let { menuItem.icon = it }
+                return menuItem
             }
 
             override fun onClick(item: MenuItem, statusData: MenuStatusListener.StatusData) {
@@ -44,10 +52,17 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
 
         val sharedMenu = object : MenuStatusListener.OnMenuItemStatusListener() {
             override fun addMenu(menu: Menu, statusData: MenuStatusListener.StatusData): MenuItem? {
+                (prefs as? XSharedPreferences)?.reload()
+                if (!prefs.getBoolean("downloadstatus", false)) return null
                 val item = statusData.currentItem
                 if (item.isFromMe) return null
-                if (menu.findItem(R.string.share_as_status) != null) return null
-                return menu.add(0, R.string.share_as_status, 0, R.string.share_as_status)
+
+                val title = Utils.getString(R.string.share_as_status)
+                for (i in 0 until menu.size()) {
+                    if (menu.getItem(i).title == title) return null
+                }
+
+                return menu.add(0, 10011, 0, title)
             }
 
             override fun onClick(item: MenuItem, statusData: MenuStatusListener.StatusData) {

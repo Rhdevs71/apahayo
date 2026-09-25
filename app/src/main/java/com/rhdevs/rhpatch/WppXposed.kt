@@ -1,4 +1,4 @@
-﻿package com.rhdevs.rhpatch
+package com.rhdevs.rhpatch
 
 import android.annotation.SuppressLint
 import android.content.ContextWrapper
@@ -166,7 +166,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
                 if (field.type === Int::class.javaPrimitiveType) {
                     val resId = field.getInt(null)
-                    if (resId > 0x7f000000) {
+                    if (resId > 0x40000000) {
                         count++
                         val replacementId = resparam.res.addResource(modRes, resId)
                         field.set(null, replacementId)
@@ -175,7 +175,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
                     val resIds = field.get(null) as IntArray?
                     if (resIds != null) {
                         for (i in resIds.indices) {
-                            if (resIds[i] > 0x7f000000) {
+                            if (resIds[i] > 0x40000000) {
                                 count++
                                 resIds[i] = resparam.res.addResource(modRes, resIds[i])
                             }

@@ -108,12 +108,29 @@ public class RealPathUtil {
             }
             // DownloadsProvider
             else if (isDownloadsDocument(uri)) {
-
                 final String id = DocumentsContract.getTreeDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
-
-                return getDataColumn(context, contentUri, null, null);
+                if (id != null) {
+                    if (id.startsWith("raw:")) {
+                        return id.substring(4);
+                    }
+                    if ("downloads".equalsIgnoreCase(id) || "download".equalsIgnoreCase(id)) {
+                        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+                    }
+                    if (id.contains(":")) {
+                        final String[] split = id.split(":");
+                        if ("primary".equalsIgnoreCase(split[0])) {
+                            return Environment.getExternalStorageDirectory() + "/" + (split.length > 1 ? split[1] : "");
+                        }
+                    }
+                    try {
+                        final Uri contentUri = ContentUris.withAppendedId(
+                                Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
+                        String path = getDataColumn(context, contentUri, null, null);
+                        if (path != null) return path;
+                    } catch (Exception ignored) {
+                    }
+                }
+                return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
             }
             // MediaProvider
             else if (isMediaDocument(uri)) {
