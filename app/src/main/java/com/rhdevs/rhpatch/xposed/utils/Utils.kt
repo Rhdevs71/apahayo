@@ -13,6 +13,7 @@ import android.content.SharedPreferences
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Binder
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
@@ -175,13 +176,81 @@ object Utils {
     }
 
     @SuppressLint("SdCardPath")
+    fun resolveDownloadFolder(): File {
+        val configuredPath = if (::xprefs.isInitialized) xprefs.getString("download_local", null) else null
+
+        // 1. Jika folder dikonfigurasi oleh pengguna
+        if (!configuredPath.isNullOrBlank()) {
+            val userFolder = File(configuredPath)
+            if (userFolder.exists() && userFolder.isDirectory) {
+                return userFolder
+            }
+            // Periksa variasi nama pada direktori induk (Download vs Downloads vs downloads)
+            val parent = userFolder.parentFile
+            if (parent != null && parent.exists()) {
+                val candidateNames = listOf("Download", "Downloads", "downloads")
+                for (candidateName in candidateNames) {
+                    val candidate = File(parent, candidateName)
+                    if (candidate.exists() && candidate.isDirectory) {
+                        return candidate
+                    }
+                }
+            }
+            return userFolder
+        }
+
+        // 2. Standar direktori Downloads Android
+        try {
+            val standardDownloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            if (standardDownloads.exists() && standardDownloads.isDirectory) {
+                return standardDownloads
+            }
+            val parent = standardDownloads.parentFile
+            if (parent != null && parent.exists()) {
+                val candidateNames = listOf("Downloads", "downloads", "Download")
+                for (candidateName in candidateNames) {
+                    val candidate = File(parent, candidateName)
+                    if (candidate.exists() && candidate.isDirectory) {
+                        return candidate
+                    }
+                }
+            }
+            return standardDownloads
+        } catch (_: Throwable) {
+        }
+
+        // 3. Fallback direktori umum penyimpanan lokal
+        val fallbacks = listOf(
+            "/storage/emulated/0/Download",
+            "/storage/emulated/0/Downloads",
+            "/storage/emulated/0/downloads",
+            "/sdcard/Download",
+            "/sdcard/Downloads",
+            "/sdcard/downloads"
+        )
+        for (fallbackPath in fallbacks) {
+            val file = File(fallbackPath)
+            if (file.exists() && file.isDirectory) {
+                return file
+            }
+        }
+
+        return File("/sdcard/Download")
+    }
+
     fun getDestination(name: String): String {
-        val folder = xprefs.getString("download_local", "/sdcard/Download")
-        val waFolder = File(folder, "WhatsApp")
+        val baseFolder = resolveDownloadFolder()
+        val waFolder = File(baseFolder, "WhatsApp")
         val filePath = File(waFolder, name)
         try {
-            getClientBridge()!!.createDir(filePath.absolutePath)
+            getClientBridge()?.createDir(filePath.absolutePath)
         } catch (_: Exception) {
+        }
+        if (!filePath.exists()) {
+            try {
+                filePath.mkdirs()
+            } catch (_: Exception) {
+            }
         }
         return filePath.absolutePath + "/"
     }
