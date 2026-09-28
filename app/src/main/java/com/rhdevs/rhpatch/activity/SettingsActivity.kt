@@ -152,10 +152,6 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.menu_element_hider -> {
-                startActivity(Intent(this, ElementHiderActivity::class.java))
-                true
-            }
             R.id.menu_about -> {
                 aboutPreference.onPreferenceClickListener?.onPreferenceClick(aboutPreference)
                 true
@@ -629,22 +625,6 @@ class SettingsActivity : AppCompatActivity() {
                     containerLayout.addView(fakeGpsCard)
                 }
 
-                
-                // Element Hider Card
-                val hiderName = "Filter Elemen UI (Hider)"
-                val hiderPkg = "Sembunyikan UI dengan ID secara spesifik"
-                if (q.isEmpty() || hiderName.lowercase().contains(q) || hiderPkg.lowercase().contains(q)) {
-                    val hiderCard = inflater.inflate(R.layout.item_module_card, containerLayout, false)
-                    hiderCard.findViewById<TextView>(R.id.app_name).text = hiderName
-                    hiderCard.findViewById<TextView>(R.id.app_package).text = hiderPkg
-                    val badge = hiderCard.findViewById<TextView>(R.id.status_badge)
-                    badge.text = "System Module"
-                    badge.setTextColor(android.graphics.Color.parseColor("#8B5CF6"))
-                    hiderCard.setOnClickListener {
-                        startActivity(Intent(context, com.rhdevs.rhpatch.activity.ElementHiderActivity::class.java))
-                    }
-                    containerLayout.addView(hiderCard)
-                }
 
                 // 3. Explicit WhatsApp Card
                 val waName = "WhatsApp / WA Business"

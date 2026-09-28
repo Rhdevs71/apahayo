@@ -358,9 +358,6 @@ class AutoSenderAccessibilityService : AccessibilityService() {
             "instagram" -> {
                 Intent(Intent.ACTION_VIEW, Uri.parse("https://ig.me/m/${task.phone}"))
             }
-            "discord" -> {
-                Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.com/users/${task.phone}"))
-            }
             else -> return
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -440,7 +437,6 @@ class AutoSenderAccessibilityService : AccessibilityService() {
                 "email" -> if (packageName.contains("gm") || packageName.contains("email")) handleEmail(event)
                 "messenger" -> if (packageName.contains("orca") || packageName.contains("facebook")) handleFacebookMessenger(event)
                 "instagram" -> if (packageName.contains("instagram")) handleInstagram(event)
-                "discord" -> if (packageName.contains("discord")) handleDiscord(event)
             }
         }
     }
@@ -532,20 +528,6 @@ class AutoSenderAccessibilityService : AccessibilityService() {
                 step = 3
                 val root = rootInActiveWindow ?: return@postDelayed
                 findAndSetTextByContentDescOrText(root, currentTask!!.message, "Message", "Pesan", "Send message", "Kirim pesan")
-                handler.postDelayed({ findAndClickSendButtonByDescOrText("send", "kirim") }, 1000)
-            }, 1500)
-        } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-            findAndClickSendButtonByDescOrText("send", "kirim")
-        }
-    }
-
-    private fun handleDiscord(event: AccessibilityEvent) {
-        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            handler.removeCallbacks(timeoutRunnable)
-            handler.postDelayed({
-                step = 3
-                val root = rootInActiveWindow ?: return@postDelayed
-                findAndSetTextByContentDescOrText(root, currentTask!!.message, "Message", "Pesan", "Send", "Kirim")
                 handler.postDelayed({ findAndClickSendButtonByDescOrText("send", "kirim") }, 1000)
             }, 1500)
         } else if (step == 3 && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
@@ -705,8 +687,7 @@ class AutoSenderAccessibilityService : AccessibilityService() {
         "com.whatsapp.w4b",
         "org.telegram.messenger",
         "com.facebook.orca",
-        "com.instagram.android",
-        "com.discord"
+        "com.instagram.android"
     )
 
     private fun handleAutoReplyViaNotification(packageName: String, title: String, text: String, notification: Notification) {

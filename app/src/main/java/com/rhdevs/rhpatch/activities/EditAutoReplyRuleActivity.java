@@ -41,7 +41,7 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
 
     
     private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
-    private final String[] targetAppPackages = {"ALL", "com.whatsapp", "com.whatsapp.w4b", "com.instagram.android", "com.zhiliaoapp.musically", "com.discord"};
+    private final String[] targetAppPackages = {"ALL", "com.whatsapp", "com.whatsapp.w4b", "com.instagram.android", "com.zhiliaoapp.musically"};
 
 
     @Override
@@ -56,8 +56,8 @@ public class EditAutoReplyRuleActivity extends BaseActivity {
 
         
         // Setup Target App Spinner
-        String[] targetAppNames = {"Semua (Semua App Mendukung)", "WhatsApp", "WhatsApp Business", "Instagram", "TikTok", "Discord"};
-        String[] targetAppPackages = {"ALL", "com.whatsapp", "com.whatsapp.w4b", "com.instagram.android", "com.zhiliaoapp.musically", "com.discord"};
+        String[] targetAppNames = {"Semua (Semua App Mendukung)", "WhatsApp", "WhatsApp Business", "Instagram", "TikTok"};
+        String[] targetAppPackages = {"ALL", "com.whatsapp", "com.whatsapp.w4b", "com.instagram.android", "com.zhiliaoapp.musically"};
         ArrayAdapter<String> appAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, targetAppNames);
         appAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.targetAppSpinner.setAdapter(appAdapter);

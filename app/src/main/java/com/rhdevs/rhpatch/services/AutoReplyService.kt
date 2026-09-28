@@ -23,8 +23,7 @@ class AutoReplyService : NotificationListenerService() {
             "com.whatsapp.w4b",
             "org.telegram.messenger",
             "com.facebook.orca",
-            "com.instagram.android",
-            "com.discord"
+            "com.instagram.android"
         )
         // Cache to prevent duplicate replies for the same message
         private val lastProcessedMessages = java.util.concurrent.ConcurrentHashMap<String, Long>()

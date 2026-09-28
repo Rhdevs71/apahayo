@@ -3461,4 +3461,47 @@ object Unobfuscator {
             ) ?: throw NoSuchMethodException("StartOutgoingCall method not found")
         }
     }
+
+    @JvmStatic
+    fun loadVideoComposerFragmentClass(classLoader: ClassLoader): Class<*>? {
+        return try {
+            XposedHelpers.findClassIfExists("com.whatsapp.mediacomposer.ui.app.VideoComposerFragment", classLoader)
+                ?: findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "VideoComposerFragment/prepareVideoPlayer")
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    @JvmStatic
+    fun loadVideoTimelineViewClass(classLoader: ClassLoader): Class<*>? {
+        return try {
+            XposedHelpers.findClassIfExists("com.whatsapp.mediacomposer.ui.app.VideoTimelineView", classLoader)
+                ?: findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "VideoTimelineView/setVideoFile")
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    @JvmStatic
+    fun loadVideoComposerPlayMethod(fragmentClass: Class<*>): Method? {
+        try {
+            val direct = XposedHelpers.findMethodExactIfExists(fragmentClass, "A2e")
+            if (direct != null) return direct
+        } catch (_: Throwable) {}
+
+        return try {
+            val classData = bridge.getClassData(fragmentClass.name)
+            val result = classData?.findMethod {
+                matcher {
+                    paramCount(0)
+                    returnType(Void.TYPE)
+                    usingNumbers(2000L)
+                }
+            }?.firstOrNull()
+            result?.getMethodInstance(fragmentClass.classLoader)
+        } catch (_: Throwable) {
+            null
+        }
+    }
 }
+

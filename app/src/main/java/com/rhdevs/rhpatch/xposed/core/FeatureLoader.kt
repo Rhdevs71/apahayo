@@ -74,6 +74,7 @@ import com.rhdevs.rhpatch.xposed.features.media.DownloadViewOnce
 import com.rhdevs.rhpatch.xposed.features.media.MediaPreview
 import com.rhdevs.rhpatch.xposed.features.media.MediaQuality
 import com.rhdevs.rhpatch.xposed.features.media.StatusDownload
+import com.rhdevs.rhpatch.xposed.features.media.VideoPlaybackTrimmerFix
 import com.rhdevs.rhpatch.xposed.features.others.ActivityController
 import com.rhdevs.rhpatch.xposed.features.others.AudioTranscript
 import com.rhdevs.rhpatch.xposed.features.others.BackupRestore
@@ -536,6 +537,7 @@ class FeatureLoader {
                 HideTabs::class.java,
                 IGStatus::class.java,
                 MediaQuality::class.java,
+                VideoPlaybackTrimmerFix::class.java,
                 NewChat::class.java,
                 Others::class.java,
                 PinnedLimit::class.java,

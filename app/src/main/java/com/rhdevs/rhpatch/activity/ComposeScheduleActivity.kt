@@ -48,10 +48,10 @@ class ComposeScheduleActivity : BaseActivity() {
         val tvMediaStatus = findViewById<TextView>(R.id.tv_media_status)
 
         val targetOptions = arrayOf(
-            "WhatsApp", "Telegram", "Telegram Group", "SMS", "Phone Call", "Email", "Facebook Messenger", "Instagram", "Discord"
+            "WhatsApp", "Telegram", "Telegram Group", "SMS", "Phone Call", "Email", "Facebook Messenger", "Instagram"
         )
         val targetValues = arrayOf(
-            "whatsapp", "telegram", "telegram_group", "sms", "call", "email", "messenger", "instagram", "discord"
+            "whatsapp", "telegram", "telegram_group", "sms", "call", "email", "messenger", "instagram"
         )
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, targetOptions)
         spinnerTargetApp.adapter = adapter
@@ -234,7 +234,7 @@ class ComposeScheduleActivity : BaseActivity() {
             val subject = etSubject.text.toString().trim()
 
             val targetValues = arrayOf(
-                "whatsapp", "telegram", "telegram_group", "sms", "call", "email", "messenger", "instagram", "discord"
+                "whatsapp", "telegram", "telegram_group", "sms", "call", "email", "messenger", "instagram"
             )
             val targetApp = targetValues[spinnerTargetApp.selectedItemPosition]
             

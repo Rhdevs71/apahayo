@@ -1,4 +1,4 @@
-﻿package com.rhdevs.rhpatch
+package com.rhdevs.rhpatch
 
 import android.app.Application
 import com.rhdevs.rhpatch.youtube.extension.shared.ResourceType
@@ -23,7 +23,6 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
     lateinit var app: Application
 
     fun shouldHook(packageName: String): Boolean {
-        if (packageName == "com.instagram.android.pikoo") return true
         if (packageName == "com.whatsapp.pikoo") return true
         return patchesByPackage.containsKey(packageName)
     }
@@ -311,8 +310,6 @@ class MainHook : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 )
             }
         }
-
-        com.rhdevs.rhpatch.system.UniversalHiderHook.handleLoadPackage(lpparam)
 
         if (!shouldHook(lpparam.packageName)) return
         this.lpparam = lpparam
