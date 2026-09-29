@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.text.InputType
 import android.view.Gravity
 import android.view.Menu
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
@@ -15,10 +16,13 @@ import com.rhdevs.rhpatch.R
 import com.rhdevs.rhpatch.xposed.core.Feature
 import com.rhdevs.rhpatch.xposed.core.WppCore
 import com.rhdevs.rhpatch.xposed.core.components.AlertDialogWpp
+import com.rhdevs.rhpatch.xposed.core.components.FMessageWpp
 import com.rhdevs.rhpatch.xposed.core.devkit.Unobfuscator
+import com.rhdevs.rhpatch.xposed.utils.ReflectionUtils
 import com.rhdevs.rhpatch.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -26,6 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 class ChatTextRepeater(loader: ClassLoader, preferences: SharedPreferences) : Feature(loader, preferences) {
 
@@ -47,6 +52,7 @@ class ChatTextRepeater(loader: ClassLoader, preferences: SharedPreferences) : Fe
             XposedBridge.hookMethod(onCreateMenuMethod, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     try {
+                        if (!prefs.getBoolean("text_repeater_enabled", true)) return
                         val menu = param.args[0] as? Menu ?: return
                         if (menu.findItem(MENU_TEXT_REPEATER_ID) != null) return
 
@@ -105,9 +111,9 @@ class ChatTextRepeater(loader: ClassLoader, preferences: SharedPreferences) : Fe
         container.addView(etCount)
 
         val etDelay = EditText(activity).apply {
-            hint = try { Utils.getString(R.string.text_repeater_delay_hint) } catch (_: Throwable) { "Jeda delay (ms, default 100)" }
+            hint = try { Utils.getString(R.string.text_repeater_delay_hint) } catch (_: Throwable) { "Jeda delay (ms, default 150)" }
             inputType = InputType.TYPE_CLASS_NUMBER
-            setText("100")
+            setText("150")
         }
         container.addView(etDelay)
 
@@ -132,8 +138,7 @@ class ChatTextRepeater(loader: ClassLoader, preferences: SharedPreferences) : Fe
         val createdDialog = dialog.create()
         createdDialog.show()
 
-        // Handle positive button manually to keep dialog open during sending
-        val posBtn = if (dialog is AlertDialogWpp && !AlertDialogWpp.isSystemDialog) {
+        val posBtn = if (!AlertDialogWpp.isSystemDialog) {
             createdDialog.findViewById<Button>(android.R.id.button1)
         } else {
             (createdDialog as? android.app.AlertDialog)?.getButton(android.content.DialogInterface.BUTTON_POSITIVE)
@@ -141,11 +146,13 @@ class ChatTextRepeater(loader: ClassLoader, preferences: SharedPreferences) : Fe
 
         posBtn?.setOnClickListener {
             if (activeJob?.isActive == true) {
-                // Cancel action
                 activeJob?.cancel()
                 activeJob = null
                 posBtn.text = "Mulai Kirim"
                 tvStatus.text = "Pengiriman dihentikan."
+                etMessage.isEnabled = true
+                etCount.isEnabled = true
+                etDelay.isEnabled = true
                 return@setOnClickListener
             }
 
@@ -156,7 +163,7 @@ class ChatTextRepeater(loader: ClassLoader, preferences: SharedPreferences) : Fe
             }
 
             val count = etCount.text.toString().toIntOrNull() ?: 10
-            val delayMs = (etDelay.text.toString().toLongOrNull() ?: 100L).coerceAtLeast(50L)
+            val delayMs = (etDelay.text.toString().toLongOrNull() ?: 150L).coerceAtLeast(80L)
 
             posBtn.text = "Hentikan"
             etMessage.isEnabled = false
@@ -165,18 +172,12 @@ class ChatTextRepeater(loader: ClassLoader, preferences: SharedPreferences) : Fe
 
             activeJob = CoroutineScope(Dispatchers.IO).launch {
                 var sentCount = 0
-                val targetJid = userJid.userJid ?: userJid.phoneJid ?: userJid.phoneRawString ?: userJid.userRawString
                 for (i in 1..count) {
-                    if (!isActive) break
-                    try {
-                        WppCore.sendMessageToJid(targetJid, text)
+                    if (!isActive || activity.isFinishing || activity.isDestroyed) break
+
+                    val success = dispatchMessageToChat(activity, userJid, text)
+                    if (success) {
                         sentCount++
-                    } catch (e: Throwable) {
-                        logDebug("TextRepeater send error at $i", e)
-                        try {
-                            WppCore.sendMessage(userJid.phoneRawString ?: "", text)
-                            sentCount++
-                        } catch (_: Throwable) {}
                     }
 
                     withContext(Dispatchers.Main) {
@@ -193,11 +194,108 @@ class ChatTextRepeater(loader: ClassLoader, preferences: SharedPreferences) : Fe
                     posBtn.text = "Mulai Kirim"
                     if (sentCount >= count) {
                         tvStatus.text = "Selesai! $sentCount pesan berhasil dikirim."
+                    } else if (sentCount == 0) {
+                        tvStatus.text = "Gagal mengirim pesan. Pastikan keyboard obrolan aktif."
                     } else {
                         tvStatus.text = "Dihentikan. $sentCount / $count terkirim."
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun dispatchMessageToChat(
+        activity: Activity,
+        userJid: FMessageWpp.UserJid,
+        text: String
+    ): Boolean {
+        // 1. Direct UI Dispatch (native & 100% stable in Conversation screen)
+        val deferred = CompletableDeferred<Boolean>()
+        activity.runOnUiThread {
+            try {
+                val packageName = activity.packageName
+                val entryId = activity.resources.getIdentifier("entry", "id", packageName)
+                val entry = activity.findViewById<EditText>(entryId)
+
+                if (entry != null) {
+                    entry.setText(text)
+                    entry.setSelection(text.length)
+
+                    // Post to let WhatsApp's TextWatcher swap mic button to send button
+                    entry.post {
+                        try {
+                            val sendId = activity.resources.getIdentifier("send", "id", packageName)
+                            val sendBtn = activity.findViewById<View>(sendId)
+
+                            if (sendBtn != null && sendBtn.isShown) {
+                                sendBtn.performClick()
+                                deferred.complete(true)
+                            } else {
+                                // Try finding any view with send contentDescription or id
+                                val fallbackBtn = sendBtn ?: activity.findViewById<View>(
+                                    activity.resources.getIdentifier("send_container", "id", packageName)
+                                )
+                                if (fallbackBtn != null) {
+                                    fallbackBtn.performClick()
+                                    deferred.complete(true)
+                                } else {
+                                    deferred.complete(false)
+                                }
+                            }
+                        } catch (t: Throwable) {
+                            deferred.complete(false)
+                        }
+                    }
+                } else {
+                    deferred.complete(false)
+                }
+            } catch (t: Throwable) {
+                deferred.complete(false)
+            }
+        }
+
+        val result = withTimeoutOrNull(400L) { deferred.await() } ?: false
+        if (result) return true
+
+        // 2. Fallback via ActionUser with robust reflection
+        return try {
+            val targetJid = userJid.userJid ?: userJid.phoneJid ?: userJid.phoneRawString ?: userJid.userRawString
+            val actionUser = WppCore.getActionUser()
+            val actionUserClass = WppCore.getActionUserClass()
+            if (actionUser != null && actionUserClass != null) {
+                val senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUserClass) { method ->
+                    val params = method.parameterTypes
+                    val hasString = ReflectionUtils.findIndexOfType(params, String::class.java) != -1
+                    val hasJid = params.any { param ->
+                        param.name.endsWith("Jid", ignoreCase = true) ||
+                                param == FMessageWpp.UserJid.TYPE_JID ||
+                                param == FMessageWpp.UserJid.TYPE_USERJID ||
+                                (param.isInterface && !param.name.startsWith("java.") && !param.name.startsWith("android."))
+                    }
+                    hasString && hasJid && method.name != "toString"
+                }
+                if (senderMethod != null) {
+                    val newObject = arrayOfNulls<Any>(senderMethod.parameterCount)
+                    for (i in newObject.indices) {
+                        newObject[i] = ReflectionUtils.getDefaultValue(senderMethod.parameterTypes[i])
+                    }
+                    val textIndex = ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, String::class.java)
+                    newObject[textIndex] = text
+                    val jidIndex = senderMethod.parameterTypes.indexOfFirst { param ->
+                        param.name.endsWith("Jid", ignoreCase = true) ||
+                                param == FMessageWpp.UserJid.TYPE_JID ||
+                                param == FMessageWpp.UserJid.TYPE_USERJID
+                    }
+                    if (jidIndex != -1) {
+                        newObject[jidIndex] = targetJid
+                    }
+                    senderMethod.invoke(actionUser, *newObject)
+                    true
+                } else false
+            } else false
+        } catch (e: Throwable) {
+            logDebug("Fallback ActionUser send error", e)
+            false
         }
     }
 }

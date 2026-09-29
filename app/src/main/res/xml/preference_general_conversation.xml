@@ -46,6 +46,12 @@
             app:title="@string/show_chat_broadcast_icon" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="text_repeater_enabled"
+            app:summary="@string/text_repeater_setting_sum"
+            app:title="@string/text_repeater_setting_title" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="pinnedlimit"
             app:summary="@string/disable_pinned_limit_sum"
             app:title="@string/disable_pinned_limit" />

@@ -145,6 +145,24 @@
 
     </PreferenceCategory>
 
+    <!-- AUTO BLUR PANIC -->
+    <PreferenceCategory app:title="Proteksi Layar &amp; Mode Panik">
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="auto_blur_panic_enabled"
+            app:summary="@string/panic_blur_setting_sum"
+            app:title="@string/panic_blur_setting_title" />
+
+        <ListPreference
+            app:dependency="auto_blur_panic_enabled"
+            app:defaultValue="both"
+            app:entries="@array/panic_blur_trigger_entries"
+            app:entryValues="@array/panic_blur_trigger_values"
+            app:key="auto_blur_panic_trigger"
+            app:summary="%s"
+            app:title="@string/panic_blur_trigger_title" />
+    </PreferenceCategory>
+
     <!-- MISC -->
     <PreferenceCategory app:title="Tata Letak &amp; Lainnya">
         <ListPreference

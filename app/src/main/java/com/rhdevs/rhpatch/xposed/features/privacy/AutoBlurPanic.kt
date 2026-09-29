@@ -146,8 +146,16 @@ class AutoBlurPanic(loader: ClassLoader, preferences: SharedPreferences) : Featu
                 override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
             }
 
-            accelSensor?.let { sm.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_UI) }
-            proximitySensor?.let { sm.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_NORMAL) }
+            val trigger = prefs.getString("auto_blur_panic_trigger", "both") ?: "both"
+            val enableShake = trigger == "both" || trigger == "shake"
+            val enableProximity = trigger == "both" || trigger == "proximity"
+
+            if (enableShake) {
+                accelSensor?.let { sm.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_UI) }
+            }
+            if (enableProximity) {
+                proximitySensor?.let { sm.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_NORMAL) }
+            }
 
         } catch (e: Throwable) {
             logDebug("setupSensorListener error", e)

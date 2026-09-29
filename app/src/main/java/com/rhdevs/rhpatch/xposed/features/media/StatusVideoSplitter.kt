@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.rhdevs.rhpatch.R
@@ -41,7 +42,6 @@ class StatusVideoSplitter(loader: ClassLoader, preferences: SharedPreferences) :
 
     companion object {
         private const val SPLIT_BTN_TAG = "rhpatch_status_split_btn"
-        private const val STATUS_MAX_SEGMENT_US = 30_000_000L // 30 seconds in microseconds
     }
 
     override fun getPluginName(): String {
@@ -49,8 +49,6 @@ class StatusVideoSplitter(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     override fun doHook() {
-        if (!prefs.getBoolean("status_video_splitter_enabled", true)) return
-
         try {
             val fragmentClass = Unobfuscator.loadVideoComposerFragmentClass(classLoader) ?: return
 
@@ -62,6 +60,9 @@ class StatusVideoSplitter(loader: ClassLoader, preferences: SharedPreferences) :
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         try {
+                            // Check if feature is enabled in settings (optional)
+                            if (!prefs.getBoolean("status_video_splitter_enabled", false)) return
+
                             val fragment = param.thisObject ?: return
                             val rootView = param.args[0] as? ViewGroup ?: return
 
@@ -80,50 +81,87 @@ class StatusVideoSplitter(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     private fun checkAndInjectSplitButton(fragment: Any, root: ViewGroup) {
+        if (!prefs.getBoolean("status_video_splitter_enabled", false)) return
         if (root.findViewWithTag<View>(SPLIT_BTN_TAG) != null) return
 
         val activity = WppCore.getCurrentActivity() ?: return
-        val uri = getMediaUri(fragment) ?: return
+        val uri = getMediaUri(fragment, activity) ?: return
 
-        // Check if video is longer than 30s
-        val durationMs = getVideoDurationMs(activity, uri)
-        if (durationMs <= 32_000L) return // Less than or equal to ~30s, no split needed
+        val splitSec = prefs.getString("status_split_duration", "30")?.toLongOrNull() ?: 30L
+        val minThresholdMs = (splitSec + 2) * 1000L
+
+        // Check if video is longer than threshold
+        var durationMs = getVideoDurationMs(activity, uri)
+        if (durationMs <= 0L) {
+            // Fallback to player duration
+            val player = getPlayer(fragment)
+            if (player != null) {
+                durationMs = (XposedHelpers.callMethod(player, "getDuration") as? Number)?.toLong() ?: 0L
+            }
+        }
+
+        if (durationMs > 0L && durationMs <= minThresholdMs) return
 
         val btn = TextView(activity).apply {
             tag = SPLIT_BTN_TAG
-            text = try { Utils.getString(R.string.status_splitter_btn) } catch (_: Throwable) { "✂️ Split Status (30s)" }
+            text = "✂️ Split Status (${splitSec}s)"
             textSize = 12f
             setTextColor(Color.WHITE)
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
 
-            val padH = Utils.dipToPixels(10)
-            val padV = Utils.dipToPixels(6)
+            val padH = Utils.dipToPixels(12)
+            val padV = Utils.dipToPixels(7)
             setPadding(padH, padV, padH, padV)
 
             background = GradientDrawable().apply {
-                setColor(Color.parseColor("#CC00A884")) // WhatsApp Green accented
-                cornerRadius = Utils.dipToPixels(16).toFloat()
+                setColor(Color.parseColor("#E600A884")) // Solid accented WhatsApp green
+                cornerRadius = Utils.dipToPixels(18).toFloat()
+                setStroke(Utils.dipToPixels(1), Color.WHITE)
             }
 
-            layoutParams = FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                gravity = Gravity.TOP or Gravity.END
-                topMargin = Utils.dipToPixels(64)
-                rightMargin = Utils.dipToPixels(16)
+            val topOffset = Utils.dipToPixels(72)
+            val endOffset = Utils.dipToPixels(16)
+
+            layoutParams = when (root) {
+                is FrameLayout -> FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    gravity = Gravity.TOP or Gravity.END
+                    topMargin = topOffset
+                    rightMargin = endOffset
+                }
+                is RelativeLayout -> RelativeLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                    addRule(RelativeLayout.ALIGN_PARENT_END)
+                    topMargin = topOffset
+                    rightMargin = endOffset
+                }
+                else -> ViewGroup.MarginLayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = topOffset
+                    leftMargin = endOffset
+                }
             }
+
+            elevation = Utils.dipToPixels(20).toFloat()
 
             setOnClickListener {
-                startVideoSplitting(activity, uri, durationMs)
+                startVideoSplitting(activity, uri, splitSec)
             }
         }
 
         root.addView(btn)
+        btn.bringToFront()
     }
 
-    private fun startVideoSplitting(activity: Activity, uri: Uri, durationMs: Long) {
+    private fun startVideoSplitting(activity: Activity, uri: Uri, splitSeconds: Long) {
         val pad = Utils.dipToPixels(16)
         val container = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
@@ -166,12 +204,13 @@ class StatusVideoSplitter(loader: ClassLoader, preferences: SharedPreferences) :
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val outputDir = File(activity.cacheDir, "status_splits").apply { mkdirs() }
-                outputDir.listFiles()?.forEach { if (it.isFile) it.delete() } // cleanup old
+                outputDir.listFiles()?.forEach { if (it.isFile) it.delete() }
 
+                val segmentDurationUs = splitSeconds * 1_000_000L
                 val splitFiles = splitVideoLossless(
                     context = activity,
                     inputUri = uri,
-                    segmentDurationUs = STATUS_MAX_SEGMENT_US,
+                    segmentDurationUs = segmentDurationUs,
                     outputDir = outputDir
                 ) { percent ->
                     activity.runOnUiThread {
@@ -193,7 +232,7 @@ class StatusVideoSplitter(loader: ClassLoader, preferences: SharedPreferences) :
                         activity.startActivity(intent)
                         activity.finish()
                     } else {
-                        Toast.makeText(activity, "Gagal memotong video", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(activity, "Gagal memotong video status", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Throwable) {
@@ -318,25 +357,55 @@ class StatusVideoSplitter(loader: ClassLoader, preferences: SharedPreferences) :
         }
     }
 
-    private fun getMediaUri(fragment: Any): Uri? {
+    private fun getMediaUri(fragment: Any, activity: Activity?): Uri? {
+        if (activity != null) {
+            val intent = activity.intent
+            val streamList = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+            if (!streamList.isNullOrEmpty()) return streamList[0]
+
+            val singleStream = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+            if (singleStream != null) return singleStream
+
+            val dataUri = intent.data
+            if (dataUri != null) return dataUri
+
+            val clipData = intent.clipData
+            if (clipData != null && clipData.itemCount > 0) {
+                val clipUri = clipData.getItemAt(0).uri
+                if (clipUri != null) return clipUri
+            }
+        }
+
         try {
             val f = fragment as? androidx.fragment.app.Fragment
             val stream = f?.arguments?.getParcelable<Uri>(Intent.EXTRA_STREAM)
             if (stream != null) return stream
         } catch (_: Throwable) {}
 
-        for (field in fragment.javaClass.declaredFields) {
-            try {
-                field.isAccessible = true
-                if (field.type == Uri::class.java) {
-                    val uri = field.get(fragment) as? Uri
-                    if (uri != null) return uri
-                } else if (field.type == File::class.java) {
-                    val file = field.get(fragment) as? File
-                    if (file != null && file.exists()) return Uri.fromFile(file)
-                }
-            } catch (_: Throwable) {}
+        var currClass: Class<*>? = fragment.javaClass
+        while (currClass != null && currClass != Any::class.java) {
+            for (field in currClass.declaredFields) {
+                try {
+                    field.isAccessible = true
+                    if (field.type == Uri::class.java) {
+                        val uri = field.get(fragment) as? Uri
+                        if (uri != null) return uri
+                    } else if (field.type == File::class.java) {
+                        val file = field.get(fragment) as? File
+                        if (file != null && file.exists()) return Uri.fromFile(file)
+                    }
+                } catch (_: Throwable) {}
+            }
+            currClass = currClass.superclass
         }
         return null
+    }
+
+    private fun getPlayer(fragment: Any): Any? {
+        return try {
+            XposedHelpers.getObjectField(fragment, "A0N")
+        } catch (_: Throwable) {
+            null
+        }
     }
 }

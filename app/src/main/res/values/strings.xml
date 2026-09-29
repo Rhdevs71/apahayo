@@ -688,5 +688,15 @@
     <string name="status_splitter_btn">✂️ Split Status (30s)</string>
     <string name="status_splitter_processing">Memotong video status (%1$d%%)...</string>
     <string name="video_speed_title">Kecepatan Video</string>
+    <string name="panic_blur_setting_title">Auto Blur Mode Panik</string>
+    <string name="panic_blur_setting_sum">Samarkan layar obrolan seketika saat HP diguncang atau sensor ditutup</string>
+    <string name="panic_blur_trigger_title">Pemicu Mode Panik</string>
+    <string name="status_splitter_setting_title">Auto-Split Video Status</string>
+    <string name="status_splitter_setting_sum">Tampilkan opsi potong otomatis video status panjang menjadi beberapa bagian</string>
+    <string name="status_splitter_duration_title">Durasi Pemotongan Status</string>
+    <string name="video_speed_setting_title">Kontrol Kecepatan Video</string>
+    <string name="video_speed_setting_sum">Tampilkan tombol kecepatan (0.5x - 2.0x) di editor video sebelum dikirim</string>
+    <string name="text_repeater_setting_title">Text Repeater (Bomber)</string>
+    <string name="text_repeater_setting_sum">Tampilkan menu Text Repeater untuk kirim pesan banyak sekaligus di obrolan</string>
 
 </resources>

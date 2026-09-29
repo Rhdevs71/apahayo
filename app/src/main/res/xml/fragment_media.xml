@@ -127,6 +127,30 @@
 
     </PreferenceCategory>
     
+    <!-- STATUS & VIDEO EDITING -->
+    <PreferenceCategory app:title="Editor Video &amp; Status">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            app:key="status_video_splitter_enabled"
+            app:summary="@string/status_splitter_setting_sum"
+            app:title="@string/status_splitter_setting_title" />
+
+        <ListPreference
+            app:dependency="status_video_splitter_enabled"
+            android:defaultValue="30"
+            app:entries="@array/status_split_duration_entries"
+            app:entryValues="@array/status_split_duration_values"
+            app:key="status_split_duration"
+            app:summary="%s"
+            app:title="@string/status_splitter_duration_title" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            app:key="video_speed_controller_enabled"
+            app:summary="@string/video_speed_setting_sum"
+            app:title="@string/video_speed_setting_title" />
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="Lainnya">
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="true"

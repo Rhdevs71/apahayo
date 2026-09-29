@@ -416,4 +416,26 @@
         <item>default</item>
         <item>ios</item>
     </string-array>
+
+    <!-- Panic Blur Triggers -->
+    <string-array name="panic_blur_trigger_entries">
+        <item>Guncangan &amp; Sensor Jarak (Keduanya)</item>
+        <item>Hanya Guncangan HP (Shake)</item>
+        <item>Hanya Sensor Jarak (Proximity)</item>
+    </string-array>
+    <string-array name="panic_blur_trigger_values">
+        <item>both</item>
+        <item>shake</item>
+        <item>proximity</item>
+    </string-array>
+
+    <!-- Status Split Duration -->
+    <string-array name="status_split_duration_entries">
+        <item>30 Detik (Standar Status)</item>
+        <item>60 Detik (Status Baru 1 Menit)</item>
+    </string-array>
+    <string-array name="status_split_duration_values">
+        <item>30</item>
+        <item>60</item>
+    </string-array>
 </resources>
