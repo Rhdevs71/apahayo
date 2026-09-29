@@ -27,27 +27,72 @@ import java.lang.ref.WeakReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 
-data class ReleaseInfo(
-    @SerializedName("tag_name") val tagName: String,
-    @SerializedName("body_html") val releaseNoteHtml: String,
-    @SerializedName("html_url") val releaseUrl: String
+data class ReleaseAsset(
+    @SerializedName("name") val name: String,
+    @SerializedName("browser_download_url") val downloadUrl: String
 )
 
-data class VersionInfo(val versionCode: Int, val versionName: String) {
+data class ReleaseInfo(
+    @SerializedName("tag_name") val tagName: String,
+    @SerializedName("body_html") val releaseNoteHtml: String? = null,
+    @SerializedName("body") val releaseNoteBody: String? = null,
+    @SerializedName("html_url") val releaseUrl: String,
+    @SerializedName("assets") val assets: List<ReleaseAsset>? = null
+)
+
+data class VersionInfo(
+    val tagName: String,
+    val versionName: String,
+    val commitHash: String?,
+    val isNewVersion: Boolean
+) {
     companion object {
         fun fromTagName(tagName: String): VersionInfo {
-            val versionCode: Int
-            val versionName: String
+            val cleanTag = tagName.removePrefix("v").trim()
+            val split = cleanTag.split('-', limit = 2)
+            val verName = split[0]
+            val hash = if (split.size > 1) split[1].trim() else null
 
-            val split = tagName.split('-', limit = 2)
-            if (split.count() == 2) {
-                versionCode = split[0].toIntOrNull() ?: 0
-                versionName = split[1]
-            } else {
-                versionCode = tagName.split('.').last().toIntOrNull() ?: 0
-                versionName = tagName
+            val isNew = isUpdateAvailable(verName, hash)
+            return VersionInfo(
+                tagName = tagName,
+                versionName = if (!hash.isNullOrEmpty()) "$verName ($hash)" else verName,
+                commitHash = hash,
+                isNewVersion = isNew
+            )
+        }
+
+        private fun isUpdateAvailable(remoteVersion: String, remoteHash: String?): Boolean {
+            // 1. Jika rilis remote memiliki commit hash (format: 1.5.6-706eae3a)
+            if (!remoteHash.isNullOrBlank()) {
+                val currentHash = BuildConfig.COMMIT_HASH
+                val currentVersionName = BuildConfig.VERSION_NAME
+
+                val isSameCommit = currentHash.equals(remoteHash, ignoreCase = true) ||
+                        currentVersionName.contains(remoteHash, ignoreCase = true)
+
+                if (!isSameCommit) {
+                    return true
+                }
             }
-            return VersionInfo(versionCode, versionName)
+
+            // 2. Periksa versi semantik jika rilis menggunakan format semver (misal 1.5.7 vs 1.5.6)
+            return compareSemanticVersion(remoteVersion, BuildConfig.VERSION_NAME.substringBefore(" ")) > 0
+        }
+
+        private fun compareSemanticVersion(v1: String, v2: String): Int {
+            val parts1 = v1.split('.').mapNotNull { it.toIntOrNull() }
+            val parts2 = v2.split('.').mapNotNull { it.toIntOrNull() }
+            val maxLen = maxOf(parts1.size, parts2.size)
+
+            for (i in 0 until maxLen) {
+                val num1 = parts1.getOrElse(i) { 0 }
+                val num2 = parts2.getOrElse(i) { 0 }
+                if (num1 != num2) {
+                    return num1.compareTo(num2)
+                }
+            }
+            return 0
         }
     }
 }
@@ -148,7 +193,7 @@ class UpdateChecker(activity: Activity? = null) : CoroutineScope {
                 latestRelease = release
                 latestVersionInfo = versionInfo
 
-                if (versionInfo.versionCode > currentVersionCode) {
+                if (versionInfo.isNewVersion) {
                     Logger.printInfo { "Found new version of Rhpatch ${release.tagName}" }
                     showUpdateDialog(release, versionInfo)
                 } else {
@@ -195,9 +240,17 @@ class UpdateChecker(activity: Activity? = null) : CoroutineScope {
                 val act = getActivity() ?: return@post
                 if (act.isFinishing || act.isDestroyed) return@post
 
+                val note = when {
+                    !release.releaseNoteHtml.isNullOrBlank() ->
+                        Html.fromHtml(release.releaseNoteHtml, Html.FROM_HTML_MODE_LEGACY)
+                    !release.releaseNoteBody.isNullOrBlank() ->
+                        release.releaseNoteBody
+                    else -> "Pembaruan versi terbaru telah tersedia."
+                }
+
                 AlertDialog.Builder(act)
-                    .setTitle("Versi Baru RHPatch Ditemukan: ${versionInfo.versionName}")
-                    .setMessage(Html.fromHtml(release.releaseNoteHtml, Html.FROM_HTML_MODE_LEGACY))
+                    .setTitle("Versi Baru RHPatch Tersedia: ${versionInfo.versionName}")
+                    .setMessage(note)
                     .setPositiveButton("Unduh") { _, _ ->
                         openReleasePage(release)
                     }
@@ -209,7 +262,8 @@ class UpdateChecker(activity: Activity? = null) : CoroutineScope {
     }
 
     private fun openReleasePage(release: ReleaseInfo? = latestRelease) {
-        val url = release?.releaseUrl ?: "https://github.com/$OWNER/$REPO/releases/latest"
+        val apkAsset = release?.assets?.firstOrNull { it.name.endsWith(".apk", ignoreCase = true) }
+        val url = apkAsset?.downloadUrl ?: release?.releaseUrl ?: "https://github.com/$OWNER/$REPO/releases/latest"
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
