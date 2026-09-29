@@ -75,6 +75,10 @@ import com.rhdevs.rhpatch.xposed.features.media.MediaPreview
 import com.rhdevs.rhpatch.xposed.features.media.MediaQuality
 import com.rhdevs.rhpatch.xposed.features.media.StatusDownload
 import com.rhdevs.rhpatch.xposed.features.media.VideoPlaybackTrimmerFix
+import com.rhdevs.rhpatch.xposed.features.media.VideoSpeedController
+import com.rhdevs.rhpatch.xposed.features.media.StatusVideoSplitter
+import com.rhdevs.rhpatch.xposed.features.general.ChatTextRepeater
+import com.rhdevs.rhpatch.xposed.features.privacy.AutoBlurPanic
 import com.rhdevs.rhpatch.xposed.features.others.ActivityController
 import com.rhdevs.rhpatch.xposed.features.others.AudioTranscript
 import com.rhdevs.rhpatch.xposed.features.others.BackupRestore
@@ -538,6 +542,10 @@ class FeatureLoader {
                 IGStatus::class.java,
                 MediaQuality::class.java,
                 VideoPlaybackTrimmerFix::class.java,
+                VideoSpeedController::class.java,
+                StatusVideoSplitter::class.java,
+                ChatTextRepeater::class.java,
+                AutoBlurPanic::class.java,
                 NewChat::class.java,
                 Others::class.java,
                 PinnedLimit::class.java,

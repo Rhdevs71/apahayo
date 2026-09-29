@@ -673,4 +673,20 @@
     <string name="perm_fullscreen_title"> Full Screen Intents</string>
     <string name="perm_fullscreen_desc">Required to accurately wake the device and show alerts for your scheduled tasks.</string>
 
+    <string name="text_repeater_title">Text Repeater</string>
+    <string name="text_repeater_msg_hint">Pesan yang ingin dikirim...</string>
+    <string name="text_repeater_count_hint">Jumlah pesan (cth: 10)</string>
+    <string name="text_repeater_delay_hint">Jeda delay (ms, cth: 100)</string>
+    <string name="text_repeater_start">Mulai Kirim</string>
+    <string name="text_repeater_stop">Hentikan</string>
+    <string name="text_repeater_progress">Mengirim: %1$d / %2$d</string>
+    <string name="text_repeater_completed">Selesai mengirim %1$d pesan!</string>
+    <string name="text_repeater_stopped">Pengiriman dihentikan.</string>
+    <string name="panic_blur_title">Auto Blur Panic</string>
+    <string name="panic_blur_desc">Layar obrolan disamarkan demi privasi. Ketuk untuk membuka kembali.</string>
+    <string name="status_splitter_title">Auto-Split Video Status</string>
+    <string name="status_splitter_btn">✂️ Split Status (30s)</string>
+    <string name="status_splitter_processing">Memotong video status (%1$d%%)...</string>
+    <string name="video_speed_title">Kecepatan Video</string>
+
 </resources>

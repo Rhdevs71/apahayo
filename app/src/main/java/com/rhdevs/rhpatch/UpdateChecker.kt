@@ -16,7 +16,7 @@ class UpdateChecker(private val mActivity: Activity, private val isManual: Boole
 
     companion object {
         private const val LATEST_RELEASE_API = "https://api.github.com/repos/Rhdevs71/apahayo/releases/latest"
-        private const val TELEGRAM_UPDATE_URL = "https://t.me/rhdevs"
+        private const val LATEST_RELEASE_PAGE = "https://github.com/Rhdevs71/apahayo/releases/latest"
 
         private val httpClient: OkHttpClient by lazy {
             OkHttpClient.Builder()
@@ -36,6 +36,7 @@ class UpdateChecker(private val mActivity: Activity, private val isManual: Boole
             val hash: String
             val changelog: String
             val publishedAt: String
+            val updateUrl: String
 
             httpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
@@ -64,6 +65,21 @@ class UpdateChecker(private val mActivity: Activity, private val isManual: Boole
                 hash = tagName.split("-")[1].trim()
                 changelog = release.optString("body", "No changelog available.").trim()
                 publishedAt = release.optString("published_at", "")
+
+                val htmlUrl = release.optString("html_url", LATEST_RELEASE_PAGE)
+                val assets = release.optJSONArray("assets")
+                var apkUrl: String? = null
+                if (assets != null) {
+                    for (i in 0 until assets.length()) {
+                        val asset = assets.getJSONObject(i)
+                        val name = asset.optString("name", "")
+                        if (name.endsWith(".apk", ignoreCase = true)) {
+                            apkUrl = asset.optString("browser_download_url")
+                            break
+                        }
+                    }
+                }
+                updateUrl = apkUrl ?: htmlUrl
             }
 
             if (hash.isBlank()) return
@@ -80,7 +96,7 @@ class UpdateChecker(private val mActivity: Activity, private val isManual: Boole
 
             if (isNewVersion && !isIgnored) {
                 mActivity.runOnUiThread {
-                    showUpdateDialog(hash, changelog, publishedAt)
+                    showUpdateDialog(hash, changelog, publishedAt, updateUrl)
                 }
             }
         } catch (e: Exception) {
@@ -93,7 +109,7 @@ class UpdateChecker(private val mActivity: Activity, private val isManual: Boole
         }
     }
 
-    private fun showUpdateDialog(hash: String, changelog: String, publishedAt: String) {
+    private fun showUpdateDialog(hash: String, changelog: String, publishedAt: String, updateUrl: String) {
         try {
             val markwon = Markwon.create(mActivity)
             val dialog = AlertDialogWpp(mActivity)
@@ -115,7 +131,7 @@ class UpdateChecker(private val mActivity: Activity, private val isManual: Boole
                 dialog.dismiss()
             }
             dialog.setPositiveButton("Update Now") { dialog, _ ->
-                Utils.openLink(mActivity, TELEGRAM_UPDATE_URL)
+                Utils.openLink(mActivity, updateUrl)
                 dialog.dismiss()
             }
             dialog.show()
