@@ -1,41 +1,214 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121B22">
+    android:background="#0b141a"
+    android:orientation="vertical">
 
-    <!-- Container for Mock UI -->
-    <FrameLayout
-        android:id="@+id/mock_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+    <!-- Top Action Bar -->
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:spacing="16dp">
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#1f2c34"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp">
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="#e9edef" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Theme Studio Pro"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Switch View (Home/Chat) -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_switch_view"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:src="@android:drawable/ic_menu_sort_by_size"
-            app:tint="#FFFFFF"
-            app:backgroundTint="#25D366" />
+            android:layout_height="36dp"
+            android:layout_marginEnd="6dp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="0dp"
+            android:text="Chat / Home"
+            android:textColor="#e9edef"
+            android:textSize="12sp"
+            app:backgroundTint="#2a3942"
+            app:cornerRadius="18dp" />
 
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/btn_export_theme"
+        <!-- Apply Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_apply_theme"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="0dp"
+            android:text="⚡ Terapkan"
+            android:textColor="#0b141a"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:backgroundTint="#00a884"
+            app:cornerRadius="18dp" />
+
+        <ImageView
+            android:id="@+id/btn_more_menu"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="6dp"
+            android:src="@android:drawable/ic_menu_more"
+            app:tint="#e9edef" />
+    </LinearLayout>
+
+    <!-- Center Phone Mock Container -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="6dp">
+
+            <FrameLayout
+                android:id="@+id/mock_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+    </FrameLayout>
+
+    <!-- Bottom Category Selector Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1f2c34"
+        android:elevation="8dp"
+        android:orientation="vertical"
+        android:paddingVertical="8dp">
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="EXPORT"
-            android:textColor="#FFFFFF"
-            app:icon="@android:drawable/ic_menu_save"
-            app:iconTint="#FFFFFF"
-            app:backgroundTint="#00A884" />
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="6dp"
+            android:text="Pilih Komponen untuk Diedit:"
+            android:textColor="#8696a0"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="12dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chip_presets"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="🎨 Preset Tema"
+                    android:textColor="#53bdeb"
+                    android:textSize="12sp"
+                    app:backgroundTint="#2a3942"
+                    app:cornerRadius="19dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chip_header"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="📱 Header &amp; Toolbar"
+                    android:textColor="#e9edef"
+                    android:textSize="12sp"
+                    app:backgroundTint="#2a3942"
+                    app:cornerRadius="19dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chip_chat_bubble"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="💬 Chat &amp; Gelembung"
+                    android:textColor="#e9edef"
+                    android:textSize="12sp"
+                    app:backgroundTint="#2a3942"
+                    app:cornerRadius="19dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chip_bottom_nav"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="🧭 Navigasi Bawah"
+                    android:textColor="#e9edef"
+                    android:textSize="12sp"
+                    app:backgroundTint="#2a3942"
+                    app:cornerRadius="19dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chip_input_bar"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="⌨️ Kolom Input"
+                    android:textColor="#e9edef"
+                    android:textSize="12sp"
+                    app:backgroundTint="#2a3942"
+                    app:cornerRadius="19dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chip_wallpaper"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="🖼️ Latar &amp; Wallpaper"
+                    android:textColor="#e9edef"
+                    android:textSize="12sp"
+                    app:backgroundTint="#2a3942"
+                    app:cornerRadius="19dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chip_features"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="✨ Fitur Mod"
+                    android:textColor="#e9edef"
+                    android:textSize="12sp"
+                    app:backgroundTint="#2a3942"
+                    app:cornerRadius="19dp" />
+            </LinearLayout>
+        </HorizontalScrollView>
     </LinearLayout>
-</FrameLayout>
+</LinearLayout>
+
