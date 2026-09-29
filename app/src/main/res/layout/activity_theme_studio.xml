@@ -198,6 +198,18 @@
                     app:cornerRadius="19dp" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chip_icons"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:layout_marginEnd="6dp"
+                    android:text="🎨 Ikon Kustom"
+                    android:textColor="#e9edef"
+                    android:textSize="12sp"
+                    app:backgroundTint="#2a3942"
+                    app:cornerRadius="19dp" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/chip_features"
                     style="@style/Widget.Material3.Button.TonalButton"
                     android:layout_width="wrap_content"

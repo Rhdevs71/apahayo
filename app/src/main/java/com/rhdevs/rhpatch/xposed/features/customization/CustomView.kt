@@ -539,6 +539,17 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                         }
                     }
                 }
+                "src", "icon" -> {
+                    val t0 = terms[0]
+                    if (t0.type == SerialTerm.URI) {
+                        cacheImages?.getDrawableAsync(t0.strValue, view.width, view.height) { draw ->
+                            if (draw != null && view.isAttachedToWindow) {
+                                setHookedDrawable(view, draw)
+                            }
+                        }
+                        continue
+                    }
+                }
                 "background" -> {
                     val t0 = terms[0]
                     if (t0.type == SerialTerm.COLOR) {

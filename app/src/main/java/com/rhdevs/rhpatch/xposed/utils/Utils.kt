@@ -425,8 +425,22 @@ object Utils {
 
     @JvmStatic
     fun openLink(mActivity: Activity, url: String?) {
+        if (url.isNullOrEmpty()) return
         val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        mActivity.startActivity(browserIntent)
+        try {
+            mActivity.startActivity(browserIntent)
+        } catch (_: Exception) {
+            try {
+                mActivity.startActivity(Intent.createChooser(browserIntent, "Buka Tautan"))
+            } catch (_: Exception) {
+                try {
+                    val clipboard = mActivity.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                    val clip = ClipData.newPlainText("URL", url)
+                    clipboard?.setPrimaryClip(clip)
+                    Toast.makeText(mActivity, "Tautan telah disalin ke papan klip.", Toast.LENGTH_SHORT).show()
+                } catch (_: Exception) {}
+            }
+        }
     }
 
 

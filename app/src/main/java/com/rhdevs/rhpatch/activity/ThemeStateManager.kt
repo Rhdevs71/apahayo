@@ -12,6 +12,7 @@ object ThemeStateManager {
 
     val states = mutableMapOf<String, ElementState>()
     var wallpaperUri: String? = null
+    val customIcons = mutableMapOf<String, String>()
     
     // Theme Mod Features
     var hideReadEnabled: Boolean = false
@@ -27,6 +28,7 @@ object ThemeStateManager {
     fun resetAll() {
         states.clear()
         wallpaperUri = null
+        customIcons.clear()
         hideReadEnabled = false
         antiDeleteEnabled = false
     }

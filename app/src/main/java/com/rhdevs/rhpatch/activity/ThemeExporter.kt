@@ -40,10 +40,11 @@ object ThemeExporter {
         "#emoji_picker_btn" to "#emoji_picker_btn",
         "#input_attach_button" to "#input_attach_button",
         "#camera_btn" to "#camera_btn",
-        "#voice_note_btn" to "#voice_note_btn, #voice_note_cancel_btn_v2, #voice_note_draft_stop_btn_v2",
+        "#voice_note_btn" to "#voice_note_btn, #send, #draft_send_v2",
         "#pin_indicator" to "#pin_indicator",
         "#mute_indicator" to "#mute_indicator",
         "#fab" to "#fab, #fab_second, #extended_mini_fab",
+        "#back" to "#back, #action_mode_close_button, #up",
         "#edit_label" to "#edit_label",
         "#view_once_control_icon" to "#view_once_control_icon",
         "#fast_playback_overlay" to "#fast_playback_overlay",
@@ -80,6 +81,15 @@ object ThemeExporter {
             if (state.radius != null) {
                 cssBuilder.append("  border-radius: ").append(state.radius).append("px;\n")
             }
+            cssBuilder.append("}\n\n")
+        }
+
+        // Sinkronisasi ikon kustom (ImageView: voice_note_btn, camera_btn, attach_button, back, dll)
+        ThemeStateManager.customIcons.forEach { (viewKey, iconPath) ->
+            val selector = if (viewKey.startsWith("#")) viewKey else "#$viewKey"
+            val mapped = CSS_MAPPING[selector] ?: selector
+            cssBuilder.append(mapped).append(" {\n")
+            cssBuilder.append("  src: url('").append(iconPath).append("');\n")
             cssBuilder.append("}\n\n")
         }
 

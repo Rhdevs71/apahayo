@@ -1,3 +1,6 @@
+- [FIX] Perbaikan ActivityNotFoundException saat membuka tautan rilis pembaruan di Android 11–15 (TECNO/OEM fallback browser, chooser, & clipboard).
+- [THEME] Fitur Ikon Kustom: Dukungan pemilihan ikon/gambar dari Galeri atau File Manager (tombol kirim, kamera, lampiran, back).
+- [HOOK] Dukungan properti CSS 'src' dan 'icon' pada CustomView untuk memuat ikon lokal pada ImageView WhatsApp.
 - [THEME] Rombak total Visual Theme Studio Pro (UI modern, kontrol kategori, live preview, dan palet warna interaktif).
 - [THEME] Penambahan tombol 'Terapkan Langsung ke WhatsApp' tanpa perlu ekspor ZIP manual.
 - [THEME] Penambahan preset tema siap pakai 1-klik (iOS Clean, Pure AMOLED Black, Cyberpunk Neon, Emerald Modern, Soft Pastel).

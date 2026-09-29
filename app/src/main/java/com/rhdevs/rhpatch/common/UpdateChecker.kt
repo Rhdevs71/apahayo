@@ -3,6 +3,9 @@ package com.rhdevs.rhpatch.common
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Instrumentation
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Handler
@@ -268,10 +271,37 @@ class UpdateChecker(activity: Activity? = null) : CoroutineScope {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         val act = getActivity()
-        if (act != null) {
-            act.startActivity(intent)
-        } else {
-            App.instance?.startActivity(intent)
+        try {
+            if (act != null) {
+                act.startActivity(intent)
+            } else {
+                App.instance?.startActivity(intent)
+            }
+        } catch (_: Exception) {
+            try {
+                val chooser = Intent.createChooser(intent, "Buka Tautan Unduhan").apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                if (act != null) {
+                    act.startActivity(chooser)
+                } else {
+                    App.instance?.startActivity(chooser)
+                }
+            } catch (_: Exception) {
+                val targetContext = act ?: App.instance
+                if (targetContext != null) {
+                    try {
+                        val clipboard = targetContext.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                        val clip = ClipData.newPlainText("RHPatch Download URL", url)
+                        clipboard?.setPrimaryClip(clip)
+                        Toast.makeText(
+                            targetContext,
+                            "Tidak ada aplikasi browser yang ditemukan. Tautan unduhan telah disalin ke papan klip.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } catch (_: Exception) {}
+                }
+            }
         }
     }
 }

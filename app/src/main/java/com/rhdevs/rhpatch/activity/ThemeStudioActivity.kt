@@ -1,6 +1,7 @@
 package com.rhdevs.rhpatch.activity
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
@@ -21,12 +22,21 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.rhdevs.rhpatch.App
 import com.rhdevs.rhpatch.R
+import java.io.File
+import java.io.FileOutputStream
 
 class ThemeStudioActivity : AppCompatActivity() {
 
+    companion object {
+        private const val REQUEST_PICK_WALLPAPER = 1001
+        private const val REQUEST_PICK_CUSTOM_ICON = 1002
+    }
+
     private lateinit var mockContainer: FrameLayout
     private var isHomeView = true
+    private var pendingIconKey: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +68,7 @@ class ThemeStudioActivity : AppCompatActivity() {
         findViewById<View>(R.id.chip_bottom_nav).setOnClickListener { showBottomNavConfig() }
         findViewById<View>(R.id.chip_input_bar).setOnClickListener { showInputBarConfig() }
         findViewById<View>(R.id.chip_wallpaper).setOnClickListener { showWallpaperConfig() }
+        findViewById<View>(R.id.chip_icons).setOnClickListener { showCustomIconsConfig() }
         findViewById<View>(R.id.chip_features).setOnClickListener { showModFeaturesConfig() }
 
         loadMockView()
@@ -158,6 +169,41 @@ class ThemeStudioActivity : AppCompatActivity() {
             ThemeStateManager.states["#send"]?.bgColor?.let {
                 try { send?.background?.setTint(Color.parseColor(it)) } catch (_: Exception) {}
             }
+
+            // Custom Icons live preview di Chat
+            val voiceNoteBtn = root.findViewById<ImageView>(R.id.voice_note_btn)
+            val cameraBtn = root.findViewById<ImageView>(R.id.camera_btn)
+            val attachBtn = root.findViewById<ImageView>(R.id.input_attach_button)
+            val backBtn = root.findViewById<ImageView>(R.id.chat_back_btn)
+
+            ThemeStateManager.customIcons["voice_note_btn"]?.let { path ->
+                val bmp = BitmapFactory.decodeFile(path)
+                if (bmp != null) voiceNoteBtn?.setImageBitmap(bmp)
+            } ?: run {
+                voiceNoteBtn?.setImageResource(android.R.drawable.ic_btn_speak_now)
+            }
+
+            ThemeStateManager.customIcons["camera_btn"]?.let { path ->
+                val bmp = BitmapFactory.decodeFile(path)
+                if (bmp != null) cameraBtn?.setImageBitmap(bmp)
+            } ?: run {
+                cameraBtn?.setImageResource(android.R.drawable.ic_menu_camera)
+            }
+
+            ThemeStateManager.customIcons["input_attach_button"]?.let { path ->
+                val bmp = BitmapFactory.decodeFile(path)
+                if (bmp != null) attachBtn?.setImageBitmap(bmp)
+            } ?: run {
+                attachBtn?.setImageResource(android.R.drawable.ic_menu_add)
+            }
+
+            val backIconPath = ThemeStateManager.customIcons["back"] ?: ThemeStateManager.customIcons["chat_back_btn"]
+            backIconPath?.let { path ->
+                val bmp = BitmapFactory.decodeFile(path)
+                if (bmp != null) backBtn?.setImageBitmap(bmp)
+            } ?: run {
+                backBtn?.setImageResource(android.R.drawable.ic_media_previous)
+            }
         }
     }
 
@@ -247,18 +293,137 @@ class ThemeStudioActivity : AppCompatActivity() {
             ),
             extraAction = { container ->
                 val btnPick = Button(this).apply {
-                    text = "🖼️ Pilih Wallpaper dari Galeri"
+                    text = "🖼️ Pilih Wallpaper dari Galeri / File"
                     setBackgroundColor(Color.parseColor("#2A3942"))
                     setTextColor(Color.WHITE)
                     setOnClickListener {
-                        val intent = Intent(Intent.ACTION_PICK)
-                        intent.type = "image/*"
-                        startActivityForResult(intent, 1001)
+                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                            type = "image/*"
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                        }
+                        try {
+                            startActivityForResult(intent, REQUEST_PICK_WALLPAPER)
+                        } catch (_: Exception) {
+                            val pickIntent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
+                            startActivityForResult(pickIntent, REQUEST_PICK_WALLPAPER)
+                        }
                     }
                 }
                 container.addView(btnPick)
             }
         )
+    }
+
+    // --- KONTROL IKON KUSTOM (GALERI / FILE MANAGER) ---
+    private fun showCustomIconsConfig() {
+        val dialog = BottomSheetDialog(this)
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(40, 30, 40, 40)
+            setBackgroundColor(Color.parseColor("#1F2C34"))
+        }
+
+        val tvTitle = TextView(this).apply {
+            text = "🎨 Kustomisasi Ikon WhatsApp"
+            textSize = 18f
+            setTextColor(Color.WHITE)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setPadding(0, 0, 0, 10)
+        }
+        root.addView(tvTitle)
+
+        val tvDesc = TextView(this).apply {
+            text = "Pilih gambar/ikon dari Galeri atau File Manager untuk menggantikan ikon bawaan WhatsApp."
+            textSize = 12f
+            setTextColor(Color.parseColor("#8696A0"))
+            setPadding(0, 0, 0, 20)
+        }
+        root.addView(tvDesc)
+
+        data class IconTarget(val label: String, val key: String)
+        val iconList = listOf(
+            IconTarget("Tombol Kirim / Voice Note", "voice_note_btn"),
+            IconTarget("Tombol Kamera", "camera_btn"),
+            IconTarget("Tombol Lampiran (Attach)", "input_attach_button"),
+            IconTarget("Tombol Kembali (Back)", "back")
+        )
+
+        iconList.forEach { item ->
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(0, 6, 0, 14)
+            }
+
+            val isCustom = ThemeStateManager.customIcons.containsKey(item.key)
+            val tvLabel = TextView(this).apply {
+                text = item.label + (if (isCustom) " ✓ (Kustom)" else " (Bawaan)")
+                textSize = 14f
+                setTextColor(if (isCustom) Color.parseColor("#00F0FF") else Color.parseColor("#E9EDEF"))
+                setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+            row.addView(tvLabel)
+
+            val btnRow = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(0, 6, 0, 0)
+            }
+
+            val btnPick = Button(this).apply {
+                text = "📁 Pilih dari Galeri / File"
+                textSize = 11f
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                    setMargins(0, 0, 8, 0)
+                }
+                setBackgroundColor(Color.parseColor("#2A3942"))
+                setTextColor(Color.parseColor("#53BDEB"))
+                setOnClickListener {
+                    pendingIconKey = item.key
+                    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                        type = "image/*"
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                    }
+                    try {
+                        startActivityForResult(intent, REQUEST_PICK_CUSTOM_ICON)
+                    } catch (_: Exception) {
+                        val pickIntent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
+                        startActivityForResult(pickIntent, REQUEST_PICK_CUSTOM_ICON)
+                    }
+                    dialog.dismiss()
+                }
+            }
+            btnRow.addView(btnPick)
+
+            if (isCustom) {
+                val btnReset = Button(this).apply {
+                    text = "Reset"
+                    textSize = 11f
+                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    setBackgroundColor(Color.parseColor("#3A2020"))
+                    setTextColor(Color.parseColor("#FF6B6B"))
+                    setOnClickListener {
+                        ThemeStateManager.customIcons.remove(item.key)
+                        applyLivePreview()
+                        dialog.dismiss()
+                        Toast.makeText(this@ThemeStudioActivity, "Ikon ${item.label} dikembalikan ke default.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                btnRow.addView(btnReset)
+            }
+
+            row.addView(btnRow)
+            root.addView(row)
+        }
+
+        val btnClose = Button(this).apply {
+            text = "Tutup"
+            setBackgroundColor(Color.parseColor("#00A884"))
+            setTextColor(Color.parseColor("#0B141A"))
+            setOnClickListener { dialog.dismiss() }
+        }
+        root.addView(btnClose)
+
+        dialog.setContentView(root)
+        dialog.show()
     }
 
     // --- FITUR MOD ---
@@ -657,10 +822,30 @@ class ThemeStudioActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1001 && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_PICK_WALLPAPER && resultCode == RESULT_OK) {
             ThemeStateManager.wallpaperUri = data?.data?.toString()
             applyLivePreview()
             Toast.makeText(this, "Wallpaper galeri berhasil dipilih!", Toast.LENGTH_SHORT).show()
+        } else if (requestCode == REQUEST_PICK_CUSTOM_ICON && resultCode == RESULT_OK) {
+            val uri = data?.data
+            val key = pendingIconKey
+            if (uri != null && key != null) {
+                try {
+                    val iconsDir = File(App.RhpatchFolder, "icons")
+                    if (!iconsDir.exists()) iconsDir.mkdirs()
+                    val iconFile = File(iconsDir, "${key}.png")
+                    contentResolver.openInputStream(uri)?.use { input ->
+                        FileOutputStream(iconFile).use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                    ThemeStateManager.customIcons[key] = iconFile.absolutePath
+                    applyLivePreview()
+                    Toast.makeText(this, "Ikon kustom berhasil dipasang!", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Gagal memuat ikon: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }
