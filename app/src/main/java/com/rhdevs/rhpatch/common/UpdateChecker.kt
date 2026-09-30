@@ -294,11 +294,19 @@ class UpdateChecker(activity: Activity? = null) : CoroutineScope {
                         val clipboard = targetContext.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
                         val clip = ClipData.newPlainText("RHPatch Download URL", url)
                         clipboard?.setPrimaryClip(clip)
-                        Toast.makeText(
-                            targetContext,
-                            "Tidak ada aplikasi browser yang ditemukan. Tautan unduhan telah disalin ke papan klip.",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        if (act != null && !act.isFinishing && !act.isDestroyed) {
+                            AlertDialog.Builder(act)
+                                .setTitle("Browser Tidak Ditemukan")
+                                .setMessage("Perangkat Anda tidak memiliki aplikasi browser aktif untuk membuka tautan secara langsung.\n\nTautan unduhan telah disalin ke papan klip:\n$url")
+                                .setPositiveButton("OK", null)
+                                .show()
+                        } else {
+                            Toast.makeText(
+                                targetContext,
+                                "Tidak ada aplikasi browser yang ditemukan. Tautan unduhan telah disalin ke papan klip.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     } catch (_: Exception) {}
                 }
             }

@@ -76,6 +76,19 @@
             app:tint="#e9edef" />
     </LinearLayout>
 
+    <!-- Interactive WYSIWYG Hint Banner -->
+    <TextView
+        android:id="@+id/tv_interactive_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1B2831"
+        android:paddingVertical="6dp"
+        android:paddingHorizontal="14dp"
+        android:text="✨ Tips: Ketuk langsung elemen di layar untuk ubah warna/ikon, atau ketik &amp; kirim pesan!"
+        android:textColor="#53bdeb"
+        android:textSize="11sp"
+        android:gravity="center" />
+
     <!-- Center Phone Mock Container -->
     <FrameLayout
         android:layout_width="match_parent"

@@ -1,20 +1,25 @@
 package com.rhdevs.rhpatch.activity
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
+import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
@@ -26,6 +31,9 @@ import com.rhdevs.rhpatch.App
 import com.rhdevs.rhpatch.R
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ThemeStudioActivity : AppCompatActivity() {
 
@@ -80,6 +88,12 @@ class ThemeStudioActivity : AppCompatActivity() {
         val mockView = LayoutInflater.from(this).inflate(layoutRes, mockContainer, false)
         mockContainer.addView(mockView)
 
+        if (isHomeView) {
+            setupHomeInteractions(mockView)
+        } else {
+            setupChatInteractions(mockView)
+        }
+
         applyLivePreview()
     }
 
@@ -87,10 +101,23 @@ class ThemeStudioActivity : AppCompatActivity() {
         val root = mockContainer.getChildAt(0) ?: return
 
         if (isHomeView) {
-            // Main background
-            ThemeStateManager.states["#main_layout"]?.bgColor?.let {
-                try { root.setBackgroundColor(Color.parseColor(it)) } catch (_: Exception) {}
+            // Main background & Wallpaper
+            ThemeStateManager.wallpaperUri?.let { uriStr ->
+                try {
+                    val uri = Uri.parse(uriStr)
+                    contentResolver.openInputStream(uri)?.use { stream ->
+                        val bmp = BitmapFactory.decodeStream(stream)
+                        if (bmp != null) {
+                            root.background = android.graphics.drawable.BitmapDrawable(resources, bmp)
+                        }
+                    }
+                } catch (_: Exception) {}
+            } ?: run {
+                ThemeStateManager.states["#main_layout"]?.bgColor?.let {
+                    try { root.setBackgroundColor(Color.parseColor(it)) } catch (_: Exception) {}
+                }
             }
+
             // Toolbar
             val toolbar = root.findViewById<View>(R.id.toolbar)
             ThemeStateManager.states["#toolbar"]?.bgColor?.let {
@@ -110,12 +137,54 @@ class ThemeStudioActivity : AppCompatActivity() {
             ThemeStateManager.states["#bottom_nav"]?.bgColor?.let {
                 try { bNav?.setBackgroundColor(Color.parseColor(it)) } catch (_: Exception) {}
             }
-        } else {
-            // Chat background
-            val bgView = root.findViewById<View>(R.id.chat_background)
-            ThemeStateManager.states["#conversation_background"]?.bgColor?.let {
-                try { bgView?.setBackgroundColor(Color.parseColor(it)) } catch (_: Exception) {}
+            // Search Bar
+            val searchBar = root.findViewById<View>(R.id.my_search_bar)
+            ThemeStateManager.states["#my_search_bar"]?.bgColor?.let {
+                try { searchBar?.background?.setTint(Color.parseColor(it)) } catch (_: Exception) {}
             }
+            // Camera icon in Toolbar
+            val homeCameraBtn = root.findViewById<ImageView>(R.id.menuitem_camera)
+            ThemeStateManager.states["#menuitem_camera"]?.textColor?.let {
+                try { homeCameraBtn?.imageTintList = ColorStateList.valueOf(Color.parseColor(it)) } catch (_: Exception) {}
+            }
+            ThemeStateManager.customIcons["menuitem_camera"]?.let { path ->
+                val bmp = BitmapFactory.decodeFile(path)
+                if (bmp != null) homeCameraBtn?.setImageBitmap(bmp)
+            }
+            // FAB
+            val fabContainer = root.findViewById<View>(R.id.fab_container)
+            val fab = root.findViewById<ImageView>(R.id.fab)
+            ThemeStateManager.states["#fab"]?.bgColor?.let {
+                try { fabContainer?.background?.setTint(Color.parseColor(it)) } catch (_: Exception) {}
+            }
+            ThemeStateManager.states["#fab"]?.iconTint?.let {
+                try { fab?.imageTintList = ColorStateList.valueOf(Color.parseColor(it)) } catch (_: Exception) {}
+            }
+            ThemeStateManager.customIcons["fab"]?.let { path ->
+                val bmp = BitmapFactory.decodeFile(path)
+                if (bmp != null) fab?.setImageBitmap(bmp)
+            } ?: run {
+                fab?.setImageResource(android.R.drawable.ic_menu_add)
+            }
+        } else {
+            // Chat background & Wallpaper
+            val bgView = root.findViewById<View>(R.id.chat_background)
+            ThemeStateManager.wallpaperUri?.let { uriStr ->
+                try {
+                    val uri = Uri.parse(uriStr)
+                    contentResolver.openInputStream(uri)?.use { stream ->
+                        val bmp = BitmapFactory.decodeStream(stream)
+                        if (bmp != null) {
+                            bgView?.background = android.graphics.drawable.BitmapDrawable(resources, bmp)
+                        }
+                    }
+                } catch (_: Exception) {}
+            } ?: run {
+                ThemeStateManager.states["#conversation_background"]?.bgColor?.let {
+                    try { bgView?.setBackgroundColor(Color.parseColor(it)) } catch (_: Exception) {}
+                }
+            }
+
             // Chat Toolbar
             val cToolbar = root.findViewById<View>(R.id.chat_toolbar)
             ThemeStateManager.states["#chat_toolbar"]?.bgColor?.let {
@@ -175,12 +244,18 @@ class ThemeStudioActivity : AppCompatActivity() {
             val cameraBtn = root.findViewById<ImageView>(R.id.camera_btn)
             val attachBtn = root.findViewById<ImageView>(R.id.input_attach_button)
             val backBtn = root.findViewById<ImageView>(R.id.chat_back_btn)
+            val inputEditText = root.findViewById<EditText>(R.id.chat_input_edittext)
+            val hasText = !inputEditText?.text.isNullOrBlank()
 
             ThemeStateManager.customIcons["voice_note_btn"]?.let { path ->
                 val bmp = BitmapFactory.decodeFile(path)
                 if (bmp != null) voiceNoteBtn?.setImageBitmap(bmp)
             } ?: run {
-                voiceNoteBtn?.setImageResource(android.R.drawable.ic_btn_speak_now)
+                if (hasText) {
+                    voiceNoteBtn?.setImageResource(android.R.drawable.ic_menu_send)
+                } else {
+                    voiceNoteBtn?.setImageResource(android.R.drawable.ic_btn_speak_now)
+                }
             }
 
             ThemeStateManager.customIcons["camera_btn"]?.let { path ->
@@ -205,6 +280,379 @@ class ThemeStudioActivity : AppCompatActivity() {
                 backBtn?.setImageResource(android.R.drawable.ic_media_previous)
             }
         }
+    }
+
+    private fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
+    private fun Float.dpToPx(): Float = this * resources.displayMetrics.density
+
+    private fun setupChatInteractions(root: View) {
+        val toolbar = root.findViewById<View>(R.id.chat_toolbar)
+        val backBtn = root.findViewById<View>(R.id.chat_back_btn)
+        val bubbleLeft = root.findViewById<View>(R.id.bubble_left)
+        val bubbleRight = root.findViewById<View>(R.id.bubble_right)
+        val bgView = root.findViewById<View>(R.id.chat_background)
+        val scrollView = root.findViewById<ScrollView>(R.id.chat_scroll_view)
+        val conversationList = root.findViewById<LinearLayout>(R.id.conversation_list)
+        val cameraBtn = root.findViewById<View>(R.id.camera_btn)
+        val attachBtn = root.findViewById<View>(R.id.input_attach_button)
+        val emojiBtn = root.findViewById<View>(R.id.emoji_picker_btn)
+        val voiceNoteBtn = root.findViewById<ImageView>(R.id.voice_note_btn)
+        val inputEditText = root.findViewById<EditText>(R.id.chat_input_edittext)
+
+        // 1. Toolbar click -> Header config
+        toolbar?.setOnClickListener { showHeaderConfig() }
+
+        // 2. Back button click -> Direct icon / reset
+        backBtn?.setOnClickListener { showDirectIconDialog("Tombol Kembali (Back)", "back", canTint = false) }
+
+        // 3. Bubbles direct tap -> Direct Bubble Config
+        bubbleLeft?.setOnClickListener { showBubbleConfigDialog(isOutgoing = false) }
+        bubbleRight?.setOnClickListener { showBubbleConfigDialog(isOutgoing = true) }
+
+        // 4. Wallpaper background click -> Wallpaper config
+        bgView?.setOnClickListener { showWallpaperConfig() }
+        scrollView?.setOnClickListener { showWallpaperConfig() }
+
+        // 5. Icons direct tap -> Direct Icon Dialog
+        cameraBtn?.setOnClickListener { showDirectIconDialog("Tombol Kamera", "camera_btn", canTint = true) }
+        attachBtn?.setOnClickListener { showDirectIconDialog("Tombol Lampiran", "input_attach_button", canTint = true) }
+        emojiBtn?.setOnClickListener { showDirectIconDialog("Tombol Emoji", "emoji_picker_btn", canTint = true) }
+
+        // 6. Interactive Send / Voice Note button
+        voiceNoteBtn?.setOnClickListener {
+            val text = inputEditText?.text?.toString()?.trim() ?: ""
+            if (text.isNotEmpty() && conversationList != null && scrollView != null) {
+                sendMockMessage(text, conversationList, scrollView)
+                inputEditText?.text?.clear()
+            } else {
+                showDirectIconDialog("Tombol Kirim / Voice Note", "voice_note_btn", canTint = true)
+            }
+        }
+        voiceNoteBtn?.setOnLongClickListener {
+            showDirectIconDialog("Tombol Kirim / Voice Note", "voice_note_btn", canTint = true)
+            true
+        }
+
+        // 7. Input EditText dynamic text change & send action
+        inputEditText?.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val hasText = !s.isNullOrBlank()
+                if (!ThemeStateManager.customIcons.containsKey("voice_note_btn")) {
+                    if (hasText) {
+                        voiceNoteBtn?.setImageResource(android.R.drawable.ic_menu_send)
+                    } else {
+                        voiceNoteBtn?.setImageResource(android.R.drawable.ic_btn_speak_now)
+                    }
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        inputEditText?.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_ACTION_DONE) {
+                val text = inputEditText.text?.toString()?.trim() ?: ""
+                if (text.isNotEmpty() && conversationList != null && scrollView != null) {
+                    sendMockMessage(text, conversationList, scrollView)
+                    inputEditText.text?.clear()
+                    return@setOnEditorActionListener true
+                }
+            }
+            false
+        }
+    }
+
+    private fun setupHomeInteractions(root: View) {
+        val toolbar = root.findViewById<View>(R.id.toolbar)
+        val cameraIcon = root.findViewById<View>(R.id.menuitem_camera)
+        val searchBar = root.findViewById<View>(R.id.my_search_bar)
+        val bottomNav = root.findViewById<View>(R.id.bottom_nav)
+        val fab = root.findViewById<View>(R.id.fab)
+        val fabContainer = root.findViewById<View>(R.id.fab_container)
+
+        toolbar?.setOnClickListener { showHeaderConfig() }
+        cameraIcon?.setOnClickListener { showDirectIconDialog("Ikon Kamera Toolbar", "menuitem_camera", canTint = true) }
+        searchBar?.setOnClickListener {
+            showColorPicker("Warna Search Bar", ThemeStateManager.getState("#my_search_bar").bgColor) { hex ->
+                ThemeStateManager.getState("#my_search_bar").bgColor = hex
+                applyLivePreview()
+            }
+        }
+        bottomNav?.setOnClickListener { showBottomNavConfig() }
+        val onFabClick = View.OnClickListener { showDirectIconDialog("Tombol Aksi Terapung (FAB)", "fab", canTint = true) }
+        fab?.setOnClickListener(onFabClick)
+        fabContainer?.setOnClickListener(onFabClick)
+        root.setOnClickListener { showWallpaperConfig() }
+    }
+
+    private fun sendMockMessage(text: String, conversationList: LinearLayout, scrollView: ScrollView) {
+        val bubble = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                gravity = Gravity.END
+                marginStart = 64.dpToPx()
+                bottomMargin = 12.dpToPx()
+            }
+            layoutParams = lp
+            elevation = 1f.dpToPx()
+            setPadding(10.dpToPx(), 6.dpToPx(), 10.dpToPx(), 6.dpToPx())
+
+            // Background sesuai tema
+            val bg = GradientDrawable()
+            val stRight = ThemeStateManager.states["#bubble_right"]
+            val bgColor = stRight?.bgColor ?: "#005C4B"
+            val radius = (stRight?.radius ?: 10).toFloat() * 2f
+            try { bg.setColor(Color.parseColor(bgColor)) } catch (_: Exception) {}
+            bg.cornerRadius = radius
+            background = bg
+
+            // Teks pesan
+            val tvMsg = TextView(this@ThemeStudioActivity).apply {
+                this.text = text
+                textSize = 16f
+                val txtColor = ThemeStateManager.states["#message_text"]?.textColor ?: "#E9EDEF"
+                try { setTextColor(Color.parseColor(txtColor)) } catch (_: Exception) {}
+            }
+            addView(tvMsg)
+
+            // Baris jam & centang
+            val timeRow = LinearLayout(this@ThemeStudioActivity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    gravity = Gravity.END
+                    topMargin = 2.dpToPx()
+                }
+
+                val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+                val tvTime = TextView(this@ThemeStudioActivity).apply {
+                    this.text = timeStr
+                    textSize = 11f
+                    val dateColor = ThemeStateManager.states["#date"]?.textColor ?: "#8696A0"
+                    try { setTextColor(Color.parseColor(dateColor)) } catch (_: Exception) {}
+                }
+                addView(tvTime)
+
+                val tickImg = ImageView(this@ThemeStudioActivity).apply {
+                    setImageResource(android.R.drawable.checkbox_on_background)
+                    val lpImg = LinearLayout.LayoutParams(14.dpToPx(), 14.dpToPx()).apply {
+                        marginStart = 4.dpToPx()
+                    }
+                    layoutParams = lpImg
+                    imageTintList = ColorStateList.valueOf(Color.parseColor("#53BDEB"))
+                }
+                addView(tickImg)
+            }
+            addView(timeRow)
+
+            // Klik langsung pada bubble baru untuk langsung kustomisasi
+            setOnClickListener {
+                showBubbleConfigDialog(isOutgoing = true)
+            }
+        }
+
+        conversationList.addView(bubble)
+        scrollView.post { scrollView.fullScroll(View.FOCUS_DOWN) }
+    }
+
+    private fun showBubbleConfigDialog(isOutgoing: Boolean) {
+        val key = if (isOutgoing) "#bubble_right" else "#bubble_left"
+        val title = if (isOutgoing) "Gelembung Pesan Keluar (Kanan)" else "Gelembung Pesan Masuk (Kiri)"
+        val state = ThemeStateManager.getState(key)
+
+        val dialog = BottomSheetDialog(this)
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(40, 30, 40, 40)
+            setBackgroundColor(Color.parseColor("#1F2C34"))
+        }
+
+        val tvTitle = TextView(this).apply {
+            text = "💬 $title"
+            textSize = 18f
+            setTextColor(Color.WHITE)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setPadding(0, 0, 0, 20)
+        }
+        root.addView(tvTitle)
+
+        // 1. Warna Latar Gelembung
+        val btnBgColor = Button(this).apply {
+            text = "🎨 Ubah Warna Gelembung (${state.bgColor ?: "#Default"})"
+            setBackgroundColor(Color.parseColor("#2A3942"))
+            setTextColor(Color.parseColor("#53BDEB"))
+            setOnClickListener {
+                showColorPicker("Warna $title", state.bgColor) { hex ->
+                    state.bgColor = hex
+                    applyLivePreview()
+                    dialog.dismiss()
+                }
+            }
+        }
+        root.addView(btnBgColor)
+
+        // 2. Warna Teks Pesan
+        val btnTextColor = Button(this).apply {
+            val textState = ThemeStateManager.getState("#message_text")
+            text = "✏️ Ubah Warna Teks Pesan (${textState.textColor ?: "#Default"})"
+            setBackgroundColor(Color.parseColor("#2A3942"))
+            setTextColor(Color.parseColor("#00F0FF"))
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = 16
+            }
+            setOnClickListener {
+                showColorPicker("Warna Teks Pesan", textState.textColor) { hex ->
+                    textState.textColor = hex
+                    applyLivePreview()
+                    dialog.dismiss()
+                }
+            }
+        }
+        root.addView(btnTextColor)
+
+        // 3. Radius Sudut
+        val btnRadius = Button(this).apply {
+            text = "📐 Atur Kelengkungan Radius (${state.radius ?: 16}px)"
+            setBackgroundColor(Color.parseColor("#2A3942"))
+            setTextColor(Color.WHITE)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = 16
+            }
+            setOnClickListener {
+                showRadiusDialog(title, state.radius ?: 16) { rad ->
+                    state.radius = rad
+                    applyLivePreview()
+                    dialog.dismiss()
+                }
+            }
+        }
+        root.addView(btnRadius)
+
+        val btnClose = Button(this).apply {
+            text = "Tutup"
+            setBackgroundColor(Color.parseColor("#00A884"))
+            setTextColor(Color.parseColor("#0B141A"))
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = 24
+            }
+            setOnClickListener { dialog.dismiss() }
+        }
+        root.addView(btnClose)
+
+        dialog.setContentView(root)
+        dialog.show()
+    }
+
+    private fun showDirectIconDialog(label: String, targetKey: String, canTint: Boolean = true) {
+        val dialog = BottomSheetDialog(this)
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(40, 30, 40, 40)
+            setBackgroundColor(Color.parseColor("#1F2C34"))
+        }
+
+        val tvTitle = TextView(this).apply {
+            text = "🎨 Kustomisasi: $label"
+            textSize = 18f
+            setTextColor(Color.WHITE)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setPadding(0, 0, 0, 8)
+        }
+        root.addView(tvTitle)
+
+        val isCustom = ThemeStateManager.customIcons.containsKey(targetKey)
+        val tvStatus = TextView(this).apply {
+            text = "Status: " + (if (isCustom) "Ikon Kustom Dipasang ✓" else "Ikon Bawaan WhatsApp")
+            textSize = 13f
+            setTextColor(if (isCustom) Color.parseColor("#00F0FF") else Color.parseColor("#8696A0"))
+            setPadding(0, 0, 0, 20)
+        }
+        root.addView(tvStatus)
+
+        // 1. Pilih Gambar dari Galeri / File
+        val btnPick = Button(this).apply {
+            text = "📁 Pilih Ikon dari Galeri / File"
+            setBackgroundColor(Color.parseColor("#2A3942"))
+            setTextColor(Color.parseColor("#53BDEB"))
+            setOnClickListener {
+                pendingIconKey = targetKey
+                val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    type = "image/*"
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                }
+                try {
+                    startActivityForResult(intent, REQUEST_PICK_CUSTOM_ICON)
+                } catch (_: Exception) {
+                    val pickIntent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
+                    startActivityForResult(pickIntent, REQUEST_PICK_CUSTOM_ICON)
+                }
+                dialog.dismiss()
+            }
+        }
+        root.addView(btnPick)
+
+        // 2. Ubah Warna (Latar / Tint)
+        val state = ThemeStateManager.getState("#$targetKey")
+        if (canTint) {
+            val btnColor = Button(this).apply {
+                text = "🎨 Ubah Warna (${state.bgColor ?: state.iconTint ?: "#Default"})"
+                setBackgroundColor(Color.parseColor("#2A3942"))
+                setTextColor(Color.parseColor("#00F0FF"))
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    topMargin = 16
+                }
+                setOnClickListener {
+                    showColorPicker("Warna $label", state.bgColor ?: state.iconTint) { hex ->
+                        state.bgColor = hex
+                        state.iconTint = hex
+                        applyLivePreview()
+                        dialog.dismiss()
+                    }
+                }
+            }
+            root.addView(btnColor)
+        }
+
+        // 3. Reset ke Bawaan
+        if (isCustom || state.bgColor != null || state.iconTint != null) {
+            val btnReset = Button(this).apply {
+                text = "🔄 Kembalikan ke Bawaan Default"
+                setBackgroundColor(Color.parseColor("#3A2020"))
+                setTextColor(Color.parseColor("#FF6B6B"))
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    topMargin = 16
+                }
+                setOnClickListener {
+                    ThemeStateManager.customIcons.remove(targetKey)
+                    state.bgColor = null
+                    state.iconTint = null
+                    applyLivePreview()
+                    dialog.dismiss()
+                    Toast.makeText(this@ThemeStudioActivity, "Ikon $label dikembalikan ke default.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            root.addView(btnReset)
+        }
+
+        val btnClose = Button(this).apply {
+            text = "Tutup"
+            setBackgroundColor(Color.parseColor("#00A884"))
+            setTextColor(Color.parseColor("#0B141A"))
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = 24
+            }
+            setOnClickListener { dialog.dismiss() }
+        }
+        root.addView(btnClose)
+
+        dialog.setContentView(root)
+        dialog.show()
     }
 
     // --- DIALOG PRESET TEMA ---

@@ -1,4 +1,6 @@
-- [FIX] Perbaikan ActivityNotFoundException saat membuka tautan rilis pembaruan di Android 11–15 (TECNO/OEM fallback browser, chooser, & clipboard).
+- [THEME] Mode Direct Interactive WYSIWYG: Ketuk langsung elemen mana saja pada layar mock preview untuk ubah warna & pilih ikon/file seketika.
+- [THEME] Uji coba chat interaktif langsung di Theme Studio (ketik pesan di kolom input, tombol kirim dinamis, dan gelembung pesan baru muncul otomatis).
+- [FIX] Perbaikan ActivityNotFoundException saat membuka tautan rilis pembaruan di Android 11–15 (TECNO/OEM fallback browser, chooser, & dialog papan klip).
 - [THEME] Fitur Ikon Kustom: Dukungan pemilihan ikon/gambar dari Galeri atau File Manager (tombol kirim, kamera, lampiran, back).
 - [HOOK] Dukungan properti CSS 'src' dan 'icon' pada CustomView untuk memuat ikon lokal pada ImageView WhatsApp.
 - [THEME] Rombak total Visual Theme Studio Pro (UI modern, kontrol kategori, live preview, dan palet warna interaktif).
